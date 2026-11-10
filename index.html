@@ -235,7 +235,7 @@ function audioStatus(){
 let acStale=false,acWatch={t:-1,w:0};
 // iOS: after switching apps / an interruption the context can report "running" yet stay silent;
 // such a context is closed and rebuilt on the next button press (never in the middle of a run)
-function resetAudio(){
+function resetAudio(){   // decoded samples (AudioBuffers) stay valid across contexts
   try{if(AC&&AC.close)AC.close()}catch(e){}
   AC=null;master=wet=busMel=busBk=busFx=null;noiseBuf=null;live.length=0;acStale=false;acWatch={t:-1,w:0};
 }
@@ -284,8 +284,72 @@ function pluck(f,t,hold,vol,parts,decay,dest,cents){
   track(g,end+.4);
 }
 const P_LEAD=[[1,1],[2,.42],[3,.17],[4,.07]],P_BK=[[1,1],[2,.28],[3,.08]],P_BASS=[[1,1],[2,.55],[3,.3],[4,.12]];
+/* ---- sampled instruments: real recordings (Salamander piano, FluidR3 GM), one sample every 3 semitones ----
+   g: loudness match, rel: release after the note ends, lo/hi: natural range (notes outside fold by octaves), pan */
+const INST={
+  piano:{g:.67,rel:.35,lo:27,hi:102},violin:{g:2.2,rel:.22,lo:55,hi:100},viola:{g:2.05,rel:.22,lo:48,hi:88},
+  cello:{g:2.25,rel:.25,lo:36,hi:76},strings:{g:2.1,rel:.3,lo:36,hi:96},flute:{g:1.1,rel:.12,lo:60,hi:96},
+  recorder:{g:1.05,rel:.1,lo:60,hi:96},guitar:{g:1.8,rel:.45,lo:40,hi:84},organ:{g:1.5,rel:.12,lo:36,hi:96},
+  choir:{g:2.2,rel:.3,lo:48,hi:84},trumpet:{g:1.6,rel:.1,lo:52,hi:88},clarinet:{g:.82,rel:.1,lo:50,hi:94},pizz:{g:1.3,rel:.3,lo:28,hi:88}};
+// which instrument plays which part of each piece (lead = melody, bk = accompaniment, bass = accompaniment below E3, ctr = counter-melody)
+const INSTMAP={green:{lead:'flute',bk:'guitar'},canon:{lead:'violin',bk:'strings',bass:'cello'},prelude:{lead:'piano',bk:'piano'},
+  minuetg:{lead:'piano',bk:'piano'},spring:{lead:'violin',bk:'strings',bass:'cello'},air:{lead:'violin',bk:'strings',bass:'cello'},
+  hallelujah:{lead:'choir',bk:'choir',bass:'cello'},twinkle:{lead:'piano',bk:'piano'},turkish:{lead:'piano',bk:'piano'},
+  nacht:{lead:'violin',bk:'viola',bass:'cello'},auld:{lead:'flute',bk:'guitar'},k545:{lead:'piano',bk:'piano'},moon:{lead:'piano',bk:'piano'},
+  fifth:{lead:'strings',bk:'strings',bass:'cello'},elise:{lead:'piano',bk:'piano'},silent:{lead:'choir',bk:'guitar',ctr:'choir'},
+  ode:{lead:'violin',bk:'strings',bass:'cello',ctr:'viola'},schubert:{lead:'violin',bk:'piano'},nocturne:{lead:'piano',bk:'piano'},
+  grace:{lead:'flute',bk:'organ'},traum:{lead:'piano',bk:'piano'},wedding:{lead:'organ',bk:'organ'},minute:{lead:'piano',bk:'piano'},
+  gounod:{lead:'violin',bk:'piano'},danube:{lead:'violin',bk:'strings',bass:'cello'},lullaby:{lead:'recorder',bk:'guitar'},
+  carmen:{lead:'trumpet',bk:'strings',bass:'cello'},mountain:{lead:'clarinet',bk:'pizz'},gymno:{lead:'piano',bk:'piano'},
+  entertainer:{lead:'piano',bk:'piano'},clair:{lead:'piano',bk:'piano'}};
+const SAMP={},SGAIN=5;   // samples are recorded quieter than the synth voices
+function decodeAB(ab){return new Promise((res,rej)=>{const p=AC.decodeAudioData(ab,res,rej);if(p&&p.then)p.then(res,rej)})}
+function trimLead(buf){   // MP3 decoders may leave encoder padding: start every sample exactly at its attack
+  const d=buf.getChannelData(0);let pk=0;for(let i=0;i<d.length;i+=4)pk=Math.max(pk,Math.abs(d[i]));
+  let i=0;const th=pk*.004;while(i<d.length&&Math.abs(d[i])<th)i++;i=Math.max(0,i-44);
+  if(i<32)return buf;
+  const nb=AC.createBuffer(1,buf.length-i,buf.sampleRate);nb.getChannelData(0).set(d.subarray(i));return nb;
+}
+function loadInst(name){
+  if(SAMP[name])return SAMP[name].p;
+  const I=INST[name],S=SAMP[name]={buf:{},n:0,total:0,ready:false};
+  const ms=[];for(let m=I.lo-2;m<=I.hi+2;m++)if(m%3===0)ms.push(m);S.total=ms.length;
+  S.p=Promise.all(ms.map(m=>fetch('inst/'+name+'/'+m+'.mp3').then(r=>r.ok?r.arrayBuffer():Promise.reject(r.status))
+      .then(ab=>AC?decodeAB(ab):Promise.reject('no audio')).then(b=>{S.buf[m]=trimLead(b);S.n++}).catch(()=>{S.n++})))
+    .then(()=>{S.ready=Object.keys(S.buf).length>S.total*.8;if(!S.ready)delete SAMP[name]});   // a failed load is retried next time
+  return S.p;
+}
+function songInsts(s){const m=s&&INSTMAP[s.key];return m?[...new Set(Object.values(m))]:[]}
+let instLoad={busy:false,n:0,total:0};
+function preloadSong(s){
+  if(!AC||!s)return Promise.resolve();
+  const L=songInsts(s);if(!L.length)return Promise.resolve();
+  instLoad={busy:true,n:0,total:0,key:s.key};
+  const tick2=()=>{let n=0,t=0;for(const k of L){const S=SAMP[k];if(S){n+=S.n;t+=S.total}}instLoad.n=n;instLoad.total=t};
+  const iv=setInterval(tick2,120);
+  return Promise.race([Promise.all(L.map(loadInst)),new Promise(r=>setTimeout(r,12000))]).then(()=>{clearInterval(iv);tick2();if(instLoad.key===s.key)instLoad.busy=false});
+}
+const PAN={lead:0,bk:-.18,bass:.16,ctr:.22};
+function playInst(name,role,midi,t,hold,vol,cents){
+  const S=SAMP[name];if(!S||!S.ready)return false;
+  const I=INST[name];while(midi>I.hi)midi-=12;while(midi<I.lo)midi+=12;
+  let m0=Math.round(midi/3)*3;if(!S.buf[m0]){m0=+Object.keys(S.buf).reduce((a,b)=>Math.abs(b-midi)<Math.abs(a-midi)?b:a)}
+  const buf=S.buf[m0];if(!buf)return false;
+  const src=AC.createBufferSource(),g=AC.createGain();src.buffer=buf;src.playbackRate.value=Math.pow(2,(midi-m0)/12);
+  if(cents&&src.detune)src.detune.value=cents;
+  const end=t+Math.min(hold,buf.duration/src.playbackRate.value-.05);
+  g.gain.setValueAtTime(vol*I.g*SGAIN*(role==='lead'?1:1.15),t);g.gain.setTargetAtTime(0,end,I.rel/3);
+  let out=g;if(AC.createStereoPanner&&PAN[role]){const pn=AC.createStereoPanner();pn.pan.value=PAN[role];g.connect(pn);out=pn}
+  src.connect(g);out.connect(role==='lead'?busMel:busBk);src.start(t);src.stop(end+I.rel+.1);
+  track(g,end+I.rel);return true;
+}
+function instOf(role){const m=song&&INSTMAP[song.key];if(!m||st==='home'||st==='menu')return null;return role==='ctr'?(m.ctr||m.bk):role==='bass'?(m.bass||m.bk):m[role]}
 function voice(midi,when,dur,vol,cents,lead,bus){
   if(!AC)return;
+  if(!bus){   // pieces with real-instrument samples
+    const role=lead?'lead':(midi<52?'bass':'bk'),nm=instOf(role);
+    if(nm&&playInst(nm,role,midi,AC.currentTime+Math.max(0,when),clamp(dur*1.05,.12,3),lead?vol*.62:vol,cents))return;
+  }
   const f=440*Math.pow(2,(midi-69)/12),t=AC.currentTime+Math.max(0,when);
   if(!lead){   // backing: soft piano; low notes get extra harmonics so phone speakers can reproduce them
     const hold=clamp(dur*1.05,.18,2.4);
@@ -303,6 +367,7 @@ function voice(midi,when,dur,vol,cents,lead,bus){
 }
 function cvoice(midi,when,dur,vol){   // counter-melody: soft, rounder timbre, always under the melody
   if(!AC)return;
+  {const nm=instOf('ctr');if(nm&&playInst(nm,'ctr',midi,AC.currentTime+Math.max(0,when),clamp(dur*1.05,.12,3),vol*.9,0))return}
   const f=440*Math.pow(2,(midi-69)/12),t=AC.currentTime+Math.max(0,when),d=Math.max(.2,Math.min(dur*1.15,2.4));
   const g=AC.createGain(),lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=Math.min(5000,f*4);
   g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.025);g.gain.setTargetAtTime(vol*.55,t+.05,.25);g.gain.setTargetAtTime(.0001,t+d*.8,d*.12+.03);
@@ -419,7 +484,8 @@ const TIERS=[
   {n:'尚可',hue:225,m:1,ring:1,part:0,shake:0,vol:.3}
 ];
 const tierOf=a=>a<.045?0:a<.09?1:a<.15?2:3;      // |seconds| away from the beat
-const G=()=>useAC?AC.currentTime-gAC:gT;          // game clock (seconds; first beat arrives at LEADIN)
+const G=()=>useAC?AC.currentTime-gAC:gT;
+const GB=()=>simG!=null?simG:G();               // physics clock: the current sub-step's time          // game clock (seconds; first beat arrives at LEADIN)
 const timeOf=t=>(t-offset)/SPD+LEADIN;                  // song time -> game clock
 const tT=i=>timeOf(tg[i].t);
 const sideOf=i=>(Math.floor(i/nb)+(i%nb))%2?3:1;  // 1 = right line, 3 = left line (alternate thumbs)
@@ -473,7 +539,7 @@ function startRun(from){
   bumps=[];items=[];rings=[];floats=[];parts=[];aims=[];spawnT=5;itemT=9;tickQ=[];cutAll();
   balls=[];for(let j=0;j<nb;j++)if(from+j<tg.length)balls.push(newBall(from+j));
   endAt=mode==='tut'?timeOf(tg[tg.length-1].t)+2:timeOf(song.dur)+1.2;
-  st='ready';hudShow(true);
+  st='ready';hudShow(true);preloadSong(song);
   $('#sub').textContent=(mode==='tut'?'新手教學':'第 '+(si+1)+' 關')+' · 《'+song.name+'》 · '+D.n+' · '+tg.length+' 拍'+(nb===2?' · 雙球':'')+(from?' · 自第 '+(from+1)+' 拍':'');
   hud();
   for(const o of['#home','#menu','#end','#pause','#set','#cal'])$(o).classList.add('hidden');
@@ -482,15 +548,15 @@ function startRun(from){
 const lineOf=b=>b.side===1?FR.x+FR.w:FR.x,farOf=b=>b.side===1?FR.x+BR:FR.x+FR.w-BR;
 function planLaps(b){
   b.away=false;b.laps=0;if(b.ti<0)return;
-  const tau=tT(b.ti)-G();if(tau<=0)return;
+  const tau=tT(b.ti)-GB();if(tau<=0)return;
   const dX=(lineOf(b)-b.x)*(b.side===1?1:-1),adx=Math.max(.3,Math.abs(b.dx)),W2=FR.w-2*BR;
   while(b.laps<40&&(dX+2*W2*b.laps)/adx/tau<.35*V0)b.laps++;
 }
 function ballWant(b){
-  const tau=Math.max(.04,tT(b.ti)-G()),lineX=lineOf(b),fx=farOf(b),W2=FR.w-2*BR;
+  const tau=Math.max(.04,tT(b.ti)-GB()),lineX=lineOf(b),fx=farOf(b),W2=FR.w-2*BR;
   const remX=(b.away?Math.abs(b.x-fx)+Math.abs(lineX-fx):(lineX-b.x)*(b.side===1?1:-1))+2*W2*(b.laps||0);
   const raw=remX/Math.max(.3,Math.abs(b.dx))/tau;
-  return clamp(raw,.2*V0,5*V0);   // time left until the note / distance left: a longer detour simply means a faster ball
+  return clamp(raw,.2*V0,8*V0);   // time left until the note / distance left: a longer detour simply means a faster ball
 }
 async function launch(){
   st='starting';
@@ -532,7 +598,7 @@ function tap(x,y,e){
   bounce(best,x,y,p);
 }
 cv.addEventListener('pointerdown',e=>{e.preventDefault();tap(e.clientX,e.clientY,e)});
-cv.addEventListener('click',()=>{if(st==='ready'&&!paused&&!portrait){initAudio();launch()}});   // click = a valid audio gesture on iOS
+cv.addEventListener('click',()=>{if(st==='ready'&&!paused&&!portrait&&!instLoad.busy){initAudio();launch()}});   // click = a valid audio gesture on iOS
 function setMedia(on){
   try{
     if(!navigator.mediaSession)return;
@@ -750,8 +816,8 @@ function updateBall(b,dt){
     if(b.x<FR.x+BR){b.x=FR.x+BR;b.dx=Math.abs(b.dx)}else if(b.x>FR.x+FR.w-BR){b.x=FR.x+FR.w-BR;b.dx=-Math.abs(b.dx)}
     return;
   }
-  // speed is derived from the music: arrive at the target line exactly on the beat
-  b.v+=(ballWant(b)-b.v)*Math.min(1,dt*14);
+  // speed is recomputed every step from the path still to travel and the time left: it lands exactly on the beat
+  if(tT(b.ti)-GB()>.05||b.v<1)b.v=ballWant(b);   // in the last 50 ms keep the (already exact) speed instead of creeping toward the line
   b.x+=b.dx*b.v*dt;b.y+=b.dy*b.v*dt;
   const last=b.trail[b.trail.length-1];
   if(!last||Math.hypot(b.x-last.x,b.y-last.y)>BR*.45){b.trail.push({x:b.x,y:b.y});if(b.trail.length>16)b.trail.shift()}
@@ -986,25 +1052,31 @@ function draw(){
   else if(st!=='menu'){drawField(ctx);drawTut(ctx);drawBumps(ctx);drawItems(ctx);drawBalls(ctx);drawFx(ctx)}
   ctx.restore();
   ctx.textAlign='center';ctx.textBaseline='alphabetic';
-  if(st==='ready'){ctx.fillStyle='#e8ecff';ctx.font='700 19px "Noto Sans TC",sans-serif';ctx.fillText('點擊畫面開始（含 3 拍預備）',W/2,FR.y+FR.h/2+BR*6);ctx.fillStyle='#8a93c0';ctx.font='400 13px "Noto Sans TC",sans-serif';ctx.fillText('光球將於節拍抵達亮起的框線，請於節拍觸碰光球。',W/2,FR.y+FR.h/2+BR*6+24)}
+  if(st==='ready'&&instLoad.busy){ctx.fillStyle='#e8ecff';ctx.font='700 19px "Noto Sans TC",sans-serif';ctx.fillText('載入樂器音色⋯ '+(instLoad.total?Math.round(instLoad.n/instLoad.total*100):0)+'%',W/2,FR.y+FR.h/2+BR*6)}
+  else if(st==='ready'){ctx.fillStyle='#e8ecff';ctx.font='700 19px "Noto Sans TC",sans-serif';ctx.fillText('點擊畫面開始（含 3 拍預備）',W/2,FR.y+FR.h/2+BR*6);ctx.fillStyle='#8a93c0';ctx.font='400 13px "Noto Sans TC",sans-serif';ctx.fillText('光球將於節拍抵達亮起的框線，請於節拍觸碰光球。',W/2,FR.y+FR.h/2+BR*6+24)}
   if(st==='play'&&G()<LEADIN&&!paused){const n=Math.ceil((LEADIN-G())/.5);if(n<=3&&n>=1){ctx.fillStyle='rgba(232,236,255,.55)';ctx.font='800 '+Math.round(Math.min(FR.h*.3,90))+'px "Noto Sans TC",sans-serif';ctx.fillText(String(n),W/2,FR.y+FR.h*.62)}}
   if(st==='play'&&AC&&AC.state!=='running'&&!paused){ctx.fillStyle='#ffb86b';ctx.font='700 15px "Noto Sans TC",sans-serif';ctx.fillText('聲音未啟用：請點擊畫面，並確認裝置未開啟靜音。',W/2,FR.y+FR.h-12)}
   if(paused){ctx.fillStyle='rgba(4,5,13,.6)';ctx.fillRect(0,0,W,H);
     if(resumeCD>0){ctx.fillStyle='#e8ecff';ctx.font='800 '+Math.round(Math.min(FR.h*.3,90))+'px "Noto Sans TC",sans-serif';ctx.fillText(String(Math.ceil(resumeCD/.5)),W/2,FR.y+FR.h*.62)}}
 }
-let last=performance.now(),lastIdle=0,costEMA=0,fc=0;
+let last=performance.now(),lastIdle=0,costEMA=0,fc=0,lastGs=0,lastNow=performance.now(),simG=null;
 function frame(now){
   if(now-last<15){requestAnimationFrame(frame);return}                 // cap at ~60 fps (halves work on 120 Hz screens)
   const idle=(paused&&!resumeCD)||st==='menu'||st==='done'||(st==='over'&&exitT<=0&&!floats.length&&!rings.length&&!parts.length);
   if(idle&&now-lastIdle<250){requestAnimationFrame(frame);return}        // menus / end cards: redraw rarely
   if(idle)lastIdle=now;
   const t0=performance.now();
-  const dt=Math.min(.05,(now-last)/1000)*ts;last=now;
+  let dt=Math.min(.05,(now-last)/1000)*ts;last=now;
+  // while playing, the ball advances by the music clock's real elapsed time, so a stalled frame never leaves it behind the beat
+  let g0=null;
+  if(st==='play'&&!paused&&useAC){const g=G();g0=lastGs;dt=clamp(g-lastGs,0,.3);lastGs=g0+dt}else if(st==='play'&&!paused)dt=Math.min(.3,(now-lastNow)/1000)*ts;
+  if(!(st==='play'&&!paused&&useAC))lastGs=st==='play'?G():0;lastNow=now;
   try{
     if(fc%60===0&&AC&&AC.state==='running'){const w=performance.now();if(acWatch.t===AC.currentTime&&w-acWatch.w>800)acStale=true;if(acWatch.t!==AC.currentTime)acWatch={t:AC.currentTime,w}}
     if(++fc%30===0){const sz=viewSize();if(sz&&(Math.abs(sz[0]-W)>2||Math.abs(sz[1]-H)>2))layout()}   // missed resize events
-    const n=Math.max(1,Math.ceil(dt/(1/90))),h=dt/n;       // sub-steps keep the motion smooth
-    for(let i=0;i<n;i++)update(h);
+    const n=Math.max(1,Math.ceil(dt/(1/120))),h=dt/n;      // sub-steps keep the motion smooth and collisions exact
+    for(let i=0;i<n;i++){if(g0!=null)simG=g0+h*(i+1);update(h)}   // each sub-step sees its own point in time
+    simG=null;
     draw();
   }catch(e){showErr(e)}                                     // one bad frame must never stop the loop
   costEMA=costEMA*.9+(performance.now()-t0)*.1;
@@ -1022,7 +1094,7 @@ function buildChips(){
     const ul=unlocked(i),b=document.createElement('button');b.className='chip'+(i===si?' sel':'')+(ul?'':' lock');
     const rk=lsGet(KEY_RK(i,di));
     b.innerHTML=(ul?'':'🔒 ')+(i+1)+'. '+s.name+'<small>'+s.year+' · '+s.composer+' · <span class="stars">'+starTxt(STARS[i])+'</span>'+(rk?' · '+rk:'')+'</small>';
-    b.onclick=()=>{if(!ul)return;si=i;buildChips()};c.appendChild(b);
+    b.onclick=()=>{if(!ul)return;si=i;buildChips();initAudio();preloadSong(SONGS[i])};c.appendChild(b);
   });
 }
 const tutDone=()=>!!lsGet('ppl-tut')||SONGS.some((_,i)=>cleared(i));
@@ -1129,7 +1201,7 @@ if(!unlocked(si))si=0;
 for(const f of[layout,buildChips,hud,audioStatus]){try{f()}catch(e){showErr(e)}}   // one failing step must not stop start-up
 if('serviceWorker' in navigator&&location.protocol==='https:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));hudShow(false);$('#fsHint').style.display=(!(DE.requestFullscreen||DE.webkitRequestFullscreen)&&!standalone)?'block':'none';
 requestAnimationFrame(frame);
-window.__pb={get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:FR,HR:HRe(),tiers:tierCount,cents:lastCents,p:lastP,pSrc,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},setTs(v){ts=v},setSong(i){si=i},tg:()=>tg.map(t=>t.t),pause:pauseGame,resume:resumeGame,shareImg,STARS,gaps:()=>{const r=[];for(const it of items)for(const o of bumps)r.push(Math.hypot(it.x-o.x,it.y-o.y)-itemGap(o.Rm));return r}};
+window.__pb={get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:FR,HR:HRe(),tiers:tierCount,cents:lastCents,p:lastP,pSrc,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},setTs(v){ts=v},setSong(i){si=i},tg:()=>tg.map(t=>t.t),pause:pauseGame,resume:resumeGame,shareImg,STARS,il:()=>instLoad,gaps:()=>{const r=[];for(const it of items)for(const o of bumps)r.push(Math.hypot(it.x-o.x,it.y-o.y)-itemGap(o.Rm));return r}};
 })();
 </script>
 </body>

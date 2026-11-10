@@ -1,5 +1,5 @@
 // PingPongLight service worker: offline support for the static site.
-const CACHE = 'ppl-v3';
+const CACHE = 'ppl-v4';
 const PRECACHE = [
   './',
   'index.html',
@@ -51,6 +51,14 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
 
+  // Instrument samples never change: cache first (also keeps them available offline)
+  if (url.pathname.includes('/inst/')) {
+    event.respondWith(caches.match(req).then((hit) => hit || fetch(req).then((res) => {
+      if (res.status === 200) { const c = res.clone(); caches.open(CACHE).then((cache) => cache.put(req, c)).catch(() => {}); }
+      return res;
+    })));
+    return;
+  }
   // Network first for everything (always the latest deploy online); the cache is the offline fallback.
   if (isPageRequest(req, url)) {
     event.respondWith(networkFirst(req));
