@@ -399,7 +399,17 @@ const LEADIN=2.6,CPN=25;
 const DIFFS=[{n:'簡單',nb:1,gap:1.0,spd:1.0,dmg:20},{n:'普通',nb:2,gap:.55,spd:1.0,dmg:25},{n:'困難',nb:2,gap:.4,spd:1.2,dmg:34}];
 let di=(v=>isNaN(v)?1:Math.min(2,Math.max(0,v)))(parseInt(lsGet('pmb6-di')||'1',10)),SPD=1;
 D=DIFFS[di];
-const cleared=i=>!!lsGet('pmb6c-'+i);
+// records are keyed by song id (not level number) so adding songs never shifts them
+const KEY_SC=(i,d)=>'ppl-sc-'+SONGS[i].key+'-'+d,KEY_RK=(i,d)=>'ppl-rk-'+SONGS[i].key+'-'+d,KEY_CL=i=>'ppl-cl-'+SONGS[i].key;
+(function migrate(){   // one-time copy of the old level-number records (original 21-level order)
+  if(lsGet('ppl-mig1'))return;
+  const OLD=['green','prelude','twinkle','turkish','nacht','moon','fifth','elise','silent','ode','schubert','traum','minute','gounod','mountain','gymno','entertainer','clair','neon','pixel','velvet'];
+  OLD.forEach((k,i)=>{if(!SONGS.some(s=>s.key===k))return;
+    if(lsGet('pmb6c-'+i))lsSet('ppl-cl-'+k,'1');
+    for(let d=0;d<3;d++){const a=lsGet('pmb6-'+i+'-'+d),r=lsGet('pmb6r-'+i+'-'+d);if(a)lsSet('ppl-sc-'+k+'-'+d,a);if(r)lsSet('ppl-rk-'+k+'-'+d,r)}});
+  lsSet('ppl-mig1','1');
+})();
+const cleared=i=>!!lsGet(KEY_CL(i));
 const LOCKS=false;   // testing phase: every level is open
 const unlocked=i=>!LOCKS||i<3+SONGS.reduce((a,_,k)=>a+(cleared(k)?1:0),0);
 const TIERS=[
@@ -691,11 +701,11 @@ function showResult(ok,msg){
   const N=Math.max(1,tg.length-runFrom),hits=tierCount[0]+tierCount[1]+tierCount[2]+tierCount[3],played=Math.max(1,hits+missCount);
   const w=tierCount[0]+tierCount[1]*.8+tierCount[2]*.5+tierCount[3]*.25,acc=w/(ok?N:played);
   const rank=acc>=.95&&missCount===0?'S':acc>=.85?'A':acc>=.7?'B':acc>=.5?'C':'D';
-  const kS='pmb6-'+si+'-'+di,kR='pmb6r-'+si+'-'+di,prev=parseInt(lsGet(kS)||'0',10);
+  const kS=KEY_SC(si,di),kR=KEY_RK(si,di),prev=parseInt(lsGet(kS)||'0',10);
   const newBest=ok&&mode!=='tut'&&score>prev;
   if(mode==='tut'){lsSet('ppl-tut','1')}
   else if(ok){
-    lsSet('pmb6c-'+si,'1');
+    lsSet(KEY_CL(si),'1');
     if(newBest)lsSet(kS,String(score));
     const pr=lsGet(kR);if(!pr||RANKS.indexOf(rank)>RANKS.indexOf(pr))lsSet(kR,rank);
     cp={ti:0,score:0};
@@ -1010,7 +1020,7 @@ function buildChips(){
   const c=$('#chips');c.innerHTML='';
   SONGS.forEach((s,i)=>{
     const ul=unlocked(i),b=document.createElement('button');b.className='chip'+(i===si?' sel':'')+(ul?'':' lock');
-    const rk=lsGet('pmb6r-'+i+'-'+di);
+    const rk=lsGet(KEY_RK(i,di));
     b.innerHTML=(ul?'':'🔒 ')+(i+1)+'. '+s.name+'<small>'+s.year+' · '+s.composer+' · <span class="stars">'+starTxt(STARS[i])+'</span>'+(rk?' · '+rk:'')+'</small>';
     b.onclick=()=>{if(!ul)return;si=i;buildChips()};c.appendChild(b);
   });
