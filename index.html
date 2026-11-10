@@ -87,6 +87,15 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
 #calPad.beat{background:rgba(124,240,255,.28)}
 .stars{color:#ffd36b;letter-spacing:-1px}
 .chip.lock{opacity:.45}
+#duel input,#duel select{font:inherit;font-size:15px;color:var(--fg);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:8px 12px;user-select:text;-webkit-user-select:text}
+#dCode{width:6.5em;text-align:center;letter-spacing:.3em;text-transform:uppercase}
+#dCodeT{font-size:30px;letter-spacing:.25em;margin:4px 0}
+.dpl{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:6px 0}
+.dpl span{padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);font-size:14px}
+.dpl span.ok{border-color:#5dffb0;color:#5dffb0}
+#prog.duel{background:linear-gradient(90deg,#ff5d9e,#ff8fd1)}
+#prog.duel #pf{background:linear-gradient(90deg,#3fd8ff,#7cf0ff);box-shadow:none;transition:width .3s}
+.dres{font-size:30px;font-weight:800;margin:2px 0}
 @media (max-height:480px){#calPad{height:80px}.srow{margin:4px 0;font-size:13px}.hbtns{margin:12px 0 6px}button.big{font-size:16px;padding:10px 30px}.rright td{padding:1px 8px;font-size:13px}#rscore{font-size:22px}.chip{padding:5px 10px;font-size:12px}.chips{margin:4px 0 0}.kicker{font-size:11px}.card p{font-size:12px;margin:4px 0}.card{padding:8px 18px}.card h2{font-size:20px}.card ul{font-size:12px;line-height:1.5;margin:4px 0}.row{margin-top:8px}}
 </style>
 </head>
@@ -107,6 +116,7 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
     <button class="pri big" id="bStart">開始遊戲</button>
   </div>
   <div class="hbtns" style="margin-top:0">
+    <button id="bDuel">線上對戰</button>
     <button id="bTut">新手教學</button>
     <button id="bHow">操作說明</button>
     <button id="bSet">設定</button>
@@ -140,7 +150,26 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
     <div class="rleft"><div id="rank"></div><div id="rscore">0</div><div id="rnew"></div></div>
     <div class="rright"><table id="rtab"></table></div>
   </div>
-  <div class="row"><button class="pri" id="bNext">下一關</button><button class="pri" id="bCont">從存檔點繼續</button><button id="bRetry">再挑戰一次</button><button id="bSel">關卡選擇</button><button id="bShare">分享成績</button></div>
+  <div class="row"><button class="pri" id="bNext">下一關</button><button class="pri" id="bCont">從存檔點繼續</button><button id="bRetry">再挑戰一次</button><button id="bSel">關卡選擇</button><button id="bShare">分享成績</button><button class="pri" id="bAgain" style="display:none">再戰一局</button><button id="bLeave" style="display:none">離開房間</button></div>
+</div></div>
+
+<div class="ov hidden" id="duel"><div class="card" style="max-width:560px">
+  <button class="xbtn" id="dX" aria-label="關閉">✕</button>
+  <div class="kicker">線上對戰</div>
+  <div id="dJoin">
+    <p>兩人用各自的手機，同時挑戰同一首曲子。</p>
+    <div class="row"><input id="dName" maxlength="12" placeholder="暱稱" autocomplete="nickname"></div>
+    <div class="row"><button class="pri" id="dNew">建立房間</button></div>
+    <div class="row"><input id="dCode" maxlength="4" placeholder="房號" autocomplete="off" inputmode="latin"><button id="dGo">加入房間</button></div>
+  </div>
+  <div id="dRoom" hidden>
+    <div id="dCodeT"></div>
+    <div class="row" style="margin-top:2px"><button id="dShare">邀請朋友</button></div>
+    <div class="dpl" id="dPl"></div>
+    <div class="srow" style="justify-content:center"><label style="flex:0 0 auto">曲目</label><select id="dSong"></select><label style="flex:0 0 auto">難度</label><select id="dDi"></select></div>
+    <div class="row"><button class="pri" id="dReady">準備</button><button id="dLeave">離開房間</button></div>
+  </div>
+  <p id="dMsg" style="color:#ffb86b;font-size:13px;min-height:1.2em"></p>
 </div></div>
 
 <div class="ov hidden" id="pause"><div class="card" style="max-width:380px">
@@ -190,6 +219,8 @@ addEventListener('error',ev=>{if(ev&&ev.message&&!/ResizeObserver/.test(ev.messa
 const cv=$('#c'),ctx=cv.getContext('2d');
 let W=0,H=0,dpr=1,rscale=Math.min(window.devicePixelRatio||1,1.75);
 const rand=(a,b)=>a+Math.random()*(b-a);
+let RNG=Math.random;const srand=(a,b)=>a+RNG()*(b-a);   // obstacles / items / ball starts: seeded in a duel so both phones get the same
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
 function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
@@ -453,7 +484,10 @@ function prepare(s){
 
 /* ================= state ================= */
 let FR={x:0,y:0,w:0,h:0},BR=9,V0=420,HR=50,portrait=false;
-const HRe=()=>HR*(rangeT>0?rangeMul:1);
+const HRe=()=>HR*(rangeT>0?rangeMul:1)*(DU.shrinkT>0?.7:1);
+/* online duel state */
+const DU={ws:null,code:'',you:0,host:0,players:[],cfg:{song:0,di:1},phase:'lobby',off:0,pings:[],seed:1,startAt:0,
+  opp:{s:0,c:0,l:100,r:0,j:-1,jt:0},oppName:'',myFin:null,oppFin:null,left:false,pstreak:0,fogT:0,shrinkT:0,sprint:false,banner:null,prevDi:null,ready:false};
 let mode='normal',D=null,life=100,resumeCD=0,lastRes=null,freezeG=0;
 const TUTN=20,TUTD={n:'教學',nb:1,gap:1.25,spd:.9,dmg:0};
 let st='home',si=0,offset=0,nt=0,resolved=0,nb=1,bi=0,tickQ=[],endAt=0,paused=false,exitT=0;
@@ -518,18 +552,21 @@ function layout(){
 /* ================= run control ================= */
 function hud(){
   $('#score').textContent=score.toLocaleString();
-  $('#pf').style.width=(tg.length?resolved/tg.length*100:0)+'%';
+  if(mode==='duel'){const tot=score+DU.opp.s;$('#pf').style.width=(tot?score/tot*100:50)+'%';duelSub()}   // tug-of-war bar
+  else $('#pf').style.width=(tg.length?resolved/tg.length*100:0)+'%';
   const lf=$('#life');lf.style.width=life+'%';lf.classList.toggle('low',life<35);
   $('#combo').innerHTML=(combo>1?'連擊 '+combo+' · ':'')+resolved+' / '+tg.length+(rangeT>0?(rangeMul>1?' · 範圍放大':' · 範圍縮小'):'')+(starT>0?' · 分數×2':'')+(shield?' · 護盾':'');
 }
 function newBall(ti){
-  const s=sideOf(ti),dy=rand(-.35,.35),l=Math.hypot(1,dy);
-  return{x:FR.x+FR.w*(s===1?rand(.25,.4):rand(.6,.75)),y:FR.y+FR.h*(nb===2?(ti%2?.7:.3):.5),dx:(s===1?1:-1)/l,dy:dy/l,v:0,pop:0,ti,side:s,win:null,trail:[],sq:0,sqn:0,laps:0,away:false};
+  const s=sideOf(ti),dy=srand(-.35,.35),l=Math.hypot(1,dy);
+  return{x:FR.x+FR.w*(s===1?srand(.25,.4):srand(.6,.75)),y:FR.y+FR.h*(nb===2?(ti%2?.7:.3):.5),dx:(s===1?1:-1)/l,dy:dy/l,v:0,pop:0,ti,side:s,win:null,trail:[],sq:0,sqn:0,laps:0,away:false};
 }
 function startRun(from){
   from=from||0;
   if(mode==='tut'){D=TUTD;si=SONGS.findIndex(s=>s.key==='twinkle');if(si<0)si=0}
   else D=DIFFS[di];
+  RNG=mode==='duel'?mulberry32(DU.seed):Math.random;
+  DU.pstreak=0;DU.fogT=0;DU.shrinkT=0;DU.sprint=false;DU.banner=null;DU.myFin=null;DU.oppFin=null;DU.opp={s:0,c:0,l:100,r:0,j:-1,jt:0};
   song=SONGS[si];LEADTYPE=song.lead||'triangle';SPD=D.spd;nb=D.nb;prepare(song);
   from=Math.min(from,Math.max(0,tg.length-1));
   offset=from>0?tg[from].t-.02:0;
@@ -598,7 +635,7 @@ function tap(x,y,e){
   bounce(best,x,y,p);
 }
 cv.addEventListener('pointerdown',e=>{e.preventDefault();tap(e.clientX,e.clientY,e)});
-cv.addEventListener('click',()=>{if(st==='ready'&&!paused&&!portrait&&!instLoad.busy){initAudio();launch()}});   // click = a valid audio gesture on iOS
+cv.addEventListener('click',()=>{if(mode==='duel'){initAudio();return}if(st==='ready'&&!paused&&!portrait&&!instLoad.busy){initAudio();launch()}});   // click = a valid audio gesture on iOS
 function setMedia(on){
   try{
     if(!navigator.mediaSession)return;
@@ -614,6 +651,7 @@ function holdMusic(){
   const t=offset+(freezeG-LEADIN)*SPD;bi=bkList.findIndex(n=>n[0]/100>=t-.01);if(bi<0)bi=bkList.length;
 }
 function pauseGame(){
+  if(mode==='duel')return;
   if(st==='ready'||st==='starting'){if(!paused){paused=true;resumeCD=0;showPauseMenu()}return}
   if(st!=='play'||(paused&&!resumeCD))return;
   holdMusic();paused=true;resumeCD=0;
@@ -629,6 +667,7 @@ function resumeGame(){   // audio resumes inside the tap (iOS needs a gesture); 
 }
 function doResume(){resumeCD=0;paused=false;unlockAudio();if(AC&&AC.resume){const p=AC.resume();if(p&&p.catch)p.catch(()=>{})}}
 function hushAll(){
+  if(mode==='duel'&&st==='play'){over('離開遊戲');}
   if(st==='play'){if(!paused||resumeCD)holdMusic();paused=true;resumeCD=0;showPauseMenu()}
   cutAll();stopSilent();
   if(AC&&AC.state==='running'&&AC.suspend){try{AC.suspend()}catch(e){}}
@@ -656,7 +695,7 @@ document.addEventListener('touchmove',e=>{if(!(e.target.closest&&e.target.closes
 document.addEventListener('touchstart',e=>{if(e.touches.length>1&&!(e.target.closest&&e.target.closest('.card')))e.preventDefault()},{passive:false});
 document.addEventListener('dblclick',e=>e.preventDefault());
 document.addEventListener('contextmenu',e=>e.preventDefault());
-document.addEventListener('selectstart',e=>e.preventDefault());
+document.addEventListener('selectstart',e=>{if(!(e.target.closest&&e.target.closest('input,select,textarea')))e.preventDefault()});
 document.addEventListener('wheel',e=>{if(e.ctrlKey||!(e.target.closest&&e.target.closest('.card')))e.preventDefault()},{passive:false});
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['+','-','=','0'].includes(e.key))e.preventDefault();
   else if(e.key==='Escape'||e.key==='p'||e.key==='P'){if(st==='play'){if(paused&&!resumeCD)resumeGame();else pauseGame()}}});
@@ -696,7 +735,7 @@ function bounce(b,tx,ty,p){
   b.win=null;b.sq=1;b.sqn=old;
   playMel(b.ti,cents,T.vol);                                   // melody is heard ONLY on a correct hit
   tierCount[ti]++;combo=ti<=2?combo+1:0;life=Math.min(100,life+[3,2,1,0][ti]);if(ti===0)vib(12);maxCombo=Math.max(maxCombo,combo);
-  const sf=Math.pow(Math.max(.3,b.v/V0),1.1),pts=Math.round(100*T.m*sf*(1+.3*p)*(starT>0?2:1))+combo*5;
+  const sf=Math.pow(Math.max(.3,b.v/V0),1.1),pts=Math.round((100*T.m*sf*(1+.3*p)*(starT>0?2:1))*(mode==='duel'&&DU.sprint?2:1))+combo*5;
   score+=pts;
   const hue=T.hue,fx=b.x+nx*40,fy=b.y;
   floats.push({x:fx,y:fy-6,text:T.n,hue,life:.9,max:.9,size:ti===0?1.5:ti===1?1.25:1});
@@ -708,6 +747,7 @@ function bounce(b,tx,ty,p){
   if(ti===0){flash.a=.18;flash.hue=hue}
   resolveTarget(b);
   if(b.ti>=0){planLaps(b);b.vr=0;b.v=ballWant(b);b.vr=b.v}
+  if(mode==='duel')duelHit(ti);
 }
 function miss(b){
   missCount++;combo=0;
@@ -717,6 +757,7 @@ function miss(b){
   floats.push({x:b.x+nx*40,y:b.y,text:sh?'護盾抵銷':'失誤',hue:sh?190:350,life:1,max:1,size:1.2});
   const hue=sh?190:350;
   rings.push({x:b.x,y:b.y,r0:BR,life:.7,max:.7,hue,w:5});burst(b.x,b.y,hue,24,BR*14,.8);
+  if(mode==='duel')duelHit(4);
   if(life<=0){hud();vib(120);over('生命值歸零');return}
   if(!sh){shake=Math.max(shake,6);flash.a=.14;flash.hue=350}
   const lineX=old===1?FR.x+FR.w:FR.x,a=rand(-.5,.5);       // the ball comes back into play
@@ -731,20 +772,20 @@ function bumpH(o){
 }
 function spawnBump(){
   for(let tries=0;tries<12;tries++){
-    const x=FR.x+FR.w*rand(.2,.8),y=FR.y+FR.h*rand(.14,.86);let ok=true;
+    const x=FR.x+FR.w*srand(.2,.8),y=FR.y+FR.h*srand(.14,.86);let ok=true;
     for(const b of balls)if(Math.hypot(b.x-x,b.y-y)<FR.h*.35)ok=false;
     for(const o of bumps)if(Math.hypot(o.x-x,o.y-y)<FR.h*.4)ok=false;
-    const Rm=Math.min(FR.w,FR.h)*rand(.07,.12);
+    const Rm=Math.min(FR.w,FR.h)*srand(.07,.12);
     for(const it of items)if(Math.hypot(it.x-x,it.y-y)<itemGap(Rm))ok=false;   // never on top of / hugging an item
-    if(ok){bumps.push({x,y,Rm,age:0,life:rand(3.2,5.5)});return}
+    if(ok){bumps.push({x,y,Rm,age:0,life:srand(3.2,5.5)});return}
   }
 }
 // an item must stay reachable: keep it clear of an obstacle's full (overshooting) radius plus a ball's width and some room
 const itemGap=Rm=>Rm*1.3+BR*2+17+30;
 function spawnItem(){
-  const r=Math.random(),type=r<.3?'big':r<.5?'small':r<.78?'star':(shield>=2?'star':'shield');
+  const r=RNG(),type=r<.3?'big':r<.5?'small':r<.78?'star':(shield>=2?'star':'shield');
   for(let tries=0;tries<16;tries++){
-    const x=FR.x+FR.w*rand(.25,.75),y=FR.y+FR.h*rand(.2,.8);
+    const x=FR.x+FR.w*srand(.25,.75),y=FR.y+FR.h*srand(.2,.8);
     if(bumps.every(o=>Math.hypot(o.x-x,o.y-y)>=itemGap(o.Rm))){items.push({x,y,type,age:0,life:7});return}
   }
 }
@@ -768,9 +809,9 @@ function showResult(ok,msg){
   const w=tierCount[0]+tierCount[1]*.8+tierCount[2]*.5+tierCount[3]*.25,acc=w/(ok?N:played);
   const rank=acc>=.95&&missCount===0?'S':acc>=.85?'A':acc>=.7?'B':acc>=.5?'C':'D';
   const kS=KEY_SC(si,di),kR=KEY_RK(si,di),prev=parseInt(lsGet(kS)||'0',10);
-  const newBest=ok&&mode!=='tut'&&score>prev;
+  const newBest=ok&&mode==='normal'&&score>prev;
   if(mode==='tut'){lsSet('ppl-tut','1')}
-  else if(ok){
+  else if(ok&&mode==='normal'){
     lsSet(KEY_CL(si),'1');
     if(newBest)lsSet(kS,String(score));
     const pr=lsGet(kR);if(!pr||RANKS.indexOf(rank)>RANKS.indexOf(pr))lsSet(kR,rank);
@@ -789,6 +830,9 @@ function showResult(ok,msg){
   $('#bNext').style.display=hasNext?'':'none';$('#bNext').textContent=mode==='tut'?'開始第 1 關':'下一關';
   $('#bShare').style.display=mode==='tut'||!ok?'none':'';
   const cb=$('#bCont');if(!ok&&cp.ti>0){cb.style.display='';cb.textContent='從第 '+(cp.ti+1)+' 拍繼續'}else cb.style.display='none';
+  for(const id of['bAgain','bLeave'])$('#'+id).style.display=mode==='duel'?'':'none';
+  if(mode==='duel'){for(const id of['bNext','bCont','bRetry','bSel'])$('#'+id).style.display='none';duelFinish(ok,rank,acc)}
+  else for(const id of['bRetry','bSel'])$('#'+id).style.display='';
   $('#end').classList.remove('hidden');
   if(ok)jingleWin(rank);else jingleLose();
 }
@@ -800,7 +844,7 @@ function win(){
   setMedia(false);st='done';
   setTimeout(()=>{if(st==='done')showResult(true)},500);
 }
-function hudShow(v){$('#hud').style.visibility=v?'visible':'hidden';$('#bSkipH').style.display=v&&mode==='tut'?'':'none'}
+function hudShow(v){$('#hud').style.visibility=v?'visible':'hidden';$('#bSkipH').style.display=v&&mode==='tut'?'':'none';$('#bPause').style.display=mode==='duel'?'none':'';$('#prog').classList.toggle('duel',v&&mode==='duel')}
 function showHome(){mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#home').classList.remove('hidden');audioStatus()}
 function showSelect(){mode='normal';setMedia(false);hudShow(false);st='menu';cutAll();balls=[];buildChips();$('#home').classList.add('hidden');$('#end').classList.add('hidden');$('#menu').classList.remove('hidden')}
 
@@ -888,11 +932,13 @@ function update(dt){
     const n=bkList[bi++],t0=timeOf(n[0]/100),w=t0-Gn-L;if(t0>endAt-.8)continue;
     if(w>-.05){const k=n[3];if(k===2)drum(n[2],Math.max(0,w));else if(k===3)cvoice(n[2],Math.max(0,w),n[1]/100/SPD,.12);else voice(n[2],Math.max(0,w),n[1]/100/SPD,.16*bkV[bi-1],0,false)}}
   if(rangeT>0){rangeT-=dt;if(rangeT<=0){rangeMul=1;hud()}}
+  if(mode==='duel'){if(DU.fogT>0)DU.fogT-=dt;if(DU.shrinkT>0){DU.shrinkT-=dt;if(DU.shrinkT<=0)hud()}if(DU.banner&&(DU.banner.t-=dt)<=0)DU.banner=null;
+    if(!DU.sprint&&tg.length&&resolved>=tg.length*.8){DU.sprint=true;DU.banner={text:'最後衝刺！分數 ×2',hue:48,t:2.2,max:2.2};flash.a=.25;flash.hue=48;hud()}}
   if(starT>0){starT-=dt;if(starT<=0)hud()}
   const prog=tg.length?resolved/tg.length:0;
   const bm=1,tut=mode==='tut';
-  spawnT-=dt;if(spawnT<=0&&Gn>LEADIN&&(!tut||resolved>=12)){if(bumps.length<(tut?1:(1+Math.floor(prog*3))*bm))spawnBump();spawnT=Math.max(1.8,4.5-prog*2.6)/bm*rand(.8,1.2)}
-  itemT-=dt;if(itemT<=0&&Gn>LEADIN&&!tut){if(items.length<1)spawnItem();itemT=rand(8,12)}
+  spawnT-=dt;if(spawnT<=0&&Gn>LEADIN&&(!tut||resolved>=12)){if(bumps.length<(tut?1:(1+Math.floor(prog*3))*bm))spawnBump();spawnT=Math.max(1.8,4.5-prog*2.6)/bm*srand(.8,1.2)}
+  itemT-=dt;if(itemT<=0&&Gn>LEADIN&&!tut){if(items.length<1)spawnItem();itemT=srand(8,12)}
   for(let i=bumps.length-1;i>=0;i--){const o=bumps[i];o.age+=dt;if(o.age>o.life+.4)bumps.splice(i,1)}
   for(let i=items.length-1;i>=0;i--){const it=items[i];it.age+=dt;if(it.age>it.life)items.splice(i,1)}
   for(const b of balls){updateBall(b,dt);if(st!=='play')return}
@@ -1052,10 +1098,13 @@ function draw(){
   else if(st!=='menu'){drawField(ctx);drawTut(ctx);drawBumps(ctx);drawItems(ctx);drawBalls(ctx);drawFx(ctx)}
   ctx.restore();
   ctx.textAlign='center';ctx.textBaseline='alphabetic';
-  if(st==='ready'&&instLoad.busy){ctx.fillStyle='#e8ecff';ctx.font='700 19px "Noto Sans TC",sans-serif';ctx.fillText('載入樂器音色⋯ '+(instLoad.total?Math.round(instLoad.n/instLoad.total*100):0)+'%',W/2,FR.y+FR.h/2+BR*6)}
+  if(st==='ready'&&mode==='duel'){const left=Math.max(0,(DU.startAt-duelNow())/1000);ctx.fillStyle='#e8ecff';ctx.font='800 22px "Noto Sans TC",sans-serif';ctx.fillText('對手：'+(DU.oppName||'玩家')+'　對戰即將開始 '+Math.ceil(left),W/2,FR.y+FR.h/2+BR*6);
+    if(instLoad.busy){ctx.fillStyle='#8a93c0';ctx.font='400 13px "Noto Sans TC",sans-serif';ctx.fillText('載入樂器音色⋯ '+(instLoad.total?Math.round(instLoad.n/instLoad.total*100):0)+'%',W/2,FR.y+FR.h/2+BR*6+24)}}
+  else if(st==='ready'&&instLoad.busy){ctx.fillStyle='#e8ecff';ctx.font='700 19px "Noto Sans TC",sans-serif';ctx.fillText('載入樂器音色⋯ '+(instLoad.total?Math.round(instLoad.n/instLoad.total*100):0)+'%',W/2,FR.y+FR.h/2+BR*6)}
   else if(st==='ready'){ctx.fillStyle='#e8ecff';ctx.font='700 19px "Noto Sans TC",sans-serif';ctx.fillText('點擊畫面開始（含 3 拍預備）',W/2,FR.y+FR.h/2+BR*6);ctx.fillStyle='#8a93c0';ctx.font='400 13px "Noto Sans TC",sans-serif';ctx.fillText('光球將於節拍抵達亮起的框線，請於節拍觸碰光球。',W/2,FR.y+FR.h/2+BR*6+24)}
   if(st==='play'&&G()<LEADIN&&!paused){const n=Math.ceil((LEADIN-G())/.5);if(n<=3&&n>=1){ctx.fillStyle='rgba(232,236,255,.55)';ctx.font='800 '+Math.round(Math.min(FR.h*.3,90))+'px "Noto Sans TC",sans-serif';ctx.fillText(String(n),W/2,FR.y+FR.h*.62)}}
   if(st==='play'&&AC&&AC.state!=='running'&&!paused){ctx.fillStyle='#ffb86b';ctx.font='700 15px "Noto Sans TC",sans-serif';ctx.fillText('聲音未啟用：請點擊畫面，並確認裝置未開啟靜音。',W/2,FR.y+FR.h-12)}
+  if(mode==='duel'&&(st==='play'||st==='over'||st==='done'))drawDuel(ctx);
   if(paused){ctx.fillStyle='rgba(4,5,13,.6)';ctx.fillRect(0,0,W,H);
     if(resumeCD>0){ctx.fillStyle='#e8ecff';ctx.font='800 '+Math.round(Math.min(FR.h*.3,90))+'px "Noto Sans TC",sans-serif';ctx.fillText(String(Math.ceil(resumeCD/.5)),W/2,FR.y+FR.h*.62)}}
 }
@@ -1083,6 +1132,133 @@ function frame(now){
   if(fc%90===0&&costEMA>10&&rscale>1){rscale=Math.max(1,rscale-.25);layout()}   // adaptive resolution if drawing is expensive
   requestAnimationFrame(frame);
 }
+
+/* ================= online duel ================= */
+const DUEL_URL=(()=>{try{const q=new URLSearchParams(location.search).get('duel');if(q)return q}catch(e){}
+  return /^(localhost|127\.0\.0\.1)$/.test(location.hostname)?'http://'+location.hostname+':8787':'https://pingponglight-duel.WORKERS_SUBDOMAIN.workers.dev'})();
+const duelNow=()=>Date.now()+DU.off;
+function dsend(o){try{if(DU.ws&&DU.ws.readyState===1)DU.ws.send(JSON.stringify(o))}catch(e){}}
+function dmsg(t){$('#dMsg').textContent=t||''}
+function duelOpen(){initAudio();$('#home').classList.add('hidden');$('#duel').classList.remove('hidden');$('#dName').value=lsGet('ppl-name')||'';duelView()}
+function duelView(){const inRoom=!!(DU.ws&&DU.code);$('#dJoin').hidden=inRoom;$('#dRoom').hidden=!inRoom}
+async function duelCreate(){
+  initAudio();dmsg('建立房間中⋯');
+  try{const r=await fetch(DUEL_URL+'/new');const j=await r.json();if(!j.code)throw 0;duelJoin(j.code)}
+  catch(e){dmsg('無法連線到對戰伺服器，請稍後再試。')}
+}
+function duelJoin(code){
+  initAudio();code=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);
+  if(code.length!==4){dmsg('請輸入 4 碼房號。');return}
+  const nm=($('#dName').value||'').trim().slice(0,12);if(nm)lsSet('ppl-name',nm);
+  duelClose(true);dmsg('連線中⋯');
+  let ws;try{ws=new WebSocket(DUEL_URL.replace(/^http/,'ws')+'/ws/'+code)}catch(e){dmsg('無法連線到對戰伺服器。');return}
+  DU.ws=ws;DU.code=code;DU.left=false;DU.pings=[];
+  ws.onopen=()=>{dmsg('');dsend({t:'hello',name:nm||''});for(let k=0;k<6;k++)setTimeout(()=>dsend({t:'ping',c:Date.now()}),k*250);duelView()};
+  ws.onmessage=e=>{let d;try{d=JSON.parse(e.data)}catch(_){return}duelOn(d)};
+  ws.onclose=ev=>{if(DU.ws!==ws)return;DU.ws=null;
+    if(mode==='duel'&&st==='play'){DU.left=true;DU.banner={text:'與伺服器的連線中斷',hue:350,t:3,max:3}}
+    else{DU.code='';duelView();dmsg(ev.code===1006&&!DU.players.length?'房間不存在或已滿。':'連線已中斷。')}};
+  clearInterval(DU.pingIv);DU.pingIv=setInterval(()=>dsend({t:'ping',c:Date.now()}),5000);
+}
+function duelClose(silent){
+  clearInterval(DU.pingIv);const w=DU.ws;DU.ws=null;DU.code='';DU.players=[];DU.phase='lobby';
+  try{if(w)w.close()}catch(e){}if(!silent)duelView();
+}
+function duelLeave(){duelClose();if(DU.prevDi!=null){di=DU.prevDi;DU.prevDi=null}mode='normal';$('#duel').classList.add('hidden');showHome()}
+function duelOn(d){
+  if(d.t==='pong'){const now=Date.now(),rtt=now-d.c;DU.pings.push({rtt,off:d.s-(d.c+rtt/2)});DU.pings.sort((a,b)=>a.rtt-b.rtt);DU.pings=DU.pings.slice(0,8);
+    const best=DU.pings.slice(0,3);DU.off=best.reduce((a,p)=>a+p.off,0)/best.length;return}   // clock offset from the fastest round trips
+  if(d.t==='room'){DU.you=d.you;DU.host=d.host;DU.players=d.players;DU.cfg=d.cfg;DU.phase=d.phase;
+    const me=d.players.find(p=>p.i===d.you),op=d.players.find(p=>p.i!==d.you);DU.oppName=op?op.name:'';DU.ready=!!(me&&me.ready);
+    duelRoomUI();if(SONGS[d.cfg.song])preloadSong(SONGS[d.cfg.song]);return}
+  if(d.t==='start'){duelStart(d);return}
+  if(d.t==='st'){const o=DU.opp,was=o.c;o.s=d.s|0;o.c=d.c|0;o.l=d.l|0;o.r=d.r|0;o.j=d.j;o.jt=performance.now();
+    if(was>=10&&o.c===0&&mode==='duel'&&st==='play')DU.banner={text:'對手斷連！',hue:185,t:1.4,max:1.4};
+    hud();return}
+  if(d.t==='atk'){duelAttacked(d.k);return}
+  if(d.t==='fin'){DU.oppFin=d;if(DU.myFin)duelResult();else if(mode==='duel'&&st==='play')DU.banner={text:'對手已'+(d.ok?'完成':'出局'),hue:d.ok?48:350,t:2,max:2};return}
+  if(d.t==='left'){DU.left=true;DU.oppName=DU.oppName||'對手';
+    if(mode==='duel'&&st==='play')DU.banner={text:'對手已離線',hue:350,t:2.5,max:2.5};
+    else if(!$('#end').classList.contains('hidden'))duelResult();
+    dmsg('對手已離開房間。');return}
+}
+function duelRoomUI(){
+  $('#dCodeT').textContent='房號 '+DU.code;
+  $('#dPl').innerHTML=[0,1].map(i=>{const p=DU.players.find(q=>q.i===i);return p?'<span class="'+(p.ready?'ok':'')+'">'+(p.i===DU.you?'你：':'')+p.name.replace(/[<>&]/g,'')+(p.ready?' ✓ 準備':'')+'</span>':'<span style="opacity:.5">等待對手加入⋯</span>'}).join('');
+  const host=DU.you===DU.host,sel=$('#dSong'),dd=$('#dDi');
+  if(sel.options.length!==SONGS.length){sel.innerHTML=SONGS.map((x,i)=>'<option value="'+i+'">'+(i+1)+'. '+x.name+'</option>').join('');dd.innerHTML=DIFFS.map((x,i)=>'<option value="'+i+'">'+x.n+'</option>').join('')}
+  sel.value=DU.cfg.song;dd.value=DU.cfg.di;sel.disabled=dd.disabled=!host;
+  const b=$('#dReady');b.textContent=DU.ready?'取消準備':'準備';b.classList.toggle('pri',!DU.ready);
+  if(!$('#duel').classList.contains('hidden'))dmsg(DU.players.length<2?'把房號告訴朋友，或按「邀請朋友」分享連結。':(host?'你是房主，可以選曲目和難度。兩人都按「準備」就開始。':'房主選曲中，兩人都按「準備」就開始。'));
+}
+function duelStart(d){
+  DU.seed=d.seed>>>0||1;DU.startAt=d.at;if(DU.prevDi==null)DU.prevDi=di;
+  si=Math.max(0,Math.min(SONGS.length-1,d.song|0));di=d.di|0;mode='duel';
+  $('#duel').classList.add('hidden');$('#end').classList.add('hidden');
+  startRun(0);
+  const wait=()=>{if(mode!=='duel'||st!=='ready')return;const left=DU.startAt-duelNow();if(left<=12){launch();return}setTimeout(wait,Math.min(250,Math.max(1,left-10)))};
+  wait();
+}
+function duelHit(j){   // j: 0-3 tier, 4 miss
+  dsend({t:'st',s:score,c:combo,l:life,r:resolved,j});
+  if(j===0){if(++DU.pstreak>=10){DU.pstreak=0;const k=['bump','shrink','fog'][Math.floor(Math.random()*3)];dsend({t:'atk',k});
+    DU.banner={text:'發動攻擊：'+({bump:'障礙',shrink:'縮小範圍',fog:'迷霧'})[k],hue:185,t:1.3,max:1.3}}}
+  else DU.pstreak=0;
+  hud();
+}
+function duelAttacked(k){
+  if(mode!=='duel'||st!=='play')return;
+  if(shield>0){shield--;hud();DU.banner={text:'護盾擋下攻擊',hue:190,t:1.4,max:1.4};return}
+  vib([30,40,30]);flash.a=.2;flash.hue=320;
+  if(k==='bump'){for(let t=0;t<12;t++){const x=FR.x+FR.w*rand(.3,.7),y=FR.y+FR.h*rand(.2,.8);if(balls.every(b=>Math.hypot(b.x-x,b.y-y)>FR.h*.3)){bumps.push({x,y,Rm:Math.min(FR.w,FR.h)*.11,age:0,life:4});break}}}
+  else if(k==='shrink')DU.shrinkT=5;else DU.fogT=3.5;
+  DU.banner={text:'受到攻擊：'+({bump:'障礙',shrink:'觸碰範圍縮小',fog:'迷霧'})[k]||'',hue:320,t:1.6,max:1.6};hud();
+}
+function duelSub(){
+  const o=DU.opp,J=['完美','極佳','良好','尚可','失誤'],recent=performance.now()-o.jt<700&&o.j>=0;
+  $('#sub').textContent='對手 '+(DU.oppName||'玩家')+'　'+o.s.toLocaleString()+(o.c>1?'　連擊 '+o.c:'')+'　生命 '+o.l+'%'+(recent?'　'+J[o.j]:'')+(DU.shrinkT>0?'　［範圍縮小］':'');
+}
+function drawDuel(x){
+  if(DU.fogT>0){   // fog covers the middle of the field; both lines stay visible
+    const a=Math.min(1,DU.fogT/.5)*.82,g=x.createLinearGradient(FR.x,0,FR.x+FR.w,0);
+    g.addColorStop(0,'rgba(40,30,70,0)');g.addColorStop(.18,`rgba(40,30,70,${a})`);g.addColorStop(.82,`rgba(40,30,70,${a})`);g.addColorStop(1,'rgba(40,30,70,0)');
+    x.fillStyle=g;x.fillRect(FR.x,FR.y,FR.w,FR.h);
+  }
+  if(DU.sprint&&st==='play'){x.save();x.strokeStyle=`hsla(48,100%,60%,${.35+.25*Math.sin(time*8)})`;x.lineWidth=3;rr(x,FR.x-4,FR.y-4,FR.w+8,FR.h+8,12);x.stroke();x.restore()}
+  if(performance.now()-DU.opp.jt<700&&DU.opp.j>=0){const J=['完美','極佳','良好','尚可','失誤'],C=[48,185,125,225,350];x.textAlign='right';x.fillStyle=`hsl(${C[DU.opp.j]},100%,72%)`;x.font='800 14px "Noto Sans TC",sans-serif';x.fillText('對手 '+J[DU.opp.j],FR.x+FR.w-12,FR.y+FR.h-12);x.textAlign='center'}
+  if(DU.banner){const b=DU.banner,k=b.t/b.max;x.globalAlpha=Math.min(1,k*2.5);x.fillStyle=`hsl(${b.hue},100%,72%)`;x.font='800 '+Math.round(Math.min(34,FR.h*.11))+'px "Noto Sans TC",sans-serif';x.fillText(b.text,W/2,FR.y+FR.h*.3-(1-k)*14);x.globalAlpha=1}
+}
+function duelFinish(ok,rank,acc){
+  DU.myFin={s:score,ok,acc,rank:ok?rank:'—',mc:maxCombo};dsend({t:'fin',...DU.myFin});
+  $('#rk').textContent='線上對戰';$('#bAgain').disabled=true;
+  duelResult();
+}
+function duelResult(){
+  const me=DU.myFin;if(!me)return;const op=DU.oppFin,el=$('#rnew');
+  if(!op&&!DU.left){el.innerHTML='<div class="sub">等待對手完成⋯</div>';return}
+  let res;if(!op)res='勝利（對手離線）';else if(me.ok!==op.ok)res=me.ok?'勝利！':'落敗';else res=me.s>op.s?'勝利！':me.s<op.s?'落敗':'平手';
+  const col=res.startsWith('勝')?'#ffd36b':res==='平手'?'#7cf0ff':'#ff7a93';
+  el.innerHTML='<div class="dres" style="color:'+col+'">'+res+'</div>'+(op?'<div class="sub">對手 '+(DU.oppName||'玩家').replace(/[<>&]/g,'')+'：'+op.s.toLocaleString()+' 分 · '+(op.ok?'評級 '+op.rank:'出局')+' · 最高連擊 '+op.mc+'</div>':'');
+  $('#bAgain').disabled=!DU.ws;
+  if(res.startsWith('勝'))vib([20,40,20,40,60]);
+}
+function duelAgain(){$('#end').classList.add('hidden');hudShow(false);st='menu';balls=[];mode='normal';dsend({t:'again'});$('#duel').classList.remove('hidden');duelView();duelRoomUI()}
+$('#bDuel').onclick=duelOpen;
+if(/WORKERS_SUBDOMAIN/.test(DUEL_URL))$('#bDuel').style.display='none';   // hidden until the duel server is deployed
+$('#dX').onclick=()=>{if(DU.ws){duelLeave()}else{$('#duel').classList.add('hidden');showHome()}};
+$('#dNew').onclick=duelCreate;
+$('#dGo').onclick=()=>duelJoin($('#dCode').value);
+$('#dCode').addEventListener('keydown',e=>{if(e.key==='Enter')duelJoin($('#dCode').value)});
+$('#dLeave').onclick=duelLeave;
+$('#dReady').onclick=()=>{initAudio();dsend({t:'ready',v:!DU.ready})};
+$('#dSong').onchange=e=>{dsend({t:'cfg',song:+e.target.value,di:+$('#dDi').value})};
+$('#dDi').onchange=e=>{dsend({t:'cfg',song:+$('#dSong').value,di:+e.target.value})};
+$('#dShare').onclick=()=>{const u=location.origin+location.pathname+'?room='+DU.code,t='來 PingPongLight 跟我對戰！房號 '+DU.code;
+  try{if(navigator.share){navigator.share({title:'PingPongLight 對戰邀請',text:t,url:u}).catch(()=>{});return}}catch(e){}
+  try{navigator.clipboard.writeText(t+' '+u);dmsg('已複製邀請連結。')}catch(e){dmsg(u)}};
+$('#bAgain').onclick=duelAgain;
+$('#bLeave').onclick=duelLeave;
+(function(){try{const r=new URLSearchParams(location.search).get('room');if(r){lsSet('ppl-tut','1');setTimeout(()=>{duelOpen();$('#dCode').value=r.toUpperCase().slice(0,4)},50)}}catch(e){}})();
 
 /* ================= menu ================= */
 const mmss=t=>{t=Math.round(t);return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
