@@ -305,13 +305,13 @@ function drum(kind,when){      // 36 kick, 38 snare, 42 hi-hat
   if(!AC)return;const t=AC.currentTime+Math.max(0,when);
   if(kind===36){
     const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.setValueAtTime(150,t);o.frequency.exponentialRampToValueAtTime(42,t+.12);
-    g.gain.setValueAtTime(.5,t);g.gain.exponentialRampToValueAtTime(.001,t+.2);o.connect(g);g.connect(busBk);o.start(t);o.stop(t+.22);
+    g.gain.setValueAtTime(.5,t);g.gain.exponentialRampToValueAtTime(.001,t+.2);o.connect(g);g.connect(busBk);o.start(t);o.stop(t+.22);live.push({g,end:t+.22});
   }else{
     const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain();s.buffer=noise();
     if(kind===38){f.type='bandpass';f.frequency.value=1900;g.gain.setValueAtTime(.3,t);g.gain.exponentialRampToValueAtTime(.001,t+.14);
       const o=AC.createOscillator(),og=AC.createGain();o.type='triangle';o.frequency.value=190;og.gain.setValueAtTime(.18,t);og.gain.exponentialRampToValueAtTime(.001,t+.09);o.connect(og);og.connect(busBk);o.start(t);o.stop(t+.1)}
     else{f.type='highpass';f.frequency.value=7500;g.gain.setValueAtTime(.1,t);g.gain.exponentialRampToValueAtTime(.001,t+.05)}
-    s.connect(f);f.connect(g);g.connect(busBk);s.start(t);s.stop(t+.16);
+    s.connect(f);f.connect(g);g.connect(busBk);s.start(t);s.stop(t+.16);live.push({g,end:t+.16});
   }
 }
 let LEADTYPE='triangle';
@@ -363,7 +363,7 @@ function prepare(s){
 /* ================= state ================= */
 let FR={x:0,y:0,w:0,h:0},BR=9,V0=420,HR=50,portrait=false;
 const HRe=()=>HR*(rangeT>0?rangeMul:1)*((D&&D.hr)||1);
-let mode='normal',D=null,life=100,resumeCD=0,lastRes=null;
+let mode='normal',D=null,life=100,resumeCD=0,lastRes=null,freezeG=0;
 const TUTN=20,TUTD={n:'教學',nb:1,gap:1.25,spd:.9,dmg:0};
 let st='home',si=0,offset=0,nt=0,resolved=0,nb=1,bi=0,tickQ=[],endAt=0,paused=false,exitT=0;
 let score=0,combo=0,maxCombo=0,tierCount=[0,0,0,0],time=0,ts=1,gAC=0,gT=0,cp={ti:0,score:0},lastCents=0,lastP=.5,pSrc='none';
@@ -502,19 +502,25 @@ function setMedia(on){
     navigator.mediaSession.setActionHandler('play',resumeGame);
   }catch(e){}
 }
+// pause: silence everything already scheduled and rewind the backing scheduler, so nothing plays out of sync on resume
+function holdMusic(){
+  cutAll();freezeG=G();
+  const t=offset+(freezeG-LEADIN)*SPD;bi=bkList.findIndex(n=>n[0]/100>=t-.01);if(bi<0)bi=bkList.length;
+}
 function pauseGame(){
   if(st!=='play'||(paused&&!resumeCD))return;
-  paused=true;resumeCD=0;
+  holdMusic();paused=true;resumeCD=0;
   if(AC&&AC.state==='running'&&AC.suspend){try{AC.suspend()}catch(e){}}
   $('#pause').classList.remove('hidden');
 }
-function resumeGame(){   // short visual count-in while the clock is still frozen, then continue
+function resumeGame(){   // audio resumes inside the tap (iOS needs a gesture); the game clock stays frozen during the count-in
   if(!paused||resumeCD)return;
   $('#pause').classList.add('hidden');resumeCD=1.5;
+  unlockAudio();if(AC&&AC.resume){const p=AC.resume();if(p&&p.catch)p.catch(()=>{})}
 }
 function doResume(){resumeCD=0;paused=false;unlockAudio();if(AC&&AC.resume){const p=AC.resume();if(p&&p.catch)p.catch(()=>{})}}
 function hushAll(){
-  if(st==='play'){paused=true;resumeCD=0;$('#pause').classList.remove('hidden')}
+  if(st==='play'){if(!paused||resumeCD)holdMusic();paused=true;resumeCD=0;$('#pause').classList.remove('hidden')}
   cutAll();stopSilent();
   if(AC&&AC.state==='running'&&AC.suspend){try{AC.suspend()}catch(e){}}
   try{if(navigator.mediaSession){navigator.mediaSession.playbackState='none';navigator.mediaSession.metadata=null}}catch(e){}
@@ -755,7 +761,9 @@ function update(dt){
   for(let i=aims.length-1;i>=0;i--){aims[i].life-=dt;if(aims[i].life<=0)aims.splice(i,1)}
   for(let i=parts.length-1;i>=0;i--){const p=parts[i];p.life-=dt;if(p.life<=0){parts.splice(i,1);continue}p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.96;p.vy*=.96}
   if(st==='over'&&exitT>0){exitT-=dt;for(const b of balls)stepFree(b,dt);return}
-  if(paused&&resumeCD>0&&st==='play'){resumeCD-=dt;if(resumeCD<=0)doResume();return}
+  if(paused&&resumeCD>0&&st==='play'){
+    if(useAC)gAC=AC.currentTime-freezeG;           // keep the game clock still while the audio clock runs
+    resumeCD-=dt;if(resumeCD<=0){if(useAC)gAC=AC.currentTime-freezeG;doResume()}return}
   if(st!=='play'||paused||portrait)return;
   if(!useAC)gT+=dt;
   const Gn=G();
