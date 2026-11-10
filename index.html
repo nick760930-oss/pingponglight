@@ -95,7 +95,7 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
 <div id="safe"></div>
 
 <div class="hud" id="hud">
-  <div class="hl"><h1>PingPongLight</h1><div class="sub" id="sub">RHYTHM GAME</div></div>
+  <div class="hl"><h1>PingPongLight</h1><div class="sub" id="sub">節奏彈球遊戲</div></div>
   <div id="prog"><div id="pf"></div></div>
   <div class="hr"><div style="display:flex;gap:10px;align-items:center;justify-content:flex-end"><div id="score">0</div><button id="bPause" aria-label="暫停">❚❚</button><button id="bFs" aria-label="全螢幕">⛶</button></div><div id="lifeW"><div id="life"></div></div><div class="sub" id="combo">&nbsp;</div></div>
 </div>
@@ -146,7 +146,7 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
 </div></div>
 
 <div class="ov hidden" id="pause"><div class="card" style="max-width:380px">
-  <div class="kicker">PAUSED</div>
+  <div class="kicker">遊戲暫停</div>
   <h2>已暫停</h2>
   <div class="row"><button class="pri" id="bResume">繼續</button><button id="bRestart">重新開始</button><button id="bQuit">離開</button></div>
 </div></div>
@@ -380,10 +380,10 @@ function daily(){let h=dayKey()*2654435761>>>0;h^=h>>>15;h=Math.imul(h,224682251
 const cleared=i=>!!lsGet('pmb6c-'+i);
 const unlocked=i=>i<3+SONGS.reduce((a,_,k)=>a+(cleared(k)?1:0),0);
 const TIERS=[
-  {n:'PERFECT',hue:48,m:3,ring:3,part:28,shake:5,vol:.4},
-  {n:'GREAT',hue:185,m:2,ring:2,part:15,shake:3,vol:.37},
-  {n:'GOOD',hue:125,m:1.2,ring:1,part:6,shake:1.5,vol:.34},
-  {n:'OK',hue:225,m:1,ring:1,part:0,shake:0,vol:.3}
+  {n:'完美',hue:48,m:3,ring:3,part:28,shake:5,vol:.4},
+  {n:'極佳',hue:185,m:2,ring:2,part:15,shake:3,vol:.37},
+  {n:'良好',hue:125,m:1.2,ring:1,part:6,shake:1.5,vol:.34},
+  {n:'尚可',hue:225,m:1,ring:1,part:0,shake:0,vol:.3}
 ];
 const tierOf=a=>a<.045?0:a<.09?1:a<.15?2:3;      // |seconds| away from the beat
 const G=()=>useAC?AC.currentTime-gAC:gT;          // game clock (seconds; first beat arrives at LEADIN)
@@ -600,7 +600,7 @@ function miss(b){
   const old=b.side,nx=old===1?-1:1,sh=shield>0;
   if(sh){shield--;sfx('shield')}else life=Math.max(0,life-(D.dmg||0));   // a plain miss stays silent
   vib(sh?20:[40,30,40]);
-  floats.push({x:b.x+nx*40,y:b.y,text:sh?'護盾抵銷':'MISS',hue:sh?190:350,life:1,max:1,size:1.2});
+  floats.push({x:b.x+nx*40,y:b.y,text:sh?'護盾抵銷':'失誤',hue:sh?190:350,life:1,max:1,size:1.2});
   const hue=sh?190:350;
   rings.push({x:b.x,y:b.y,r0:BR,life:.7,max:.7,hue,w:5});burst(b.x,b.y,hue,24,BR*14,.8);
   if(life<=0){hud();vib(120);over('生命值歸零');return}
@@ -657,13 +657,13 @@ function showResult(ok,msg){
     const pr=lsGet(kR);if(!pr||RANKS.indexOf(rank)>RANKS.indexOf(pr))lsSet(kR,rank);
     cp={ti:0,score:0};
   }else if(score>prev&&false){lsSet(kS,String(score))}
-  $('#rk').textContent=mode==='tut'?'教學完成':(dl?'DAILY · ':'')+(ok?'CLEAR':'FAILED');
+  $('#rk').textContent=mode==='tut'?'教學完成':(dl?'每日挑戰 · ':'')+(ok?'過關':'失敗');
   $('#rt').textContent=(mode==='tut'?'新手教學':dl?'每日挑戰':'第 '+(si+1)+' 關')+' · 《'+song.name+'》· '+D.n;
   lastRes={ok,rank,score,acc,maxCombo,name:song.name,label:$('#rt').textContent};
   const rk=$('#rank');rk.textContent=ok?rank:'失敗';rk.style.color=ok?RANK_COL[rank]:'#ff7a93';rk.style.fontSize=ok?'':'clamp(40px,11vh,64px)';
   $('#rnew').innerHTML=newBest?'<span class="badge">新紀錄</span>':(ok?'':'<span class="sub">'+(msg||'')+'</span>');
   const row=(l,v,c)=>'<tr><td style="color:'+(c||'inherit')+'">'+l+'</td><td>'+v+'</td></tr>';
-  $('#rtab').innerHTML=row('PERFECT',tierCount[0],'#ffd36b')+row('GREAT',tierCount[1],'#7cf0ff')+row('GOOD',tierCount[2],'#8fe388')+row('OK',tierCount[3],'#9aa3c7')+row('MISS',missCount,'#ff7a93')
+  $('#rtab').innerHTML=row('完美',tierCount[0],'#ffd36b')+row('極佳',tierCount[1],'#7cf0ff')+row('良好',tierCount[2],'#8fe388')+row('尚可',tierCount[3],'#9aa3c7')+row('失誤',missCount,'#ff7a93')
     +row('最高連擊',maxCombo)+row('精準度',Math.round(acc*100)+'%')+row('完成度',Math.min(resolved,tg.length)-runFrom+' / '+N);
   countUp($('#rscore'),score);
   const hasNext=mode==='tut'||(mode==='normal'&&ok&&si+1<SONGS.length&&unlocked(si+1));
