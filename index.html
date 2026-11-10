@@ -84,7 +84,6 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
 .tog.on{background:linear-gradient(90deg,#3fd8ff,#8f6bff);color:#04060f;border-color:transparent;font-weight:700}
 #calPad{display:block;width:100%;height:110px;margin:10px 0;font-size:18px;border-radius:18px}
 #calPad.beat{background:rgba(124,240,255,.28)}
-.daily{font-size:12px;color:#ffd36b;margin:2px 0 0;letter-spacing:.04em}
 .stars{color:#ffd36b;letter-spacing:-1px}
 .chip.lock{opacity:.45}
 @media (max-height:480px){#calPad{height:80px}.srow{margin:4px 0;font-size:13px}.hbtns{margin:12px 0 6px}button.big{font-size:16px;padding:10px 30px}.rright td{padding:1px 8px;font-size:13px}#rscore{font-size:22px}.chip{padding:5px 10px;font-size:12px}.chips{margin:4px 0 0}.kicker{font-size:11px}.card p{font-size:12px;margin:4px 0}.card{padding:8px 18px}.card h2{font-size:20px}.card ul{font-size:12px;line-height:1.5;margin:4px 0}.row{margin-top:8px}}
@@ -107,12 +106,10 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
     <button class="pri big" id="bStart">開始遊戲</button>
   </div>
   <div class="hbtns" style="margin-top:0">
-    <button id="bDaily">每日挑戰</button>
     <button id="bTut">新手教學</button>
     <button id="bHow">操作說明</button>
     <button id="bSet">設定</button>
   </div>
-  <p class="daily" id="dailyInfo"></p>
   <p id="aud" style="font-size:12px;margin:0;color:#ffb86b"></p>
   <div id="how" hidden>
     <ul>
@@ -373,7 +370,7 @@ function prepare(s){
 
 /* ================= state ================= */
 let FR={x:0,y:0,w:0,h:0},BR=9,V0=420,HR=50,portrait=false;
-const HRe=()=>HR*(rangeT>0?rangeMul:1)*((D&&D.hr)||1);
+const HRe=()=>HR*(rangeT>0?rangeMul:1);
 let mode='normal',D=null,life=100,resumeCD=0,lastRes=null,freezeG=0;
 const TUTN=20,TUTD={n:'教學',nb:1,gap:1.25,spd:.9,dmg:0};
 let st='home',si=0,offset=0,nt=0,resolved=0,nb=1,bi=0,tickQ=[],endAt=0,paused=false,exitT=0;
@@ -384,10 +381,6 @@ const LEADIN=2.6,CPN=25;
 const DIFFS=[{n:'簡單',nb:1,gap:1.0,spd:1.0,dmg:20},{n:'普通',nb:2,gap:.55,spd:1.0,dmg:25},{n:'困難',nb:2,gap:.4,spd:1.2,dmg:34}];
 let di=(v=>isNaN(v)?1:Math.min(2,Math.max(0,v)))(parseInt(lsGet('pmb6-di')||'1',10)),SPD=1;
 D=DIFFS[di];
-/* daily challenge: one song + one modifier per local date */
-const MODS=[{m:'鏡像',mirror:true},{m:'加速 ×1.15',spd:1.15},{m:'障礙加倍',bump:2},{m:'精準模式',hr:.8}];
-function dayKey(){const d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()}
-function daily(){let h=dayKey()*2654435761>>>0;h^=h>>>15;h=Math.imul(h,2246822519)>>>0;h^=h>>>13;return{si:h%SONGS.length,mod:MODS[(h>>>8)%MODS.length],key:dayKey()}}
 const cleared=i=>!!lsGet('pmb6c-'+i);
 const unlocked=i=>i<3+SONGS.reduce((a,_,k)=>a+(cleared(k)?1:0),0);
 const TIERS=[
@@ -400,7 +393,7 @@ const tierOf=a=>a<.045?0:a<.09?1:a<.15?2:3;      // |seconds| away from the beat
 const G=()=>useAC?AC.currentTime-gAC:gT;          // game clock (seconds; first beat arrives at LEADIN)
 const timeOf=t=>(t-offset)/SPD+LEADIN;                  // song time -> game clock
 const tT=i=>timeOf(tg[i].t);
-const sideOf=i=>{const r=(Math.floor(i/nb)+(i%nb))%2?3:1;return D&&D.mirror?4-r:r};  // 1 = right line, 3 = left line (alternate thumbs)
+const sideOf=i=>(Math.floor(i/nb)+(i%nb))%2?3:1;  // 1 = right line, 3 = left line (alternate thumbs)
 const hueNow=()=>(songHue(si)+(tg.length?resolved/tg.length:0)*140)%360;
 const LEAD=v=>Math.max(BR*5,(v||0)*.13)*(easeT>0?1.6:1),GRACE=v=>Math.max(BR*5,(v||0)*.11)*(easeT>0?1.6:1);
 
@@ -441,7 +434,6 @@ function newBall(ti){
 function startRun(from){
   from=from||0;
   if(mode==='tut'){D=TUTD;si=SONGS.findIndex(s=>s.key==='twinkle');if(si<0)si=0}
-  else if(mode==='daily'){const dl=daily();si=dl.si;D=Object.assign({},DIFFS[1],{n:dl.mod.m},dl.mod)}
   else D=DIFFS[di];
   song=SONGS[si];LEADTYPE=song.lead||'triangle';SPD=D.spd;nb=D.nb;prepare(song);
   from=Math.min(from,Math.max(0,tg.length-1));
@@ -453,7 +445,7 @@ function startRun(from){
   balls=[];for(let j=0;j<nb;j++)if(from+j<tg.length)balls.push(newBall(from+j));
   endAt=mode==='tut'?timeOf(tg[tg.length-1].t)+2:timeOf(song.dur)+1.2;
   st='ready';hudShow(true);
-  $('#sub').textContent=(mode==='tut'?'新手教學':mode==='daily'?'每日挑戰':'第 '+(si+1)+' 關')+' · 《'+song.name+'》 · '+D.n+' · '+tg.length+' 拍'+(nb===2?' · 雙球':'')+(from?' · 自第 '+(from+1)+' 拍':'');
+  $('#sub').textContent=(mode==='tut'?'新手教學':'第 '+(si+1)+' 關')+' · 《'+song.name+'》 · '+D.n+' · '+tg.length+' 拍'+(nb===2?' · 雙球':'')+(from?' · 自第 '+(from+1)+' 拍':'');
   hud();
   for(const o of['#home','#menu','#end','#pause','#set','#cal'])$(o).classList.add('hidden');
 }
@@ -671,19 +663,17 @@ function showResult(ok,msg){
   const N=Math.max(1,tg.length-runFrom),hits=tierCount[0]+tierCount[1]+tierCount[2]+tierCount[3],played=Math.max(1,hits+missCount);
   const w=tierCount[0]+tierCount[1]*.8+tierCount[2]*.5+tierCount[3]*.25,acc=w/(ok?N:played);
   const rank=acc>=.95&&missCount===0?'S':acc>=.85?'A':acc>=.7?'B':acc>=.5?'C':'D';
-  const dl=mode==='daily'?daily():null;
-  const kS=dl?'ppl-d-'+dl.key:'pmb6-'+si+'-'+di,kR='pmb6r-'+si+'-'+di,prev=parseInt(lsGet(kS)||'0',10);
+  const kS='pmb6-'+si+'-'+di,kR='pmb6r-'+si+'-'+di,prev=parseInt(lsGet(kS)||'0',10);
   const newBest=ok&&mode!=='tut'&&score>prev;
   if(mode==='tut'){lsSet('ppl-tut','1')}
-  else if(dl){if(newBest)lsSet(kS,String(score))}
   else if(ok){
     lsSet('pmb6c-'+si,'1');
     if(newBest)lsSet(kS,String(score));
     const pr=lsGet(kR);if(!pr||RANKS.indexOf(rank)>RANKS.indexOf(pr))lsSet(kR,rank);
     cp={ti:0,score:0};
-  }else if(score>prev&&false){lsSet(kS,String(score))}
-  $('#rk').textContent=mode==='tut'?'教學完成':(dl?'每日挑戰 · ':'')+(ok?'過關':'失敗');
-  $('#rt').textContent=(mode==='tut'?'新手教學':dl?'每日挑戰':'第 '+(si+1)+' 關')+' · 《'+song.name+'》· '+D.n;
+  }
+  $('#rk').textContent=mode==='tut'?'教學完成':(ok?'過關':'失敗');
+  $('#rt').textContent=(mode==='tut'?'新手教學':'第 '+(si+1)+' 關')+' · 《'+song.name+'》· '+D.n;
   lastRes={ok,rank,score,acc,maxCombo,name:song.name,label:$('#rt').textContent};
   const rk=$('#rank');rk.textContent=ok?rank:'失敗';rk.style.color=ok?RANK_COL[rank]:'#ff7a93';rk.style.fontSize=ok?'':'clamp(40px,11vh,64px)';
   $('#rnew').innerHTML=newBest?'<span class="badge">新紀錄</span>':(ok?'':'<span class="sub">'+(msg||'')+'</span>');
@@ -707,7 +697,7 @@ function win(){
   setTimeout(()=>{if(st==='done')showResult(true)},500);
 }
 function hudShow(v){$('#hud').style.visibility=v?'visible':'hidden'}
-function showHome(){mode='normal';dailyInfo();setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#home').classList.remove('hidden');audioStatus()}
+function showHome(){mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#home').classList.remove('hidden');audioStatus()}
 function showSelect(){mode='normal';setMedia(false);hudShow(false);st='menu';cutAll();balls=[];buildChips();$('#home').classList.add('hidden');$('#end').classList.add('hidden');$('#menu').classList.remove('hidden')}
 
 /* ================= update ================= */
@@ -796,7 +786,7 @@ function update(dt){
   if(rangeT>0){rangeT-=dt;if(rangeT<=0){rangeMul=1;hud()}}
   if(starT>0){starT-=dt;if(starT<=0)hud()}
   const prog=tg.length?resolved/tg.length:0;
-  const bm=D.bump||1,tut=mode==='tut';
+  const bm=1,tut=mode==='tut';
   spawnT-=dt;if(spawnT<=0&&Gn>LEADIN&&(!tut||resolved>=12)){if(bumps.length<(tut?1:(1+Math.floor(prog*3))*bm))spawnBump();spawnT=Math.max(1.8,4.5-prog*2.6)/bm*rand(.8,1.2)}
   itemT-=dt;if(itemT<=0&&Gn>LEADIN&&!tut){if(items.length<1)spawnItem();itemT=rand(8,12)}
   for(let i=bumps.length-1;i>=0;i--){const o=bumps[i];o.age+=dt;if(o.age>o.life+.4)bumps.splice(i,1)}
@@ -998,11 +988,8 @@ function buildChips(){
 }
 const tutDone=()=>!!lsGet('ppl-tut')||SONGS.some((_,i)=>cleared(i));
 function startTut(){mode='tut';startRun(0)}
-function startDaily(){mode='daily';startRun(0)}
-function dailyInfo(){if(!SONGS.length)return;const d=daily(),b=parseInt(lsGet('ppl-d-'+d.key)||'0',10);$('#dailyInfo').textContent='今日挑戰：《'+SONGS[d.si].name+'》 · '+d.mod.m+(b?' · 今日最佳 '+b.toLocaleString():'')}
 $('#bStart').onclick=()=>{initAudio();goFs();if(!tutDone())startTut();else showSelect()};
 $('#bTut').onclick=()=>{initAudio();goFs();startTut()};
-$('#bDaily').onclick=()=>{initAudio();goFs();startDaily()};
 $('#bPause').onclick=e=>{e.stopPropagation();pauseGame()};
 $('#bResume').onclick=resumeGame;
 $('#bRestart').onclick=()=>{$('#pause').classList.add('hidden');doResume();startRun(0)};
@@ -1092,10 +1079,10 @@ document.addEventListener('webkitfullscreenchange',()=>setTimeout(layout,100));
 addEventListener('orientationchange',()=>setTimeout(layout,200));
 document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('button');if(b&&!['calPad','bTest','tSfx','bPause'].includes(b.id))sfx('click')},true);
 if(!unlocked(si))si=0;
-layout();buildChips();hud();audioStatus();dailyInfo();
+for(const f of[layout,buildChips,hud,audioStatus]){try{f()}catch(e){showErr(e)}}   // one failing step must not stop start-up
 if('serviceWorker' in navigator&&location.protocol==='https:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));hudShow(false);$('#fsHint').style.display=(!(DE.requestFullscreen||DE.webkitRequestFullscreen)&&!standalone)?'block':'none';
 requestAnimationFrame(frame);
-window.__pb={get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:FR,HR:HRe(),tiers:tierCount,cents:lastCents,p:lastP,pSrc,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},setTs(v){ts=v},setSong(i){si=i},tg:()=>tg.map(t=>t.t),pause:pauseGame,resume:resumeGame,shareImg,daily,STARS,sfx:()=>Object.keys(SFX).map(k=>k+':'+SFX[k].duration.toFixed(2))};
+window.__pb={get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:FR,HR:HRe(),tiers:tierCount,cents:lastCents,p:lastP,pSrc,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},setTs(v){ts=v},setSong(i){si=i},tg:()=>tg.map(t=>t.t),pause:pauseGame,resume:resumeGame,shareImg,STARS,sfx:()=>Object.keys(SFX).map(k=>k+':'+SFX[k].duration.toFixed(2))};
 })();
 </script>
 </body>
