@@ -96,7 +96,7 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
 <div class="hud" id="hud">
   <div class="hl"><h1>PingPongLight</h1><div class="sub" id="sub">節奏彈球遊戲</div></div>
   <div id="prog"><div id="pf"></div></div>
-  <div class="hr"><div style="display:flex;gap:10px;align-items:center;justify-content:flex-end"><div id="score">0</div><button id="bPause" aria-label="暫停">❚❚</button><button id="bFs" aria-label="全螢幕">⛶</button></div><div id="lifeW"><div id="life"></div></div><div class="sub" id="combo">&nbsp;</div></div>
+  <div class="hr"><div style="display:flex;gap:10px;align-items:center;justify-content:flex-end"><div id="score">0</div><button id="bSkipH" style="display:none;padding:4px 10px;font-size:13px;margin-bottom:2px">跳過教學</button><button id="bPause" aria-label="暫停">❚❚</button><button id="bFs" aria-label="全螢幕">⛶</button></div><div id="lifeW"><div id="life"></div></div><div class="sub" id="combo">&nbsp;</div></div>
 </div>
 
 <div class="ov" id="home"><div class="home">
@@ -145,7 +145,7 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
 <div class="ov hidden" id="pause"><div class="card" style="max-width:380px">
   <div class="kicker">遊戲暫停</div>
   <h2>已暫停</h2>
-  <div class="row"><button class="pri" id="bResume">繼續</button><button id="bRestart">重新開始</button><button id="bQuit">離開</button></div>
+  <div class="row"><button class="pri" id="bResume">繼續</button><button id="bRestart">重新開始</button><button id="bQuit">離開</button><button id="bSkip">跳過教學</button></div>
 </div></div>
 
 <div class="ov hidden" id="set"><div class="card set">
@@ -157,6 +157,7 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
   <div class="srow"><label>減少特效</label><button class="tog" id="tFx"></button><label style="flex:0 0 auto;margin-left:14px">震動回饋</label><button class="tog" id="tVib"></button></div>
   <div class="srow"><label>音效風格</label><button class="tog" id="tSfx" style="min-width:5.5em"></button></div>
   <div class="srow"><label>延遲補償</label><button id="bCal">校準</button><span class="v" id="calV" style="flex:1 1 auto;text-align:left;margin-left:6px"></span></div>
+  <p id="aDiag" style="font-size:11px;color:#8a93c0;margin:4px 0 0;text-align:center"></p>
   <div class="row"><button id="bTest">測試聲音</button><button class="pri" id="bSetX">返回首頁</button></div>
 </div></div>
 
@@ -231,7 +232,15 @@ function audioStatus(){
   el.textContent=AC&&AC.state==='running'?'聲音已啟用':'聲音未啟用：請按「測試聲音」，並確認裝置未開啟靜音。';
   el.style.color=AC&&AC.state==='running'?'#7cf0ff':'#ffb86b';
 }
-function initAudio(){
+let acStale=false,acWatch={t:-1,w:0};
+// iOS: after switching apps / an interruption the context can report "running" yet stay silent;
+// such a context is closed and rebuilt on the next button press (never in the middle of a run)
+function resetAudio(){
+  try{if(AC&&AC.close)AC.close()}catch(e){}
+  AC=null;master=wet=busMel=busBk=busFx=null;noiseBuf=null;live.length=0;acStale=false;acWatch={t:-1,w:0};
+}
+function initAudio(force){
+  if(AC&&(force||acStale||AC.state==='closed'||AC.state==='interrupted')&&(st!=='play'||paused))resetAudio();
   if(AC){unlockAudio();return}
   try{
     AC=new(window.AudioContext||window.webkitAudioContext)();
@@ -490,11 +499,10 @@ function pressureOf(e){
   return clamp((raw-lo)/(hi-lo),0,1);
 }
 function tap(x,y,e){
-  initAudio();
+  if(AC)unlockAudio();else initAudio();   // never rebuild audio here: pointerdown is not an audio gesture on iOS
   if(portrait)return;
   if(paused)return;
-  if(st==='starting')return;
-  if(st==='ready'){launch();return}
+  if(st==='starting'||st==='ready')return;  // the run starts on "click" (see below)
   if(st!=='play')return;
   let best=null,bd=1e9;
   for(const b of balls){if(!b.win)continue;const d=Math.hypot(b.x-x,b.y-y);if(d<=HRe()&&d<bd){bd=d;best=b}}
@@ -504,6 +512,7 @@ function tap(x,y,e){
   bounce(best,x,y,p);
 }
 cv.addEventListener('pointerdown',e=>{e.preventDefault();tap(e.clientX,e.clientY,e)});
+cv.addEventListener('click',()=>{if(st==='ready'&&!paused&&!portrait){initAudio();launch()}});   // click = a valid audio gesture on iOS
 function setMedia(on){
   try{
     if(!navigator.mediaSession)return;
@@ -519,26 +528,29 @@ function holdMusic(){
   const t=offset+(freezeG-LEADIN)*SPD;bi=bkList.findIndex(n=>n[0]/100>=t-.01);if(bi<0)bi=bkList.length;
 }
 function pauseGame(){
+  if(st==='ready'||st==='starting'){if(!paused){paused=true;resumeCD=0;showPauseMenu()}return}
   if(st!=='play'||(paused&&!resumeCD))return;
   holdMusic();paused=true;resumeCD=0;
-  if(AC&&AC.state==='running'&&AC.suspend){try{AC.suspend()}catch(e){}}
-  $('#pause').classList.remove('hidden');
+  if(AC&&AC.state==='running'&&AC.suspend){try{const q=AC.suspend();if(q&&q.catch)q.catch(()=>{})}catch(e){}}
+  showPauseMenu();
 }
+function showPauseMenu(){$('#bSkip').style.display=mode==='tut'?'':'none';$('#pause').classList.remove('hidden')}
 function resumeGame(){   // audio resumes inside the tap (iOS needs a gesture); the game clock stays frozen during the count-in
   if(!paused||resumeCD)return;
+  if(st!=='play'){paused=false;$('#pause').classList.add('hidden');return}
   $('#pause').classList.add('hidden');resumeCD=1.5;
   unlockAudio();if(AC&&AC.resume){const p=AC.resume();if(p&&p.catch)p.catch(()=>{})}
 }
 function doResume(){resumeCD=0;paused=false;unlockAudio();if(AC&&AC.resume){const p=AC.resume();if(p&&p.catch)p.catch(()=>{})}}
 function hushAll(){
-  if(st==='play'){if(!paused||resumeCD)holdMusic();paused=true;resumeCD=0;$('#pause').classList.remove('hidden')}
+  if(st==='play'){if(!paused||resumeCD)holdMusic();paused=true;resumeCD=0;showPauseMenu()}
   cutAll();stopSilent();
   if(AC&&AC.state==='running'&&AC.suspend){try{AC.suspend()}catch(e){}}
   try{if(navigator.mediaSession){navigator.mediaSession.playbackState='none';navigator.mediaSession.metadata=null}}catch(e){}
 }
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden)hushAll();
-  else{try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}}
+  else{try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}if(isIOS)acStale=true}
 });
 addEventListener('pagehide',hushAll);
 
@@ -696,7 +708,7 @@ function win(){
   setMedia(false);st='done';
   setTimeout(()=>{if(st==='done')showResult(true)},500);
 }
-function hudShow(v){$('#hud').style.visibility=v?'visible':'hidden'}
+function hudShow(v){$('#hud').style.visibility=v?'visible':'hidden';$('#bSkipH').style.display=v&&mode==='tut'?'':'none'}
 function showHome(){mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#home').classList.remove('hidden');audioStatus()}
 function showSelect(){mode='normal';setMedia(false);hudShow(false);st='menu';cutAll();balls=[];buildChips();$('#home').classList.add('hidden');$('#end').classList.add('hidden');$('#menu').classList.remove('hidden')}
 
@@ -963,6 +975,7 @@ function frame(now){
   const t0=performance.now();
   const dt=Math.min(.05,(now-last)/1000)*ts;last=now;
   try{
+    if(fc%60===0&&AC&&AC.state==='running'){const w=performance.now();if(acWatch.t===AC.currentTime&&w-acWatch.w>800)acStale=true;if(acWatch.t!==AC.currentTime)acWatch={t:AC.currentTime,w}}
     if(++fc%30===0){const sz=viewSize();if(sz&&(Math.abs(sz[0]-W)>2||Math.abs(sz[1]-H)>2))layout()}   // missed resize events
     const n=Math.max(1,Math.ceil(dt/(1/90))),h=dt/n;       // sub-steps keep the motion smooth
     for(let i=0;i<n;i++)update(h);
@@ -993,9 +1006,17 @@ $('#bTut').onclick=()=>{initAudio();goFs();startTut()};
 $('#bPause').onclick=e=>{e.stopPropagation();pauseGame()};
 $('#bResume').onclick=resumeGame;
 $('#bRestart').onclick=()=>{$('#pause').classList.add('hidden');doResume();startRun(0)};
+function skipTut(){lsSet('ppl-tut','1');$('#pause').classList.add('hidden');doResume();showSelect()}
+$('#bSkip').onclick=skipTut;$('#bSkipH').onclick=e=>{e.stopPropagation();skipTut()};
 $('#bQuit').onclick=()=>{$('#pause').classList.add('hidden');doResume();if(mode==='normal')showSelect();else showHome()};
 /* ---- settings ---- */
+function audioDiag(){
+  const el=$('#aDiag');if(!el)return;
+  let ses='';try{ses=navigator.audioSession?navigator.audioSession.type:'無'}catch(e){}
+  el.textContent=AC?'音訊狀態：'+AC.state+' · '+Math.round(AC.sampleRate/100)/10+' kHz · 工作階段 '+ses+' · 音效 '+Object.keys(SFX).length+'/9':'音訊尚未啟動';
+}
 function syncSet(){
+  audioDiag();
   for(const[k,id]of[['mel','vMel'],['bk','vBk'],['fx','vFx']]){$('#'+id).value=SET[k];$('#'+id+'V').textContent=SET[k]}
   const tg2=(id,on)=>{const b=$('#'+id);b.textContent=on?'開啟':'關閉';b.classList.toggle('on',on)};tg2('tFx',SET.lowFx);tg2('tVib',SET.vib);
   {const b=$('#tSfx');b.textContent=SET.classic?'經典合成':'新版音效';b.classList.toggle('on',!SET.classic)}
@@ -1070,7 +1091,7 @@ $('#bNext').onclick=()=>{initAudio();if(mode==='tut'){mode='normal';si=0;startRu
 $('#bRetry').onclick=()=>{initAudio();startRun(0)};
 $('#bCont').onclick=()=>{initAudio();startRun(cp.ti)};
 $('#bSel').onclick=showSelect;
-$('#bTest').onclick=()=>{initAudio();[60,64,67,72].forEach((p,i)=>voice(p,i*.14,.6,.3,0,true));voice(48,0,1.2,.17,0,false);sfx('item',.75);setTimeout(audioStatus,250);setTimeout(audioStatus,900)};
+$('#bTest').onclick=()=>{initAudio(true);[60,64,67,72].forEach((p,i)=>voice(p,i*.14,.6,.3,0,true));voice(48,0,1.2,.17,0,false);sfx('item',.75);setTimeout(()=>{audioStatus();audioDiag()},250);setTimeout(()=>{audioStatus();audioDiag()},900)};
 $('#bFs').onclick=toggleFs;
 addEventListener('resize',layout);
 if(window.visualViewport)visualViewport.addEventListener('resize',layout);
