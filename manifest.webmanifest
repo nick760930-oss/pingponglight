@@ -1,6 +1,6 @@
 {
-  "name": "光譜旋律 · 彈跳版",
-  "short_name": "光譜旋律",
+  "name": "PingPongLight",
+  "short_name": "PingPongLight",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",
