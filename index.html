@@ -764,6 +764,7 @@ function update(dt){
   if(paused&&resumeCD>0&&st==='play'){
     if(useAC)gAC=AC.currentTime-freezeG;           // keep the game clock still while the audio clock runs
     resumeCD-=dt;if(resumeCD<=0){if(useAC)gAC=AC.currentTime-freezeG;doResume()}return}
+  if(st==='ready')for(const b of balls)if(b.pop<1)b.pop=Math.min(1,b.pop+dt*3);   // ball visible while waiting for the first tap
   if(st!=='play'||paused||portrait)return;
   if(!useAC)gT+=dt;
   const Gn=G();
@@ -919,24 +920,27 @@ function drawAttract(x){
   for(let k=10;k>=0;k--){const q=attractPos(time-k*.028),a=k?(1-k/11)*.5:1,r=BR*3.6;x.globalAlpha=a;x.drawImage(sprite(h),q[0]-r,q[1]-r,r*2,r*2)}
   x.restore();x.fillStyle='#fff';const b=attractPos(time);x.beginPath();x.arc(b[0],b[1],BR*.7,0,6.283);x.fill();
 }
+function drawTut(ctx){
+  if(!(mode==='tut'&&(st==='play'||st==='ready')))return;
+  ctx.save();ctx.textAlign='center';ctx.textBaseline='alphabetic';
+    const r=resolved,msg=r<4?'光球抵達亮起的框線時，觸碰光球。外圈縮到光球上的瞬間就是節拍。':r<8?'觸碰光球上方，球往下彈；觸碰光球下方，球往上彈。':r<12?'按得越用力（或指腹接觸面積越大），轉向越大。':r<16?'場中障礙只改變方向，光球會自動加速，準時抵達框線。':'教學中失誤不扣生命值；正式關卡失誤會扣生命值。';
+    ctx.fillStyle='rgba(4,5,13,.45)';
+    ctx.font='700 15px "Noto Sans TC",sans-serif';const mw=Math.min(FR.w-16,ctx.measureText(msg).width+28);
+    rr(ctx,W/2-mw/2,FR.y+8,mw,30,15);ctx.fill();ctx.fillStyle='#ffd36b';ctx.fillText(msg,W/2,FR.y+28,mw-16);
+    ctx.restore();
+}
 function draw(){
   ctx.setTransform(dpr,0,0,dpr,0,0);
   drawBG(ctx);
   ctx.save();
   if(shake>0&&!SET.lowFx)ctx.translate(rand(-shake,shake)*.5,rand(-shake,shake)*.5);
   if(st==='home')drawAttract(ctx);
-  else if(st!=='menu'){drawField(ctx);drawBumps(ctx);drawItems(ctx);drawBalls(ctx);drawFx(ctx)}
+  else if(st!=='menu'){drawField(ctx);drawTut(ctx);drawBumps(ctx);drawItems(ctx);drawBalls(ctx);drawFx(ctx)}
   ctx.restore();
   ctx.textAlign='center';ctx.textBaseline='alphabetic';
   if(st==='ready'){ctx.fillStyle='#e8ecff';ctx.font='700 19px "Noto Sans TC",sans-serif';ctx.fillText('點擊畫面開始（含 3 拍預備）',W/2,FR.y+FR.h/2+BR*6);ctx.fillStyle='#8a93c0';ctx.font='400 13px "Noto Sans TC",sans-serif';ctx.fillText('光球將於節拍抵達亮起的框線，請於節拍觸碰光球。',W/2,FR.y+FR.h/2+BR*6+24)}
   if(st==='play'&&G()<LEADIN&&!paused){const n=Math.ceil((LEADIN-G())/.5);if(n<=3&&n>=1){ctx.fillStyle='rgba(232,236,255,.55)';ctx.font='800 '+Math.round(Math.min(FR.h*.3,90))+'px "Noto Sans TC",sans-serif';ctx.fillText(String(n),W/2,FR.y+FR.h*.62)}}
   if(st==='play'&&AC&&AC.state!=='running'&&!paused){ctx.fillStyle='#ffb86b';ctx.font='700 15px "Noto Sans TC",sans-serif';ctx.fillText('聲音未啟用：請點擊畫面，並確認裝置未開啟靜音。',W/2,FR.y+FR.h-12)}
-  if(mode==='tut'&&(st==='play'||st==='ready')){
-    const r=resolved,msg=r<4?'光球抵達亮起的框線時，觸碰光球。外圈縮到光球上的瞬間就是節拍。':r<8?'觸碰光球上方，球往下彈；觸碰光球下方，球往上彈。':r<12?'按得越用力（或指腹接觸面積越大），轉向越大。':r<16?'場中障礙只改變方向，光球會自動加速，準時抵達框線。':'教學中失誤不扣生命值；正式關卡失誤會扣生命值。';
-    ctx.fillStyle='rgba(4,5,13,.6)';
-    ctx.font='700 15px "Noto Sans TC",sans-serif';const mw=Math.min(FR.w-16,ctx.measureText(msg).width+28);
-    rr(ctx,W/2-mw/2,FR.y+8,mw,30,15);ctx.fill();ctx.fillStyle='#ffd36b';ctx.fillText(msg,W/2,FR.y+28);
-  }
   if(paused){ctx.fillStyle='rgba(4,5,13,.6)';ctx.fillRect(0,0,W,H);
     if(resumeCD>0){ctx.fillStyle='#e8ecff';ctx.font='800 '+Math.round(Math.min(FR.h*.3,90))+'px "Noto Sans TC",sans-serif';ctx.fillText(String(Math.ceil(resumeCD/.5)),W/2,FR.y+FR.h*.62)}}
 }
