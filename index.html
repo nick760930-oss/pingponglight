@@ -172,6 +172,7 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
   <div class="row"><button class="pri" id="calGo">開始</button><button id="calX">返回設定</button></div>
 </div></div>
 
+<div id="err" style="display:none;position:fixed;left:12px;right:12px;bottom:10px;z-index:20;background:rgba(60,10,25,.95);border:1px solid #ff7a93;border-radius:12px;padding:8px 12px;font-size:12px;color:#ffd0d8;text-align:left"><span id="errT"></span> <button id="errR" style="margin-left:8px;padding:4px 12px;font-size:12px">重新載入</button></div>
 <div class="ov hidden" id="rot"><b>⟳</b>請將裝置橫向使用</div>
 
 <script src="songs.js"></script>
@@ -179,6 +180,15 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
 (()=>{
 'use strict';
 const $=s=>document.querySelector(s);
+let errShown=0;
+function showErr(e){
+  try{console.error(e)}catch(_){}
+  if(errShown++>0)return;
+  const el=$('#err');if(!el)return;
+  $('#errT').textContent='發生錯誤，請截圖回報：'+String((e&&(e.message||e))||e).slice(0,160);el.style.display='block';
+  $('#errR').onclick=()=>location.reload();
+}
+addEventListener('error',ev=>{if(ev&&ev.message&&!/ResizeObserver/.test(ev.message))showErr(ev.error||ev.message)});
 const cv=$('#c'),ctx=cv.getContext('2d');
 let W=0,H=0,dpr=1,rscale=Math.min(window.devicePixelRatio||1,1.75);
 const rand=(a,b)=>a+Math.random()*(b-a);
@@ -328,6 +338,7 @@ const pitchTxt=c=>Math.abs(c)<6?'音準正確':(c<0?'♭ ':'♯ ')+Math.abs(Math
 const SD=window.SONGDATA||{};
 const ORDER=window.SONGORDER||Object.keys(SD);
 const SONGS=ORDER.filter(k=>SD[k]).map(k=>Object.assign({key:k},SD[k]));
+if(!SONGS.length)setTimeout(()=>showErr('曲目資料載入失敗，請確認網路後重新載入。'),0);
 const songHue=i=>(i*53+200)%360;
 let song=SONGS[0],melList=[],bkList=[],tg=[];
 // beat picking: within [gap, 1.6*gap] after the previous target prefer long notes, local peaks and phrase onsets
@@ -394,9 +405,17 @@ const hueNow=()=>(songHue(si)+(tg.length?resolved/tg.length:0)*140)%360;
 const LEAD=v=>Math.max(BR*5,(v||0)*.13)*(easeT>0?1.6:1),GRACE=v=>Math.max(BR*5,(v||0)*.11)*(easeT>0?1.6:1);
 
 function safeIns(){const c=getComputedStyle($('#safe'));return{t:parseFloat(c.paddingTop)||0,r:parseFloat(c.paddingRight)||0,b:parseFloat(c.paddingBottom)||0,l:parseFloat(c.paddingLeft)||0}}
+let layoutRetry=0;
+function viewSize(){   // some browsers briefly report 0 during fullscreen / rotation changes
+  const vv=window.visualViewport,c=[[vv&&vv.width,vv&&vv.height],[innerWidth,innerHeight],[DE.clientWidth,DE.clientHeight]];
+  for(const[w,h]of c)if(w>=50&&h>=50)return[Math.round(w),Math.round(h)];
+  return null;
+}
 function layout(){
+  const sz=viewSize();
+  if(!sz){clearTimeout(layoutRetry);layoutRetry=setTimeout(layout,150);return}
   dpr=rscale;
-  const vv=window.visualViewport;W=Math.round(vv?vv.width:innerWidth);H=Math.round(vv?vv.height:innerHeight);
+  W=sz[0];H=sz[1];
   cv.width=W*dpr;cv.height=H*dpr;
   portrait=H>W*1.05;
   $('#rot').classList.toggle('hidden',!portrait);
@@ -801,6 +820,7 @@ function paintBG(x,h){
 }
 function drawBG(x){   // rendered once per size/hue step, then blitted
   const h=hueNow(),key=W+'x'+H+'/'+Math.round(h/8);
+  if(W<1||H<1)return;
   if(!bgC||key!==bgKey){bgKey=key;bgC=document.createElement('canvas');bgC.width=W;bgC.height=H;paintBG(bgC.getContext('2d'),h)}
   x.drawImage(bgC,0,0);
 }
@@ -952,11 +972,14 @@ function frame(now){
   if(idle)lastIdle=now;
   const t0=performance.now();
   const dt=Math.min(.05,(now-last)/1000)*ts;last=now;
-  const n=Math.max(1,Math.ceil(dt/(1/90))),h=dt/n;       // sub-steps keep the motion smooth
-  for(let i=0;i<n;i++)update(h);
-  draw();
+  try{
+    if(++fc%30===0){const sz=viewSize();if(sz&&(Math.abs(sz[0]-W)>2||Math.abs(sz[1]-H)>2))layout()}   // missed resize events
+    const n=Math.max(1,Math.ceil(dt/(1/90))),h=dt/n;       // sub-steps keep the motion smooth
+    for(let i=0;i<n;i++)update(h);
+    draw();
+  }catch(e){showErr(e)}                                     // one bad frame must never stop the loop
   costEMA=costEMA*.9+(performance.now()-t0)*.1;
-  if(++fc%90===0&&costEMA>10&&rscale>1){rscale=Math.max(1,rscale-.25);layout()}   // adaptive resolution if drawing is expensive
+  if(fc%90===0&&costEMA>10&&rscale>1){rscale=Math.max(1,rscale-.25);layout()}   // adaptive resolution if drawing is expensive
   requestAnimationFrame(frame);
 }
 
@@ -976,7 +999,7 @@ function buildChips(){
 const tutDone=()=>!!lsGet('ppl-tut')||SONGS.some((_,i)=>cleared(i));
 function startTut(){mode='tut';startRun(0)}
 function startDaily(){mode='daily';startRun(0)}
-function dailyInfo(){const d=daily(),b=parseInt(lsGet('ppl-d-'+d.key)||'0',10);$('#dailyInfo').textContent='今日挑戰：《'+SONGS[d.si].name+'》 · '+d.mod.m+(b?' · 今日最佳 '+b.toLocaleString():'')}
+function dailyInfo(){if(!SONGS.length)return;const d=daily(),b=parseInt(lsGet('ppl-d-'+d.key)||'0',10);$('#dailyInfo').textContent='今日挑戰：《'+SONGS[d.si].name+'》 · '+d.mod.m+(b?' · 今日最佳 '+b.toLocaleString():'')}
 $('#bStart').onclick=()=>{initAudio();goFs();if(!tutDone())startTut();else showSelect()};
 $('#bTut').onclick=()=>{initAudio();goFs();startTut()};
 $('#bDaily').onclick=()=>{initAudio();goFs();startDaily()};
