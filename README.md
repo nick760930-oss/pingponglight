@@ -6,6 +6,7 @@
 - 功能：新手教學、生命值、暫停、延遲校準、音量與特效設定、依序開放關卡、每日挑戰、成績分享圖。
 - 建議橫向使用；iPhone 請「分享 → 加入主畫面」以全螢幕開啟。
 - 曲目來源：[Mutopia Project](https://www.mutopiaproject.org/) 公共領域 MIDI，完整清單見 `credits.html`；最後 3 關為原創。
+- 音效：`sfx/` 內的擊中、道具、介面與結算音效以 ElevenLabs 生成；設定中可切換回「經典合成」。
 - 實機測試清單：`TESTING.md`。
 
 ## 本機預覽

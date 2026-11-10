@@ -34,10 +34,10 @@ button{font:inherit;font-size:14px;color:var(--fg);background:rgba(255,255,255,.
 button:hover{background:rgba(255,255,255,.14)}
 button:active{transform:scale(.96)}
 button.pri{background:linear-gradient(90deg,#3fd8ff,#8f6bff);border-color:transparent;color:#04060f;font-weight:700}
-.ov{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(3,4,12,.88);padding:12px;transition:opacity .4s;z-index:5}
+.ov{position:fixed;inset:0;height:100%;height:100dvh;display:flex;align-items:center;justify-content:center;background:rgba(3,4,12,.88);padding:12px;transition:opacity .4s;z-index:5}
 .ov.hidden{opacity:0;pointer-events:none;visibility:hidden;transition:opacity .4s,visibility 0s .4s}
 .ov.hidden *{pointer-events:none!important}
-.card{max-width:580px;width:100%;max-height:96vh;overflow:auto;background:linear-gradient(160deg,rgba(30,36,80,.85),rgba(14,16,40,.94));border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:16px 22px;text-align:center;box-shadow:0 20px 80px rgba(80,120,255,.25)}
+.card{position:relative;max-width:580px;width:100%;max-height:96vh;max-height:calc(100dvh - 16px);overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;background:linear-gradient(160deg,rgba(30,36,80,.85),rgba(14,16,40,.94));border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:16px 22px;text-align:center;box-shadow:0 20px 80px rgba(80,120,255,.25)}
 .card h2{margin:4px 0 8px;font-size:24px}
 .card p{color:#b9c1ea;line-height:1.6;margin:6px 0;font-size:14px}
 .card ul{text-align:left;color:#cfd5f5;line-height:1.65;font-size:13px;padding-left:20px;margin:8px 0}
@@ -75,6 +75,7 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
 #bPause{padding:4px 10px;font-size:14px;line-height:1;margin-bottom:2px}
 .set{max-width:520px;text-align:left}
 .set h2{text-align:center}
+.xbtn{position:absolute;top:8px;right:10px;padding:4px 11px;font-size:16px;line-height:1.2}
 .srow{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:14px}
 .srow label{flex:0 0 7.5em;color:#cfd5f5}
 .srow input[type=range]{flex:1 1 auto;accent-color:#7cf0ff}
@@ -151,21 +152,24 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
 </div></div>
 
 <div class="ov hidden" id="set"><div class="card set">
+  <button class="xbtn" id="bSetC" aria-label="關閉">✕</button>
   <h2>設定</h2>
   <div class="srow"><label>主旋律音量</label><input type="range" min="0" max="100" id="vMel"><span class="v" id="vMelV"></span></div>
   <div class="srow"><label>伴奏音量</label><input type="range" min="0" max="100" id="vBk"><span class="v" id="vBkV"></span></div>
   <div class="srow"><label>音效音量</label><input type="range" min="0" max="100" id="vFx"><span class="v" id="vFxV"></span></div>
   <div class="srow"><label>減少特效</label><button class="tog" id="tFx"></button><label style="flex:0 0 auto;margin-left:14px">震動回饋</label><button class="tog" id="tVib"></button></div>
+  <div class="srow"><label>音效風格</label><button class="tog" id="tSfx" style="min-width:5.5em"></button></div>
   <div class="srow"><label>延遲補償</label><button id="bCal">校準</button><span class="v" id="calV" style="flex:1 1 auto;text-align:left;margin-left:6px"></span></div>
-  <div class="row"><button id="bTest">測試聲音</button><button class="pri" id="bSetX">完成</button></div>
+  <div class="row"><button id="bTest">測試聲音</button><button class="pri" id="bSetX">返回首頁</button></div>
 </div></div>
 
 <div class="ov hidden" id="cal"><div class="card" style="max-width:460px">
+  <button class="xbtn" id="calC" aria-label="關閉">✕</button>
   <div class="kicker">延遲校準</div>
   <p id="calMsg">按「開始」後會出現 8 拍節拍聲，請跟著聲音點擊下方區塊。</p>
   <button id="calPad">點擊</button>
   <div class="row"><button id="calM">−10 ms</button><span id="calCur" style="align-self:center;min-width:5em;font-variant-numeric:tabular-nums"></span><button id="calP">+10 ms</button></div>
-  <div class="row"><button class="pri" id="calGo">開始</button><button id="calX">完成</button></div>
+  <div class="row"><button class="pri" id="calGo">開始</button><button id="calX">返回設定</button></div>
 </div></div>
 
 <div class="ov hidden" id="rot"><b>⟳</b>請將裝置橫向使用</div>
@@ -188,7 +192,7 @@ function rr(x,px,py,w,h,r){x.beginPath();x.moveTo(px+r,py);x.arcTo(px+w,py,px+w,
    the MELODY is the foreground voice and only sounds when the player hits the matching beat. */
 let AC=null,master=null,wet=null,useAC=false,busMel=null,busBk=null,busFx=null;
 const RM=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
-const SET=Object.assign({mel:80,bk:80,fx:80,lowFx:RM,vib:true,lat:null},(()=>{try{return JSON.parse(lsGet('ppl-set')||'{}')}catch(e){return{}}})());
+const SET=Object.assign({mel:80,bk:80,fx:80,lowFx:RM,vib:true,lat:null,classic:false},(()=>{try{return JSON.parse(lsGet('ppl-set')||'{}')}catch(e){return{}}})());
 function saveSet(){lsSet('ppl-set',JSON.stringify(SET))}
 function applyVol(){if(!AC)return;busMel.gain.value=SET.mel/80;busBk.gain.value=SET.bk/80;busFx.gain.value=SET.fx/80}
 // audio latency compensation (s): sounds are scheduled this much earlier so they are HEARD on the beat
@@ -236,7 +240,28 @@ function initAudio(){
     busMel.connect(wet);busFx.connect(wet);applyVol();
     AC.onstatechange=audioStatus;
   }catch(e){AC=null}
-  unlockAudio();
+  unlockAudio();loadSfx();
+}
+/* sampled effects (generated with ElevenLabs); the synthesized ones remain as the 「經典」 option and as fallback */
+const SFXG={perfect:.3,great:.2,good:.24,item:.3,shield:.28,click:.2,combo:.22,win:.32,lose:.22};
+const SFX={};let sfxReq=false;
+function decodeAB(ab){return new Promise((res,rej)=>{const p=AC.decodeAudioData(ab,res,rej);if(p&&p.then)p.then(res,rej)})}
+function trimLead(buf){   // drop codec padding / leading silence so the sound starts on the hit
+  const d=buf.getChannelData(0);let pk=0;for(let i=0;i<d.length;i++)pk=Math.max(pk,Math.abs(d[i]));
+  let i=0;while(i<d.length&&Math.abs(d[i])<pk*.05)i++;i=Math.max(0,i-Math.round(buf.sampleRate*.002));
+  if(i<64)return buf;
+  const nb=AC.createBuffer(buf.numberOfChannels,buf.length-i,buf.sampleRate);
+  for(let c=0;c<buf.numberOfChannels;c++)nb.getChannelData(c).set(buf.getChannelData(c).subarray(i));
+  return nb;
+}
+function loadSfx(){
+  if(sfxReq||!AC)return;sfxReq=true;
+  for(const n in SFXG)fetch('sfx/'+n+'.mp3').then(r=>r.ok?r.arrayBuffer():Promise.reject(r.status)).then(decodeAB).then(b=>{SFX[n]=trimLead(b)}).catch(()=>{});
+}
+function sfx(n,when,vol){
+  if(SET.classic||!AC||!SFX[n])return false;
+  const s=AC.createBufferSource(),g=AC.createGain();s.buffer=SFX[n];g.gain.value=SFXG[n]*(vol==null?1:vol);
+  s.connect(g);g.connect(busFx);s.start(AC.currentTime+Math.max(0,when||0));return true;
 }
 const live=[];
 function voice(midi,when,dur,vol,cents,lead,bus){
@@ -555,7 +580,8 @@ function bounce(b,tx,ty,p){
   aims.push({x1:b.x,y1:b.y,x2:tx,y2:ty,life:.4,max:.4,hue:T.hue});
   b.win=null;b.sq=1;b.sqn=old;
   playMel(b.ti,cents,T.vol);                                   // melody is heard ONLY on a correct hit
-  tierCount[ti]++;combo=ti<=2?combo+1:0;life=Math.min(100,life+[3,2,1,0][ti]);if(ti===0)vib(12);maxCombo=Math.max(maxCombo,combo);
+  sfx(['perfect','great','good','good'][ti],0,ti===3?.6:1);
+  tierCount[ti]++;combo=ti<=2?combo+1:0;life=Math.min(100,life+[3,2,1,0][ti]);if(ti===0)vib(12);if(combo>0&&combo%50===0)sfx('combo',.04);maxCombo=Math.max(maxCombo,combo);
   const sf=Math.pow(Math.max(.3,b.v/V0),1.1),pts=Math.round(100*T.m*sf*(1+.3*p)*(starT>0?2:1))+combo*5;
   score+=pts;
   const hue=T.hue,fx=b.x+nx*40,fy=b.y;
@@ -572,7 +598,7 @@ function bounce(b,tx,ty,p){
 function miss(b){
   missCount++;combo=0;
   const old=b.side,nx=old===1?-1:1,sh=shield>0;
-  if(sh)shield--;else life=Math.max(0,life-(D.dmg||0));
+  if(sh){shield--;sfx('shield')}else life=Math.max(0,life-(D.dmg||0));   // a plain miss stays silent
   vib(sh?20:[40,30,40]);
   floats.push({x:b.x+nx*40,y:b.y,text:sh?'護盾抵銷':'MISS',hue:sh?190:350,life:1,max:1,size:1.2});
   const hue=sh?190:350;
@@ -604,7 +630,7 @@ function spawnItem(){
 const ITEM_HUE={big:165,small:340,star:50,shield:190};
 const RANKS=['D','C','B','A','S'],RANK_COL={S:'#ffd36b',A:'#7cf0ff',B:'#8fe388',C:'#c9b6ff',D:'#9aa3c7'};
 function jingleWin(rank){
-  initAudio();cutAll();
+  initAudio();cutAll();if(sfx('win',.05))return;
   const n={S:7,A:6,B:5,C:4,D:3}[rank],arp=[60,64,67,72,76,79,84].slice(0,n);
   arp.forEach((p,i)=>voice(p,.05+i*.11,1.1,.3,0,true,busFx));
   const t=.05+arp.length*.11;
@@ -612,7 +638,7 @@ function jingleWin(rank){
   if(rank==='S'){voice(91,t+.05,1.2,.12,0,true,busFx);voice(96,t+.18,1.2,.1,0,true,busFx)}
 }
 function jingleLose(){
-  initAudio();cutAll();
+  initAudio();cutAll();if(sfx('lose',.05))return;
   [67,64,60].forEach((p,i)=>voice(p,.05+i*.3,1,.22,0,true,busFx));voice(48,.05,1.8,.18,0,false,busFx);
 }
 function countUp(el,to){const t0=performance.now();(function f(n){const k=Math.min(1,(n-t0)/900);el.textContent=Math.round(to*k*(2-k)).toLocaleString();if(k<1)requestAnimationFrame(f)})(t0)}
@@ -713,7 +739,7 @@ function updateBall(b,dt){
       hud();burst(it.x,it.y,hue,22,BR*16,.9);flash.a=.2;flash.hue=hue;
       rings.push({x:it.x,y:it.y,r0:8,life:.6,max:.6,hue,w:4},{x:it.x,y:it.y,r0:6,life:.8,max:.8,hue:hue+25,w:3});
       floats.push({x:it.x,y:it.y-18,text:txt,hue,life:1,max:1,size:1.2});
-      keyBell(.1);
+      if(!sfx('item'))keyBell(.1);
     }
   }
   // hit window around the target line
@@ -950,13 +976,17 @@ $('#bQuit').onclick=()=>{$('#pause').classList.add('hidden');doResume();if(mode=
 function syncSet(){
   for(const[k,id]of[['mel','vMel'],['bk','vBk'],['fx','vFx']]){$('#'+id).value=SET[k];$('#'+id+'V').textContent=SET[k]}
   const tg2=(id,on)=>{const b=$('#'+id);b.textContent=on?'開啟':'關閉';b.classList.toggle('on',on)};tg2('tFx',SET.lowFx);tg2('tVib',SET.vib);
+  {const b=$('#tSfx');b.textContent=SET.classic?'經典合成':'新版音效';b.classList.toggle('on',!SET.classic)}
   const ms=Math.round(latS()*1000);$('#calV').textContent=(ms>=0?'+':'')+ms+' ms'+(SET.lat==null?'（自動）':'');$('#calCur').textContent=(ms>=0?'+':'')+ms+' ms';
 }
 for(const[k,id]of[['mel','vMel'],['bk','vBk'],['fx','vFx']])$('#'+id).oninput=e=>{SET[k]=+e.target.value;applyVol();saveSet();syncSet()};
+$('#tSfx').onclick=()=>{SET.classic=!SET.classic;saveSet();syncSet();if(!sfx('perfect'))[72,79].forEach((p,i)=>voice(p,i*.08,.5,.25,0,true,busFx))};
 $('#tFx').onclick=()=>{SET.lowFx=!SET.lowFx;saveSet();syncSet()};
 $('#tVib').onclick=()=>{SET.vib=!SET.vib;saveSet();syncSet();vib(30)};
 $('#bSet').onclick=()=>{initAudio();syncSet();$('#home').classList.add('hidden');$('#set').classList.remove('hidden')};
-$('#bSetX').onclick=()=>{$('#set').classList.add('hidden');showHome()};
+function closeSet(){$('#set').classList.add('hidden');showHome()}
+$('#bSetX').onclick=closeSet;$('#bSetC').onclick=closeSet;
+$('#set').addEventListener('click',e=>{if(e.target.id==='set')closeSet()});   // tap outside the panel closes it
 /* ---- latency calibration: clicks on the audio clock, player taps along; offset = median(tap - click) ---- */
 let calClicks=[],calTaps=[],calEnd=0;
 $('#bCal').onclick=()=>{initAudio();$('#set').classList.add('hidden');$('#cal').classList.remove('hidden');$('#calMsg').textContent='按「開始」後會出現 8 拍節拍聲，請跟著聲音點擊下方區塊。';syncSet()};
@@ -982,7 +1012,9 @@ function calDone(){
 }
 $('#calM').onclick=()=>{SET.lat=Math.round(latS()*1000)-10;saveSet();syncSet()};
 $('#calP').onclick=()=>{SET.lat=Math.round(latS()*1000)+10;saveSet();syncSet()};
-$('#calX').onclick=()=>{$('#cal').classList.add('hidden');syncSet();$('#set').classList.remove('hidden')};
+function closeCal(){calClicks=[];$('#cal').classList.add('hidden');syncSet();$('#set').classList.remove('hidden')}
+$('#calX').onclick=closeCal;$('#calC').onclick=closeCal;
+$('#cal').addEventListener('click',e=>{if(e.target.id==='cal')closeCal()});
 /* ---- share result image ---- */
 function shareImg(){
   const r=lastRes;if(!r)return null;
@@ -1016,18 +1048,19 @@ $('#bNext').onclick=()=>{initAudio();if(mode==='tut'){mode='normal';si=0;startRu
 $('#bRetry').onclick=()=>{initAudio();startRun(0)};
 $('#bCont').onclick=()=>{initAudio();startRun(cp.ti)};
 $('#bSel').onclick=showSelect;
-$('#bTest').onclick=()=>{initAudio();[60,64,67,72].forEach((p,i)=>voice(p,i*.14,.6,.3,0,true));voice(48,0,1.2,.17,0,false);setTimeout(audioStatus,250);setTimeout(audioStatus,900)};
+$('#bTest').onclick=()=>{initAudio();[60,64,67,72].forEach((p,i)=>voice(p,i*.14,.6,.3,0,true));voice(48,0,1.2,.17,0,false);sfx('item',.75);setTimeout(audioStatus,250);setTimeout(audioStatus,900)};
 $('#bFs').onclick=toggleFs;
 addEventListener('resize',layout);
 if(window.visualViewport)visualViewport.addEventListener('resize',layout);
 document.addEventListener('fullscreenchange',()=>setTimeout(layout,100));
 document.addEventListener('webkitfullscreenchange',()=>setTimeout(layout,100));
 addEventListener('orientationchange',()=>setTimeout(layout,200));
+document.addEventListener('pointerdown',e=>{const b=e.target.closest&&e.target.closest('button');if(b&&!['calPad','bTest','tSfx','bPause'].includes(b.id))sfx('click')},true);
 if(!unlocked(si))si=0;
 layout();buildChips();hud();audioStatus();dailyInfo();
 if('serviceWorker' in navigator&&location.protocol==='https:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));hudShow(false);$('#fsHint').style.display=(!(DE.requestFullscreen||DE.webkitRequestFullscreen)&&!standalone)?'block':'none';
 requestAnimationFrame(frame);
-window.__pb={get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:FR,HR:HRe(),tiers:tierCount,cents:lastCents,p:lastP,pSrc,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},setTs(v){ts=v},setSong(i){si=i},tg:()=>tg.map(t=>t.t),pause:pauseGame,resume:resumeGame,shareImg,daily,STARS};
+window.__pb={get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:FR,HR:HRe(),tiers:tierCount,cents:lastCents,p:lastP,pSrc,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},setTs(v){ts=v},setSong(i){si=i},tg:()=>tg.map(t=>t.t),pause:pauseGame,resume:resumeGame,shareImg,daily,STARS,sfx:()=>Object.keys(SFX).map(k=>k+':'+SFX[k].duration.toFixed(2))};
 })();
 </script>
 </body>
