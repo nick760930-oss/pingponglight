@@ -42,7 +42,7 @@ button:hover{background:rgba(255,255,255,.14)}
 button:active{transform:scale(.96)}
 button.pri{background:linear-gradient(90deg,#3fd8ff,#8f6bff);border-color:transparent;color:#04060f;font-weight:700}
 .ov{position:fixed;inset:0;height:100%;height:100dvh;display:flex;align-items:center;justify-content:center;background:rgba(3,4,12,.88);padding:12px;transition:opacity .4s;z-index:5}
-#lbv,#frv{z-index:6}#nick{z-index:8}
+#lbv,#frv{z-index:6}#nick,#fcv{z-index:8}
 [hidden]{display:none!important}
 .ov.hidden{opacity:0;pointer-events:none;visibility:hidden;transition:opacity .4s,visibility 0s .4s}
 .ov.hidden *{pointer-events:none!important}
@@ -402,6 +402,14 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
   <p class="lbn">依精準度排名，精準度相同時依分數排序。按「⋯」可檢舉不雅暱稱，或僅對自己隱藏該玩家。</p>
 </div></div>
 
+<div class="ov hidden" id="fcv"><div class="card">
+  <div class="kicker">好友邀請</div>
+  <h2>加入好友</h2>
+  <p>好友碼 <b id="fcC" style="letter-spacing:.12em;font-size:1.25em;color:#e8ecff"></b></p>
+  <p class="small">若您已將 PingPongLight 加入主畫面，請複製好友碼後，改從主畫面開啟遊戲，至「好友」頁按「貼上」並送出。iPhone 的主畫面遊戲與 Safari 的資料彼此獨立，因此無法直接帶入。</p>
+  <p class="nkm" id="fcM"></p>
+  <div class="row"><button id="fcWeb">在此網頁使用</button><button class="pri" id="fcCopy">複製好友碼</button></div>
+</div></div>
 <div class="ov hidden" id="nick"><div class="card">
   <div class="kicker" id="nkK">歡迎來到 PingPongLight</div>
   <h2 id="nkT">請設定暱稱</h2>
@@ -419,7 +427,7 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
       <div><div class="kicker">您的好友碼</div><div class="fcode" id="frCode">⋯</div>
         <div class="btns"><button id="frCopy">複製</button><button id="frSend">分享好友碼</button></div></div>
       <div><div class="kicker">加好友</div>
-        <div class="fadd" style="margin-top:6px"><input id="frIn" maxlength="9" placeholder="朋友的好友碼" autocomplete="off" autocapitalize="characters" spellcheck="false"><button class="pri" id="frAdd">送出</button></div>
+        <div class="fadd" style="margin-top:6px"><input id="frIn" maxlength="9" placeholder="朋友的好友碼" autocomplete="off" autocapitalize="characters" spellcheck="false"><button id="frPaste">貼上</button><button class="pri" id="frAdd">送出</button></div>
         <p class="fmsg" id="frMsg"></p></div>
       <div class="freq" id="frReq" hidden></div>
     </div>

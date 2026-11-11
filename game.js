@@ -420,6 +420,16 @@ function viewSize(){   // some browsers briefly report 0 during fullscreen / rot
   for(const[w,h]of c)if(w>=50&&h>=50)return[Math.round(w),Math.round(h)];
   return null;
 }
+let vpT=-1e9;
+function vpCheck(){
+  const o=typeof window.orientation==='number'?Math.abs(window.orientation)===90:(screen.orientation&&/landscape/.test(screen.orientation.type||''));
+  const vv=window.visualViewport,w=innerWidth,h=innerHeight;
+  const off=(o===true&&w<h)||(o===false&&w>h*1.05&&Math.min(screen.width,screen.height)<700)||(vv&&vv.scale&&Math.abs(vv.scale-1)>.01);
+  if(!off||performance.now()-vpT<1500)return;
+  vpT=performance.now();const m=document.querySelector('meta[name=viewport]');if(!m)return;const c=m.getAttribute('content');
+  m.setAttribute('content',c.replace('initial-scale=1','initial-scale=1.01'));
+  requestAnimationFrame(()=>{m.setAttribute('content',c);setTimeout(layout,60)});
+}
 function layout(){
   const sz=viewSize();
   if(!sz){clearTimeout(layoutRetry);layoutRetry=setTimeout(layout,150);return}
@@ -581,12 +591,13 @@ async function toggleFs(){
   else await goFs();
 }
 ['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault()));
-document.addEventListener('touchmove',e=>{if(!(e.target.closest&&e.target.closest('.card,.ddp')))e.preventDefault()},{passive:false});
+function inScroller(el){for(;el&&el!==document.body&&el.nodeType===1;el=el.parentElement){const c=getComputedStyle(el);if(/(auto|scroll)/.test(c.overflowY+c.overflowX)&&(el.scrollHeight>el.clientHeight+1||el.scrollWidth>el.clientWidth+1))return true}return false}
+document.addEventListener('touchmove',e=>{if(!(e.target.closest&&e.target.closest('.card,.ddp'))&&!inScroller(e.target))e.preventDefault()},{passive:false});
 document.addEventListener('touchstart',e=>{if(e.touches.length>1&&!(e.target.closest&&e.target.closest('.card,.ddp')))e.preventDefault()},{passive:false});
-document.addEventListener('dblclick',e=>e.preventDefault());
+// no dblclick listener: on iOS any dblclick handler makes every tap wait ~350 ms for a possible double tap (zoom is already off via touch-action)
 document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('selectstart',e=>{if(!(e.target.closest&&e.target.closest('input,select,textarea')))e.preventDefault()});
-document.addEventListener('wheel',e=>{if(e.ctrlKey||!(e.target.closest&&e.target.closest('.card,.ddp')))e.preventDefault()},{passive:false});
+document.addEventListener('wheel',e=>{if(e.ctrlKey||!(e.target.closest&&e.target.closest('.card,.ddp'))&&!inScroller(e.target))e.preventDefault()},{passive:false});
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['+','-','=','0'].includes(e.key))e.preventDefault();
   else if(e.key==='Escape'||e.key==='p'||e.key==='P'){if(st==='play'){if(paused&&!resumeCD)resumeGame();else pauseGame()}}});
 const standalone=APP||!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches));
@@ -1294,7 +1305,7 @@ async function nickGo(){
   const b=$('#nkGo');b.disabled=true;msg.textContent='確認中⋯';
   const j=await api('/lb/name',{pk:pkey(),name:v});b.disabled=false;
   if(j.ok){setMe({id:dInt(j.id,1,1e12),name:dName(j.name)||v});msg.textContent='';nickClose(true);return}
-  if(j.error==='name')msg.textContent=j.why==='taken'?'此暱稱已有人使用，請更換。':j.why==='empty'?'暱稱須包含至少一個文字或數字。':'暱稱含有不當字詞，請更換。';
+  if(j.error==='name')msg.textContent=j.why==='taken'?'此暱稱已有人使用，請更換。'+(IOS&&!standalone?'若這是您在主畫面遊戲使用的暱稱，請改從主畫面開啟遊戲。':''):j.why==='empty'?'暱稱須包含至少一個文字或數字。':'暱稱含有不當字詞，請更換。';
   else if(j.error==='slow')msg.textContent='操作太頻繁，請稍等 1 分鐘後再次嘗試。';
   else{msg.textContent=nickMode==='first'?'目前無法連線至伺服器。您可以先離線遊玩單人模式，下次開啟時再設定暱稱。':'目前無法連線至伺服器，請稍後再試。';$('#nkSkip').hidden=false}
 }
@@ -1310,11 +1321,13 @@ $('#nkGo').onclick=nickGo;
 $('#nkIn').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();nickGo()}});
 $('#nkSkip').onclick=()=>nickClose(false);
 async function netBoot(){
+  if(FD.pend&&!ME){if(IOS&&!standalone){$('#fcC').textContent=fcode(FD.pend);$('#fcM').textContent='';$('#fcv').classList.remove('hidden')}else nickOpen('friends');return}
   if(!ME){nickOpen('first');return}
   const j=await api('/lb/me',{pk:pkey()});
   if(j.me===null){setMe(null);nickOpen('first');return}   // the server no longer knows this key (records deleted)
   if(j.me&&typeof j.me==='object'&&typeof j.me.name==='string')setMe({id:dInt(j.me.id,1,1e12),name:dName(j.me.name)||ME.name});
   frConnect();frBadge(true);
+  if(FD.pend)frOpen();
 }
 
 /* ---- leaderboard ---- */
@@ -1424,7 +1437,10 @@ $('#diffs').onclick=e=>{const b=e.target.closest('button[data-d]');if(!b)return;
 $('#bLb').onclick=()=>lbOpen(si,di);
 
 /* ---- friends: presence socket, list, invites ---- */
-const FD={ws:null,iv:0,back:0,retry:0,last:'',list:null,poll:0,inv:null,code:'',open:-1,bt:-1e9};
+const FD={ws:null,iv:0,back:0,retry:0,last:'',list:null,poll:0,inv:null,code:'',open:-1,bt:-1e9,pend:''};
+try{const u=new URL(location.href),c=(u.searchParams.get('fc')||'').toUpperCase().replace(/[^A-Z0-9]/g,'');if(c.length===8){FD.pend=c;lsSet('ppl-tut','1')}
+  if(u.searchParams.has('fc')){u.searchParams.delete('fc');history.replaceState(null,'',u.pathname+u.search+u.hash)}}catch(e){}
+const IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 const frIsOpen=()=>!$('#frv').classList.contains('hidden');
 const busyNow=()=>st==='play'||st==='ready'||st==='starting';
 function frConnect(){
@@ -1483,6 +1499,7 @@ function frOpen(){
   initAudio();$('#home').classList.add('hidden');$('#frv').classList.remove('hidden');$('#frMsg').textContent='';FD.open=-1;
   $('#frCode').textContent=FD.code?fcode(FD.code):'⋯';
   api('/fr/me',{pk:pkey()}).then(j=>{if(typeof j.code==='string'&&/^[A-Z0-9]{8}$/.test(j.code)){FD.code=j.code;$('#frCode').textContent=fcode(j.code)}else if(!FD.code)$('#frCode').textContent=j.error==='noname'?'請先設定暱稱':'離線中'});
+  if(FD.pend){$('#frIn').value=fcode(FD.pend);FD.pend='';$('#frMsg').textContent='已帶入好友碼，請按「送出」。'}
   frLoad();clearInterval(FD.poll);FD.poll=setInterval(()=>{if(frIsOpen()&&!document.hidden)frLoad()},15000);
 }
 function frClose(){clearInterval(FD.poll);showHome()}
@@ -1532,7 +1549,13 @@ $('#frAdd').onclick=async()=>{
 };
 $('#frIn').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('#frAdd').click()}});
 $('#frCopy').onclick=async()=>{if(!FD.code)return;const t=fcode(FD.code);try{await navigator.clipboard.writeText(t);$('#frMsg').textContent='已複製好友碼。'}catch(e){$('#frMsg').textContent='無法複製，請直接提供給朋友：'+t}};
-$('#frSend').onclick=()=>{if(FD.code)shareText('邀請您在 PingPongLight 加我為好友，好友碼：'+fcode(FD.code),SITE,t=>{$('#frMsg').textContent=t})};
+$('#frSend').onclick=()=>{if(FD.code)shareText('邀請您在 PingPongLight 加我為好友，好友碼：'+fcode(FD.code),SITE+'?fc='+FD.code,t=>{$('#frMsg').textContent=t})};
+$('#frPaste').hidden=!(navigator.clipboard&&navigator.clipboard.readText);
+$('#frPaste').onclick=async()=>{const m=$('#frMsg');let t='';try{t=await navigator.clipboard.readText()}catch(e){m.textContent='無法讀取剪貼簿，請手動輸入好友碼。';return}
+  const c=(String(t).toUpperCase().match(/\b([A-Z0-9]{4})-?([A-Z0-9]{4})\b/)||[]);if(!c[0]){m.textContent='剪貼簿中沒有好友碼。';return}
+  $('#frIn').value=c[1]+'-'+c[2];m.textContent='已貼上好友碼，請按「送出」。'};
+$('#fcCopy').onclick=async()=>{const t=fcode(FD.pend||'');try{await navigator.clipboard.writeText(t);$('#fcM').textContent='已複製。請從主畫面開啟遊戲，至「好友」頁按「貼上」。'}catch(e){$('#fcM').textContent='無法複製，請記下好友碼：'+t}};
+$('#fcWeb').onclick=()=>{$('#fcv').classList.add('hidden');if(ME)frOpen();else nickOpen('friends')};
 $('#frX').onclick=frClose;
 $('#bFr').onclick=frOpen;
 async function frInvite(id,b){
@@ -1749,11 +1772,24 @@ $('#bCont').onclick=()=>{initAudio();startRun(cp.ti)};
 $('#bSel').onclick=showSelect;
 $('#bTest').onclick=()=>{initAudio(true);[60,64,67,72].forEach((p,i)=>voice(p,i*.14,.6,.3,0,true));voice(48,0,1.2,.17,0,false);setTimeout(()=>{audioStatus();audioDiag()},250);setTimeout(()=>{audioStatus();audioDiag()},900)};
 $('#bFs').onclick=toggleFs;
+function navTap(sel,fn){
+  const el=$(sel);if(!el)return;let down=false;
+  el.onclick=()=>fn();
+  el.addEventListener('touchstart',()=>{down=true},{passive:true});
+  el.addEventListener('touchcancel',()=>{down=false});
+  el.addEventListener('touchend',e=>{if(!down)return;down=false;const t=e.changedTouches[0],r=el.getBoundingClientRect();
+    if(!t||t.clientX<r.left-8||t.clientX>r.right+8||t.clientY<r.top-8||t.clientY>r.bottom+8)return;e.preventDefault();fn()},{passive:false});
+}
+navTap('#frX',frClose);navTap('#lbX',lbClose);navTap('#bBack',showHome);navTap('#bSetX',closeSet);navTap('#bSetC',closeSet);
+navTap('#dX',()=>{if(DU.ws){duelLeave()}else{$('#duel').classList.add('hidden');showHome()}});
 addEventListener('resize',layout);
 if(window.visualViewport)visualViewport.addEventListener('resize',layout);
 document.addEventListener('fullscreenchange',()=>setTimeout(layout,100));
 document.addEventListener('webkitfullscreenchange',()=>setTimeout(layout,100));
-addEventListener('orientationchange',()=>setTimeout(layout,200));
+addEventListener('orientationchange',()=>{setTimeout(layout,200);setTimeout(vpCheck,350);setTimeout(()=>{vpCheck();layout()},1200)});
+addEventListener('pageshow',()=>{vpCheck();layout()});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(()=>{vpCheck();layout()},150)});
+for(const t of[300,1000,2500])setTimeout(()=>{vpCheck();layout()},t);   // a turn during launch can land after the first layout
 if(!unlocked(si))si=0;
 for(const f of[layout,buildChips,hud,audioStatus]){try{f()}catch(e){showErr(e)}}   // one failing step must not stop start-up
 if(APP)$('#bFs').style.display='none';
