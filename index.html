@@ -1135,7 +1135,7 @@ function frame(now){
 
 /* ================= online duel ================= */
 const DUEL_URL=(()=>{try{const q=new URLSearchParams(location.search).get('duel');if(q)return q}catch(e){}
-  return /^(localhost|127\.0\.0\.1)$/.test(location.hostname)?'http://'+location.hostname+':8787':'https://pingponglight-duel.WORKERS_SUBDOMAIN.workers.dev'})();
+  return /^(localhost|127\.0\.0\.1)$/.test(location.hostname)?'http://'+location.hostname+':8787':'https://pingponglight-duel.nick760930.workers.dev'})();
 const duelNow=()=>Date.now()+DU.off;
 function dsend(o){try{if(DU.ws&&DU.ws.readyState===1)DU.ws.send(JSON.stringify(o))}catch(e){}}
 function dmsg(t){$('#dMsg').textContent=t||''}
