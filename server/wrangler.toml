@@ -10,3 +10,9 @@ class_name = "Room"
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["Room"]
+
+# Per-IP limit for /new and /ws (Workers Rate Limiting). The code skips the check if this binding is missing.
+[[ratelimits]]
+name = "RL"
+namespace_id = "1001"
+simple = { limit = 30, period = 60 }
