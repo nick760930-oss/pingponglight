@@ -3,3 +3,5 @@ TESTING.md
 SECURITY.md
 app/
 codemagic.yaml
+tools/
+docs/

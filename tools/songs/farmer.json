@@ -1,0 +1,9 @@
+{
+  "key": "farmer",
+  "name": "快樂的農夫",
+  "composer": "舒曼",
+  "year": "1848",
+  "inst": { "lead": "piano", "bk": "piano" },
+  "credit": { "source": "Mutopia Project", "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=659", "licence": "Creative Commons Attribution-ShareAlike 2.5", "by": "Philippe Hézaine" },
+  "midi": { "file": "tools/midi/schumann-op68-10-gai-laboureur.mid", "mel": 1 }
+}

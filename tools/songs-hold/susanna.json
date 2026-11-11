@@ -1,0 +1,42 @@
+{
+  "key": "susanna",
+  "name": "噢，蘇珊娜 Oh! Susanna",
+  "composer": "佛斯特",
+  "year": "1848",
+  "inst": {
+    "lead": "recorder",
+    "bk": "guitar"
+  },
+  "credit": {
+    "source": "依原曲旋律手寫（本遊戲製作）",
+    "url": "",
+    "licence": "公有領域"
+  },
+  "tune": {
+    "bpm": 116,
+    "meter": 4,
+    "style": "march",
+    "parts": {
+      "P": {
+        "free": true,
+        "mel": "C4:0.5 D4:0.5",
+        "chords": "C:1"
+      },
+      "V": {
+        "mel": "E4:1 G4:1 G4:1.5 A4:0.5 | G4:1 E4:1 C4:1.5 D4:0.5 | E4:1 E4:1 D4:1 C4:1 | D4:3 C4:0.5 D4:0.5 | E4:1 G4:1 G4:1.5 A4:0.5 | G4:1 E4:1 C4:1.5 D4:0.5 | E4:1 E4:1 D4:1 D4:1 | C4:4",
+        "chords": "C:4 C:4 C:4 G7:4 C:4 C:4 G7:4 C:4"
+      },
+      "CH": {
+        "mel": "G4:1 G4:1 C5:2 | C5:1 D5:1 E5:1.5 D5:0.5 | C5:1 C5:1 A4:1 G4:1 | G4:3 C4:0.5 D4:0.5 | E4:1 G4:1 G4:1.5 A4:0.5 | G4:1 E4:1 C4:1.5 D4:0.5 | E4:1 E4:1 D4:1 D4:1 | C4:4",
+        "chords": "C:4 C:4 F:4 G7:4 C:4 C:4 G7:4 C:4"
+      }
+    },
+    "form": [
+      "P",
+      "V",
+      "CH",
+      "V",
+      "CH"
+    ]
+  }
+}

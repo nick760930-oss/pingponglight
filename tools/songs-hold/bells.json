@@ -1,0 +1,23 @@
+{
+  "key": "bells", "name": "鐘聲頌", "composer": "里昂托維奇", "year": "1916",
+  "inst": { "lead": "strings", "bk": "pizz" },
+  "credit": { "source": "依原曲旋律手寫（本遊戲製作）", "url": "", "licence": "公有領域" },
+  "tune": {
+    "bpm": 120, "meter": 3, "style": "waltz",
+    "parts": {
+      "A": {
+        "mel": "Bb4:1 A4:0.5 Bb4:0.5 G4:1 | Bb4:1 A4:0.5 Bb4:0.5 G4:1 | Bb4:1 A4:0.5 Bb4:0.5 G4:1 | Bb4:1 A4:0.5 Bb4:0.5 G4:1 | D5:1 C5:0.5 D5:0.5 Bb4:1 | D5:1 C5:0.5 D5:0.5 Bb4:1 | D5:1 C5:0.5 D5:0.5 Bb4:1 | D5:1 C5:0.5 D5:0.5 Bb4:1",
+        "chords": "Gm:3 Gm:3 Gm:3 Gm:3 Bb:3 Bb:3 Bb:3 Bb:3"
+      },
+      "B": {
+        "mel": "G5:1 F5:0.5 G5:0.5 D5:1 | G5:1 F5:0.5 G5:0.5 D5:1 | G5:1 F5:0.5 G5:0.5 D5:1 | G5:1 F5:0.5 G5:0.5 D5:1 | C5:1 Bb4:0.5 C5:0.5 A4:1 | C5:1 Bb4:0.5 C5:0.5 A4:1 | C5:1 Bb4:0.5 C5:0.5 A4:1 | C5:1 Bb4:0.5 C5:0.5 A4:1",
+        "chords": "Gm:3 Gm:3 Gm:3 Gm:3 F:3 F:3 F:3 F:3"
+      },
+      "E": {
+        "mel": "Bb4:1 A4:0.5 Bb4:0.5 G4:1 | Bb4:1 A4:0.5 Bb4:0.5 G4:1 | Bb4:1 A4:0.5 Bb4:0.5 G4:1 | G4:3",
+        "chords": "Gm:3 Gm:3 Gm:3 Gm:3"
+      }
+    },
+    "form": ["A", "B", "A", "B", "A", "B", "E"]
+  }
+}

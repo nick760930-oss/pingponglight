@@ -59,7 +59,7 @@ function humanLog(n, spread = 30, misses = 0, seed = 1) {
   const st = await post('/lb/start', { song: S, d: D });
   ok(st.s === 200 && typeof st.j.run === 'string', 'ticket issued');
   ok((await post('/lb/start', { song: 'nope', d: 0 })).s === 400, 'unknown song refused');
-  ok((await post('/lb/start', { song: S, d: 3 })).s === 400, 'bad difficulty refused');
+  ok((await post('/lb/start', { song: S, d: 5 })).s === 400, 'bad difficulty refused');
   ok((await post('/lb/start', { song: '__proto__', d: 0 })).s === 400, 'prototype key refused');
   const good = humanLog(N);
   ok((await post('/lb/submit', { run: st.j.run, pk: A, log: good })).j.error === 'ticket', 'too-early result refused');

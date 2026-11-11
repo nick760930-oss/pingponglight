@@ -158,7 +158,7 @@ export class Room {
         if (a.i !== host || phase !== 'lobby') return;
         if (now - b.cfg < CFG_GAP) { await this.room(ws); return; }   // too fast: just resync the sender
         b.cfg = now;
-        const cfg = { song: int(d.song, 0, 199), di: int(d.di, 0, 2) }, old = (await this.ctx.storage.get('cfg')) || { song: 0, di: 1 };
+        const cfg = { song: int(d.song, 0, 199), di: int(d.di, 0, 4) }, old = (await this.ctx.storage.get('cfg')) || { song: 0, di: 1 };
         if (cfg.song === old.song && cfg.di === old.di) { await this.room(ws); return; }
         await this.ctx.storage.put('cfg', cfg);
         for (const w of this.socks()) { const x = this.info(w); x.ready = false; w.serializeAttachment(x); }

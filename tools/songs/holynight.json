@@ -1,0 +1,20 @@
+{
+  "key": "holynight",
+  "name": "聖善夜",
+  "composer": "亞當",
+  "year": "1847",
+  "inst": {
+    "lead": "violin",
+    "bk": "piano"
+  },
+  "credit": {
+    "source": "Mutopia Project",
+    "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=640",
+    "licence": "Public Domain",
+    "by": "Gérard Gréco"
+  },
+  "midi": {
+    "file": "tools/midi/minuit_chretiens.mid",
+    "mel": 2
+  }
+}

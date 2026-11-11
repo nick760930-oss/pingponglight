@@ -151,7 +151,8 @@ function loadInst(name){
     .then(()=>{S.ready=Object.keys(S.buf).length>S.total*.8;if(!S.ready)delete SAMP[name]});   // a failed load is retried next time
   return S.p;
 }
-function songInsts(s){const m=s&&INSTMAP[s.key];return m?[...new Set(Object.values(m))]:[]}
+const instMap=s=>s&&(INSTMAP[s.key]||s.inst);
+function songInsts(s){const m=instMap(s);return m?[...new Set(Object.values(m))]:[]}
 let instLoad={busy:false,n:0,total:0};
 function preloadSong(s){
   if(!AC||!s)return Promise.resolve();
@@ -162,7 +163,7 @@ function preloadSong(s){
   return Promise.race([Promise.all(L.map(loadInst)),new Promise(r=>setTimeout(r,12000))]).then(()=>{clearInterval(iv);tick2();if(instLoad.key===s.key)instLoad.busy=false});
 }
 const PAN={lead:0,bk:-.18,bass:.16,ctr:.22};
-function playInst(name,role,midi,t,hold,vol,cents){
+function playInst(name,role,midi,t,hold,vol,cents,dest){
   const S=SAMP[name];if(!S||!S.ready)return false;
   const I=INST[name];while(midi>I.hi)midi-=12;while(midi<I.lo)midi+=12;
   let m0=Math.round(midi/3)*3;if(!S.buf[m0]){m0=+Object.keys(S.buf).reduce((a,b)=>Math.abs(b-midi)<Math.abs(a-midi)?b:a)}
@@ -172,10 +173,10 @@ function playInst(name,role,midi,t,hold,vol,cents){
   const end=t+Math.min(hold,buf.duration/src.playbackRate.value-.05);
   g.gain.setValueAtTime(vol*I.g*SGAIN*(role==='lead'?1:1.15),t);g.gain.setTargetAtTime(0,end,I.rel/3);
   let out=g;if(AC.createStereoPanner&&PAN[role]){const pn=AC.createStereoPanner();pn.pan.value=PAN[role];g.connect(pn);out=pn}
-  src.connect(g);out.connect(role==='lead'?busMel:busBk);src.start(t);src.stop(end+I.rel+.1);
+  src.connect(g);out.connect(dest||(role==='lead'?busMel:busBk));src.start(t);src.stop(end+I.rel+.1);
   track(g,end+I.rel);return true;
 }
-function instOf(role){const m=song&&INSTMAP[song.key];if(!m||st==='home'||st==='menu')return null;return role==='ctr'?(m.ctr||m.bk):role==='bass'?(m.bass||m.bk):m[role]}
+function instOf(role){const m=instMap(song);if(!m||st==='home'||st==='menu')return null;return role==='ctr'?(m.ctr||m.bk):role==='bass'?(m.bass||m.bk):m[role]}
 function voice(midi,when,dur,vol,cents,lead,bus){
   if(!AC)return;
   if(!bus){   // pieces with real-instrument samples
@@ -221,7 +222,7 @@ const HM_CH=[[50,[62,66,69,73]],[47,[62,66,69,71]],[43,[62,66,67,71]],[45,[62,64
 const HM_MEL=[[[0,78,3],[3,76,1],[4,73,4]],[[0,74,4],[4,73,2],[6,71,2]],[[0,71,3],[3,74,1],[4,78,4]],[[0,76,6],[6,73,2]],
   [[0,73,3],[3,71,1],[4,69,4]],[[0,74,3],[3,73,1],[4,71,4]],[[0,71,2],[2,74,2],[4,79,4]],[[0,78,4],[4,76,4]]];   // [eighth, midi, length]
 const HM_ARP=[[0,1,2,3,2,1,2,3],[0,2,1,3,0,2,3,1],[3,2,1,0,1,2,3,2]];
-const homeWant=()=>!!AC&&AC.state==='running'&&(st==='home'||st==='menu')&&mode!=='tut'&&!document.hidden&&$('#cal').classList.contains('hidden');
+const homeWant=()=>!!AC&&AC.state==='running'&&(st==='home'||st==='menu')&&!PV.s&&mode!=='tut'&&!document.hidden&&$('#cal').classList.contains('hidden');
 function hNote(midi,t,hold,vol){   // piano sample when loaded, soft synth piano otherwise
   const S=SAMP.piano;
   if(S&&S.ready){const I=INST.piano;let m0=Math.round(midi/3)*3;if(!S.buf[m0])m0=+Object.keys(S.buf).reduce((a,b)=>Math.abs(b-midi)<Math.abs(a-midi)?b:a);
@@ -253,6 +254,40 @@ function homeTick(){
   while(HM.next<now+.6){homeStep(HM.step,HM.next);HM.next+=HM_E;if(++HM.step>=64){HM.step=0;HM.loop++}}
 }
 setInterval(homeTick,150);
+/* ---- song preview: a piece tapped on the select screen plays quietly from its first tune note for PV_LEN seconds, with its own
+   instruments (synth until the samples arrive); the menu music steps aside meanwhile and comes back afterwards */
+const PV={g:null,s:null,n:null,i:0,t0:0,stop:0,tok:0},PV_LEN=20;
+const pvWant=()=>!!AC&&AC.state==='running'&&st==='menu'&&mode==='normal'&&!$('#menu').classList.contains('hidden')&&!document.hidden;
+function pvEnd(){
+  if(PV.g&&AC){const g=PV.g,now=AC.currentTime;g.gain.cancelScheduledValues(now);g.gain.setTargetAtTime(0,now,.12);setTimeout(()=>{try{g.disconnect()}catch(e){}},1500)}
+  PV.g=null;PV.s=null;PV.n=null;PV.tok++;
+}
+function pvPlay(s){
+  pvEnd();if(!AC||!s||!s.n||!pvWant())return;
+  const tok=PV.tok;PV.s=s;   // claims the music slot now, so the menu music fades while the samples load
+  Promise.race([preloadSong(s),new Promise(r=>setTimeout(r,1500))]).then(()=>{
+    if(tok!==PV.tok||!pvWant()){if(tok===PV.tok)pvEnd();return}
+    const n=s.n.filter(x=>x[3]!==2).sort((a,b)=>a[0]-b[0]),m=n.find(x=>x[3]===1),off=m?Math.max(0,m[0]-40):0,now=AC.currentTime;
+    PV.n=n;PV.i=n.findIndex(x=>x[0]>=off);if(PV.i<0)PV.i=n.length;
+    PV.t0=now+.25-off/100;PV.stop=off+PV_LEN*100;
+    const g=PV.g=AC.createGain();g.gain.setValueAtTime(0,now);g.gain.setTargetAtTime(.6,now,.3);g.gain.setTargetAtTime(0,PV.t0+PV.stop/100-2,.6);g.connect(busBk);
+  });
+}
+function pvNote(x){
+  const k=x[3],role=k===1?'lead':k===3?'ctr':x[2]<52?'bass':'bk',m=instMap(PV.s),t=PV.t0+x[0]/100,hold=clamp(x[1]/100*1.05,.15,2.4);
+  const nm=m&&(role==='ctr'?(m.ctr||m.bk):role==='bass'?(m.bass||m.bk):m[role]),vol=k===1?.36:.2;
+  if(nm&&playInst(nm,role,x[2],t,hold,k===1?vol*.62:vol,0,PV.g))return;
+  pluck(440*Math.pow(2,(x[2]-69)/12),t,hold,vol,k===1?P_LEAD:x[2]<52?P_BASS:P_BK,x[2]<52?1.1:.9,PV.g,0);
+}
+function pvTick(){
+  if(!PV.s)return;
+  if(!pvWant()){pvEnd();return}
+  if(!PV.n||!PV.g)return;
+  const now=AC.currentTime;
+  if(now>PV.t0+PV.stop/100+.5){pvEnd();return}
+  while(PV.i<PV.n.length){const x=PV.n[PV.i],t=PV.t0+x[0]/100;if(t>now+.6||x[0]>PV.stop)break;if(t>=now-.05)pvNote(x);PV.i++}
+}
+setInterval(pvTick,150);
 // the first tap anywhere on a menu screen enables sound, so the menu music can start
 // (pointerup/click: on touch screens a pointerdown does not count as a gesture that may start audio)
 function menuWake(){if(st!=='home'&&st!=='menu')return;if(!AC)initAudio();else if(AC.state!=='running')unlockAudio()}
@@ -286,6 +321,23 @@ const pitchTxt=c=>Math.abs(c)<6?'音準正確':(c<0?'♭ ':'♯ ')+Math.abs(Math
 const SD=window.SONGDATA||{};
 const ORDER=window.SONGORDER||Object.keys(SD);
 const SONGS=ORDER.filter(k=>SD[k]).map(k=>Object.assign({key:k},SD[k]));
+// constellations: groups of songs in play order. They shape the star map and the song list, and songs unlock
+// within each constellation. A song listed nowhere joins the last constellation.
+const CONS_DEF=window.SONGCONS||[
+  ['古老旋律座',['green','twinkle','auld','grace','silent']],
+  ['巴洛克座',['canon','prelude','minuetg','spring','air','hallelujah']],
+  ['古典座',['turkish','nacht','k545','moon','fifth','elise','ode']],
+  ['浪漫座',['schubert','traum','nocturne','wedding','minute','gounod','danube','lullaby']],
+  ['晚浪漫與印象座',['carmen','mountain','gymno','entertainer','clair']],
+  ['霓虹座',['neon','pixel','velvet']]];
+const CONS=(()=>{
+  const used=new Set(),out=[];
+  for(const[name,keys]of CONS_DEF){const ii=[];for(const k of keys){const i=SONGS.findIndex(x=>x.key===k);if(i>=0&&!used.has(i)){used.add(i);ii.push(i)}}if(ii.length)out.push({name,ii})}
+  const rest=SONGS.map((_,i)=>i).filter(i=>!used.has(i));
+  if(rest.length){if(out.length)out[out.length-1].ii.push(...rest);else out.push({name:'星空',ii:rest})}
+  return out;
+})();
+const CON_OF=[];CONS.forEach((c,k)=>c.ii.forEach((i,j)=>{CON_OF[i]=[k,j]}));
 if(!SONGS.length)setTimeout(()=>showErr('曲目資料載入失敗，請確認網路後重新載入。'),0);
 const songHue=i=>(i*53+200)%360;
 let song=SONGS[0],melList=[],bkList=[],bkV=[],tg=[];
@@ -351,19 +403,26 @@ function prepare(s){
 }
 
 /* ================= state ================= */
-let FR={x:0,y:0,w:0,h:0},BR=9,V0=420,HR=50,portrait=false;
+let FR={x:0,y:0,w:0,h:0},BR=9,BR0=9,V0=420,HR=50,portrait=false;
+function sizeFor(){BR=BR0*(D&&D.bm||1);HR=Math.max(46,BR0*5.5)*(D&&D.hm||1)}   // ball and touch size follow the difficulty
 const HRe=()=>HR*(rangeT>0?rangeMul:1)*(DU.shrinkT>0?.7:1);
 /* online duel state */
 const DU={ws:null,code:'',you:0,host:0,players:[],cfg:{song:0,di:1},phase:'lobby',off:0,pings:[],seed:1,startAt:0,
   opp:{s:0,c:0,l:100,r:0,j:-1,jt:0},oppName:'',myFin:null,oppFin:null,left:false,pstreak:0,fogT:0,shrinkT:0,sprint:false,banner:null,prevDi:null,ready:false};
 let mode='normal',D=null,life=100,resumeCD=0,lastRes=null,freezeG=0;
-const TUTN=20,TUTD={n:'教學',nb:1,gap:1.25,spd:.9,dmg:0};
+const TUTN=20,TUTD={n:'教學',nb:1,gap:1.25,spd:.9,dmg:0,bm:1.4,hm:1.4,wm:1.3,ob:.5,noSmall:1};
 let st='home',si=0,offset=0,nt=0,resolved=0,nb=1,bi=0,tickQ=[],endAt=0,paused=false,exitT=0;
 let score=0,combo=0,maxCombo=0,tierCount=[0,0,0,0],time=0,ts=1,gAC=0,gT=0,cp={ti:0,score:0},lastCents=0,lastP=.5,pSrc='none';
 let balls=[],bumps=[],items=[],rings=[],floats=[],parts=[],aims=[],missCount=0,runFrom=0;
 let shake=0,flash={a:0,hue:0},easeT=0,starT=0,shield=0,rangeT=0,rangeMul=1,edgeGlow=[0,0,0,0],edgeHue=[0,0,0,0],spawnT=4,itemT=8;
 const LEADIN=2.6,CPN=25;
-const DIFFS=[{n:'簡單',nb:1,gap:1.0,spd:1.0,dmg:20},{n:'普通',nb:2,gap:.55,spd:1.0,dmg:25},{n:'困難',nb:2,gap:.4,spd:1.2,dmg:34}];
+// Difficulties. The index is what records, the leaderboard and duels store, so 0-2 keep their old meaning and new ones are added
+// at the end; DORD is the order shown to players and LVL the rank of each (0 = easiest) used for star colours.
+//   bm: ball size, hm: touch radius, wm: hit window (all × the base), side: a tap anywhere on the ball's half counts,
+//   ob: obstacle amount, noSmall: no "smaller touch range" item. Tuned with an analysis of every song on an iPhone in landscape.
+//   Keep it on one line: server/scripts/charts.mjs reads it from here.
+const DIFFS=[{n:'簡單',nb:1,gap:1.0,spd:1.0,dmg:15,bm:1.4,hm:1.6,wm:1.5,ob:.5,noSmall:1},{n:'普通',nb:2,gap:.6,spd:1.0,dmg:20,bm:1.25,hm:1.25,wm:1.15,ob:1},{n:'困難',nb:2,gap:.45,spd:1.1,dmg:28,bm:1.1,hm:1.1,wm:1.05,ob:1},{n:'入門',nb:1,gap:1.3,spd:.9,dmg:10,bm:1.5,hm:1.3,wm:1.7,side:1,ob:0,noSmall:1},{n:'專家',nb:3,gap:.3,spd:1.25,dmg:34,ob:1}];
+const DORD=[3,0,1,2,4],LVL=[1,2,3,0,4],BALLS=['','單球','雙球','三球'];
 /* music layers: the accompaniment grows with unbroken good hits; a miss drops one layer */
 const ML_STEP=[10,15,25],ML_NAME=['微光','明亮','輝映','星耀'],ML_HUE=[225,185,265,48],ML_TIP=['','和聲與鼓組加入','加入副旋律','主旋律加入高八度鐘聲'];
 let mlv=0,mgrow=0,mlBan=null,mlFx=-1;
@@ -383,7 +442,7 @@ function mlTick(){   // backing filter + melody reverb follow the layer (only to
   bkLP.frequency.cancelScheduledValues(now);bkLP.frequency.setTargetAtTime(!full&&mlv<1?1300:AC.sampleRate/2,now,.25);   // at Nyquist the filter is exactly transparent
   melSend.gain.cancelScheduledValues(now);melSend.gain.setTargetAtTime(!full&&mlv>=3?.48:.3,now,.3);
 }
-let di=(v=>isNaN(v)?1:Math.min(2,Math.max(0,v)))(parseInt(lsGet('pmb6-di')||'1',10)),SPD=1;
+let di=(v=>isNaN(v)?1:Math.min(DIFFS.length-1,Math.max(0,v)))(parseInt(lsGet('pmb6-di')||'1',10)),SPD=1;
 D=DIFFS[di];
 // records are keyed by song id (not level number) so adding songs never shifts them
 const KEY_SC=(i,d)=>'ppl-sc-'+SONGS[i].key+'-'+d,KEY_RK=(i,d)=>'ppl-rk-'+SONGS[i].key+'-'+d,KEY_CL=i=>'ppl-cl-'+SONGS[i].key;
@@ -397,7 +456,8 @@ const KEY_SC=(i,d)=>'ppl-sc-'+SONGS[i].key+'-'+d,KEY_RK=(i,d)=>'ppl-rk-'+SONGS[i
 })();
 const cleared=i=>!!lsGet(KEY_CL(i));
 const LOCKS=false;   // testing phase: every level is open
-const unlocked=i=>!LOCKS||i<3+SONGS.reduce((a,_,k)=>a+(cleared(k)?1:0),0);
+const conCleared=k=>CONS[k].ii.reduce((a,i)=>a+(cleared(i)?1:0),0);
+const unlocked=i=>{if(!LOCKS)return true;const c=CON_OF[i];return !c||c[1]<3+conCleared(c[0])};   // first 3 of each constellation are open; each song cleared there opens one more
 const TIERS=[
   {n:'完美',hue:48,m:3,ring:3,part:28,shake:5,vol:.4},
   {n:'極佳',hue:185,m:2,ring:2,part:15,shake:3,vol:.37},
@@ -411,7 +471,7 @@ const timeOf=t=>(t-offset)/SPD+LEADIN;                  // song time -> game clo
 const tT=i=>timeOf(tg[i].t);
 const sideOf=i=>(Math.floor(i/nb)+(i%nb))%2?3:1;  // 1 = right line, 3 = left line (alternate thumbs)
 const hueNow=()=>(songHue(si)+(tg.length?resolved/tg.length:0)*140)%360;
-const LEAD=v=>Math.max(BR*5,(v||0)*.13)*(easeT>0?1.6:1),GRACE=v=>Math.max(BR*5,(v||0)*.11)*(easeT>0?1.6:1);
+const LEAD=v=>Math.max(BR0*5,(v||0)*.13)*(easeT>0?1.6:1)*(D&&D.wm||1),GRACE=v=>Math.max(BR0*5,(v||0)*.11)*(easeT>0?1.6:1)*(D&&D.wm||1);
 
 function safeIns(){const c=getComputedStyle($('#safe'));return{t:parseFloat(c.paddingTop)||0,r:parseFloat(c.paddingRight)||0,b:parseFloat(c.paddingBottom)||0,l:parseFloat(c.paddingLeft)||0}}
 let layoutRetry=0;
@@ -442,7 +502,7 @@ function layout(){
   const side=Math.max(24,W*.04)+Math.max(sa.l,sa.r);
   FR.w=Math.min(W-side*2,900);FR.h=Math.min(H-top-bot,FR.w*.5);FR.w=Math.min(FR.w,FR.h*2.4);
   FR.x=Math.round((W-FR.w)/2);FR.y=Math.round(top+(H-top-bot-FR.h)/2);
-  BR=Math.max(8,Math.min(FR.w,FR.h)*.032);V0=FR.w*.55;HR=Math.max(46,BR*5.5);
+  BR0=Math.max(8,Math.min(FR.w,FR.h)*.032);V0=FR.w*.55;sizeFor();
   for(const b of balls){b.x=clamp(b.x,FR.x+BR,FR.x+FR.w-BR);b.y=clamp(b.y,FR.y+BR,FR.y+FR.h-BR)}
 }
 
@@ -456,7 +516,7 @@ function hud(){
 }
 function newBall(ti){
   const s=sideOf(ti),dy=srand(-.35,.35),l=Math.hypot(1,dy);
-  return{x:FR.x+FR.w*(s===1?srand(.25,.4):srand(.6,.75)),y:FR.y+FR.h*(nb===2?(ti%2?.7:.3):.5),dx:(s===1?1:-1)/l,dy:dy/l,v:0,pop:0,ti,side:s,win:null,trail:[],sq:0,sqn:0,laps:0,away:false};
+  return{x:FR.x+FR.w*(s===1?srand(.25,.4):srand(.6,.75)),y:FR.y+FR.h*(nb===3?[.2,.5,.8][ti%3]:nb===2?(ti%2?.7:.3):.5),dx:(s===1?1:-1)/l,dy:dy/l,v:0,pop:0,ti,side:s,win:null,trail:[],sq:0,sqn:0,laps:0,away:false};
 }
 function startRun(from){
   from=from||0;$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');
@@ -464,7 +524,7 @@ function startRun(from){
   else D=DIFFS[di];
   RNG=mode==='duel'?mulberry32(DU.seed):Math.random;
   DU.pstreak=0;DU.fogT=0;DU.shrinkT=0;DU.sprint=false;DU.banner=null;DU.myFin=null;DU.oppFin=null;DU.opp={s:0,c:0,l:100,r:0,j:-1,jt:0};
-  song=SONGS[si];LEADTYPE=song.lead||'triangle';SPD=D.spd;nb=D.nb;prepare(song);
+  sizeFor();song=SONGS[si];LEADTYPE=song.lead||'triangle';SPD=D.spd;nb=D.nb;prepare(song);
   from=Math.min(from,Math.max(0,tg.length-1));
   offset=from>0?tg[from].t-.02:0;
   bi=bkList.findIndex(n=>n[0]/100>=offset);if(bi<0)bi=bkList.length;
@@ -475,7 +535,7 @@ function startRun(from){
   RUN=mode==='normal'&&!from&&ME?{log:new Array(tg.length).fill(null),ok:true,ticket:null,key:song.key,d:di}:null;   // only full solo runs can enter the leaderboard
   endAt=mode==='tut'?timeOf(tg[tg.length-1].t)+2:timeOf(song.dur)+1.2;
   st='ready';hudShow(true);preloadSong(song);
-  $('#sub').textContent=(mode==='tut'?'新手教學':'第 '+(si+1)+' 關')+' · 《'+song.name+'》 · '+D.n+' · '+tg.length+' 拍'+(nb===2?' · 雙球':'')+(from?' · 自第 '+(from+1)+' 拍':'');
+  $('#sub').textContent=(mode==='tut'?'新手教學':'第 '+(si+1)+' 關')+' · 《'+song.name+'》 · '+D.n+' · '+tg.length+' 拍'+(nb>1?' · '+BALLS[nb]:'')+(from?' · 自第 '+(from+1)+' 拍':'');
   hud();
   for(const o of['#home','#menu','#end','#pause','#set','#cal'])$(o).classList.add('hidden');
 }
@@ -528,6 +588,7 @@ function tap(x,y,e){
   if(st!=='play')return;
   let best=null,bd=1e9;
   for(const b of balls){if(!b.win)continue;const d=Math.hypot(b.x-x,b.y-y);if(d<=HRe()&&d<bd){bd=d;best=b}}
+  if(!best&&D&&D.side){const half=x>FR.x+FR.w/2?1:3;for(const b of balls){if(!b.win||b.side!==half)continue;const d=Math.abs(b.y-y);if(d<bd){bd=d;best=b}}}   // 入門: anywhere on the ball's half
   rings.push({x,y,r0:6,life:.3,max:.3,hue:best?hueNow():220,w:1.5});     // visual only; a wrong tap makes no sound
   if(!best)return;
   if(RUN&&e&&e.isTrusted===false)RUN.ok=false;   // a tap made by a script, not a finger: this run stays off the leaderboard
@@ -698,7 +759,7 @@ function spawnBump(){
 // an item must stay reachable: keep it clear of an obstacle's full (overshooting) radius plus a ball's width and some room
 const itemGap=Rm=>Rm*1.3+BR*2+17+30;
 function spawnItem(){
-  const r=RNG(),type=r<.3?'big':r<.5?'small':r<.78?'star':(shield>=2?'star':'shield');
+  const r=RNG(),type=r<.3?'big':r<.5?(D&&D.noSmall?'big':'small'):r<.78?'star':(shield>=2?'star':'shield');
   for(let tries=0;tries<16;tries++){
     const x=FR.x+FR.w*srand(.25,.75),y=FR.y+FR.h*srand(.2,.8);
     if(bumps.every(o=>Math.hypot(o.x-x,o.y-y)>=itemGap(o.Rm))){items.push({x,y,type,age:0,life:7});return}
@@ -726,7 +787,7 @@ function showResult(ok,msg){
   const rank=acc>=.95&&missCount===0?'S':acc>=.85?'A':acc>=.7?'B':acc>=.5?'C':'D';
   const kS=KEY_SC(si,di),kR=KEY_RK(si,di),prev=parseInt(lsGet(kS)||'0',10);
   const newBest=ok&&mode==='normal'&&score>prev;
-  const skyB=ok&&mode==='normal'?starOf(si):null,skyC=SKY.find(c=>c[2].some(t=>t[2]===si)),skyCB=!!skyC&&skyDone(skyC);
+  const skyB=ok&&mode==='normal'?starOf(si):null,skyC=CON_OF[si]?CONS[CON_OF[si][0]]:null,skyCB=!!skyC&&skyDone(skyC);
   if(mode==='tut'){lsSet('ppl-tut','1')}
   else if(ok&&mode==='normal'){
     lsSet(KEY_CL(si),'1');
@@ -745,7 +806,7 @@ function showResult(ok,msg){
   if(ok&&mode==='normal'&&!runFrom){const bp=Math.floor(acc*10000),kA=KEY_AC(si,di);if(bp>(parseInt(lsGet(kA)||'0',10)||0))lsSet(kA,String(bp))}
   const rs=$('#rsky');rs.hidden=true;rs.textContent='';
   if(skyB){const a=starOf(si),full=!!skyC&&!skyCB&&skyDone(skyC);
-    rs.textContent=full?'✦ '+skyC[0]+'完成':!skyB.lit?'✦ 《'+song.name+'》在星空中亮起了':(a.d>skyB.d||a.r>skyB.r)?'✦ 《'+song.name+'》在星空中更亮了':'';
+    rs.textContent=full?'✦ '+skyC.name+'完成':!skyB.lit?'✦ 《'+song.name+'》在星空中亮起了':(a.d>skyB.d||a.r>skyB.r)?'✦ 《'+song.name+'》在星空中更亮了':'';
     rs.hidden=!rs.textContent;
     if(full)setTimeout(()=>{if(AC&&!$('#end').classList.contains('hidden'))[62,66,69,74].forEach((p,k)=>voice(p,k*.06,1.6,.12,0,true,busFx))},1500)}
   countUp($('#rscore'),score);
@@ -866,8 +927,8 @@ function update(dt){
     if(!DU.sprint&&tg.length&&resolved>=tg.length*.8){DU.sprint=true;DU.banner={text:'最後衝刺！分數 ×2',hue:48,t:2.2,max:2.2};flash.a=.25;flash.hue=48;hud()}}
   if(starT>0){starT-=dt;if(starT<=0)hud()}
   const prog=tg.length?resolved/tg.length:0;
-  const bm=1,tut=mode==='tut';
-  spawnT-=dt;if(spawnT<=0&&Gn>LEADIN&&(!tut||resolved>=12)){if(bumps.length<(tut?1:(1+Math.floor(prog*3))*bm))spawnBump();spawnT=Math.max(1.8,4.5-prog*2.6)/bm*srand(.8,1.2)}
+  const bm=D&&D.ob!=null?D.ob:1,tut=mode==='tut';
+  spawnT-=dt;if(spawnT<=0&&Gn>LEADIN&&bm>0&&(!tut||resolved>=12)){if(bumps.length<(tut?1:(1+Math.floor(prog*3))*bm))spawnBump();spawnT=Math.max(1.8,4.5-prog*2.6)/bm*srand(.8,1.2)}
   itemT-=dt;if(itemT<=0&&Gn>LEADIN&&!tut){if(items.length<1)spawnItem();itemT=srand(8,12)}
   for(let i=bumps.length-1;i>=0;i--){const o=bumps[i];o.age+=dt;if(o.age>o.life+.4)bumps.splice(i,1)}
   for(let i=items.length-1;i>=0;i--){const it=items[i];it.age+=dt;if(it.age>it.life)items.splice(i,1)}
@@ -1143,7 +1204,7 @@ function duelRoomUI(){
   $('#dPl').innerHTML=[0,1].map(i=>{const p=DU.players.find(q=>q.i===i);return p?'<span class="'+(p.ready?'ok':'')+'">'+(p.i===DU.you?'您：':'')+esc(p.name)+(p.ready?' ✓ 準備':'')+'</span>':'<span style="opacity:.5">等待對手加入⋯</span>'}).join('');
   const host=DU.you===DU.host,rk=i=>{const r=lsGet(KEY_RK(i,DU.cfg.di));return RANKS.includes(r)?r:''};
   DSONG.set(SONGS.map((x,i)=>({v:i,text:(i+1)+'. '+x.name,note:rk(i)})),DU.cfg.song);
-  DDI.set(DIFFS.map((x,i)=>({v:i,text:x.n})),DU.cfg.di);
+  DDI.set(DORD.map(i=>({v:i,text:DIFFS[i].n})),DU.cfg.di);
   DSONG.setDisabled(!host);DDI.setDisabled(!host);
   const b=$('#dReady');b.textContent=DU.ready?'取消準備':'準備';b.classList.toggle('pri',!DU.ready);
   if(!$('#duel').classList.contains('hidden'))dmsg(DU.players.length<2?(DU.note||'請將房號提供給好友，或按「邀請朋友」分享連結。'):(host?'由您選擇曲目與難度，雙方按下「準備」後開始。':'房主選曲中，雙方按下「準備」後開始。'));
@@ -1357,7 +1418,7 @@ async function lbSubmit(R){
 $('#rlbB').onclick=()=>{if(!ME)nickOpen('result');else lbOpen(si,di)};
 const LBV={i:0,d:0,open:-1,v:null};let lbTok=0;
 function lbOpen(i,d){LBV.i=i;LBV.d=d;LBV.open=-1;$('#lbT').textContent='《'+SONGS[i].name+'》';lbSeg();$('#lbv').classList.remove('hidden');lbLoad()}
-function lbSeg(){$('#lbD').innerHTML=DIFFS.map((x,k)=>'<button data-d="'+k+'" class="'+(k===LBV.d?'on':'')+'">'+x.n+'</button>').join('')}
+function lbSeg(){$('#lbD').innerHTML=DORD.map(k=>'<button data-d="'+k+'" class="'+(k===LBV.d?'on':'')+'">'+DIFFS[k].n+'</button>').join('')}
 async function lbLoad(){
   const t=++lbTok,L=$('#lbL');L.innerHTML='<div class="lbmsg">載入中⋯</div>';$('#lbMe').hidden=true;
   const v=await lbGet(SONGS[LBV.i].key,LBV.d);if(t!==lbTok)return;
@@ -1390,33 +1451,31 @@ $('#lbv').addEventListener('click',e=>{if(e.target.id==='lbv')lbClose()});
 
 /* ---- song select ---- */
 let selF=0,selTok=0,selTm=0;
-const ERAS=[[1750,'巴洛克與更早','～1750'],[1820,'古典時期','1750–1820'],[1950,'浪漫與印象派','1820–1910'],[1e9,'原創曲','本遊戲原創']];
-const yearOf=s=>{const m=String(s.year||'').match(/\d{4}/);return m?+m[0]:0};
 const rkOf=(i,d)=>{const r=lsGet(KEY_RK(i,d));return RANKS.includes(r)?r:''};
 const durTxt=s=>{const t=Math.round(s.dur||0);return Math.floor(t/60)+' 分 '+String(t%60).padStart(2,'0')+' 秒'};
 function buildChips(){
   const done=SONGS.map((_,i)=>!!rkOf(i,di)),n2=done.filter(Boolean).length,cnt=[SONGS.length,SONGS.length-n2,n2];
   document.querySelectorAll('#sTabs button').forEach((b,k)=>{b.classList.toggle('on',k===selF);b.setAttribute('aria-selected',String(k===selF));b.querySelector('b').textContent=cnt[k]});
-  let h='',era=-1;
-  SONGS.forEach((s,i)=>{
-    if(selF&&(selF===2)!==done[i])return;
-    const e=ERAS.findIndex(x=>yearOf(s)<x[0]);
-    if(e!==era){era=e;h+='<div class="era">'+ERAS[e][1]+'<small>'+ERAS[e][2]+'</small><span class="eh">簡 普 困　評級</span></div>'}
+  let h='';
+  for(const C of CONS){
+    const ii=C.ii.filter(i=>!selF||(selF===2)===done[i]);if(!ii.length)continue;
+    h+='<div class="era">'+esc(C.name)+'<small>'+C.ii.filter(i=>done[i]).length+' / '+C.ii.length+'</small><span class="eh"><span class="ehd">難度</span>評級</span></div>';
+    for(const i of ii){const s=SONGS[i];
     const ul=unlocked(i),rk=rkOf(i,di);
-    h+='<button class="sr'+(i===si?' on':'')+(ul?'':' lock')+'" data-i="'+i+'"><span class="no">'+(i+1)+'</span>'
+    h+='<button class="sr'+(i===si?' on':'')+(ul?'':' lock')+'" data-i="'+i+'"><span class="no">'+(CON_OF[i][1]+1)+'</span>'
       +'<span class="tx"><span class="nm">'+esc(s.name)+'</span><span class="mt">'+esc(s.year+' · '+s.composer)+'<i>'+starTxt(STARS[i])+'</i></span></span>'
-      +'<span class="pips" aria-label="已通關難度">'+[0,1,2].map(d=>'<i class="'+(rkOf(i,d)?'d'+d:'')+'"></i>').join('')+'</span>'
+      +'<span class="pips" aria-label="已通關難度">'+DORD.map(d=>'<i class="'+(rkOf(i,d)?'l'+LVL[d]:'')+'"></i>').join('')+'</span>'
       +'<span class="rk"'+(rk?' style="color:'+RANK_COL[rk]+'"':'')+'>'+(rk||'—')+'</span></button>';
-  });
+  }}
   $('#chips').innerHTML=h||'<div class="sempty">'+(selF===1?'此難度的曲目皆已通關，可改選其他難度挑戰。':'此難度尚無已通關的曲目。')+'</div>';
   selDetail();
 }
 function selScroll(){const on=$('#chips .sr.on');if(on)try{on.scrollIntoView({block:'center'})}catch(e){}}
 function selDetail(){
   const i=si,s=SONGS[i];if(!s)return;
-  $('#sK').textContent='第 '+(i+1)+' 關 · '+s.year;$('#sN').textContent=s.name;
+  $('#sK').textContent=CONS[CON_OF[i][0]].name+' · 第 '+(CON_OF[i][1]+1)+' 首 · '+s.year;$('#sN').textContent=s.name;
   $('#sM').innerHTML=esc(s.composer+' · '+durTxt(s))+'<i>'+starTxt(STARS[i])+'</i>';
-  $('#diffs').innerHTML=DIFFS.map((df,k)=>'<button data-d="'+k+'" class="'+(k===di?'on':'')+'">'+df.n+'<small>'+(df.nb===2?'雙球':'單球')+(df.spd>1?' · 快 '+df.spd+' 倍':'')+'</small></button>').join('');
+  $('#diffs').innerHTML=DORD.map(k=>{const df=DIFFS[k];return'<button data-d="'+k+'" class="'+(k===di?'on':'')+'">'+df.n+'<small>'+BALLS[df.nb]+(df.spd>1?'·快':df.spd<1?'·慢':'')+'</small></button>'}).join('');
   const rk=rkOf(i,di),sc=parseInt(lsGet(KEY_SC(i,di))||'0',10)||0,ac=parseInt(lsGet(KEY_AC(i,di))||'0',10)||0;
   $('#sB').innerHTML=rk?'<span class="bk" style="color:'+RANK_COL[rk]+'">'+rk+'</span><span>'+(ac?'精準度 <b>'+pct(ac)+'</b> · ':'')+'最高分 <b>'+sc.toLocaleString()+'</b><br><span id="sRank"></span></span>'
     :'<span class="bk" style="color:#3c4370">—</span><span>此難度尚未通關<br><span id="sRank"></span></span>';
@@ -1431,7 +1490,7 @@ function selDetail(){
   },250);
 }
 $('#chips').onclick=e=>{const b=e.target.closest('.sr');if(!b)return;const i=+b.dataset.i;if(!unlocked(i))return;
-  si=i;document.querySelectorAll('#chips .sr.on').forEach(x=>x.classList.remove('on'));b.classList.add('on');initAudio();preloadSong(SONGS[i]);selDetail()};
+  si=i;document.querySelectorAll('#chips .sr.on').forEach(x=>x.classList.remove('on'));b.classList.add('on');initAudio();preloadSong(SONGS[i]);selDetail();pvPlay(SONGS[i])};
 $('#sTabs').onclick=e=>{const b=e.target.closest('button[data-f]');if(!b)return;selF=+b.dataset.f;buildChips();$('#chips').scrollTop=0};
 $('#diffs').onclick=e=>{const b=e.target.closest('button[data-d]');if(!b)return;di=+b.dataset.d;lsSet('pmb6-di',String(di));buildChips()};
 $('#bLb').onclick=()=>lbOpen(si,di);
@@ -1467,7 +1526,7 @@ function frOn(d){
   const who=f=>dName(f&&typeof f==='object'?f.name:'')||'好友';
   if(d.t==='inv'){const room=String(d.room||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);if(room.length!==4)return;
     const f=d.from&&typeof d.from==='object'?d.from:{};
-    FD.inv={id:dInt(f.id,0,1e12),name:who(f),room,song:SONGS.findIndex(x=>x.key===d.song),d:dInt(d.d,0,2),exp:Date.now()+55000};invShow();return}
+    FD.inv={id:dInt(f.id,0,1e12),name:who(f),room,song:SONGS.findIndex(x=>x.key===d.song),d:dInt(d.d,0,DIFFS.length-1),exp:Date.now()+55000};invShow();return}
   if(d.t==='invno'){toast(who(d.from)+' 目前無法接受邀請');return}
   if(d.t==='req'){toast(who(d.from)+' 想加您為好友');frBadge(true);if(frIsOpen())frLoad();return}
   if(d.t==='friend'){toast('已與 '+dName(d.name)+' 成為好友');frBadge(true);if(frIsOpen())frLoad();return}
@@ -1569,64 +1628,183 @@ async function frInvite(id,b){
       if(DU.ws)duelRoomUI()})});
 }
 /* ================= star map ================= */
-// constellations by era: [name, label position, [x, y, song key]..., links between stars]
-const SKY=[
-  ['古老旋律座',[150,48],[[90,110,'green'],[150,80,'twinkle'],[210,120,'auld'],[170,175,'grace'],[105,190,'silent']],[[0,1],[1,2],[2,3],[3,4],[4,0]]],
-  ['巴洛克座',[170,262],[[80,320,'canon'],[140,292,'prelude'],[200,330,'minuetg'],[262,302,'spring'],[232,382,'air'],[150,402,'hallelujah']],[[0,1],[1,2],[2,3],[2,4],[4,5],[5,0]]],
-  ['古典座',[445,30],[[330,95,'turkish'],[390,62,'nacht'],[450,102,'k545'],[510,78,'moon'],[565,132,'fifth'],[500,172,'elise'],[420,162,'ode']],[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,2]]],
-  ['浪漫座',[480,240],[[360,305,'schubert'],[420,272,'traum'],[480,312,'nocturne'],[540,282,'wedding'],[602,322,'danube'],[572,392,'lullaby'],[490,412,'minute'],[410,382,'gounod']],[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,0]]],
-  ['晚浪漫與印象座',[745,46],[[680,112,'carmen'],[742,82,'mountain'],[802,132,'gymno'],[762,192,'entertainer'],[700,182,'clair']],[[0,1],[1,2],[2,3],[3,4],[4,0]]],
-  ['霓虹座',[840,262],[[770,335,'neon'],[845,295,'pixel'],[905,362,'velvet']],[[0,1],[1,2]]]
-].map(([name,lp,stars,links])=>[name,lp,stars.map(([x,y,k])=>[x,y,SONGS.findIndex(s=>s.key===k)]),links]);
+// A night sky with no lines. Each constellation copies the bright-star pattern of a real one ([RA hours, Dec degrees,
+// magnitude]); its songs sit on the pattern's brightest stars, first song on the brightest, so the shape reads by
+// brightness alone and players see it themselves. Drag to pan, pinch or wheel to zoom, tap a constellation to fly in,
+// tap a star for its song. Star sizes are in screen pixels and grow only a little when zooming, like a real sky.
 const SKY_SHORT={auld:'驪歌',k545:'K.545',nocturne:'夜曲'};
-const SKY_C=['#cfe6ff','#7cf0ff','#ffd36b'];
-// one star: best rank and score per difficulty, highest difficulty cleared, best rank overall
-function starOf(i){
-  const per=[0,1,2].map(d=>{const r=lsGet(KEY_RK(i,d));return RANKS.includes(r)?{r,s:parseInt(lsGet(KEY_SC(i,d))||'0',10)||0}:null});
-  let d=-1,r=-1;per.forEach((p,k)=>{if(p){d=k;r=Math.max(r,RANKS.indexOf(p.r))}});
-  let old=false;if(d<0&&cleared(i)){d=0;r=0;old=true}   // cleared before ranks were kept
-  return{lit:d>=0,d,r,per,old};
+const SKY_C=['#9df0b8','#cfe6ff','#7cf0ff','#ffd36b','#ff8fd8'];   // by difficulty rank (LVL): 入門 簡單 普通 困難 專家
+const SKY_SHAPE={
+  lyra:[[18.62,38.78,0],[18.98,32.69,3.2],[18.83,33.36,3.5],[18.91,36.9,4.3],[18.75,37.6,4.4],[18.74,39.67,4.7]],
+  orion:[[5.24,-8.2,.1],[5.92,7.4,.5],[5.42,6.35,1.6],[5.6,-1.2,1.7],[5.68,-1.94,1.8],[5.8,-9.67,2.1],[5.53,-.3,2.2],[5.59,-5.9,2.8],[4.83,6.96,3.2],[5.59,9.93,3.4],[4.85,5.6,3.7],[6.04,9.65,4.1]],
+  uma:[[11.06,61.75,1.8],[12.9,55.96,1.8],[13.79,49.31,1.9],[13.4,54.93,2.2],[11.03,56.38,2.4],[11.9,53.69,2.4],[11.16,44.5,3],[10.37,41.5,3.1],[8.99,48.04,3.1],[9.55,51.68,3.2],[12.26,57.03,3.3],[8.5,60.72,3.4],[10.28,42.91,3.4],[11.77,47.78,3.7]],
+  sco:[[16.49,-26.43,1],[17.56,-37.1,1.6],[17.62,-43,1.9],[16,-22.62,2.3],[16.84,-34.29,2.3],[17.71,-39.03,2.4],[16.09,-19.8,2.6],[17.51,-37.3,2.7],[16.6,-28.22,2.8],[15.98,-26.11,2.9],[16.35,-25.59,2.9],[16.86,-38.05,3],[17.2,-43.24,3.3],[16.9,-42.36,3.6]],
+  leo:[[10.14,11.97,1.4],[10.33,19.84,2],[11.82,14.57,2.1],[11.24,20.52,2.6],[9.76,23.77,3],[11.24,15.43,3.3],[10.28,23.42,3.4],[10.12,16.76,3.5],[10.55,9.3,3.9],[9.88,26,3.9],[11.4,10.53,4],[11.35,6.03,4]],
+  gem:[[7.76,28.03,1.1],[7.58,31.89,1.6],[6.63,16.4,1.9],[6.38,22.51,2.9],[6.73,25.13,3],[6.25,22.5,3.3],[6.75,12.9,3.4],[7.34,21.98,3.5],[7.74,24.4,3.6],[7.3,16.54,3.6],[6.88,33.96,3.6],[7.07,20.57,3.8],[7.43,27.8,3.8],[7.6,26.9,4.1],[6.48,20.2,4.1],[7.19,30.25,4.4]],
+  cyg:[[20.69,45.28,1.3],[20.37,40.26,2.2],[20.77,33.97,2.5],[19.75,45.13,2.9],[19.51,27.96,3.1],[21.22,30.23,3.2],[19.5,51.73,3.8],[19.94,35.08,3.9]],
+  sgr:[[18.4,-34.38,1.8],[18.92,-26.3,2],[19.04,-29.88,2.6],[18.35,-29.83,2.7],[18.47,-25.42,2.8],[19.16,-21.02,2.9],[18.1,-30.42,3],[18.29,-36.76,3.1],[18.76,-26.99,3.2],[19.12,-27.67,3.3],[18.96,-21.1,3.5],[18.23,-21.06,3.9]],
+  cma:[[6.75,-16.72,-1.5],[6.98,-28.97,1.5],[7.14,-26.39,1.8],[6.38,-17.96,2],[7.4,-29.3,2.4],[6.34,-30.06,3],[7.05,-23.83,3],[7.06,-15.63,4.1]],
+  cas:[[.68,56.54,2.2],[.15,59.15,2.3],[.95,60.72,2.5],[1.43,60.24,2.7],[1.91,63.67,3.4],[.82,57.8,3.4],[.62,53.9,3.7],[.55,62.9,4.2]],
+  tau:[[4.6,16.51,.9],[5.44,28.6,1.7],[3.79,24.1,2.9],[5.63,21.14,3],[4.48,15.87,3.4],[4.01,12.49,3.4],[4.48,19.18,3.5],[4.33,15.63,3.6],[3.41,9.03,3.6],[4.38,17.54,3.8]],
+  cru:[[12.44,-63.1,.8],[12.8,-59.69,1.3],[12.52,-57.11,1.6],[12.25,-58.75,2.8],[12.36,-60.4,3.6],[12.9,-57.2,4]],
+  boo:[[14.26,19.18,0],[14.75,27.07,2.4],[13.91,18.4,2.7],[14.53,38.3,3],[15.26,33.3,3.5],[15.03,40.39,3.5],[14.53,30.37,3.6],[14.69,13.73,3.8],[13.82,15.8,4.1],[14.68,16.42,4.5]],
+  peg:[[.14,29.09,2.1],[23.06,28.08,2.4],[21.74,9.88,2.4],[23.08,15.2,2.5],[.22,15.18,2.8],[22.72,30.22,2.9],[22.69,10.83,3.4],[22.17,6.2,3.5],[22.83,24.6,3.5],[22.12,25.35,3.8],[22.78,23.57,3.9],[21.74,25.65,4.1],[22.78,12.17,4.2],[22.17,33.18,4.3]],
+  aql:[[19.85,8.87,.8],[19.77,10.61,2.7],[19.09,13.86,3],[20.19,-.82,3.2],[19.43,3.11,3.4],[19.1,-4.88,3.4],[19.92,6.41,3.7],[19.87,1,3.9],[18.99,15.07,4],[19.6,-1.29,4.4]],
+  del:[[20.63,14.6,3.6],[20.66,15.91,3.8],[20.78,16.12,3.9],[20.55,11.3,4],[20.73,15.07,4.4]]};
+// which real pattern each constellation borrows; a name not listed takes the smallest free pattern that fits its songs
+const SKY_PICK={'古老旋律座':'lyra','巴洛克座':'orion','古典座':'uma','浪漫座':'sco','晚浪漫與印象座':'leo','鋼琴詩人座':'leo','歌劇座':'gem','芭蕾座':'cyg','管弦樂座':'sgr','進行曲座':'cma','圓舞曲座':'cas','聖誕座':'tau','聖詩座':'cru','童謠座':'boo','童謠民謠座':'boo','世界民謠座':'peg','亞洲座':'aql','霓虹座':'del'};
+let SKY=null,skyBack='home';
+function skyBuild(){
+  let sd=11;const rnd=()=>(sd=(sd*16807)%2147483647)/2147483647;
+  const n=CONS.length,cols=Math.max(1,Math.ceil(Math.sqrt(n*2))),rows=Math.ceil(n/cols),CW=500,CH=480,W=(cols+.5)*CW,H=rows*CH+80;
+  const used=new Set(),shapeFor=(name,m)=>{
+    let s=SKY_PICK[name];
+    if(!s||used.has(s)){const free=Object.keys(SKY_SHAPE).filter(k=>!used.has(k)),L=k=>SKY_SHAPE[k].length;
+      s=free.filter(k=>L(k)>=m).sort((a,b)=>L(a)-L(b))[0]||free.sort((a,b)=>L(b)-L(a))[0]||'uma'}
+    used.add(s);return s};
+  const C=CONS.map((c,k)=>{
+    const r=Math.floor(k/cols),q=k%cols,m=r===rows-1?n-r*cols:cols;
+    const x0=((cols-m)/2+q+.5)*CW+CW*.25+(rows>1?(r%2?.18:-.18)*CW:0),y0=(r+.5)*CH+40+(q%2?28:-28);
+    let S=SKY_SHAPE[shapeFor(c.name,c.ii.length)].map(a=>a.slice());const ras=S.map(a=>a[0]);if(Math.max(...ras)-Math.min(...ras)>12)S.forEach(a=>{if(a[0]<12)a[0]+=24});
+    const d0=S.reduce((t,a)=>t+a[1],0)/S.length,r0=S.reduce((t,a)=>t+a[0],0)/S.length,cd=Math.cos(d0*Math.PI/180);
+    const Q=S.map(([ra,de,mg])=>({x:-(ra-r0)*15*cd,y:-(de-d0),m:mg}));   // sky-chart orientation: north up, east to the left
+    const qx=Q.map(p=>p.x),qy=Q.map(p=>p.y),bx0=Math.min(...qx),bx1=Math.max(...qx),by0=Math.min(...qy),by1=Math.max(...qy);
+    while(Q.length<c.ii.length)Q.push({x:bx0+rnd()*(bx1-bx0),y:by0+rnd()*(by1-by0),m:4.2});   // more songs than the pattern has stars: faint extras inside it
+    const R=Math.sqrt(Q.length)*46,ext=Math.max(...Q.map(p=>Math.max(Math.abs(p.x)/1.25,Math.abs(p.y)/.85)))||1,f=R/ext;
+    const P=Q.map(p=>({x:x0+p.x*f,y:y0+p.y*f,m:p.m,i:-1}));
+    // nudge very close pairs apart so each star can be tapped and labelled; the shape stays the same
+    for(let it=0;it<40;it++)for(const p of P)for(const o of P){if(p===o)continue;const dx=o.x-p.x,dy=o.y-p.y,d=Math.hypot(dx,dy)||1;if(d<28){const u=(28-d)/2/d;p.x-=dx*u;p.y-=dy*u;o.x+=dx*u;o.y+=dy*u}}
+    P.forEach(p=>{p.mag=clamp(1+(2.6-p.m)*.5,.4,2.3)});
+    [...P].sort((a,b)=>a.m-b.m).slice(0,c.ii.length).forEach((p,j)=>{p.i=c.ii[j]});   // songs in play order, brightest star first
+    const SP=P.filter(p=>p.i>=0);SP.forEach(p=>{p.nn=Math.min(...SP.filter(o=>o!==p).map(o=>Math.hypot(o.x-p.x,o.y-p.y)),999)});   // room for a name, among song stars
+    const px=P.map(p=>p.x),py=P.map(p=>p.y),b0=Math.min(...px),b1=Math.max(...px),t0=Math.min(...py),t1=Math.max(...py);
+    return{k,name:c.name,P,x:(b0+b1)/2,y:(t0+t1)/2,top:t0,bw:b1-b0,bh:t1-t0,R};
+  });
+  // background: a milky-way band, faint nebulae and field stars, batched by colour, brightness and twinkle phase
+  const fb=new Map(),cnt=Math.round(2600*W*H/(3200*1500));
+  for(let i=0;i<cnt;i++){const band=rnd()<.55,x=rnd()*W,y=band?H*(.78-.5*x/W)+(rnd()+rnd()+rnd()-1.5)*170:rnd()*H,m=Math.pow(rnd(),3.2);
+    const h=rnd()<.15?'#ffd9b0':rnd()<.25?'#b9ccff':'#ffffff',a=Math.min(2,Math.floor(m*3.5)),g=Math.floor(rnd()*4),key=h+a+g;
+    if(!fb.has(key))fb.set(key,{h,a:[.22,.42,.7][a],g,p:[]});fb.get(key).p.push([x,y,.3+m*1.0])}
+  const neb=[];for(let i=0;i<Math.round(70*W/3200);i++){const x=rnd()*W;neb.push({x,y:H*(.78-.5*x/W)+(rnd()-.5)*260,r:120+rnd()*260,c:rnd()<.5?'90,110,200':'150,90,170',a:.025+rnd()*.035})}
+  const cv=$('#skyCv');
+  SKY={W,H,C,fb:[...fb.values()],neb,cv,cx:cv.getContext('2d'),vw:0,vh:0,dpr:1,s:1,ox:0,oy:0,minS:1,anim:null,raf:0,dirty:true,focus:-2,cache:new Map(),lt:0};
+  skyA11y();
 }
-const skyDone=c=>c[2].every(t=>t[2]>=0&&starOf(t[2]).lit);
+function skyFit(){
+  const S=SKY,r=S.cv.getBoundingClientRect(),w=Math.max(1,r.width),h=Math.max(1,r.height),first=!S.vw;
+  S.dpr=Math.min(2,window.devicePixelRatio||1);S.cv.width=Math.round(w*S.dpr);S.cv.height=Math.round(h*S.dpr);
+  const z=first?1:S.s/S.minS,cxw=first?S.W/2:(S.vw/2-S.ox)/S.s,cyw=first?S.H/2:(S.vh/2-S.oy)/S.s;   // keep the same spot centred on resize
+  S.vw=w;S.vh=h;S.minS=Math.max(.02,Math.min(w/S.W,(h-86)/S.H));S.s=S.minS*z;S.ox=w/2-cxw*S.s;S.oy=h/2+(first?20:0)-cyw*S.s;skyClampV();S.dirty=true;
+}
+function skyClampV(){
+  const S=SKY;S.s=clamp(S.s,S.minS,S.minS*10);
+  const ww=S.W*S.s,hh=S.H*S.s;
+  S.ox=ww<S.vw?(S.vw-ww)/2:clamp(S.ox,S.vw-ww-40,40);
+  S.oy=hh<S.vh-86?44+(S.vh-86-hh)/2:clamp(S.oy,S.vh-hh-50,60);
+}
+function skyZoomAt(f,px,py){const S=SKY,ns=clamp(S.s*f,S.minS,S.minS*10);S.ox=px-(px-S.ox)*ns/S.s;S.oy=py-(py-S.oy)*ns/S.s;S.s=ns;S.anim=null;skyClampV();S.dirty=true}
+const skyZoomFor=C=>Math.min(SKY.minS*10,SKY.vw*.8/(C.bw+60),(SKY.vh-120)/(C.bh+70));
+function skyFly(x,y,ns,instant){
+  const S=SKY,s0=S.s,ox0=S.ox,oy0=S.oy;
+  const end=()=>{S.s=ns;S.ox=S.vw/2-x*ns;S.oy=(S.vh+10)/2-y*ns;skyClampV()};
+  if(instant||RM||SET.lowFx){end();S.anim=null;S.dirty=true;return}
+  end();const ox1=S.ox,oy1=S.oy;S.s=s0;S.ox=ox0;S.oy=oy0;const t0=performance.now();
+  S.anim=t=>{const k=Math.min(1,(t-t0)/450),e=1-Math.pow(1-k,3);S.s=s0+(ns-s0)*e;S.ox=ox0+(ox1-ox0)*e;S.oy=oy0+(oy1-oy0)*e;if(k>=1)S.anim=null};
+}
+const skyFlyTo=(C,instant)=>{const ns=skyZoomFor(C);skyFly(C.x,C.y-14/ns,ns,instant)};
+const skyOverview=instant=>skyFly(SKY.W/2,SKY.H/2-20/SKY.minS,SKY.minS,instant);
+const skyDone=c=>c.ii.every(i=>starOf(i).lit);
 function skyCount(){
   let lit=0,s=0;for(let i=0;i<SONGS.length;i++){const v=starOf(i);if(v.lit)lit++;if(v.r===4)s++}
-  return{lit,s,full:SKY.filter(skyDone).length};
+  return{lit,s,full:CONS.filter(skyDone).length};
 }
 function skyBadge(){$('#skyN').textContent=skyCount().lit+'/'+SONGS.length}
-let skyBack='home';
-function skyDraw(){
-  const svg=$('#skySvg'),NS='http://www.w3.org/2000/svg';svg.textContent='';
-  const el=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(p||svg).appendChild(e);return e};
-  const defs=el('defs',{});for(let i=0;i<3;i++){const f=el('filter',{id:'skg'+i,x:'-200%',y:'-200%',width:'500%',height:'500%'},defs);el('feGaussianBlur',{stdDeviation:2+i},f)}
-  const motion=!SET.lowFx&&!RM;
-  const dust=el('g',motion?{class:'dust'}:{});let sd=7;const rnd=()=>(sd=(sd*16807)%2147483647)/2147483647;
-  for(let i=0;i<220;i++)el('circle',{cx:(rnd()*1040-20).toFixed(1),cy:(rnd()*520-10).toFixed(1),r:(rnd()*.9+.2).toFixed(2),fill:'#fff',opacity:(rnd()*.35+.05).toFixed(2)},dust);
-  const root=el('g',{transform:'translate(40,44) scale(.92)'});   // room for the top bar and the legend
-  for(const C of SKY){
-    const [name,[lx,ly],stars,links]=C,done=skyDone(C);
-    for(const [a,b] of links){const A=stars[a],B=stars[b];if(A[2]<0||B[2]<0)continue;el('line',{x1:A[0],y1:A[1],x2:B[0],y2:B[1],stroke:done?'#ffd36b':'#5a64a0','stroke-width':done?1.4:.8,opacity:done?.7:.22,'stroke-dasharray':done?'':'3 4'},root)}
-    const t=el('text',{x:lx,y:ly,'text-anchor':'middle','font-size':done?15:13,fill:done?'#ffd36b':'#5a64a0','letter-spacing':2,'font-weight':done?700:400},root);t.textContent=name;
-    for(const [x,y,i] of stars){
-      if(i<0)continue;
-      const v=starOf(i),ul=unlocked(i),lab=SKY_SHORT[SONGS[i].key]||SONGS[i].name;
-      if(!v.lit){
-        el('circle',{cx:x,cy:y,r:2.6,fill:'#3a4270',opacity:ul?1:.45},root);
-        const tx=el('text',{x,y:y+16,'text-anchor':'middle','font-size':10,fill:'#4f5890',opacity:ul?1:.6},root);tx.textContent=lab;
-      }else{
-        const r=3+v.r*1.1,c=SKY_C[v.d];
-        el('circle',{cx:x,cy:y,r:(r*2.2).toFixed(1),fill:c,opacity:.25,filter:'url(#skg2)'},root);
-        const core=el('circle',{cx:x,cy:y,r:r.toFixed(1),fill:c},root);
-        if(v.r===4){core.setAttribute('filter','url(#skg0)');if(motion)el('animate',{attributeName:'opacity',values:'1;.6;1',dur:'2.4s',repeatCount:'indefinite'},core)}
-        v.per.forEach((p,k)=>el('circle',{cx:x-6+k*6,cy:(y+r+6).toFixed(1),r:1.4,fill:p||(v.old&&!k)?SKY_C[k]:'#3a4270'},root));
-        const tx=el('text',{x,y:(y+r+19).toFixed(1),'text-anchor':'middle','font-size':11,fill:'#c3caf0'},root);tx.textContent=lab;
-      }
-      const hit=el('circle',{cx:x,cy:y,r:30,fill:'transparent',class:'hit',tabindex:0,role:'button','aria-label':SONGS[i].name},root);   // finger-sized target
-      hit.addEventListener('click',e=>{e.stopPropagation();skyCardShow(i,name)});
-      hit.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();skyCardShow(i,name)}});
+// top bar: the whole sky, or the constellation the view is zoomed into
+function skyHead(){
+  const S=SKY,zl=S.s/S.minS;let f=-1;
+  if(zl>=2){const wx=(S.vw/2-S.ox)/S.s,wy=(S.vh/2-S.oy)/S.s;let bd=1e9;for(const C of S.C){const d=Math.hypot(C.x-wx,C.y-wy);if(d<C.R*1.4&&d<bd){bd=d;f=C.k}}}
+  $('#skyBk').hidden=zl<1.15;
+  if(f===S.focus)return;S.focus=f;
+  if(f<0){const n=skyCount();$('#skyT').textContent='星空';$('#skyStat').innerHTML='點亮 <em>'+n.lit+'</em> / '+SONGS.length+' · 完整星座 <em>'+n.full+'</em> / '+CONS.length+' · S 評級 <em>'+n.s+'</em>'}
+  else{const c=CONS[f],lit=c.ii.filter(i=>starOf(i).lit).length;$('#skyT').textContent=c.name;$('#skyStat').innerHTML='點亮 <em>'+lit+'</em> / '+c.ii.length+(lit===c.ii.length?' · <em>星座完成</em>':'')}
+}
+const skyStar=i=>{const c=SKY.cache;if(!c.has(i))c.set(i,{v:starOf(i),ul:unlocked(i)});return c.get(i)};   // nothing changes while the sky is open
+function skyNameHit(c,wx,wy){const s=SKY.s,fs=Math.max(15/s,Math.min(30,26/Math.sqrt(s/SKY.minS)));return Math.abs(c.x-wx)<fs*c.name.length*.7+12/s&&wy>c.top-fs*2.4&&wy<c.top+4/s}   // same size and place as the drawn name
+function skyPaint(t){
+  const S=SKY,g=S.cx,s=S.s,zl=s/S.minS,motion=!SET.lowFx&&!RM;
+  g.setTransform(S.dpr,0,0,S.dpr,0,0);
+  const bg=g.createLinearGradient(0,0,0,S.vh);bg.addColorStop(0,'#070a1f');bg.addColorStop(.6,'#04061a');bg.addColorStop(1,'#020309');g.fillStyle=bg;g.fillRect(0,0,S.vw,S.vh);
+  g.save();g.translate(S.ox,S.oy);g.scale(s,s);
+  const X0=-S.ox/s-40,Y0=-S.oy/s-40,X1=(S.vw-S.ox)/s+40,Y1=(S.vh-S.oy)/s+40,vis=(x,y,r)=>x+r>X0&&x-r<X1&&y+r>Y0&&y-r<Y1;
+  for(const n of S.neb){if(!vis(n.x,n.y,n.r))continue;const rg=g.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r);rg.addColorStop(0,'rgba('+n.c+','+n.a+')');rg.addColorStop(1,'rgba('+n.c+',0)');g.fillStyle=rg;g.fillRect(n.x-n.r,n.y-n.r,n.r*2,n.r*2)}
+  const fr=.9*Math.pow(zl,.2)/s;   // field stars: screen-pixel sizes, dimmer than any constellation star
+  for(const b of S.fb){g.globalAlpha=b.a*(motion?.78+.22*Math.sin(t/900+b.g*1.6):1);g.fillStyle=b.h;g.beginPath();
+    for(const p of b.p){if(p[0]<X0||p[0]>X1||p[1]<Y0||p[1]>Y1)continue;const r=p[2]*fr;g.moveTo(p[0]+r,p[1]);g.arc(p[0],p[1],r,0,6.28)}g.fill()}
+  g.globalAlpha=1;
+  const k=Math.pow(zl,.3)/s;
+  for(const C of S.C){
+    if(!vis(C.x,C.y,C.R*1.6))continue;
+    const c=CONS[C.k];let lit=0;
+    for(const p of C.P){
+      const tw=motion?.9+.1*Math.sin(t/700+p.x):1;
+      if(p.i<0){const r=(.35+p.mag*.6)*k*tw;g.fillStyle='rgba(220,228,255,.5)';g.beginPath();g.arc(p.x,p.y,r*.75,0,6.28);g.fill();continue}   // part of the shape, no song
+      const {v,ul}=skyStar(p.i);
+      if(v.lit){lit++;const r=(.9+p.mag*1.2+v.r*.3)*k*tw,col=SKY_C[v.d],rg=g.createRadialGradient(p.x,p.y,0,p.x,p.y,r*4.5);rg.addColorStop(0,col);rg.addColorStop(.22,col+'99');rg.addColorStop(1,col+'00');
+        g.fillStyle=rg;g.beginPath();g.arc(p.x,p.y,r*4.5,0,6.28);g.fill();g.fillStyle='#fff';g.beginPath();g.arc(p.x,p.y,r*.5,0,6.28);g.fill();
+        if(v.r===4){g.strokeStyle=col+'aa';g.lineWidth=.8/s;g.beginPath();g.moveTo(p.x-r*4,p.y);g.lineTo(p.x+r*4,p.y);g.moveTo(p.x,p.y-r*4);g.lineTo(p.x,p.y+r*4);g.stroke()}}   // S rank: a four-point sparkle
+      else{const r=(.45+p.mag*.95)*k*tw,rg=g.createRadialGradient(p.x,p.y,0,p.x,p.y,r*3.2);g.globalAlpha=ul?1:.45;   // not cleared: plain white, still brighter than the background
+        rg.addColorStop(0,'rgba(225,232,255,.35)');rg.addColorStop(1,'rgba(200,215,255,0)');g.fillStyle=rg;g.beginPath();g.arc(p.x,p.y,r*3.2,0,6.28);g.fill();
+        g.fillStyle='rgba(248,250,255,.95)';g.beginPath();g.arc(p.x,p.y,r*.75,0,6.28);g.fill();g.globalAlpha=1}
+      const la=clamp((p.nn*s-40)/12,0,1)*clamp((zl-1.5)/.5,0,1);   // a song's name appears once its star has room around it on screen
+      if(la>0){let lab=SKY_SHORT[SONGS[p.i].key]||SONGS[p.i].name;if(Array.from(lab).length>8)lab=Array.from(lab).slice(0,7).join('')+'…';
+        g.globalAlpha=la*(ul?1:.6);g.font=(11/s)+'px system-ui';g.textAlign='center';g.fillStyle=v.lit?'rgba(220,228,255,.92)':'rgba(160,170,215,.85)';g.fillText(lab,p.x,p.y+18/s);g.globalAlpha=1}
     }
+    const done=lit===c.ii.length,fs=Math.max(15/s,Math.min(30,26/Math.sqrt(zl)));g.font='600 '+fs+'px system-ui';g.textAlign='center';
+    g.fillStyle=done?'rgba(255,211,107,.95)':'rgba(200,208,245,'+(zl>2.2?.55:.9)+')';g.fillText(C.name.split('').join(' '),C.x,C.top-fs*1.1);
+    if(zl<=2.2){g.font=(fs*.62)+'px system-ui';g.fillStyle='rgba(140,150,200,.8)';g.fillText(lit+' / '+c.ii.length,C.x,C.top-fs*.25)}
   }
-  const n=skyCount();
-  $('#skyStat').innerHTML='點亮 <em>'+n.lit+'</em> / '+SONGS.length+' · 完整星座 <em>'+n.full+'</em> / '+SKY.length+' · S 評級 <em>'+n.s+'</em>';
+  g.restore();
+}
+function skyLoop(t){
+  const S=SKY;if(!S||!skyOn()){if(S)S.raf=0;return}
+  if(S.anim){S.anim(t);S.dirty=true}
+  if(S.dirty||(!SET.lowFx&&!RM&&t-S.lt>=33)){skyPaint(t);skyHead();S.dirty=false;S.lt=t}   // twinkling needs only ~30 fps
+  S.raf=requestAnimationFrame(skyLoop);
+}
+// screen readers and keyboards: an invisible list of every song; focusing one flies the view to its star
+function skyA11y(){
+  const box=$('#skyList');box.textContent='';
+  for(const C of SKY.C)for(const p of C.P){if(p.i<0)continue;const b=document.createElement('button');b.textContent=C.name+'：'+SONGS[p.i].name;
+    b.addEventListener('focus',()=>{const ns=Math.max(skyZoomFor(C),SKY.minS*3);skyFly(p.x,p.y,ns)});b.onclick=e=>{e.stopPropagation();skyCardShow(p.i,C.name);const f=$('#skyCard button');if(f){f.focus();$('#skyCard').dataset.back=String(p.i)}};box.appendChild(b)}
+}
+(()=>{   // gestures: one finger pans, two fingers pinch around their midpoint, wheel zooms, a tap picks a star or a constellation
+  const cv=$('#skyCv'),pts=new Map();let last=null,moved=0;
+  cv.addEventListener('pointerdown',e=>{if(!SKY)return;try{cv.setPointerCapture(e.pointerId)}catch(_){}pts.set(e.pointerId,[e.clientX,e.clientY]);if(pts.size===1)moved=0;SKY.anim=null});
+  cv.addEventListener('pointermove',e=>{if(!SKY||!pts.has(e.pointerId))return;const S=SKY,prev=pts.get(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY]);
+    if(pts.size===1){S.ox+=e.clientX-prev[0];S.oy+=e.clientY-prev[1];moved+=Math.abs(e.clientX-prev[0])+Math.abs(e.clientY-prev[1]);skyClampV();S.dirty=true}
+    else if(pts.size===2){const r=cv.getBoundingClientRect(),[a,b]=[...pts.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]),m=[(a[0]+b[0])/2-r.left,(a[1]+b[1])/2-r.top];
+      if(last){skyZoomAt(d/last.d,m[0],m[1]);S.ox+=m[0]-last.m[0];S.oy+=m[1]-last.m[1];skyClampV()}last={d,m};moved=99}});
+  const up=e=>{pts.delete(e.pointerId);if(pts.size<2)last=null};
+  cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+  cv.addEventListener('click',e=>{
+    if(!SKY)return;if(moved>=8){e.stopPropagation();return}   // the end of a drag is not a tap
+    const S=SKY,r=cv.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top,wx=(sx-S.ox)/S.s,wy=(sy-S.oy)/S.s;
+    let best=null,bd=26;for(const C of S.C)for(const p of C.P){if(p.i<0)continue;const d=Math.hypot(p.x*S.s+S.ox-sx,p.y*S.s+S.oy-sy);if(d<bd){bd=d;best=[p,C]}}   // finger-sized reach in screen pixels
+    const C=S.C.find(c=>Math.hypot(c.x-wx,c.y-wy)<c.R*1.15||skyNameHit(c,wx,wy));   // the shape or its name
+    if(best&&S.s>=skyZoomFor(best[1])*.7){e.stopPropagation();skyCardShow(best[0].i,best[1].name)}
+    else if(C&&S.s<skyZoomFor(C)*.7){e.stopPropagation();$('#skyCard').hidden=true;skyFlyTo(C)}
+    else if(best){e.stopPropagation();skyCardShow(best[0].i,best[1].name)}});
+  cv.addEventListener('wheel',e=>{if(!SKY)return;e.preventDefault();const r=cv.getBoundingClientRect();skyZoomAt(Math.exp(-e.deltaY*.0015),e.clientX-r.left,e.clientY-r.top)},{passive:false});
+  $('#skyZi').onclick=e=>{e.stopPropagation();skyZoomAt(1.6,SKY.vw/2,SKY.vh/2)};
+  $('#skyZo').onclick=e=>{e.stopPropagation();skyZoomAt(1/1.6,SKY.vw/2,SKY.vh/2)};
+  addEventListener('resize',()=>{if(SKY&&skyOn())skyFit()});
+})();
+// one star: best rank and score per difficulty, highest difficulty cleared, best rank overall
+function starOf(i){
+  const per=DIFFS.map((_,d)=>{const r=lsGet(KEY_RK(i,d));return RANKS.includes(r)?{r,s:parseInt(lsGet(KEY_SC(i,d))||'0',10)||0}:null});   // by difficulty index
+  let d=-1,r=-1;per.forEach((p,k)=>{if(p){d=Math.max(d,LVL[k]);r=Math.max(r,RANKS.indexOf(p.r))}});   // d: rank of the hardest difficulty cleared
+  let old=false;if(d<0&&cleared(i)){d=LVL[0];r=0;old=true}   // cleared before ranks were kept
+  return{lit:d>=0,d,r,per,old};
 }
 function skyCardShow(i,cname){
   const s=SONGS[i],v=starOf(i),ul=unlocked(i),c=$('#skyCard');c.textContent='';
@@ -1634,21 +1812,23 @@ function skyCardShow(i,cname){
   add('div','sub',cname);add('h3','',s.name);add('div','sub',s.composer+' · '+s.year);
   if(ul){
     const tb=add('table');
-    DIFFS.forEach((df,k)=>{const tr=add('tr','',null,tb),p=v.per[k];add('td','',df.n,tr);const td=add('td','',p?p.r+' · '+p.s.toLocaleString():v.old&&!k?'已通關':'未通關',tr);td.style.color=p?RANK_COL[p.r]:v.old&&!k?'#cfe6ff':'#8a93c0'});
+    DORD.forEach(k=>{const df=DIFFS[k],tr=add('tr','',null,tb),p=v.per[k];add('td','',df.n,tr);const td=add('td','',p?p.r+' · '+p.s.toLocaleString():v.old&&!k?'已通關':'未通關',tr);td.style.color=p?RANK_COL[p.r]:v.old&&!k?'#cfe6ff':'#8a93c0'});
   }else{
-    const need=i-2-SONGS.reduce((a,_,k)=>a+(cleared(k)?1:0),0);
-    add('p','','再通過 '+need+' 首曲目後開放。').style.margin='10px 0';
+    const c=CON_OF[i],need=c[1]-2-conCleared(c[0]);
+    add('p','','在「'+CONS[c[0]].name+'」再通過 '+need+' 首曲目後開放。').style.margin='10px 0';
   }
   const row=add('div','row');
   if(ul){add('button','pri','挑戰這首',row).onclick=()=>{
-    const nd=[0,1,2].find(k=>!v.per[k]&&!(v.old&&!k));if(nd!=null){di=nd;lsSet('pmb6-di',String(nd))}   // lowest difficulty not yet cleared
+    const top=DORD.reduce((a,k,j)=>v.per[k]||(v.old&&!k)?j:a,-1),nd=DORD[Math.min(DORD.length-1,top+1)];di=nd;lsSet('pmb6-di',String(nd))   // the level just above the hardest one cleared
     si=i;skyClose(true);initAudio();preloadSong(s);showSelect()}}
   add('button','','關閉',row).onclick=e=>{e.stopPropagation();c.hidden=true};
   c.hidden=false;
 }
 function skyOpen(from){
-  skyBack=from;skyDraw();$('#skyCard').hidden=true;
-  $('#'+from).classList.add('hidden');$('#sky').classList.remove('hidden');
+  skyBack=from;$('#'+from).classList.add('hidden');$('#sky').classList.remove('hidden');$('#skyCard').hidden=true;
+  if(!SKY)skyBuild();SKY.cache=new Map();skyFit();SKY.focus=-2;
+  const c=CON_OF[si];if(from==='end'&&c)skyFlyTo(SKY.C[c[0]],true);else skyOverview(true);
+  SKY.dirty=true;if(!SKY.raf)SKY.raf=requestAnimationFrame(skyLoop);
 }
 function skyClose(leaving){
   $('#sky').classList.add('hidden');$('#skyCard').hidden=true;
@@ -1659,7 +1839,8 @@ const skyOn=()=>!$('#sky').classList.contains('hidden');
 $('#bSky').onclick=()=>{initAudio();skyOpen('home')};
 $('#skyX').onclick=()=>skyClose();
 $('#sky').addEventListener('click',e=>{if(!e.target.closest('#skyCard'))$('#skyCard').hidden=true});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&skyOn()){if(!$('#skyCard').hidden)$('#skyCard').hidden=true;else skyClose()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&skyOn()){if(!$('#skyCard').hidden)$('#skyCard').hidden=true;else if(SKY&&SKY.s>SKY.minS*1.15)skyOverview();else skyClose()}});
+navTap('#skyBk',()=>{$('#skyCard').hidden=true;skyOverview()});
 $('#rsky').onclick=()=>skyOpen('end');
 skyBadge();
 const tutDone=()=>!!lsGet('ppl-tut')||SONGS.some((_,i)=>cleared(i));
@@ -1796,5 +1977,5 @@ if(APP)$('#bFs').style.display='none';
 else if('serviceWorker' in navigator&&location.protocol==='https:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));hudShow(false);$('#fsHint').style.display=(!(DE.requestFullscreen||DE.webkitRequestFullscreen)&&!standalone)?'block':'none';
 requestAnimationFrame(frame);
 try{netBoot()}catch(e){}
-window.__pb={get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:FR,HR:HRe(),tiers:tierCount,cents:lastCents,p:lastP,pSrc,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},setTs(v){ts=v},setSong(i){si=i},skyRes(k,d,ok){const j=SONGS.findIndex(x=>x.key===k);if(j<0)return null;mode='normal';si=j;song=SONGS[si];di=d;D=DIFFS[d];score=1000;tierCount=[tg.length||10,0,0,0];missCount=0;st='done';showResult(ok,'');const r=$('#rsky');return r.hidden?'':r.textContent},tg:()=>tg.map(t=>t.t),pause:pauseGame,resume:resumeGame,shareImg,STARS,il:()=>instLoad,gaps:()=>{const r=[];for(const it of items)for(const o of bumps)r.push(Math.hypot(it.x-o.x,it.y-o.y)-itemGap(o.Rm));return r}};
+window.__pb={get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:FR,HR:HRe(),BR,nb,tiers:tierCount,cents:lastCents,p:lastP,pSrc,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},setTs(v){ts=v},setSong(i){si=i},skyRes(k,d,ok){const j=SONGS.findIndex(x=>x.key===k);if(j<0)return null;mode='normal';si=j;song=SONGS[si];di=d;D=DIFFS[d];score=1000;tierCount=[tg.length||10,0,0,0];missCount=0;st='done';showResult(ok,'');const r=$('#rsky');return r.hidden?'':r.textContent},tg:()=>tg.map(t=>t.t),pv:()=>({key:PV.s&&PV.s.key,i:PV.i,n:PV.n&&PV.n.length,g:PV.g?+PV.g.gain.value.toFixed(3):null,home:HM.on,ac:AC&&AC.state}),pause:pauseGame,resume:resumeGame,shareImg,STARS,il:()=>instLoad,gaps:()=>{const r=[];for(const it of items)for(const o of bumps)r.push(Math.hypot(it.x-o.x,it.y-o.y)-itemGap(o.Rm));return r}};
 })();

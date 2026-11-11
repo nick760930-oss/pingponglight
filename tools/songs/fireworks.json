@@ -1,0 +1,21 @@
+{
+  "key": "fireworks",
+  "name": "皇家煙火：歡慶",
+  "composer": "韓德爾",
+  "year": "1749",
+  "inst": {
+    "lead": "trumpet",
+    "bk": "organ"
+  },
+  "credit": {
+    "source": "Mutopia Project",
+    "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1864",
+    "licence": "Public Domain",
+    "by": "Cyprien Lecourt"
+  },
+  "midi": {
+    "file": "tools/midi/LaRej.mid",
+    "mel": 1,
+    "ctr": 2
+  }
+}

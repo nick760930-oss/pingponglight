@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>星空試作</title>
+<style>
+html,body{margin:0;height:100%;background:#03040c;overflow:hidden;font-family:system-ui,"Noto Sans TC",sans-serif;color:#dfe4ff;touch-action:none;user-select:none}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+.top{position:fixed;left:16px;right:16px;top:10px;display:flex;align-items:center;gap:14px;font-size:13px;color:#8f97c6;pointer-events:none}
+.top b{font-size:17px;letter-spacing:.12em;color:#eef1ff;font-weight:600}.top em{font-style:normal;color:#ffd36b;font-weight:700}
+.hint{position:fixed;left:0;right:0;bottom:10px;text-align:center;font-size:12px;color:#6f78a8;pointer-events:none}
+.zoom{position:fixed;right:14px;bottom:30px;display:flex;flex-direction:column;gap:6px}
+.zoom button{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(10,14,40,.7);color:#dfe4ff;font-size:20px}
+</style></head><body>
+<canvas id="c"></canvas>
+<div class="top"><b>星空</b><span>點亮 <em>27</em> / 165 · 完整星座 <em>1</em> / 16</span></div>
+<div class="zoom"><button id="zi">＋</button><button id="zo">－</button></div>
+<div class="hint">雙指縮放、拖曳移動　·　點星座名稱可放大到該星座</div>
+<script src="sky.js"></script></body></html>

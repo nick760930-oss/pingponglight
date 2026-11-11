@@ -1,0 +1,19 @@
+{
+  "key": "rowboat", "name": "划划划小船", "composer": "萊特", "year": "1881",
+  "inst": { "lead": "flute", "bk": "guitar" },
+  "credit": { "source": "依原曲旋律手寫（本遊戲製作）", "url": "", "licence": "公有領域" },
+  "tune": {
+    "bpm": 240, "meter": 6, "style": "pad",
+    "parts": {
+      "A": {
+        "mel": "C5:3 C5:3 | C5:2 D5:1 E5:3 | E5:2 D5:1 E5:2 F5:1 | G5:6 | C6:1 C6:1 C6:1 G5:1 G5:1 G5:1 | E5:1 E5:1 E5:1 C5:1 C5:1 C5:1 | G5:2 F5:1 E5:2 D5:1 | C5:6",
+        "chords": "C:6 C:6 C:6 G:6 C:6 C:6 G:6 C:6"
+      },
+      "B": {
+        "mel": "C4:3 C4:3 | C4:2 D4:1 E4:3 | E4:2 D4:1 E4:2 F4:1 | G4:6 | C5:1 C5:1 C5:1 G4:1 G4:1 G4:1 | E4:1 E4:1 E4:1 C4:1 C4:1 C4:1 | G4:2 F4:1 E4:2 D4:1 | C4:6",
+        "chords": "C:6 C:6 C:6 G:6 C:6 C:6 G:6 C:6"
+      }
+    },
+    "form": ["A", "B", "A", "B", "A"]
+  }
+}

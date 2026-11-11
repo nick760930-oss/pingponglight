@@ -1,0 +1,19 @@
+{
+  "key": "manger", "name": "馬槽搖籃", "composer": "默里", "year": "1887",
+  "inst": { "lead": "flute", "bk": "piano" },
+  "credit": { "source": "依原曲旋律手寫（本遊戲製作）", "url": "", "licence": "公有領域" },
+  "tune": {
+    "bpm": 84, "meter": 3, "style": "waltz",
+    "parts": {
+      "A": {
+        "mel": "r:2 C4:1 | F4:1 F4:0.5 G4:0.5 A4:1 | F4:1 F4:0.5 A4:0.5 Bb4:1 | C5:1 C5:1 D5:1 | Bb4:1 G4:1 A4:1 | Bb4:1 Bb4:1 C5:1 | A4:1 A4:0.5 F4:0.5 A4:1 | G4:1 D4:1 F4:1 | E4:2 C4:1",
+        "chords": "C:3 F:3 F:1.5 Bb:1.5 C:3 Bb:1.5 C7:1.5 Bb:2 C7:1 F:3 C7:3 C:3"
+      },
+      "B": {
+        "mel": "F4:1 F4:0.5 G4:0.5 A4:1 | F4:1 F4:0.5 A4:0.5 Bb4:1 | C5:1 C5:1 D5:1 | Bb4:1 G4:1 A4:1 | Bb4:1 Bb4:1 C5:1 | A4:1 A4:0.5 F4:0.5 A4:1 | G4:1 D4:1 E4:1 | F4:3",
+        "chords": "F:3 F:1.5 Bb:1.5 C:3 Bb:1.5 C7:1.5 Bb:2 C7:1 F:3 C7:3 F:3"
+      }
+    },
+    "form": ["A", "B", "A", "B"]
+  }
+}

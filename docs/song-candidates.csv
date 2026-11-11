@@ -1,0 +1,503 @@
+﻿編號,狀態,曲名,原名,作曲者,Composer,卒年,發表年,類別,知名度,原曲型態,台灣,美國,歐盟,備註
+1,全球可用,櫻花,さくらさくら (Sakura Sakura),傳統,Traditional,trad,1888,亞洲傳統,3,民謠,可,可,可,日本古調；1888 年東京音樂學校《箏曲集》；旋律源自江戶時代更早的作品
+2,全球可用,阿里郎,아리랑 (Arirang),傳統,Traditional,trad,1896,亞洲傳統,3,民謠,可,可,可,韓國民謠；1896 年赫爾伯特 (Hulbert) 記錄樂譜；現行版本為 1926 年同名電影主題曲
+3,全球可用,荒城之月,荒城の月 (Kōjō no Tsuki),瀧廉太郎,Taki Rentarō,1903,1901,亞洲傳統,3,聲樂,可,可,可,土井晚翠詞；1901 年；1903 年過世
+4,全球可用,他是個好傢伙,For He's a Jolly Good Fellow,傳統,Traditional,trad,1781,其他,3,合唱,可,可,可,旋律 Marlborough s'en va-t-en guerre 約 1709；英語歌詞較晚；年份約
+5,全球可用,我家甜蜜家,Home! Sweet Home!,亨利．畢曉普,Henry Bishop,1855,1823,其他,3,聲樂,可,可,可,
+6,全球可用,黛西貝爾（雙人腳踏車）,Daisy Bell (Bicycle Built for Two),哈利．達克,Harry Dacre,1922,1892,其他,3,聲樂,可,可,可,
+7,全球可用,查爾達斯,Csardas,蒙蒂,Vittorio Monti,1922,1904,其他,3,小提琴,可,可,可,
+8,全球可用,奧菲歐舞曲,"Dance of the Blessed Spirits, Orfeo ed Euridice",葛路克,Christoph Willibald Gluck,1787,1762,古典,3,管弦,可,可,可,
+9,全球可用,小步舞曲(玻凱利尼),"Minuet, String Quintet in E Op.11 No.5 G.275",玻凱利尼,Luigi Boccherini,1805,1775,古典,3,室內樂,可,可,可,
+10,全球可用,第二十一號鋼琴協奏曲行板,"Piano Concerto No.21 K.467, II. Andante",莫札特,Wolfgang Amadeus Mozart,1791,1785,古典,3,管弦,可,可,可,瑞典電影「愛薇拉·麥迪根」使用
+11,全球可用,第四十號交響曲,Symphony No.40 in G minor K.550,莫札特,Wolfgang Amadeus Mozart,1791,1788,古典,3,管弦,可,可,可,第一樂章
+12,全球可用,驚愕交響曲,"Symphony No.94 'Surprise', II. Andante",海頓,Joseph Haydn,1809,1791,古典,3,管弦,可,可,可,
+13,全球可用,聖體頌,Ave verum corpus K.618,莫札特,Wolfgang Amadeus Mozart,1791,1791,古典,3,合唱,可,可,可,
+14,全球可用,悲愴奏鳴曲第二樂章,"Piano Sonata No.8 'Pathétique' Op.13, II. Adagio cantabile",貝多芬,Ludwig van Beethoven,1827,1799,古典,3,鋼琴,可,可,可,
+15,全球可用,眼淚之日,"Lacrimosa, Requiem K.626",莫札特,Wolfgang Amadeus Mozart,1791,1800,古典,3,合唱,可,可,可,未完成遺作，由徐斯邁爾補完；1793 首演，1800 首次出版（取 1800）
+16,全球可用,第七號交響曲第二樂章,"Symphony No.7 Op.92, II. Allegretto",貝多芬,Ludwig van Beethoven,1827,1813,古典,3,管弦,可,可,可,
+17,全球可用,梅花三弄,梅花三弄,傳統,Traditional,trad,1425,國樂,3,國樂,可,可,可,古琴曲；1425 年《神奇秘譜》收錄
+18,全球可用,升c小調圓舞曲,Waltz Op.64 No.2,蕭邦,Frédéric Chopin,1849,1847,圓舞曲,3,鋼琴,可,可,可,
+19,全球可用,多瑙河之波,Donauwellen (Anniversary Song),伊凡諾維奇,Iosif Ivanovici,1902,1880,圓舞曲,3,管弦,可,可,可,出版年約1880；英文圈以《Anniversary Song》著名
+20,全球可用,過了波浪,Sobre las olas,羅薩斯,Juventino Rosas,1894,1888,圓舞曲,3,管弦,可,可,可,常被誤傳為其他作曲家作品
+21,全球可用,小號志願曲,Trumpet Voluntary (Prince of Denmark's March),克拉克,Jeremiah Clarke,1707,1700,巴洛克,3,管弦,可,可,可,約 1700；常被誤認為普賽爾作品
+22,全球可用,水上音樂「號角舞曲」,"Alla Hornpipe, Water Music HWV 349",韓德爾,George Frideric Handel,1759,1717,巴洛克,3,管弦,可,可,可,1717 年泰晤士河首演
+23,全球可用,四季「夏」第三樂章,"Summer, Presto, Four Seasons RV 315",韋瓦第,Antonio Vivaldi,1741,1725,巴洛克,3,管弦,可,可,可,四季 1725 年出版
+24,全球可用,四季「冬」第一樂章,"Winter, Allegro non molto, Four Seasons RV 297",韋瓦第,Antonio Vivaldi,1741,1725,巴洛克,3,管弦,可,可,可,四季 1725 年出版
+25,全球可用,祭司撒督,Zadok the Priest HWV 258,韓德爾,George Frideric Handel,1759,1727,巴洛克,3,合唱,可,可,可,英國加冕典禮用；歐冠聯賽主題曲旋律來源
+26,全球可用,薩拉邦德舞曲,"Sarabande, Keyboard Suite HWV 437",韓德爾,George Frideric Handel,1759,1733,巴洛克,3,鋼琴,可,可,可,
+27,全球可用,詼諧曲,"Badinerie, Orchestral Suite No.2 BWV 1067",巴赫,Johann Sebastian Bach,1750,1739,巴洛克,3,管弦,可,可,可,約 1738-39
+28,全球可用,席巴女王駕到,"The Arrival of the Queen of Sheba, Solomon HWV 67",韓德爾,George Frideric Handel,1759,1749,巴洛克,3,管弦,可,可,可,清唱劇「所羅門」間奏
+29,全球可用,無伴奏大提琴組曲第一號前奏曲,"Prelude, Cello Suite No.1 BWV 1007",巴赫,Johann Sebastian Bach,1750,1825,巴洛克,3,室內樂,可,可,可,約 1720 作曲；1825 首次出版
+30,全球可用,洋基歌,Yankee Doodle,傳統,Traditional,trad,1755,愛國歌曲,3,民謠,可,可,可,約 1755 年；旋律更早源自歐洲；約
+31,全球可用,星條旗,The Star-Spangled Banner,約翰．斯塔福德．史密斯,John Stafford Smith,1836,1780,愛國歌曲,3,合唱,可,可,可,旋律 Anacreontic Song 約 1778-1780
+32,全球可用,馬賽曲,La Marseillaise,克勞德．魯熱．德利爾,Claude Joseph Rouget de Lisle,1836,1792,愛國歌曲,3,合唱,可,可,可,
+33,全球可用,美哉美國,America the Beautiful,塞繆爾．沃德,Samuel A. Ward,1903,1882,愛國歌曲,3,合唱,可,可,可,旋律 Materna 1882；歌詞 Katharine Lee Bates 1895
+34,全球可用,楓葉拉格,Maple Leaf Rag,喬普林,Scott Joplin,1917,1899,拉格泰姆,3,鋼琴,可,可,可,
+35,全球可用,讓我哭泣,"Lascia ch'io pianga, Rinaldo HWV 7",韓德爾,George Frideric Handel,1759,1711,歌劇,3,聲樂,可,可,可,
+36,全球可用,樹蔭下的柔情,"Ombra mai fu, Serse HWV 40",韓德爾,George Frideric Handel,1759,1738,歌劇,3,聲樂,可,可,可,「韓德爾的廣板」
+37,全球可用,費加洛婚禮序曲,"Overture, Le nozze di Figaro K.492",莫札特,Wolfgang Amadeus Mozart,1791,1786,歌劇,3,管弦,可,可,可,
+38,全球可用,夜后詠嘆調,"Der Hölle Rache, Die Zauberflöte K.620",莫札特,Wolfgang Amadeus Mozart,1791,1791,歌劇,3,聲樂,可,可,可,
+39,全球可用,塞維利亞理髮師序曲,"Overture, Il barbiere di Siviglia",羅西尼,Gioachino Rossini,1868,1816,歌劇,3,管弦,可,可,可,
+40,全球可用,我是全城的大忙人,"Largo al factotum, Il barbiere di Siviglia",羅西尼,Gioachino Rossini,1868,1816,歌劇,3,聲樂,可,可,可,
+41,全球可用,塞維亞的理髮師序曲,The Barber of Seville Overture,羅西尼,Gioachino Rossini,1868,1816,歌劇,3,管弦,可,可,可,早於1830
+42,全球可用,威廉泰爾序曲,"Overture, Guillaume Tell",羅西尼,Gioachino Rossini,1868,1829,歌劇,3,管弦,可,可,可,終曲騎兵進行曲最為人知
+43,全球可用,婚禮合唱（新娘之歌）,Treulich geführt (Bridal Chorus) Lohengrin,華格納,Richard Wagner,1883,1850,歌劇,3,合唱,可,可,可,與孟德爾頌婚禮進行曲不同
+44,全球可用,女人善變,La donna è mobile (Rigoletto),威爾第,Giuseppe Verdi,1901,1851,歌劇,3,聲樂,可,可,可,
+45,全球可用,飲酒歌,Libiamo ne' lieti calici (La traviata),威爾第,Giuseppe Verdi,1901,1853,歌劇,3,聲樂,可,可,可,
+46,全球可用,康康舞曲,Galop infernal (Orphée aux enfers),奧芬巴赫,Jacques Offenbach,1880,1858,歌劇,3,管弦,可,可,可,1860年修訂版較廣為人知
+47,全球可用,女武神的騎行,Ride of the Valkyries (Die Walküre),華格納,Richard Wagner,1883,1870,歌劇,3,管弦,可,可,可,1870年首演（1856年完成）
+48,全球可用,哈巴奈拉,Habanera (Carmen),比才,Georges Bizet,1875,1875,歌劇,3,聲樂,可,可,可,
+49,全球可用,鬥牛士之歌,Toreador Song (Carmen),比才,Georges Bizet,1875,1875,歌劇,3,聲樂,可,可,可,
+50,全球可用,時辰之舞,Dance of the Hours (La Gioconda),龐開利,Amilcare Ponchielli,1886,1876,歌劇,3,管弦,可,可,可,
+51,全球可用,鄉村騎士間奏曲,Intermezzo (Cavalleria rusticana),馬斯卡尼,Pietro Mascagni,1945,1890,歌劇,3,管弦,可,可,可,作者1945年過世；部分地區可能仍在保護期
+52,全球可用,泰伊思冥想曲,Meditation (Thais),馬斯奈,Jules Massenet,1912,1894,歌劇,3,小提琴,可,可,可,
+53,全球可用,大黃蜂的飛行,Flight of the Bumblebee (Tsar Saltan),林姆斯基-高沙可夫,Nikolai Rimsky-Korsakov,1908,1900,歌劇,3,管弦,可,可,可,1900年歌劇首演
+54,全球可用,我親愛的爸爸,O mio babbino caro (Gianni Schicchi),普契尼,Giacomo Puccini,1924,1918,歌劇,3,聲樂,可,可,可,
+55,全球可用,今夜無人入睡,Nessun dorma (Turandot),普契尼,Giacomo Puccini,1924,1926,歌劇,3,聲樂,可,可,可,作者死後首演
+56,全球可用,羅蕾萊,Die Loreley,弗里德里希．西爾歇,Friedrich Silcher,1860,1838,民謠,3,聲樂,可,可,可,歌詞 Heinrich Heine 1824
+57,全球可用,醉酒水手,Drunken Sailor,傳統,Traditional,trad,1839,民謠,3,民謠,可,可,可,約 1839 年最早見記載；海歌；約
+58,全球可用,羅蒙湖,Loch Lomond,傳統,Traditional,trad,1841,民謠,3,民謠,可,可,可,1841 年 Songs of Scotland 刊載
+59,全球可用,噢，蘇珊娜,Oh! Susanna,史蒂芬．佛斯特,Stephen Foster,1864,1848,民謠,3,聲樂,可,可,可,
+60,全球可用,聖塔露西亞,Santa Lucia,特奧多羅．科特勞,Teodoro Cottrau,1879,1849,民謠,3,聲樂,可,可,可,
+61,全球可用,營地賽馬（康城賽馬）,Camptown Races,史蒂芬．佛斯特,Stephen Foster,1864,1850,民謠,3,聲樂,可,可,可,
+62,全球可用,故鄉的親人（斯旺尼河）,Old Folks at Home (Swanee River),史蒂芬．佛斯特,Stephen Foster,1864,1851,民謠,3,聲樂,可,可,可,
+63,全球可用,我的肯塔基老家,My Old Kentucky Home,史蒂芬．佛斯特,Stephen Foster,1864,1853,民謠,3,聲樂,可,可,可,
+64,全球可用,淺褐髮的珍妮,Jeanie with the Light Brown Hair,史蒂芬．佛斯特,Stephen Foster,1864,1854,民謠,3,聲樂,可,可,可,
+65,全球可用,丹尼男孩,Danny Boy (Londonderry Air),傳統,Traditional,trad,1855,民謠,3,聲樂,可,可,可,旋律 Londonderry Air 1855 年 Petrie 採集；歌詞 1913 年 Weatherly
+66,全球可用,迪克西,Dixie,丹尼爾．德凱特．艾米特,Daniel Decatur Emmett,1904,1859,民謠,3,聲樂,可,可,可,歌詞涉南方邦聯；作者歸屬有疑義
+67,全球可用,老黑爵,Old Black Joe,史蒂芬．佛斯特,Stephen Foster,1864,1860,民謠,3,聲樂,可,可,可,歌詞涉歷史種族用語
+68,全球可用,Kalinka,Калинка (Kalinka),Ivan Larionov,Ivan Larionov,1889,1860,民謠,3,民謠,可,可,可,俄羅斯；1860 年；1889 年過世
+69,全球可用,Korobeiniki,Коробейники (Korobeiniki),傳統,Traditional,trad,1861,民謠,3,民謠,可,可,可,俄羅斯；涅克拉索夫詩（1861）；Tetris 主題曲；旋律傳統
+70,全球可用,夢中佳人,Beautiful Dreamer,史蒂芬．佛斯特,Stephen Foster,1864,1864,民謠,3,聲樂,可,可,可,作者死後 1864 年出版
+71,全球可用,登山纜車之歌,Funiculi Funicula,丹薩,Luigi Denza,1922,1880,民謠,3,聲樂,可,可,可,拿坡里歌曲；可能與其他分組重複
+72,全球可用,纜車歌,"Funiculì, Funiculà",路易吉．登扎,Luigi Denza,1922,1880,民謠,3,聲樂,可,可,可,
+73,全球可用,夏威夷珍重再見,Aloha ʻOe,莉莉烏卡拉尼,Queen Liliʻuokalani,1917,1884,民謠,3,聲樂,可,可,可,1884 年創作；1890 年代正式出版
+74,全球可用,我的太陽,O sole mio,迪卡普阿,Eduardo di Capua,1917,1898,民謠,3,聲樂,可,可,可,拿坡里歌曲；可能與其他分組重複
+75,全球可用,流浪者瑪蒂爾達,Waltzing Matilda,克莉絲蒂娜．麥克弗森,Christina Macpherson,1932,1903,民謠,3,民謠,可,可,可,1895 年創作；旋律源自 Craigielee；1903 年出版；歌詞 Banjo Paterson 1941 年過世
+76,全球可用,蟑螂,La Cucaracha,傳統,Traditional,trad,1914,民謠,3,民謠,可,可,可,墨西哥革命時流行；旋律源自更早西班牙；年份約
+77,全球可用,思想起,思想起 (恆春民謠),傳統,Traditional,trad,1967,民謠,3,民謠,可,可,可,恆春民謠；陳達演唱版本經史惟亮採錄於 1967 年；更早的傳唱年代不詳
+78,全球可用,第二十四號隨想曲,"Caprice No.24 in A minor, Op.1",帕格尼尼,Niccolò Paganini,1840,1820,浪漫,3,小提琴,可,可,可,
+79,全球可用,小夜曲「天鵝之歌」,"Ständchen, Schwanengesang D.957 No.4",舒伯特,Franz Schubert,1828,1829,浪漫,3,聲樂,可,可,可,作曲者身後 1829 出版
+80,全球可用,革命練習曲,Étude Op.10 No.12 'Revolutionary',蕭邦,Frédéric Chopin,1849,1833,浪漫,3,鋼琴,可,可,可,
+81,全球可用,離別練習曲,Étude Op.10 No.3 'Tristesse',蕭邦,Frédéric Chopin,1849,1833,浪漫,3,鋼琴,可,可,可,
+82,全球可用,雨滴前奏曲,Prelude Op.28 No.15 'Raindrop',蕭邦,Frédéric Chopin,1849,1839,浪漫,3,鋼琴,可,可,可,
+83,全球可用,英雄波蘭舞曲,Polonaise Op.53 'Héroïque',蕭邦,Frédéric Chopin,1849,1843,浪漫,3,鋼琴,可,可,可,
+84,全球可用,e小調小提琴協奏曲,Violin Concerto in E minor Op.64,孟德爾頌,Felix Mendelssohn,1847,1845,浪漫,3,小提琴,可,可,可,
+85,全球可用,快樂的農夫,Fröhlicher Landmann Op.68 No.10,舒曼,Robert Schumann,1856,1848,浪漫,3,鋼琴,可,可,可,選自《少年曲集》
+86,全球可用,愛之夢第三號,Liebesträume No.3 S.541,李斯特,Franz Liszt,1886,1850,浪漫,3,鋼琴,可,可,可,
+87,全球可用,匈牙利狂想曲第二號,Hungarian Rhapsody No.2 S.244,李斯特,Franz Liszt,1886,1851,浪漫,3,鋼琴,可,可,可,
+88,全球可用,幻想即興曲,Fantaisie-Impromptu Op.66,蕭邦,Frédéric Chopin,1849,1855,浪漫,3,鋼琴,可,可,可,作者死後才出版（1834年作曲）
+89,全球可用,少女的祈禱,La priere d'une vierge (Modlitwa dziewicy),巴達捷芙斯卡,Tekla Bądarzewska-Baranowska,1861,1856,浪漫,3,鋼琴,可,可,可,台灣廣為流傳
+90,全球可用,未完成交響曲第一樂章,"Symphony No.8 'Unfinished' D.759, I.",舒伯特,Franz Schubert,1828,1865,浪漫,3,管弦,可,可,可,約 1822 作曲；1865 首演
+91,全球可用,匈牙利舞曲第五號,Hungarian Dance No.5,布拉姆斯,Johannes Brahms,1897,1869,浪漫,3,管弦,可,可,可,原為四手聯彈
+92,全球可用,升c小調遺作夜曲,Nocturne No.20 in C-sharp minor (posth.),蕭邦,Frédéric Chopin,1849,1875,浪漫,3,鋼琴,可,可,可,作者死後才出版（1830年作曲）
+93,全球可用,降b小調第一號鋼琴協奏曲,Piano Concerto No.1 Op.23,柴可夫斯基,Pyotr Ilyich Tchaikovsky,1893,1875,浪漫,3,管弦,可,可,可,
+94,全球可用,莫爾道河,Vltava (Ma vlast),史麥塔納,Bedřich Smetana,1884,1875,浪漫,3,管弦,可,可,可,1874年首演
+95,全球可用,晨曲,Morning Mood (Peer Gynt Suite No.1),葛利格,Edvard Grieg,1907,1876,浪漫,3,管弦,可,可,可,1875年作曲；1876年首演
+96,全球可用,一八一二序曲,1812 Overture Op.49,柴可夫斯基,Pyotr Ilyich Tchaikovsky,1893,1882,浪漫,3,管弦,可,可,可,
+97,全球可用,天鵝,Le cygne (Le carnaval des animaux),聖桑,Camille Saint-Saëns,1921,1887,浪漫,3,管弦,可,可,可,全曲遲至1922年才出版；單曲1887年先出版
+98,全球可用,新世界交響曲第二樂章,Symphony No.9 'From the New World' Largo,德弗札克,Antonín Dvořák,1904,1893,浪漫,3,管弦,可,可,可,
+99,全球可用,幽默曲,Humoresque Op.101 No.7,德弗札克,Antonín Dvořák,1904,1894,浪漫,3,鋼琴,可,可,可,
+100,全球可用,倫敦鐵橋,London Bridge Is Falling Down,傳統,Traditional,trad,1744,童謠,3,民謠,可,可,可,歌詞最早見於 1744 年；現行旋律為 19 世紀版本
+101,全球可用,黑綿羊咩咩,"Baa, Baa, Black Sheep",傳統,Traditional,trad,1761,童謠,3,民謠,可,可,可,旋律即法國 Ah vous dirai-je maman（與小星星同曲）；歌詞 1744
+102,全球可用,兩隻老虎（雅克弟兄）,Frère Jacques,傳統,Traditional,trad,1780,童謠,3,民謠,可,可,可,約 1780 年法國；最早文獻年份有疑義
+103,全球可用,耶穌愛我,Jesus Loves Me,威廉．布拉德伯里,William Bradbury,1868,1862,童謠,3,民謠,可,可,可,兒童聖詩
+104,全球可用,划划划小船,"Row, Row, Row Your Boat",艾利法利特．奧蘭．萊特,Eliphalet Oram Lyte,1913,1881,童謠,3,民謠,可,可,可,旋律常歸於 Lyte（1881）；歸屬有疑義
+105,全球可用,小蜘蛛爬水管,Itsy Bitsy Spider,傳統,Traditional,trad,1910,童謠,3,民謠,可,可,可,約 1910 年代美國；約
+106,全球可用,故鄉,ふるさと (Furusato),岡野貞一,Okano Teiichi,1941,1914,童謠,3,聲樂,可,可,可,高野辰之詞；1914 年；岡野貞一 1941 年過世
+107,全球可用,老麥克唐納有個農場,Old MacDonald Had a Farm,傳統,Traditional,trad,1917,童謠,3,民謠,可,可,可,約 1917 年最早見刊；約年份
+108,全球可用,更近我主,"Nearer, My God, to Thee",羅威爾．梅森,Lowell Mason,1872,1856,聖詩,3,合唱,可,可,可,旋律 Bethany；英國另有 Horbury
+109,全球可用,與主同在,Abide with Me,威廉．亨利．蒙克,William Henry Monk,1889,1861,聖詩,3,合唱,可,可,可,旋律 Eventide
+110,全球可用,耶穌恩友,What a Friend We Have in Jesus,查爾斯．康弗斯,Charles C. Converse,1918,1868,聖詩,3,合唱,可,可,可,
+111,全球可用,裝飾大廳,Deck the Halls,傳統,Traditional,trad,1794,聖誕,3,合唱,可,可,可,威爾斯 Nos Galan 旋律；約 1794；現行歌詞 1862
+112,全球可用,第一個聖誕夜,The First Noel,傳統,Traditional,trad,1823,聖誕,3,合唱,可,可,可,約 1823 年 Gilbert 與 Sandys 刊載
+113,全球可用,上帝保佑諸位紳士,"God Rest Ye Merry, Gentlemen",傳統,Traditional,trad,1833,聖誕,3,合唱,可,可,可,約 1833 年刊載；起源較早
+114,全球可用,聖善夜,Cantique de Noel (O Holy Night),亞當,Adolphe Adam,1856,1847,聖誕,3,聲樂,可,可,可,
+115,全球可用,聖誕鈴聲（叮噹鈴聲）,Jingle Bells,詹姆斯．洛德．皮爾龐特,James Lord Pierpont,1893,1857,聖誕,3,合唱,可,可,可,原名 One Horse Open Sleigh
+116,全球可用,伯利恆小鎮,O Little Town of Bethlehem,劉易斯．雷德納,Lewis Redner,1908,1868,聖誕,3,合唱,可,可,可,美國旋律 St. Louis；英國另用 Forest Green（傳統）
+117,全球可用,馬槽搖籃,Away in a Manger,詹姆斯．穆瑞,James R. Murray,1905,1887,聖誕,3,合唱,可,可,可,另有 Kirkpatrick 1895 旋律；常誤傳為 Luther 作
+118,全球可用,鐘聲頌（歌聲處處）,Carol of the Bells,米科拉．列昂托維奇,Mykola Leontovych,1921,1914,聖誕,3,合唱,可,可,可,烏克蘭 Shchedryk；英文歌詞 1936 Wilhousky
+119,全球可用,天鵝湖主題,Swan Lake Op.20 Scene,柴可夫斯基,Pyotr Ilyich Tchaikovsky,1893,1877,芭蕾,3,管弦,可,可,可,1877年莫斯科首演
+120,全球可用,四小天鵝舞,Dance of the Little Swans (Swan Lake),柴可夫斯基,Pyotr Ilyich Tchaikovsky,1893,1877,芭蕾,3,管弦,可,可,可,
+121,全球可用,花之圓舞曲,Waltz of the Flowers (The Nutcracker),柴可夫斯基,Pyotr Ilyich Tchaikovsky,1893,1892,芭蕾,3,管弦,可,可,可,
+122,全球可用,糖梅仙子之舞,Dance of the Sugar Plum Fairy (The Nutcracker),柴可夫斯基,Pyotr Ilyich Tchaikovsky,1893,1892,芭蕾,3,管弦,可,可,可,
+123,全球可用,升c小調前奏曲,Prelude in C-sharp minor Op.3 No.2,拉赫瑪尼諾夫,Sergei Rachmaninoff,1943,1892,近代,3,鋼琴,可,可,可,
+124,全球可用,查拉圖斯特拉如是說,Also sprach Zarathustra Op.30,理查．史特勞斯,Richard Strauss,1949,1896,近代,3,管弦,可,可,可,作者逝世於1949；開頭因《2001太空漫遊》著名
+125,全球可用,藍色狂想曲,Rhapsody in Blue,蓋希文,George Gershwin,1937,1924,近代,3,鋼琴,可,可,可,
+126,全球可用,送葬進行曲,Piano Sonata No.2 Op.35 mvt.3 Marche funèbre,蕭邦,Frédéric Chopin,1849,1840,進行曲,3,鋼琴,可,可,可,
+127,全球可用,拉德斯基進行曲,Radetzky March Op.228,老約翰．史特勞斯,Johann Strauss I,1849,1848,進行曲,3,管弦,可,可,可,
+128,全球可用,凱旋進行曲,Triumphal March (Aida),威爾第,Giuseppe Verdi,1901,1871,進行曲,3,管弦,可,可,可,
+129,全球可用,星條旗永不落,The Stars and Stripes Forever,蘇沙,John Philip Sousa,1932,1896,進行曲,3,管弦,可,可,可,
+130,全球可用,角鬥士進行曲,Entry of the Gladiators Op.68,伏契克,Julius Fučík,1916,1897,進行曲,3,管弦,可,可,可,馬戲團常用
+131,全球可用,威風凜凜進行曲第一號,Pomp and Circumstance March No.1 Op.39,艾爾加,Edward Elgar,1934,1901,進行曲,3,管弦,可,可,可,畢業典禮常用
+132,全球可用,花,花 (春のうららの),瀧廉太郎,Taki Rentarō,1903,1900,亞洲傳統,2,聲樂,可,可,可,武島羽衣詞；1900 年《四季》之第一首
+133,全球可用,箱根八里,箱根八里,瀧廉太郎,Taki Rentarō,1903,1901,亞洲傳統,2,聲樂,可,可,可,鳥居枕詞；1901 年
+134,全球可用,濱邊之歌,浜辺の歌 (Hamabe no Uta),成田為三,Narita Tamezō,1945,1918,亞洲傳統,2,聲樂,可,可,可,林古溪詞；1918 年作曲，1919 年出版
+135,全球可用,鳳仙花,봉선화 (Bongseonhwa),洪蘭坡,Hong Nan-pa,1941,1920,亞洲傳統,2,聲樂,可,可,可,金亨俊詞；洪蘭坡 1941 年過世；1920 年作曲（原曲名為《哀想曲》）
+136,全球可用,祈禱小米豐收歌,Pasibutbut (布農族),傳統,Traditional,trad,1943,亞洲傳統,2,聲樂,可,可,可,布農族八部合音；1943 年日本學者黑澤隆朝錄音；屬族群文化資產，使用須留意
+137,全球可用,憤怒之日,Dies irae (Messa da Requiem),威爾第,Giuseppe Verdi,1901,1874,其他,2,合唱,可,可,可,安魂曲
+138,全球可用,法蘭多爾舞曲,L'Arlésienne Suite No.2 Farandole,比才,Georges Bizet,1875,1879,其他,2,管弦,可,可,可,第二組曲為作者死後由蓋羅編成
+139,全球可用,當愛爾蘭人的眼睛微笑時,When Irish Eyes Are Smiling,恩斯特．鮑爾,Ernest Ball,1927,1912,其他,2,聲樂,可,可,可,
+140,全球可用,小遊行,La Cumparsita,赫拉多．馬托斯．羅德里格斯,Gerardo Matos Rodríguez,1948,1916,其他,2,民謠,可,可,可,探戈曲
+141,全球可用,守護著你,Someone to Watch Over Me,蓋希文,George Gershwin,1937,1926,其他,2,聲樂,可,可,可,
+142,全球可用,我有節奏,I Got Rhythm,蓋希文,George Gershwin,1937,1930,其他,2,聲樂,可,可,可,
+143,全球可用,嬉遊曲 K.136,Divertimento in D K.136,莫札特,Wolfgang Amadeus Mozart,1791,1772,古典,2,管弦,可,可,可,
+144,全球可用,第二十五號交響曲,"Symphony No.25 in G minor K.183, I. Allegro con brio",莫札特,Wolfgang Amadeus Mozart,1791,1773,古典,2,管弦,可,可,可,電影「阿瑪迪斯」開場；約 1773
+145,全球可用,小夜曲(傳為海頓),"Serenade, String Quartet Op.3 No.5",霍夫施泰特（舊傳為海頓）,Roman Hoffstetter (attrib. Haydn),1815,1777,古典,2,室內樂,可,可,可,作曲者實為霍夫施泰特，傳統誤稱海頓；年份約
+146,全球可用,朱彼特交響曲終樂章,"Symphony No.41 'Jupiter' K.551, IV. Molto allegro",莫札特,Wolfgang Amadeus Mozart,1791,1788,古典,2,管弦,可,可,可,
+147,全球可用,單簧管協奏曲慢板,"Clarinet Concerto in A K.622, II. Adagio",莫札特,Wolfgang Amadeus Mozart,1791,1791,古典,2,管弦,可,可,可,
+148,全球可用,時鐘交響曲,"Symphony No.101 'The Clock', II. Andante",海頓,Joseph Haydn,1809,1794,古典,2,管弦,可,可,可,
+149,全球可用,吉普賽迴旋曲,"Gypsy Rondo, Piano Trio No.39 Hob.XV:25",海頓,Joseph Haydn,1809,1795,古典,2,室內樂,可,可,可,
+150,全球可用,小號協奏曲(海頓),Trumpet Concerto in E-flat Hob.VIIe:1,海頓,Joseph Haydn,1809,1796,古典,2,管弦,可,可,可,1796 作曲；1800 首演
+151,全球可用,G大調小步舞曲(貝多芬),Minuet in G WoO 10 No.2,貝多芬,Ludwig van Beethoven,1827,1796,古典,2,鋼琴,可,可,可,
+152,全球可用,小奏鳴曲 Op.36 No.1,Sonatina in C Op.36 No.1,克萊曼悌,Muzio Clementi,1832,1797,古典,2,鋼琴,可,可,可,
+153,全球可用,悲愴奏鳴曲第一樂章,"Piano Sonata No.8 'Pathétique' Op.13, I.",貝多芬,Ludwig van Beethoven,1827,1799,古典,2,鋼琴,可,可,可,
+154,全球可用,震怒之日,"Dies irae, Requiem K.626",莫札特,Wolfgang Amadeus Mozart,1791,1800,古典,2,合唱,可,可,可,未完成遺作；1800 首次出版
+155,全球可用,春天小提琴奏鳴曲,Violin Sonata No.5 'Spring' Op.24,貝多芬,Ludwig van Beethoven,1827,1801,古典,2,小提琴,可,可,可,
+156,全球可用,小號協奏曲(胡麥爾),Trumpet Concerto in E-flat S.49,胡麥爾,Johann Nepomuk Hummel,1837,1803,古典,2,管弦,可,可,可,1803 作曲；約
+157,全球可用,英雄交響曲第一樂章,"Symphony No.3 'Eroica' Op.55, I.",貝多芬,Ludwig van Beethoven,1827,1805,古典,2,管弦,可,可,可,首演 1805
+158,全球可用,小提琴協奏曲(貝多芬),Violin Concerto in D Op.61,貝多芬,Ludwig van Beethoven,1827,1806,古典,2,管弦,可,可,可,
+159,全球可用,熱情奏鳴曲第一樂章,"Piano Sonata No.23 'Appassionata' Op.57, I.",貝多芬,Ludwig van Beethoven,1827,1807,古典,2,鋼琴,可,可,可,
+160,全球可用,田園交響曲第一樂章,"Symphony No.6 'Pastoral' Op.68, I.",貝多芬,Ludwig van Beethoven,1827,1808,古典,2,管弦,可,可,可,
+161,全球可用,艾格蒙特序曲,Egmont Overture Op.84,貝多芬,Ludwig van Beethoven,1827,1810,古典,2,管弦,可,可,可,
+162,全球可用,皇帝鋼琴協奏曲,Piano Concerto No.5 'Emperor' Op.73,貝多芬,Ludwig van Beethoven,1827,1811,古典,2,管弦,可,可,可,
+163,全球可用,十面埋伏,十面埋伏,傳統,Traditional,trad,1818,國樂,2,國樂,可,可,可,琵琶古曲；1818 年華秋蘋《琵琶譜》收錄
+164,全球可用,良宵,良宵,劉天華,Liu Tianhua,1932,1928,國樂,2,國樂,可,可,可,二胡曲；劉天華 1932 年過世
+165,全球可用,空山鳥語,空山鳥語,劉天華,Liu Tianhua,1932,1928,國樂,2,國樂,可,可,可,二胡曲；劉天華 1932 年過世
+166,全球可用,離別圓舞曲,Waltz Op.69 No.1 'L'Adieu',蕭邦,Frédéric Chopin,1849,1855,圓舞曲,2,鋼琴,可,可,可,作者死後才出版
+167,全球可用,嘰嘰喳喳波爾卡,Tritsch-Tratsch-Polka Op.214,小約翰．史特勞斯,Johann Strauss II,1899,1858,圓舞曲,2,管弦,可,可,可,
+168,全球可用,A大調圓舞曲,Waltz Op.39 No.15,布拉姆斯,Johannes Brahms,1897,1866,圓舞曲,2,鋼琴,可,可,可,
+169,全球可用,維也納森林的故事,Tales from the Vienna Woods Op.325,小約翰．史特勞斯,Johann Strauss II,1899,1868,圓舞曲,2,管弦,可,可,可,
+170,全球可用,撥弦波爾卡,Pizzicato Polka,小約翰．史特勞斯,Johann Strauss II,1899,1869,圓舞曲,2,管弦,可,可,可,與弟弟約瑟夫合寫
+171,全球可用,春之聲圓舞曲,Fruhlingsstimmen Op.410,小約翰．史特勞斯,Johann Strauss II,1899,1883,圓舞曲,2,管弦,可,可,可,
+172,全球可用,西班牙圓舞曲,Espana Waltz Op.236,瓦德退費,Émile Waldteufel,1915,1886,圓舞曲,2,管弦,可,可,可,
+173,全球可用,皇帝圓舞曲,Emperor Waltz Op.437,小約翰．史特勞斯,Johann Strauss II,1899,1889,圓舞曲,2,管弦,可,可,可,
+174,全球可用,風流寡婦圓舞曲,Merry Widow Waltz,雷哈爾,Franz Lehár,1948,1905,圓舞曲,2,管弦,可,可,可,
+175,全球可用,黛朵的哀歌,"When I am laid in earth, Dido and Aeneas Z.626",普賽爾,Henry Purcell,1695,1689,巴洛克,2,聲樂,可,可,可,歌劇「黛朵與埃涅阿斯」詠嘆調；首演年約 1689
+176,全球可用,特德姆序曲前奏曲,"Prélude, Te Deum H.146",夏邦提耶,Marc-Antoine Charpentier,1704,1692,巴洛克,2,管弦,可,可,可,約 1692；歐洲廣播聯盟（歐視）電視片頭曲
+177,全球可用,阿卜杜勒扎爾迴旋曲,"Rondeau, Abdelazer Z.570",普賽爾,Henry Purcell,1695,1695,巴洛克,2,管弦,可,可,可,布瑞頓「青少年管弦樂入門」主題
+178,全球可用,拉佛利亞變奏曲,"La Folia, Violin Sonata Op.5 No.12",柯瑞里,Arcangelo Corelli,1713,1700,巴洛克,2,小提琴,可,可,可,Op.5 於 1700 出版
+179,全球可用,羊兒可安然吃草,"Sheep may safely graze, Cantata BWV 208",巴赫,Johann Sebastian Bach,1750,1713,巴洛克,2,聲樂,可,可,可,
+180,全球可用,榮耀頌,Gloria in D RV 589,韋瓦第,Antonio Vivaldi,1741,1715,巴洛克,2,合唱,可,可,可,約 1715
+181,全球可用,水上音樂「詠嘆調」,"Air, Water Music HWV 348",韓德爾,George Frideric Handel,1759,1717,巴洛克,2,管弦,可,可,可,1717 年首演
+182,全球可用,神祕的路障,Les barricades mystérieuses,庫普蘭,François Couperin,1733,1717,巴洛克,2,鋼琴,可,可,可,
+183,全球可用,快樂的鐵匠,"The Harmonious Blacksmith, Suite No.5 HWV 430",韓德爾,George Frideric Handel,1759,1720,巴洛克,2,鋼琴,可,可,可,
+184,全球可用,布蘭登堡協奏曲第三號,Brandenburg Concerto No.3 BWV 1048,巴赫,Johann Sebastian Bach,1750,1721,巴洛克,2,管弦,可,可,可,獻給勃蘭登堡侯爵 1721
+185,全球可用,布蘭登堡協奏曲第五號,Brandenburg Concerto No.5 BWV 1050,巴赫,Johann Sebastian Bach,1750,1721,巴洛克,2,管弦,可,可,可,
+186,全球可用,鈴鼓舞曲,Tambourin (Pièces de clavecin),拉摩,Jean-Philippe Rameau,1764,1724,巴洛克,2,鋼琴,可,可,可,
+187,全球可用,四季「秋」第一樂章,"Autumn, Allegro, Four Seasons RV 293",韋瓦第,Antonio Vivaldi,1741,1725,巴洛克,2,管弦,可,可,可,四季 1725 年出版
+188,全球可用,四季「冬」第二樂章,"Winter, Largo, Four Seasons RV 297",韋瓦第,Antonio Vivaldi,1741,1725,巴洛克,2,管弦,可,可,可,四季 1725 年出版
+189,全球可用,憐憫吧，我的神,"Erbarme dich, St Matthew Passion BWV 244",巴赫,Johann Sebastian Bach,1750,1727,巴洛克,2,聲樂,可,可,可,馬太受難曲 1727 首演
+190,全球可用,野蠻人,"Les Sauvages, Nouvelles suites 1728",拉摩,Jean-Philippe Rameau,1764,1728,巴洛克,2,鋼琴,可,可,可,約；1725 首演
+191,全球可用,號角迴旋曲,"Rondeau, Suite de symphonies No.1",穆雷,Jean-Joseph Mouret,1738,1729,巴洛克,2,管弦,可,可,可,英國電視「傑作劇場」片頭曲；約 1729
+192,全球可用,雙曼陀林協奏曲,Concerto for Two Mandolins RV 532,韋瓦第,Antonio Vivaldi,1741,1730,巴洛克,2,管弦,可,可,可,約 1730
+193,全球可用,雙小提琴協奏曲,"Concerto for Two Violins BWV 1043, I. Vivace",巴赫,Johann Sebastian Bach,1750,1730,巴洛克,2,管弦,可,可,可,約 1730
+194,全球可用,義大利協奏曲,Italian Concerto BWV 971,巴赫,Johann Sebastian Bach,1750,1735,巴洛克,2,鋼琴,可,可,可,
+195,全球可用,貓賦格,Keyboard Sonata in G minor 'Cat's Fugue' K.30,史卡拉第,Domenico Scarlatti,1757,1738,巴洛克,2,鋼琴,可,可,可,Essercizi 1738
+196,全球可用,郭德堡變奏曲詠嘆調,"Aria, Goldberg Variations BWV 988",巴赫,Johann Sebastian Bach,1750,1741,巴洛克,2,鋼琴,可,可,可,
+197,全球可用,因為有一嬰孩為我們而生,"For unto us a child is born, Messiah HWV 56",韓德爾,George Frideric Handel,1759,1742,巴洛克,2,合唱,可,可,可,彌賽亞 1742 首演
+198,全球可用,看哪，英雄凱旋歸,"See, the Conqu'ring Hero Comes, Judas Maccabaeus HWV 63",韓德爾,George Frideric Handel,1759,1747,巴洛克,2,合唱,可,可,可,頒獎典禮常用
+199,全球可用,皇家煙火音樂序曲,"Music for the Royal Fireworks HWV 351, Overture",韓德爾,George Frideric Handel,1759,1749,巴洛克,2,管弦,可,可,可,
+200,全球可用,D小調奏鳴曲 K.141,Keyboard Sonata in D minor K.141,史卡拉第,Domenico Scarlatti,1757,1749,巴洛克,2,鋼琴,可,可,可,約 1749；多數奏鳴曲出版與手稿年代為推估
+201,全球可用,夏康舞曲,"Chaconne, Partita No.2 BWV 1004",巴赫,Johann Sebastian Bach,1750,1802,巴洛克,2,小提琴,可,可,可,約 1720 作曲；1802 首次出版
+202,全球可用,小賦格 G小調,Fugue in G minor 'Little' BWV 578,巴赫,Johann Sebastian Bach,1750,1844,巴洛克,2,管風琴,可,可,可,約 1709 作曲；1844 首次出版
+203,全球可用,帕薩加利亞與賦格,Passacaglia and Fugue in C minor BWV 582,巴赫,Johann Sebastian Bach,1750,1844,巴洛克,2,管風琴,可,可,可,約 1710 作曲；1844 首次出版
+204,全球可用,統治吧不列顛尼亞,"Rule, Britannia!",湯瑪斯．阿恩,Thomas Arne,1778,1740,愛國歌曲,2,合唱,可,可,可,
+205,全球可用,上帝保佑弗蘭茨皇帝,"Gott erhalte Franz den Kaiser, String Quartet Op.76 No.3",海頓,Joseph Haydn,1809,1797,愛國歌曲,2,室內樂,可,可,可,奧地利國歌；德國國歌旋律出處
+206,全球可用,當強尼行軍回家時,When Johnny Comes Marching Home,派翠克．吉爾摩,Patrick Gilmore (Louis Lambert),1892,1863,愛國歌曲,2,合唱,可,可,可,
+207,全球可用,噢，加拿大,O Canada,卡利克薩．拉瓦萊,Calixa Lavallée,1891,1880,愛國歌曲,2,合唱,可,可,可,
+208,全球可用,希望與榮耀之地,Land of Hope and Glory,愛德華．艾爾加,Edward Elgar,1934,1902,愛國歌曲,2,合唱,可,可,可,旋律出自 Pomp and Circumstance March No.1（1901）
+209,全球可用,洋基歌丹迪,Yankee Doodle Dandy,喬治．M．柯漢,George M. Cohan,1942,1904,愛國歌曲,2,聲樂,可,可,可,
+210,全球可用,你是一面老旗,You're a Grand Old Flag,喬治．M．柯漢,George M. Cohan,1942,1906,愛國歌曲,2,聲樂,可,可,可,
+211,全球可用,耶路撒冷,Jerusalem,休伯特．帕里,Hubert Parry,1918,1916,愛國歌曲,2,合唱,可,可,可,
+212,全球可用,輕鬆致勝者,The Easy Winners,喬普林,Scott Joplin,1917,1901,拉格泰姆,2,鋼琴,可,可,可,
+213,全球可用,醃黃瓜拉格,Dill Pickles Rag,查爾斯．強森,Charles L. Johnson,1950,1906,拉格泰姆,2,鋼琴,可,可,可,
+214,全球可用,黑與白拉格,Black and White Rag,喬治．波茨福德,George Botsford,1949,1908,拉格泰姆,2,鋼琴,可,可,可,
+215,全球可用,失去了歐里狄克,"Che farò senza Euridice, Orfeo ed Euridice",葛路克,Christoph Willibald Gluck,1787,1762,歌劇,2,聲樂,可,可,可,
+216,全球可用,不要再去做情郎,"Non più andrai, Le nozze di Figaro K.492",莫札特,Wolfgang Amadeus Mozart,1791,1786,歌劇,2,聲樂,可,可,可,
+217,全球可用,輕柔晚風二重唱,"Sull'aria, Le nozze di Figaro K.492",莫札特,Wolfgang Amadeus Mozart,1791,1786,歌劇,2,聲樂,可,可,可,電影「刺激 1995」使用
+218,全球可用,唐喬凡尼序曲,"Overture, Don Giovanni K.527",莫札特,Wolfgang Amadeus Mozart,1791,1787,歌劇,2,管弦,可,可,可,
+219,全球可用,讓我們手牽手,"Là ci darem la mano, Don Giovanni K.527",莫札特,Wolfgang Amadeus Mozart,1791,1787,歌劇,2,聲樂,可,可,可,
+220,全球可用,魔笛序曲,"Overture, Die Zauberflöte K.620",莫札特,Wolfgang Amadeus Mozart,1791,1791,歌劇,2,管弦,可,可,可,
+221,全球可用,捕鳥人之歌,"Der Vogelfänger bin ich ja, Die Zauberflöte K.620",莫札特,Wolfgang Amadeus Mozart,1791,1791,歌劇,2,聲樂,可,可,可,
+222,全球可用,剛才那聲音,"Una voce poco fa, Il barbiere di Siviglia",羅西尼,Gioachino Rossini,1868,1816,歌劇,2,聲樂,可,可,可,
+223,全球可用,鵲賊序曲,"Overture, La gazza ladra",羅西尼,Gioachino Rossini,1868,1817,歌劇,2,管弦,可,可,可,
+224,全球可用,魔彈射手序曲,"Overture, Der Freischütz J.277",韋伯,Carl Maria von Weber,1826,1821,歌劇,2,管弦,可,可,可,
+225,全球可用,獵人合唱,"Jägerchor, Der Freischütz J.277",韋伯,Carl Maria von Weber,1826,1821,歌劇,2,合唱,可,可,可,
+226,全球可用,囚犯大合唱,Va pensiero (Nabucco),威爾第,Giuseppe Verdi,1901,1842,歌劇,2,合唱,可,可,可,
+227,全球可用,詩人與農夫序曲,Dichter und Bauer Overture,蘇佩,Franz von Suppé,1895,1846,歌劇,2,管弦,可,可,可,
+228,全球可用,鐵砧大合唱,Anvil Chorus (Il trovatore),威爾第,Giuseppe Verdi,1901,1853,歌劇,2,合唱,可,可,可,
+229,全球可用,採珠人二重唱,Au fond du temple saint (Les pêcheurs de perles),比才,Georges Bizet,1875,1863,歌劇,2,聲樂,可,可,可,
+230,全球可用,賣不掉的新娘序曲,The Bartered Bride Overture,史麥塔納,Bedřich Smetana,1884,1866,歌劇,2,管弦,可,可,可,
+231,全球可用,輕騎兵序曲,Light Cavalry Overture,蘇佩,Franz von Suppé,1895,1866,歌劇,2,管弦,可,可,可,
+232,全球可用,蝙蝠序曲,Die Fledermaus Overture,小約翰．史特勞斯,Johann Strauss II,1899,1874,歌劇,2,管弦,可,可,可,
+233,全球可用,船歌,Barcarolle (Les contes d'Hoffmann),奧芬巴赫,Jacques Offenbach,1880,1881,歌劇,2,聲樂,可,可,可,作者死後首演
+234,全球可用,花之二重唱,Flower Duet (Lakme),德利伯,Léo Delibes,1891,1883,歌劇,2,聲樂,可,可,可,
+235,全球可用,波洛維茨舞曲,Polovtsian Dances (Prince Igor),鮑羅定,Alexander Borodin,1887,1890,歌劇,2,管弦,可,可,可,作者死後由林姆斯基-高沙可夫完成；1890年首演
+236,全球可用,著上戲服,Vesti la giubba (Pagliacci),雷翁卡發洛,Ruggero Leoncavallo,1919,1892,歌劇,2,聲樂,可,可,可,
+237,全球可用,冰冷的小手,Che gelida manina (La boheme),普契尼,Giacomo Puccini,1924,1896,歌劇,2,聲樂,可,可,可,
+238,全球可用,印度之歌,Song of the Indian Guest (Sadko),林姆斯基-高沙可夫,Nikolai Rimsky-Korsakov,1908,1898,歌劇,2,聲樂,可,可,可,
+239,全球可用,星光燦爛,E lucevan le stelle (Tosca),普契尼,Giacomo Puccini,1924,1900,歌劇,2,聲樂,可,可,可,
+240,全球可用,月亮頌,Song to the Moon (Rusalka),德弗札克,Antonín Dvořák,1904,1901,歌劇,2,聲樂,可,可,可,
+241,全球可用,晴朗的一天,Un bel di vedremo (Madama Butterfly),普契尼,Giacomo Puccini,1924,1904,歌劇,2,聲樂,可,可,可,
+242,全球可用,茉莉花（杜蘭朵）,Turandot Jasmine theme (Mo li hua),普契尼,Giacomo Puccini,1924,1926,歌劇,2,管弦,可,可,可,引用中國民謠《茉莉花》
+243,全球可用,麥田裡相遇,Comin' Thro' the Rye,傳統,Traditional,trad,1796,民謠,2,民謠,可,可,可,歌詞 Robert Burns（1796）；旋律傳統
+244,全球可用,麥稈中的火雞,Turkey in the Straw,傳統,Traditional,trad,1834,民謠,2,民謠,可,可,可,約 1834；約
+245,全球可用,藍尾蒼蠅（吉米玉米）,The Blue Tail Fly (Jimmy Crack Corn),丹尼爾．艾米特,Daniel Decatur Emmett,1904,1846,民謠,2,聲樂,可,可,可,作者歸屬有疑義；歌詞涉歷史種族用語
+246,全球可用,艱難時世不再來,Hard Times Come Again No More,史蒂芬．佛斯特,Stephen Foster,1864,1854,民謠,2,聲樂,可,可,可,
+247,全球可用,德州黃玫瑰,The Yellow Rose of Texas,傳統,Traditional,trad,1858,民謠,2,民謠,可,可,可,1858 年刊載
+248,全球可用,鴿子,La Paloma,伊拉迪耶,Sebastian Yradier,1865,1863,民謠,2,聲樂,可,可,可,
+249,全球可用,謝南多厄,Shenandoah,傳統,Traditional,trad,1882,民謠,2,民謠,可,可,可,海歌；約 1882 年刊載
+250,全球可用,斯凱島船歌,Skye Boat Song,安妮．麥克勞德,Anne Campbell MacLeod,1921,1884,民謠,2,聲樂,可,可,可,旋律 1884 年刊載；歌詞 Harold Boulton；歸屬有疑義
+251,全球可用,紅河谷,Red River Valley,傳統,Traditional,trad,1896,民謠,2,民謠,可,可,可,約 1896 年最早刊載
+252,全球可用,她將從山上來,She'll Be Coming Round the Mountain,傳統,Traditional,trad,1899,民謠,2,民謠,可,可,可,旋律源自靈歌 When the Chariot Comes；約 1899
+253,全球可用,山谷中,Down in the Valley,傳統,Traditional,trad,1900,民謠,2,民謠,可,可,可,約 1900；美國阿帕拉契民謠
+254,全球可用,在老煙山上,On Top of Old Smoky,傳統,Traditional,trad,1916,民謠,2,民謠,可,可,可,1916 年 Cecil Sharp 採集；約
+255,全球可用,El Manisero,El Manisero (The Peanut Vendor),Moisés Simons,Moisés Simons,1945,1928,民謠,2,民謠,可,可,可,古巴；1928 年；1945 年過世
+256,全球可用,邀舞,Invitation to the Dance Op.65,韋伯,Carl Maria von Weber,1826,1819,浪漫,2,鋼琴,可,可,可,
+257,全球可用,第二十四首隨想曲,Caprice No.24 Op.1,帕格尼尼,Niccolò Paganini,1840,1820,浪漫,2,小提琴,可,可,可,早於1830
+258,全球可用,魔王,Erlkönig D.328,舒伯特,Franz Schubert,1828,1821,浪漫,2,聲樂,可,可,可,約 1815 作曲；1821 出版
+259,全球可用,鱒魚(歌曲),Die Forelle D.550,舒伯特,Franz Schubert,1828,1821,浪漫,2,聲樂,可,可,可,約 1817 作曲；1821 出版
+260,全球可用,野玫瑰,Heidenröslein D.257,舒伯特,Franz Schubert,1828,1821,浪漫,2,聲樂,可,可,可,1815 作曲；1821 出版
+261,全球可用,仲夏夜之夢序曲,"Overture, A Midsummer Night's Dream Op.21",孟德爾頌,Felix Mendelssohn,1847,1826,浪漫,2,管弦,可,可,可,1826 作曲；婚禮進行曲為 1842 年另作，不在此列
+262,全球可用,即興曲 Op.90 No.3,Impromptu in G-flat Op.90 No.3 D.899,舒伯特,Franz Schubert,1828,1827,浪漫,2,鋼琴,可,可,可,
+263,全球可用,樂興之時第三號,Moments musicaux D.780 No.3,舒伯特,Franz Schubert,1828,1828,浪漫,2,鋼琴,可,可,可,
+264,全球可用,菩提樹,"Der Lindenbaum, Winterreise D.911",舒伯特,Franz Schubert,1828,1828,浪漫,2,聲樂,可,可,可,
+265,全球可用,鱒魚五重奏第四樂章,"Trout Quintet D.667, IV.",舒伯特,Franz Schubert,1828,1829,浪漫,2,室內樂,可,可,可,約 1819 作曲；1829 首次出版
+266,全球可用,幻想交響曲,Symphonie fantastique Op.14,白遼士,Hector Berlioz,1869,1830,浪漫,2,管弦,可,可,可,
+267,全球可用,黑鍵練習曲,Étude Op.10 No.5 'Black Key',蕭邦,Frédéric Chopin,1849,1833,浪漫,2,鋼琴,可,可,可,
+268,全球可用,冬風練習曲,Étude Op.25 No.11 'Winter Wind',蕭邦,Frédéric Chopin,1849,1837,浪漫,2,鋼琴,可,可,可,
+269,全球可用,春之歌,Songs Without Words Op.62 No.6 'Spring Song',孟德爾頌,Felix Mendelssohn,1847,1844,浪漫,2,鋼琴,可,可,可,
+270,全球可用,阿拉貝斯克,25 Easy Studies Op.100 No.2 Arabesque,布格繆勒,Friedrich Burgmüller,1874,1851,浪漫,2,鋼琴,可,可,可,
+271,全球可用,天真,25 Easy Studies Op.100 No.1 La candeur,布格繆勒,Friedrich Burgmüller,1874,1851,浪漫,2,鋼琴,可,可,可,
+272,全球可用,F大調旋律,Melody in F Op.3 No.1,安東．魯賓斯坦,Anton Rubinstein,1894,1852,浪漫,2,鋼琴,可,可,可,
+273,全球可用,前奏曲,Les préludes S.97,李斯特,Franz Liszt,1886,1854,浪漫,2,管弦,可,可,可,交響詩
+274,全球可用,第一號小提琴協奏曲,Violin Concerto No.1 Op.26,布魯赫,Max Bruch,1920,1866,浪漫,2,小提琴,可,可,可,
+275,全球可用,引子與迴旋隨想曲,Introduction et Rondo capriccioso Op.28,聖桑,Camille Saint-Saëns,1921,1867,浪漫,2,小提琴,可,可,可,
+276,全球可用,如歌的行板,Andante cantabile (String Quartet No.1 Op.11),柴可夫斯基,Pyotr Ilyich Tchaikovsky,1893,1871,浪漫,2,室內樂,可,可,可,
+277,全球可用,骷髏之舞,Danse macabre Op.40,聖桑,Camille Saint-Saëns,1921,1875,浪漫,2,管弦,可,可,可,
+278,全球可用,第一號交響曲終樂章,Symphony No.1 Op.68 mvt.4,布拉姆斯,Johannes Brahms,1897,1876,浪漫,2,管弦,可,可,可,主題常被比作《歡樂頌》
+279,全球可用,六月船歌,The Seasons Op.37a June 'Barcarolle',柴可夫斯基,Pyotr Ilyich Tchaikovsky,1893,1876,浪漫,2,鋼琴,可,可,可,
+280,全球可用,索爾維格之歌,Solveig's Song (Peer Gynt),葛利格,Edvard Grieg,1907,1876,浪漫,2,聲樂,可,可,可,
+281,全球可用,阿尼特拉之舞,Anitra's Dance (Peer Gynt Suite No.1),葛利格,Edvard Grieg,1907,1876,浪漫,2,管弦,可,可,可,
+282,全球可用,流浪者之歌,Zigeunerweisen Op.20,薩拉沙泰,Pablo de Sarasate,1908,1878,浪漫,2,小提琴,可,可,可,
+283,全球可用,布拉姆斯小提琴協奏曲,Violin Concerto in D Op.77,布拉姆斯,Johannes Brahms,1897,1879,浪漫,2,小提琴,可,可,可,
+284,全球可用,母親教我的歌,Songs My Mother Taught Me Op.55 No.4,德弗札克,Antonín Dvořák,1904,1880,浪漫,2,聲樂,可,可,可,
+285,全球可用,柴可夫斯基小提琴協奏曲,Violin Concerto in D Op.35,柴可夫斯基,Pyotr Ilyich Tchaikovsky,1893,1881,浪漫,2,小提琴,可,可,可,1881年首演
+286,全球可用,第三號交響曲「管風琴」,Symphony No.3 'Organ' Op.78,聖桑,Camille Saint-Saëns,1921,1886,浪漫,2,管弦,可,可,可,
+287,全球可用,展覽會之畫,Pictures at an Exhibition,穆索斯基,Modest Mussorgsky,1881,1886,浪漫,2,鋼琴,可,可,可,1874年作曲；1886年才出版
+288,全球可用,基輔大門,The Great Gate of Kiev,穆索斯基,Modest Mussorgsky,1881,1886,浪漫,2,鋼琴,可,可,可,選自展覽會之畫；拉威爾管弦樂版1922年
+289,全球可用,第五號交響曲,Symphony No.5 Op.64,柴可夫斯基,Pyotr Ilyich Tchaikovsky,1893,1888,浪漫,2,管弦,可,可,可,
+290,全球可用,天方夜譚,Scheherazade Op.35,林姆斯基-高沙可夫,Nikolai Rimsky-Korsakov,1908,1888,浪漫,2,管弦,可,可,可,
+291,全球可用,愛的禮讚,Salut d'amour Op.12,艾爾加,Edward Elgar,1934,1888,浪漫,2,小提琴,可,可,可,
+292,全球可用,阿斯圖里亞斯（傳奇）,Asturias (Leyenda) Op.47 No.5,阿爾貝尼斯,Isaac Albéniz,1909,1892,浪漫,2,鋼琴,可,可,可,常以吉他演奏；出版年約1892
+293,全球可用,第六號交響曲「悲愴」,Symphony No.6 'Pathetique' Op.74,柴可夫斯基,Pyotr Ilyich Tchaikovsky,1893,1893,浪漫,2,管弦,可,可,可,
+294,全球可用,新世界交響曲終樂章,Symphony No.9 'From the New World' mvt.4,德弗札克,Antonín Dvořák,1904,1893,浪漫,2,管弦,可,可,可,
+295,全球可用,阿爾罕布拉宮的回憶,Recuerdos de la Alhambra,塔雷加,Francisco Tárrega,1909,1896,浪漫,2,室內樂,可,可,可,古典吉他獨奏；年份約1896
+296,全球可用,尼姆羅德,Enigma Variations Op.36 Nimrod,艾爾加,Edward Elgar,1934,1899,浪漫,2,管弦,可,可,可,
+297,全球可用,三隻瞎老鼠,Three Blind Mice,湯瑪斯．瑞文斯克羅夫特,Thomas Ravenscroft,1635,1609,童謠,2,民謠,可,可,可,1609 年 Deuteromelia 收錄；作者歸屬及死亡年（約 1635）有疑義
+298,全球可用,親愛的奧古斯丁（當我們同在一起）,O du lieber Augustin / The More We Get Together,傳統,Traditional,trad,1788,童謠,2,民謠,可,可,可,旋律約 1788；英文版歌詞較晚
+299,全球可用,口袋裡的黃鼠狼,Pop Goes the Weasel,傳統,Traditional,trad,1853,童謠,2,民謠,可,可,可,1853 年英國
+300,全球可用,在亞維儂橋上,Sur le pont d'Avignon,傳統,Traditional,trad,1853,童謠,2,民謠,可,可,可,1853 年 Adolphe Adam 劇作引用；民謠更早
+301,全球可用,雲雀,Alouette,傳統,Traditional,trad,1879,童謠,2,民謠,可,可,可,1879 年加拿大刊載
+302,全球可用,農夫在山谷,The Farmer in the Dell,傳統,Traditional,trad,1883,童謠,2,民謠,可,可,可,德國起源；1883 年美國最早刊載
+303,全球可用,紅葉,紅葉 (Momiji),岡野貞一,Okano Teiichi,1941,1911,童謠,2,聲樂,可,可,可,高野辰之詞；1911 年
+304,全球可用,七個孩子,七つの子 (Nanatsu no Ko),本居長世,Motoori Nagayo,1945,1921,童謠,2,聲樂,可,可,可,野口雨情詞；1921 年
+305,全球可用,紅鞋子,赤い靴 (Akai Kutsu),本居長世,Motoori Nagayo,1945,1922,童謠,2,聲樂,可,可,可,野口雨情詞；1922 年
+306,全球可用,肥皂泡,シャボン玉,中山晉平,Nakayama Shinpei,1952,1922,童謠,2,聲樂,可,可,可,野口雨情詞；中山晉平 1952 年過世
+307,全球可用,夕燒小燒,夕焼小焼,草川信,Kusakawa Shin,1948,1923,童謠,2,聲樂,可,可,可,中村雨紅詞；1923 年
+308,全球可用,堅固保障,A Mighty Fortress Is Our God,馬丁．路德,Martin Luther,1546,1529,聖詩,2,合唱,可,可,可,旋律歸屬約；1529 年最早
+309,全球可用,頌榮（老一百首）,Doxology (Old Hundredth),路易．布爾喬亞,Louis Bourgeois,1559,1551,聖詩,2,合唱,可,可,可,旋律 Old Hundredth；歸屬約
+310,全球可用,萬古磐石,Rock of Ages,托馬斯．黑斯廷斯,Thomas Hastings,1872,1830,聖詩,2,合唱,可,可,可,旋律 Toplady
+311,全球可用,照我本相,Just As I Am,威廉．布拉德伯里,William Bradbury,1868,1849,聖詩,2,合唱,可,可,可,旋律 Woodworth
+312,全球可用,聖哉聖哉聖哉,"Holy, Holy, Holy",約翰．巴克斯．戴克斯,John Bacchus Dykes,1876,1861,聖詩,2,合唱,可,可,可,旋律 Nicaea
+313,全球可用,摩西下去吧,"Go Down, Moses",傳統,Traditional,trad,1861,聖詩,2,合唱,可,可,可,黑人靈歌；1861 年刊載
+314,全球可用,慈光歌,"Lead, Kindly Light",約翰．巴克斯．戴克斯,John Bacchus Dykes,1876,1865,聖詩,2,合唱,可,可,可,旋律 Lux Benigna
+315,全球可用,沒人知道我的苦,Nobody Knows the Trouble I've Seen,傳統,Traditional,trad,1867,聖詩,2,合唱,可,可,可,黑人靈歌；1867 年 Slave Songs of the United States
+316,全球可用,悄悄溜走,Steal Away,傳統,Traditional,trad,1867,聖詩,2,合唱,可,可,可,黑人靈歌；1867 年刊載
+317,全球可用,麥可划船上岸,"Michael, Row the Boat Ashore",傳統,Traditional,trad,1867,聖詩,2,合唱,可,可,可,黑人靈歌；1867 年刊載
+318,全球可用,基督精兵前進,"Onward, Christian Soldiers",亞瑟．蘇利文,Arthur Sullivan,1900,1871,聖詩,2,合唱,可,可,可,旋律 St. Gertrude
+319,全球可用,天使之糧,Panis angelicus,法朗克,César Franck,1890,1872,聖詩,2,聲樂,可,可,可,
+320,全球可用,有福的確據,Blessed Assurance,菲比．納普,Phoebe Knapp,1908,1873,聖詩,2,合唱,可,可,可,
+321,全球可用,深河,Deep River,傳統,Traditional,trad,1876,聖詩,2,合唱,可,可,可,黑人靈歌；1876 年 Fisk Jubilee Singers 刊載
+322,全球可用,慈悲的耶穌,Pie Jesu (Requiem Op.48),佛瑞,Gabriel Fauré,1924,1888,聖詩,2,聲樂,可,可,可,
+323,全球可用,花園裡,In the Garden,C．奧斯丁．邁爾斯,C. Austin Miles,1946,1912,聖詩,2,合唱,可,可,可,旋律作者 1946 年過世
+324,全球可用,好國王溫塞斯勞斯,Good King Wenceslas,傳統,Traditional,trad,1582,聖誕,2,合唱,可,可,可,旋律 Tempus adest floridum 載於 1582 Piae Cantiones；歌詞 1853 Neale
+325,全球可用,叮噹叮噹歡樂頌,Ding Dong Merrily on High,托伊諾．阿爾博,Thoinot Arbeau,1595,1588,聖誕,2,合唱,可,可,可,旋律出自 Orchésographie；歌詞 1924
+326,全球可用,聖誕樹,O Tannenbaum,傳統,Traditional,trad,1824,聖誕,2,合唱,可,可,可,旋律 16 世紀傳統；1824 年 Ernst Anschütz 歌詞
+327,全球可用,午夜清澄,It Came Upon the Midnight Clear,理查德．斯托斯．威利斯,Richard Storrs Willis,1900,1850,聖誕,2,合唱,可,可,可,
+328,全球可用,以馬內利降臨,"O Come, O Come, Emmanuel",傳統,Traditional,trad,1851,聖誕,2,合唱,可,可,可,約 1851 年 Neale 版；旋律 15 世紀
+329,全球可用,我們東方三王,We Three Kings,約翰．亨利．霍普金斯,John Henry Hopkins Jr.,1891,1857,聖誕,2,合唱,可,可,可,
+330,全球可用,寒冬之中,In the Bleak Midwinter,霍爾斯特,Gustav Holst,1934,1906,聖誕,2,合唱,可,可,可,霍爾斯特譜曲（Cranham）1906年；詞為羅塞蒂
+331,全球可用,到山上去傳揚,Go Tell It on the Mountain,傳統,Traditional,trad,1907,聖誕,2,合唱,可,可,可,靈歌；1907 年 John W. Work Jr. 刊載；約
+332,全球可用,聖誕十二日,The Twelve Days of Christmas,弗雷德里克．奧斯汀,Frederic Austin,1952,1909,聖誕,2,合唱,可,可,可,歌詞約 1780；現行旋律 1909 年 Austin 編；若採傳統旋律則不同
+333,全球可用,Estrellita,Estrellita,Manuel M. Ponce,Manuel M. Ponce,1948,1912,聲樂,2,聲樂,可,可,可,墨西哥；Ponce 1948 年過世
+334,全球可用,俄羅斯舞曲,Trepak (The Nutcracker),柴可夫斯基,Pyotr Ilyich Tchaikovsky,1893,1892,芭蕾,2,管弦,可,可,可,
+335,全球可用,夢後,Apres un reve Op.7 No.1,佛瑞,Gabriel Fauré,1924,1878,近代,2,聲樂,可,可,可,
+336,全球可用,阿拉貝斯克第一號,Deux arabesques No.1,德布西,Claude Debussy,1918,1891,近代,2,鋼琴,可,可,可,
+337,全球可用,格諾辛第一號,Gnossienne No.1,薩提,Erik Satie,1925,1893,近代,2,鋼琴,可,可,可,
+338,全球可用,牧神的午後前奏曲,Prelude a l'apres-midi d'un faune,德布西,Claude Debussy,1918,1894,近代,2,管弦,可,可,可,
+339,全球可用,魔法師的弟子,L'apprenti sorcier,杜卡,Paul Dukas,1935,1897,近代,2,管弦,可,可,可,
+340,全球可用,悼念公主的帕凡舞曲,Pavane pour une infante defunte,拉威爾,Maurice Ravel,1937,1899,近代,2,鋼琴,可,可,可,1899年鋼琴版；1910年管弦樂版
+341,全球可用,第五號交響曲小慢板,Symphony No.5 Adagietto,馬勒,Gustav Mahler,1911,1904,近代,2,管弦,可,可,可,電影《魂斷威尼斯》使用
+342,全球可用,亞麻色頭髮的少女,La fille aux cheveux de lin,德布西,Claude Debussy,1918,1910,近代,2,鋼琴,可,可,可,
+343,全球可用,練聲曲,Vocalise Op.34 No.14,拉赫瑪尼諾夫,Sergei Rachmaninoff,1943,1912,近代,2,聲樂,可,可,可,
+344,全球可用,木星,Jupiter (The Planets Op.32),霍爾斯特,Gustav Holst,1934,1921,近代,2,管弦,可,可,可,公開首演約1920年；出版約1921年
+345,全球可用,火星,Mars (The Planets Op.32),霍爾斯特,Gustav Holst,1934,1921,近代,2,管弦,可,可,可,公開首演約1920年；出版約1921年
+346,全球可用,巴黎的美國人,An American in Paris,蓋希文,George Gershwin,1937,1928,近代,2,管弦,可,可,可,
+347,全球可用,雅典的廢墟土耳其進行曲,"Turkish March, The Ruins of Athens Op.113",貝多芬,Ludwig van Beethoven,1827,1811,進行曲,2,管弦,可,可,可,與莫札特「土耳其進行曲」為不同曲目
+348,全球可用,軍隊進行曲第一號,Marche militaire No.1 D.733,舒伯特,Franz Schubert,1828,1826,進行曲,2,鋼琴,可,可,可,約 1818 作曲；1826 出版
+349,全球可用,華盛頓郵報進行曲,The Washington Post March,蘇沙,John Philip Sousa,1932,1889,進行曲,2,管弦,可,可,可,
+350,全球可用,胡桃鉗進行曲,March (The Nutcracker),柴可夫斯基,Pyotr Ilyich Tchaikovsky,1893,1892,進行曲,2,管弦,可,可,可,
+351,全球可用,自由鐘進行曲,The Liberty Bell March,蘇沙,John Philip Sousa,1932,1893,進行曲,2,管弦,可,可,可,
+352,全球可用,歡躍吧，歡欣吧,"Alleluia, Exsultate jubilate K.165",莫札特,Wolfgang Amadeus Mozart,1791,1773,古典,1,聲樂,可,可,可,
+353,全球可用,長笛與豎琴協奏曲,Flute and Harp Concerto K.299,莫札特,Wolfgang Amadeus Mozart,1791,1778,古典,1,管弦,可,可,可,
+354,全球可用,讚美主,"Laudate Dominum, Vesperae solennes K.339",莫札特,Wolfgang Amadeus Mozart,1791,1780,古典,1,聲樂,可,可,可,
+355,全球可用,D小調幻想曲,Fantasia in D minor K.397,莫札特,Wolfgang Amadeus Mozart,1791,1782,古典,1,鋼琴,可,可,可,
+356,全球可用,大組曲慢板,"Gran Partita K.361, III. Adagio",莫札特,Wolfgang Amadeus Mozart,1791,1784,古典,1,管弦,可,可,可,電影「阿瑪迪斯」使用
+357,全球可用,第四號圓號協奏曲終樂章,"Horn Concerto No.4 K.495, III. Rondo",莫札特,Wolfgang Amadeus Mozart,1791,1786,古典,1,管弦,可,可,可,
+358,全球可用,創世紀「諸天頌揚」,"Die Himmel erzählen, The Creation Hob.XXI:2",海頓,Joseph Haydn,1809,1798,古典,1,合唱,可,可,可,
+359,全球可用,克羅采奏鳴曲,Violin Sonata No.9 'Kreutzer' Op.47,貝多芬,Ludwig van Beethoven,1827,1803,古典,1,小提琴,可,可,可,
+360,全球可用,雷奧諾拉第三號序曲,Leonore Overture No.3 Op.72b,貝多芬,Ludwig van Beethoven,1827,1806,古典,1,管弦,可,可,可,
+361,全球可用,第一號單簧管協奏曲,Clarinet Concerto No.1 Op.73 J.114,韋伯,Carl Maria von Weber,1826,1811,古典,1,管弦,可,可,可,
+362,全球可用,練習曲 Op.35 No.22,Study in B minor Op.35 No.22,索爾,Fernando Sor,1839,1828,古典,1,其他,可,可,可,吉他曲，塞戈維亞選編；年份約
+363,全球可用,歌劇「奧菲歐」托卡塔,"Toccata, L'Orfeo SV 318",蒙台威爾第,Claudio Monteverdi,1643,1607,巴洛克,1,管弦,可,可,可,早期巴洛克號角序曲
+364,全球可用,四小提琴協奏曲,"Concerto for Four Violins RV 580, L'estro armonico Op.3 No.10",韋瓦第,Antonio Vivaldi,1741,1711,巴洛克,1,管弦,可,可,可,Op.3 於 1711 出版
+365,全球可用,聖誕協奏曲,Concerto grosso Op.6 No.8 'Christmas Concerto',柯瑞里,Arcangelo Corelli,1713,1714,巴洛克,1,管弦,可,可,可,作曲者身後出版
+366,全球可用,小號協奏曲 D大調,Trumpet Concerto in D TWV 51:D7,泰勒曼,Georg Philipp Telemann,1767,1720,巴洛克,1,管弦,可,可,可,約 1720
+367,全球可用,中提琴協奏曲 G大調,Viola Concerto in G TWV 51:G9,泰勒曼,Georg Philipp Telemann,1767,1720,巴洛克,1,管弦,可,可,可,約 1720
+368,全球可用,雙簧管協奏曲慢板(阿比諾尼),"Oboe Concerto Op.9 No.2, Adagio",阿比諾尼,Tomaso Albinoni,1751,1722,巴洛克,1,管弦,可,可,可,阿比諾尼真作
+369,全球可用,聖誕清唱劇開場合唱,"Jauchzet, frohlocket, Christmas Oratorio BWV 248",巴赫,Johann Sebastian Bach,1750,1734,巴洛克,1,合唱,可,可,可,
+370,全球可用,聖母悼歌,Stabat Mater,佩高雷西,Giovanni Battista Pergolesi,1736,1736,巴洛克,1,合唱,可,可,可,
+371,全球可用,你們可知道,"Voi che sapete, Le nozze di Figaro K.492",莫札特,Wolfgang Amadeus Mozart,1791,1786,歌劇,1,聲樂,可,可,可,
+372,全球可用,囚徒大合唱,"Prisoners' Chorus, Fidelio Op.72",貝多芬,Ludwig van Beethoven,1827,1814,歌劇,1,合唱,可,可,可,
+373,全球可用,塞米拉米德序曲,"Overture, Semiramide",羅西尼,Gioachino Rossini,1868,1823,歌劇,1,管弦,可,可,可,
+374,全球可用,夜曲第五號,Nocturne No.5 in B-flat H.37,菲爾德,John Field,1837,1817,浪漫,1,鋼琴,可,可,可,
+375,全球可用,羅莎蒙德間奏曲,Rosamunde Entr'acte No.3 D.797,舒伯特,Franz Schubert,1828,1823,浪漫,1,管弦,可,可,可,
+376,全球可用,死與少女,"String Quartet No.14 'Death and the Maiden' D.810, II.",舒伯特,Franz Schubert,1828,1826,浪漫,1,室內樂,可,可,可,1826 首演；1831 出版，此處取首演年
+377,全球可用,致音樂,An die Musik D.547,舒伯特,Franz Schubert,1828,1827,浪漫,1,聲樂,可,可,可,
+378,全球可用,Nkosi Sikelel' iAfrika,Nkosi Sikelel' iAfrika,Enoch Sontonga,Enoch Sontonga,1905,1897,聲樂,1,聲樂,可,可,可,南非國歌之一；Sontonga 1905 年過世
+379,全球可用（需確認備註）,茉莉花,茉莉花 (Mòlì Huā),傳統,Traditional,trad,1804,亞洲傳統,3,民謠,可,可,可,江蘇揚州小調；1804 年巴羅《中國旅行記》收錄樂譜；現行版本曾經改編
+380,全球可用（需確認備註）,生日快樂歌,Happy Birthday to You,米爾德麗．希爾／帕蒂．希爾,Mildred J. Hill / Patty Hill,1946,1893,其他,3,聲樂,可,可,可,旋律 1893 年以 Good Morning to All 發表；Patty Hill 1946 年過世（Mildred 1916）；美國法院 2016 年判定歌詞無有效版權
+381,全球可用（需確認備註）,高山流水,高山流水,傳統,Traditional,trad,1425,國樂,3,國樂,可,可,可,古琴曲；1425 年《神奇秘譜》收錄；現行琵琶版本為後人整理
+382,全球可用（需確認備註）,春江花月夜,春江花月夜 (夕陽簫鼓),傳統,Traditional,trad,1895,國樂,3,國樂,可,可,可,琵琶古曲《夕陽簫鼓》；1895 年鞠士林抄本；現行名稱與編曲為 1925 年柳堯章
+383,全球可用（需確認備註）,耶穌，世人仰望的喜悅,"Jesu, Joy of Man's Desiring, Cantata BWV 147",巴赫,Johann Sebastian Bach,1750,1723,巴洛克,3,合唱,可,可,可,清唱劇 BWV147 終曲合唱；常聽的鋼琴版為赫斯 1926 年改編
+384,全球可用（需確認備註）,D小調觸技曲與賦格,Toccata and Fugue in D minor BWV 565,巴赫,Johann Sebastian Bach,1750,1833,巴洛克,3,管風琴,可,可,可,作曲年代與真偽有爭議；1833 首次出版
+385,全球可用（需確認備註）,天佑吾王／女王,God Save the King/Queen,傳統,Traditional,trad,1744,愛國歌曲,3,合唱,可,可,可,約 1744；作者有爭議（常歸 John Bull）；美國版 My Country 'Tis of Thee 同調
+386,全球可用（需確認備註）,共和國戰歌,Battle Hymn of the Republic,威廉．史特夫（傳）,William Steffe (attrib.),1911,1856,愛國歌曲,3,合唱,可,可,可,旋律源自 John Brown's Body 約 1856；歸屬不確定；歌詞 Julia Ward Howe 1862
+387,全球可用（需確認備註）,夏日最後的玫瑰,The Last Rose of Summer,傳統,Traditional,trad,1813,民謠,3,聲樂,可,可,可,旋律源自愛爾蘭古調 The Groves of Blarney；湯瑪斯．穆爾 1813 年配詞；旋律經 Stevenson 改編
+388,全球可用（需確認備註）,卡林卡,Kalinka,伊凡．拉里奧諾夫,Ivan Larionov,1889,1860,民謠,3,合唱,可,可,可,作者生卒年資料不確定
+389,全球可用（需確認備註）,送別,送別,John P. Ordway,John P. Ordway,1880,1868,民謠,3,聲樂,可,可,可,李叔同詞；旋律來自 Ordway《Dreaming of Home and Mother》，出版年份我記為 1868 年（派工備註寫 1851，待查證）
+390,全球可用（需確認備註）,莫莉．馬龍,Molly Malone,傳統,Traditional,trad,1883,民謠,3,民謠,可,可,可,1883 年美國刊載；James Yorkston 署名但歸屬不確定
+391,全球可用（需確認備註）,El Cóndor Pasa,El Cóndor Pasa,Daniel Alomía Robles,Daniel Alomía Robles,1942,1913,民謠,3,民謠,可,可,可,祕魯；1913 年歌劇；Alomía Robles 1942 年過世；Simon & Garfunkel 1970 年版為現代編曲
+392,全球可用（需確認備註）,斯卡博羅市集,Scarborough Fair,傳統,Traditional,trad,1917,民謠,3,民謠,可,可,可,歌詞源自 17 世紀民謠；現行旋律 1900 年代採集；約；Simon & Garfunkel 編曲非公版
+393,全球可用（需確認備註）,哈瓦納吉拉,Hava Nagila,亞伯拉罕．茨維．伊德爾松,Abraham Zvi Idelsohn,1938,1918,民謠,3,民謠,可,可,可,基於哈西迪旋律；歸屬有爭議
+394,全球可用（需確認備註）,丟丟銅仔,丟丟銅仔,傳統,Traditional,trad,1930,民謠,3,民謠,可,可,可,宜蘭民謠；常見編曲者為呂泉生（2008 年過世）；首次記錄年份約 1930 年待查證
+395,全球可用（需確認備註）,康定情歌,康定情歌 (跑馬溜溜的山上),傳統,Traditional,trad,1939,民謠,3,民謠,可,可,可,四川民歌；1939 年吳文暉採集一說；後來有改編者主張版權，需查證
+396,全球可用（需確認備註）,瑪莉有隻小綿羊,Mary Had a Little Lamb,傳統,Traditional,trad,1830,童謠,3,民謠,可,可,可,旋律常歸於 Lowell Mason（1830）但歸屬有爭議；歌詞 Sarah Hale
+397,全球可用（需確認備註）,天黑黑,天黑黑,傳統,Traditional,trad,1930,童謠,3,民謠,可,可,可,台灣民謠；呂泉生曾編曲（2008 年過世）；首次記錄年份約 1930 年待查證
+398,全球可用（需確認備註）,搖擺吧甜蜜的馬車,"Swing Low, Sweet Chariot",傳統,Traditional,trad,1872,聖詩,3,合唱,可,可,可,黑人靈歌；1872 年首次刊載；Wallace Willis 傳為作者；歸屬不確定
+399,全球可用（需確認備註）,當聖徒進行時,When the Saints Go Marching In,詹姆斯．布萊克,James M. Black,1938,1896,聖詩,3,合唱,可,可,可,1896 年 Katharine Purvis 詞 / Black 曲；歸屬有爭議；另有傳統靈歌說法
+400,全球可用（需確認備註）,齊來崇拜,"O Come, All Ye Faithful (Adeste Fideles)",約翰．弗朗西斯．韋德,John Francis Wade,1786,1751,聖誕,3,合唱,可,可,可,約 1751 年；歸屬有爭議
+401,全球可用（需確認備註）,普世歡騰,Joy to the World,馬森（編曲）,Lowell Mason (arr.),1872,1839,聖誕,3,合唱,可,可,可,馬森 1839 年編曲；旋律傳為取自韓德爾「彌賽亞」但無實證，歸屬存疑
+402,全球可用（需確認備註）,聽啊，天使報佳音,Hark! The Herald Angels Sing,孟德爾頌,Felix Mendelssohn,1847,1840,聖誕,3,合唱,可,可,可,曲調取自1840年《Festgesang》；現行歌詞與編曲為後人改編
+403,全球可用（需確認備註）,天使在高處歌唱,Angels We Have Heard on High,傳統,Traditional,trad,1855,聖誕,3,合唱,可,可,可,法國傳統 Les anges dans nos campagnes；1855；現行編曲 1937；約
+404,全球可用（需確認備註）,祝你聖誕快樂,We Wish You a Merry Christmas,傳統,Traditional,trad,1935,聖誕,3,合唱,可,可,可,英國西部傳統歌；1935 年 Arthur Warrell 編曲刊載；約
+405,全球可用（需確認備註）,波麗露,Bolero,拉威爾,Maurice Ravel,1937,1928,近代,3,管弦,可,可,可,法國有戰時延長保護爭議
+406,全球可用（需確認備註）,桔梗謠,도라지타령 (Doraji Taryeong),傳統,Traditional,trad,1900,亞洲傳統,2,民謠,可,可,可,朝鮮半島民謠；年份約 1900 年待查證
+407,全球可用（需確認備註）,密陽阿里郎,밀양아리랑,傳統,Traditional,trad,1930,亞洲傳統,2,民謠,可,可,可,慶尚道；一般說法為 1930 年代整理版本，整理者與年份待查證
+408,全球可用（需確認備註）,老人飲酒歡樂歌,Dongi (阿美族),傳統,Traditional,trad,1943,亞洲傳統,2,聲樂,可,可,可,阿美族古調；1943 年黑澤隆朝錄音；曾被 Enigma 取樣引起爭議，使用須留意
+409,全球可用（需確認備註）,醒來吧，喚醒我們的呼聲響起,"Wachet auf, ruft uns die Stimme BWV 645",巴赫,Johann Sebastian Bach,1750,1731,巴洛克,2,管風琴,可,可,可,約 1731 清唱劇；管風琴改編版 1748 年出版
+410,全球可用（需確認備註）,到蒂珀雷里路好遠,It's a Long Way to Tipperary,傑克．賈吉,Jack Judge,1938,1912,愛國歌曲,2,聲樂,可,可,可,作者歸屬有爭議（Harry Williams 也曾主張）
+411,全球可用（需確認備註）,鳳陽花鼓,鳳陽花鼓,傳統,Traditional,trad,1800,民謠,2,民謠,可,可,可,安徽民歌；最早記錄年份約 1800 年待查證
+412,全球可用（需確認備註）,繡荷包,繡荷包,傳統,Traditional,trad,1800,民謠,2,民謠,可,可,可,中國民間小調；各地版本不同，年份約 1800 年待查證
+413,全球可用（需確認備註）,小放牛,小放牛,傳統,Traditional,trad,1800,民謠,2,民謠,可,可,可,河北民歌；年份約 1800 年待查證
+414,全球可用（需確認備註）,我必須離開小城,Muss i denn zum Städtele hinaus,弗里德里希．西爾歇,Friedrich Silcher,1860,1827,民謠,2,聲樂,可,可,可,傳統民謠 Silcher 1827 年編曲；歸屬約
+415,全球可用（需確認備註）,伏爾加船夫曲,Song of the Volga Boatmen,米利．巴拉基列夫（編曲）,Mily Balakirev (arr.),1910,1866,民謠,2,合唱,可,可,可,傳統俄羅斯民謠；1866 年編曲
+416,全球可用（需確認備註）,夢中的平原（草原上的家）,Home on the Range,丹尼爾．凱利,Daniel E. Kelley,1905,1873,民謠,2,聲樂,可,可,可,歌詞 Brewster Higley 1873；旋律作者 Kelley 死亡年不確定
+417,全球可用（需確認備註）,我的邦妮在海上,My Bonnie Lies Over the Ocean,傳統,Traditional,trad,1881,民謠,2,民謠,可,可,可,約 1881；Charles Pratt 署名版 Bring Back My Bonnie to Me；歸屬不確定
+418,全球可用（需確認備註）,親愛的克萊門汀,Oh My Darling Clementine,傳統,Traditional,trad,1884,民謠,2,民謠,可,可,可,1884 年 Percy Montrose 署名；Barker Bradford 1863 年版也有爭議；歸屬不確定
+419,全球可用（需確認備註）,Hava Nagila,הבה נגילה (Hava Nagila),傳統,Traditional,trad,1918,民謠,2,民謠,可,可,可,哈西迪猶太旋律；1918 年 Idelsohn 整理（Idelsohn 1938 年過世）
+420,全球可用（需確認備註）,山歌子,山歌子 (客家),傳統,Traditional,trad,1930,民謠,2,民謠,可,可,可,客家山歌；首次記錄年份待查證
+421,全球可用（需確認備註）,走西口,走西口,傳統,Traditional,trad,1930,民謠,2,民謠,可,可,可,山西或陝北民歌；年份約 1930 年待查證
+422,全球可用（需確認備註）,蘭花花,蘭花花,傳統,Traditional,trad,1940,民謠,2,民謠,可,可,可,陝北民歌；1940 年代採集，整理者待查證
+423,全球可用（需確認備註）,沂蒙山小調,沂蒙山小調,傳統,Traditional,trad,1941,民謠,2,民謠,可,可,可,山東民歌；1941 年經李廣宗等人整理填詞，整理者身分需查證
+424,全球可用（需確認備註）,小河淌水,小河淌水,傳統,Traditional,trad,1947,民謠,2,民謠,可,可,可,雲南彌渡山歌；1947 年夏宗禹整理一說，需查證
+425,全球可用（需確認備註）,再見了美人,Bella Ciao,傳統,Traditional,trad,1953,民謠,2,民謠,可,可,可,約 1950 年代採集；起源有爭議；是否公版存疑
+426,全球可用（需確認備註）,Rasa Sayange,Rasa Sayange,傳統,Traditional,trad,1962,民謠,2,民謠,可,可,可,馬魯古民謠；印尼與馬來西亞曾有版權爭議；1962 年錄音版本待查證
+427,全球可用（需確認備註）,鐘,"La Campanella, Violin Concerto No.2 Op.7, III.",帕格尼尼,Niccolò Paganini,1840,1826,浪漫,2,小提琴,可,可,可,1826 首演；李斯特鋼琴改編版為 1851 年
+428,全球可用（需確認備註）,荒山之夜,Night on Bald Mountain,穆索斯基,Modest Mussorgsky,1881,1886,浪漫,2,管弦,可,可,可,林姆斯基-高沙可夫改編版1886年出版
+429,全球可用（需確認備註）,かごめかごめ,かごめかごめ,傳統,Traditional,trad,1820,童謠,2,民謠,可,可,可,江戶時代童謠；最早記錄年份約 1820 年待查證
+430,全球可用（需確認備註）,通りゃんせ,通りゃんせ,傳統,Traditional,trad,1920,童謠,2,民謠,可,可,可,江戶時代傳唱的民謠；現行旋律一般說法為本居長世整理（1920 年代），待查證
+431,全球可用（需確認備註）,草螟弄雞公,草螟弄雞公,傳統,Traditional,trad,1930,童謠,2,民謠,可,可,可,台灣童謠；首次記錄年份約 1930 年待查證
+432,全球可用（需確認備註）,點仔膠,點仔膠,傳統,Traditional,trad,1930,童謠,2,民謠,可,可,可,台灣童謠；首次記錄年份待查證
+433,全球可用（需確認備註）,火金姑,火金姑,傳統,Traditional,trad,1930,童謠,2,民謠,可,可,可,台灣童謠；首次記錄年份待查證
+434,全球可用（需確認備註）,白鷺鷥,白鷺鷥,傳統,Traditional,trad,1930,童謠,2,民謠,可,可,可,台灣童謠；首次記錄年份待查證
+435,全球可用（需確認備註）,搖嬰仔歌,搖嬰仔歌,傳統,Traditional,trad,1930,童謠,2,民謠,可,可,可,台灣搖籃曲；有呂泉生版本（2008 年過世）；首次記錄年份待查證
+436,全球可用（需確認備註）,月光光,月光光 (客家),傳統,Traditional,trad,1930,童謠,2,民謠,可,可,可,客家童謠；首次記錄年份待查證
+437,全球可用（需確認備註）,天公落水,天公落水,傳統,Traditional,trad,1930,童謠,2,民謠,可,可,可,台灣童謠；首次記錄年份待查證
+438,全球可用（需確認備註）,昆巴亞,Kumbaya,傳統,Traditional,trad,1926,聖詩,2,民謠,可,可,可,1926 年最早記錄；起源地有爭議；約
+439,全球可用（需確認備註）,小奏鳴曲 Op.168 No.1,Sonatina in C Op.168 No.1,迪亞貝利,Anton Diabelli,1858,1820,古典,1,鋼琴,可,可,可,出版年約 1820，不確定
+440,全球可用（需確認備註）,雙簧管協奏曲慢板(馬切羅),"Oboe Concerto in D minor, Adagio",馬切羅,Alessandro Marcello,1747,1717,巴洛克,1,管弦,可,可,可,約 1717；由巴赫改編
+441,全球可用（需確認備註）,Burung Kakak Tua,Burung Kakak Tua,傳統,Traditional,trad,1930,童謠,1,民謠,可,可,可,馬魯古童謠；年份待查證
+442,台灣可、部分地區有版權,帶我去看棒球,Take Me Out to the Ball Game,艾伯特．馮．蒂爾澤,Albert Von Tilzer,1956,1908,其他,3,聲樂,可,可,有版權,旋律作者 1956 年過世；美國 1908 年首版
+443,台灣可、部分地區有版權,金蛇狂舞,金蛇狂舞,聶耳,Nie Er,1935,1934,國樂,3,國樂,可,有版權,可,聶耳 1934 年根據《倒八板》改編；1935 年過世
+444,台灣可、部分地區有版權,彩雲追月,彩雲追月,任光,Ren Guang,1941,1935,國樂,3,國樂,可,有版權,可,任光 1935 年創作，常聽版本為 1960 年彭修文改編，彭修文 2002 年過世；請注意改編版
+445,台灣可、部分地區有版權,二泉映月,二泉映月,阿炳,Abing,1950,1950,國樂,3,國樂,可,有版權,可,華彥鈞（阿炳）曲；1950 年楊蔭瀏錄音；首次發表年份依此計
+446,台灣可、部分地區有版權,夏日時光,Summertime (Porgy and Bess),蓋希文,George Gershwin,1937,1935,歌劇,3,聲樂,可,有版權,可,晚於1930
+447,台灣可、部分地區有版權,可愛的小鳥（齊利托林多）,Cielito Lindo,基里諾．門多薩．科爾特斯,Quirino Mendoza y Cortés,1957,1882,民謠,3,聲樂,可,可,有版權,非公版：旋律作者 1957 年過世
+448,台灣可、部分地區有版權,望春風,望春風 (Bāng Chhun-hong),鄧雨賢,Teng Yu-hsien,1944,1933,民謠,3,民謠,可,有版權,可,李臨秋詞；1933 年發表
+449,台灣可、部分地區有版權,雨夜花,雨夜花 (Ú-iā-hoe),鄧雨賢,Teng Yu-hsien,1944,1934,民謠,3,民謠,可,有版權,可,周添旺詞；1934 年古倫美亞唱片發行
+450,台灣可、部分地區有版權,高山青,高山青,周藍萍,Zhou Lan-ping,1966,1949,民謠,3,民謠,可,有版權,有版權,張徹詞；電影《阿里山風雲》1949 年；常被誤認為原住民古調
+451,台灣可、部分地區有版權,紅蜻蜓,赤とんぼ (Akatonbo),山田耕筰,Yamada Kōsaku,1965,1927,童謠,3,聲樂,可,可,有版權,三木露風詞；1927 年；山田耕筰 1965 年過世
+452,台灣可、部分地區有版權,花非花,花非花,黃自,Huang Zi,1938,1932,聲樂,3,聲樂,可,有版權,可,白居易詞；黃自 1938 年過世；年份約 1932 年待查證
+453,台灣可、部分地區有版權,踏雪尋梅,踏雪尋梅,黃自,Huang Zi,1938,1934,聲樂,3,聲樂,可,有版權,可,廖輔叔詞；黃自 1938 年過世；年份約 1934 年待查證
+454,台灣可、部分地區有版權,聖母頌(卡契尼),Ave Maria (Caccini),維拉夫,Vladimir Vavilov,1973,1970,其他,2,聲樂,可,有版權,有版權,實際作曲者為維拉夫約 1970，非公有領域；常誤標為卡契尼
+455,台灣可、部分地區有版權,春之海,春の海,宮城道雄,Miyagi Michio,1956,1929,國樂,2,國樂,可,可,有版權,箏與尺八二重奏；1929 年；宮城道雄 1956 年過世
+456,台灣可、部分地區有版權,光明行,光明行,劉天華,Liu Tianhua,1932,1931,國樂,2,國樂,可,有版權,可,二胡曲；劉天華 1932 年過世
+457,台灣可、部分地區有版權,芬蘭頌,Finlandia Op.26,西貝流士,Jean Sibelius,1957,1900,愛國歌曲,2,管弦,可,可,有版權,
+458,台灣可、部分地區有版權,鍵盤上的小貓,Kitten on the Keys,柴茲．康弗瑞,Zez Confrey,1971,1921,拉格泰姆,2,鋼琴,可,可,有版權,尚在版權保護期
+459,台灣可、部分地區有版權,月夜愁,月夜愁 (Goeh-iā-chhiû),鄧雨賢,Teng Yu-hsien,1944,1933,民謠,2,民謠,可,有版權,可,周添旺詞；發行年份約 1933 年（待查證）
+460,台灣可、部分地區有版權,四季紅,四季紅,鄧雨賢,Teng Yu-hsien,1944,1939,民謠,2,民謠,可,有版權,可,李臨秋詞；約 1939 年發行（待查證）
+461,台灣可、部分地區有版權,Mbube (Wimoweh),Mbube,Solomon Linda,Solomon Linda,1962,1939,民謠,2,民謠,可,有版權,有版權,Solomon Linda 1962 年過世；《The Lion Sleeps Tonight》來源
+462,台灣可、部分地區有版權,愛之悲,Liebesleid,克萊斯勒,Fritz Kreisler,1962,1905,浪漫,2,小提琴,可,可,有版權,
+463,台灣可、部分地區有版權,愛之喜,Liebesfreud,克萊斯勒,Fritz Kreisler,1962,1905,浪漫,2,小提琴,可,可,有版權,
+464,台灣可、部分地區有版權,橡實滾呀滾,どんぐりころころ,梁田貞,Yanada Tadashi,1959,1921,童謠,2,聲樂,可,可,有版權,青木存義詞；1921 年
+465,台灣可、部分地區有版權,古舊十字架,The Old Rugged Cross,喬治．班納德,George Bennard,1958,1913,聖詩,2,合唱,可,可,有版權,旋律作者 1958 年過世
+466,台灣可、部分地區有版權,火鳥,The Firebird,史特拉汶斯基,Igor Stravinsky,1971,1910,芭蕾,2,管弦,可,可,有版權,作者逝世於1971；配器版本多
+467,台灣可、部分地區有版權,春之祭,The Rite of Spring,史特拉汶斯基,Igor Stravinsky,1971,1913,芭蕾,2,管弦,可,可,有版權,作者逝世於1971；1947年修訂版仍在保護期
+468,台灣可、部分地區有版權,波斯市場,In a Persian Market,凱特爾比,Albert Ketèlbey,1959,1920,近代,2,管弦,可,可,有版權,
+469,台灣可、部分地區有版權,帕格尼尼主題狂想曲第18變奏,Rhapsody on a Theme of Paganini Var.18,拉赫瑪尼諾夫,Sergei Rachmaninoff,1943,1934,近代,2,管弦,可,有版權,可,晚於1930
+470,年份待查,補破網,補破網,王雲峰,Ong Hun-hong,unknown,1948,民謠,3,民謠,有版權,有版權,有版權,李臨秋詞；王雲峰卒年不確定，需查證；1948 年發表較晚
+471,年份待查,旱天雷,旱天雷,嚴老烈,Yan Laolie,unknown,1930,國樂,2,國樂,有版權,可,有版權,粵樂；一說為民間舊曲，嚴老烈整理；卒年待查證
+472,年份待查,漁舟唱晚,漁舟唱晚,婁樹華,Lou Shu-hua,unknown,1935,國樂,2,國樂,有版權,有版權,有版權,古箏曲；作曲者與卒年待查證，亦有說法稱為古曲整理；年份約 1935 年
+473,年份待查,Dark Eyes,Очи чёрные (Ochi Chyornye),Florian Hermann,Florian Hermann,unknown,1884,民謠,2,民謠,有版權,可,有版權,俄羅斯；作曲者與卒年待查證
+474,有版權,賽馬,賽馬,黃海懷,Huang Haihuai,unknown,1960,國樂,3,國樂,有版權,有版權,有版權,二胡曲；現代作品；黃海懷卒年待查證；請避開
+475,有版權,G小調柔板,Adagio in G minor (Albinoni/Giazotto),吉亞佐托,Remo Giazotto,1998,1958,巴洛克,3,管弦,有版權,有版權,有版權,實際作曲者為賈佐托 1958 年，非公有領域；常誤標為阿比諾尼
+476,有版權,回到蘇連多,Torna a Surriento,埃爾內斯托．德庫爾蒂斯,Ernesto De Curtis,1995,1902,民謠,3,聲樂,有版權,可,有版權,非公版：旋律作者 1995 年過世
+477,有版權,Guantanamera,Guantanamera,Joseíto Fernández,Joseíto Fernández,1979,1929,民謠,3,民謠,有版權,可,有版權,古巴；一般說法 1929 年；Joseíto Fernández 1979 年過世；歌詞後來採用何塞·馬蒂詩句
+478,有版權,Katyusha,Катюша,Matvey Blanter,Matvey Blanter,1990,1938,民謠,3,民謠,有版權,有版權,有版權,1990 年過世；請避開
+479,有版權,掀起你的蓋頭來,掀起你的蓋頭來,王洛賓,Wang Luobin,1996,1939,民謠,3,民謠,有版權,有版權,有版權,新疆民歌，常見版本為王洛賓 1939 年整理，王洛賓 1996 年過世；請避開
+480,有版權,在那遙遠的地方,在那遙遠的地方,王洛賓,Wang Luobin,1996,1939,民謠,3,民謠,有版權,有版權,有版權,王洛賓 1939 年創作並整理；王洛賓 1996 年過世；請避開
+481,有版權,達坂城的姑娘,達坂城的姑娘,王洛賓,Wang Luobin,1996,1939,民謠,3,民謠,有版權,有版權,有版權,新疆民歌，王洛賓整理改編；1996 年過世；請避開
+482,有版權,Besame Mucho,Bésame Mucho,Consuelo Velázquez,Consuelo Velázquez,2005,1940,民謠,3,民謠,有版權,有版權,有版權,墨西哥；2005 年過世；請避開
+483,有版權,上を向いて歩こう,上を向いて歩こう (Sukiyaki),中村八大,Nakamura Hachidai,1992,1961,民謠,3,聲樂,有版權,有版權,有版權,永六輔詞；1961 年；現代歌曲，請避開
+484,有版權,聖誕老人進城來,Santa Claus Is Comin' to Town,J．弗雷德．庫茨,J. Fred Coots,1985,1934,聖誕,3,聲樂,有版權,有版權,有版權,非公版：旋律作者 1985 年過世
+485,有版權,教我如何不想她,教我如何不想她,趙元任,Y. R. Chao,1982,1926,聲樂,3,聲樂,有版權,可,有版權,劉半農詞；趙元任 1982 年過世；請避開
+486,有版權,何日君再來,何日君再來,劉雪庵,Liu Xue'an,1985,1937,聲樂,3,聲樂,有版權,有版權,有版權,劉雪庵 1985 年過世；請避開
+487,有版權,夜來香,夜來香,黎錦光,Li Jinguang,1999,1944,聲樂,3,聲樂,有版權,有版權,有版權,黎錦光 1999 年過世；請避開
+488,有版權,劍舞,Sabre Dance (Gayane),哈察都量,Aram Khachaturian,1978,1942,芭蕾,3,管弦,有版權,有版權,有版權,尚在版權保護期
+489,有版權,步步高,步步高,呂文成,Lü Wencheng,1981,1930,國樂,2,國樂,有版權,可,有版權,粵樂；呂文成 1981 年過世；年份約 1930 年待查證
+490,有版權,假面舞會圓舞曲,Masquerade Waltz,哈察都量,Aram Khachaturian,1978,1941,圓舞曲,2,管弦,有版權,有版權,有版權,尚在版權保護期
+491,有版權,Granada,Granada,Agustín Lara,Agustín Lara,1970,1932,民謠,2,民謠,可,有版權,有版權,墨西哥；1970 年過世；請避開
+492,有版權,Aquarela do Brasil,Aquarela do Brasil,Ary Barroso,Ary Barroso,1964,1939,民謠,2,民謠,可,有版權,有版權,巴西；Ary Barroso 1964 年過世；請避開
+493,有版權,Bengawan Solo,Bengawan Solo,Gesang,Gesang Martohartono,2010,1940,民謠,2,民謠,有版權,有版權,有版權,Gesang 2010 年過世；請避開
+494,有版權,安平追想曲,安平追想曲,許石,Khó Sik,2001,1951,民謠,2,民謠,有版權,有版權,有版權,陳達儒詞；現代歌曲，請避開
+495,有版權,Moscow Nights,Подмосковные вечера,Vasily Solovyov-Sedoi,Vasily Solovyov-Sedoi,1979,1955,民謠,2,民謠,有版權,有版權,有版權,1979 年過世；請避開
+496,有版權,港都夜雨,港都夜雨,楊三郎,Yang San-lang,1989,1957,民謠,2,民謠,有版權,有版權,有版權,呂傳梓詞；現代歌曲，請避開（作曲者與年份待查證）
+497,有版權,草原上升起不落的太陽,草原上升起不落的太陽,待查,Unknown,unknown,1960,民謠,2,民謠,有版權,有版權,有版權,現代創作（約 1960 年代）；作曲者待查；請避開
+498,有版權,Malaika,Malaika,Fadhili William,Fadhili William,2001,1960,民謠,2,民謠,有版權,有版權,有版權,斯瓦希里語；作曲者與年份有爭議，卒年待查證；請避開
+499,有版權,義勇軍進行曲,義勇軍進行曲,聶耳,Nie Er,1935,1935,聲樂,2,聲樂,可,有版權,可,現為中華人民共和國國歌；聶耳 1935 年過世；政治敏感，請避開
+500,有版權,斯巴達克斯慢板,Adagio of Spartacus and Phrygia,哈察都量,Aram Khachaturian,1978,1954,芭蕾,2,管弦,有版權,有版權,有版權,尚在版權保護期
+501,有版權,東方紅,東方紅,傳統,Traditional,trad,1943,民謠,1,民謠,可,可,可,陝北民歌《騎白馬》改編，1943 年李有源填詞；政治敏感，請避開
+502,有版權,Jana Gana Mana,Jana Gana Mana,泰戈爾,Rabindranath Tagore,1941,1911,聲樂,1,聲樂,可,可,可,印度國歌；泰戈爾 1941 年過世；政治敏感，請避開

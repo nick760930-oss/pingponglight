@@ -1,0 +1,9 @@
+{
+  "key": "mapleleaf",
+  "name": "楓葉拉格",
+  "composer": "喬普林",
+  "year": "1899",
+  "inst": { "lead": "piano", "bk": "piano" },
+  "credit": { "source": "Mutopia Project", "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=23", "licence": "Public Domain", "by": "Chris Sawer" },
+  "midi": { "file": "tools/midi/maple.mid", "mel": 1, "crop": [0, 64.2] }
+}

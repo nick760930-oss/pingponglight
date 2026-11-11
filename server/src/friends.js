@@ -141,7 +141,7 @@ export async function handleFr(req, env, path, who, origin, H, limited) {
 
   if (path === '/fr/invite') {
     const { id, room, song, d } = body;
-    if (!isId(id) || typeof room !== 'string' || !ROOM.test(room) || typeof song !== 'string' || !SONG.test(song) || !Number.isInteger(d) || d < 0 || d > 2) return bad();
+    if (!isId(id) || typeof room !== 'string' || !ROOM.test(room) || typeof song !== 'string' || !SONG.test(song) || !Number.isInteger(d) || d < 0 || d > 4) return bad();
     if (!(await areFriends(db, me.id, id))) return json({ error: 'notfriend' });
     const r = await hub(env, '/i/invite', { from: mine, to: id, room, song, d });
     if (!r) return json({ error: 'busy' }, 503);

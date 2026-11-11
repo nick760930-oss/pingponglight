@@ -1,0 +1,19 @@
+{
+  "key": "gentlemen", "name": "上帝保佑諸位紳士", "composer": "英國傳統曲", "year": "約1760",
+  "inst": { "lead": "choir", "bk": "organ" },
+  "credit": { "source": "依原曲旋律手寫（本遊戲製作）", "url": "", "licence": "公有領域" },
+  "tune": {
+    "bpm": 108, "meter": 4, "style": "march",
+    "parts": {
+      "A": {
+        "mel": "E4:1 B4:1 B4:1 A4:1 | G4:1 F#4:1 E4:2 | D4:1 E4:1 F#4:1 G4:1 | A4:2 B4:2 | G4:1 G4:1 A4:1 B4:1 | C5:1 B4:1 A4:2 | G4:1 A4:1 B4:1 G4:1 | F#4:1 E4:1 D4:1 E4:1",
+        "chords": "Em:4 Em:4 G:4 D:4 G:4 D:4 Em:4 B7:2 Em:2"
+      },
+      "R": {
+        "mel": "E5:2 D5:1 B4:1 | C5:1 B4:1 A4:2 | G4:1 A4:1 B4:1 C5:1 | B4:4 | E5:2 D5:1 B4:1 | C5:1 B4:1 A4:2 | G4:1 F#4:1 E4:1 D4:1 | E4:4",
+        "chords": "Em:4 Am:4 C:4 B7:4 Em:4 Am:4 G:2 D:2 Em:4"
+      }
+    },
+    "form": ["A", "R", "A", "R"]
+  }
+}

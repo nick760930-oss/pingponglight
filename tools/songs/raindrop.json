@@ -1,0 +1,9 @@
+{
+  "key": "raindrop",
+  "name": "雨滴前奏曲",
+  "composer": "蕭邦",
+  "year": "1839",
+  "inst": { "lead": "piano", "bk": "piano" },
+  "credit": { "source": "Mutopia Project", "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=471", "licence": "Public Domain", "by": "Magnus Lewis-Smith" },
+  "midi": { "file": "tools/midi/Chop-28-15.mid", "mel": 1, "crop": [0, 80.5] }
+}

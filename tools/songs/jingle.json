@@ -1,0 +1,22 @@
+{
+  "key": "jingle",
+  "name": "聖誕鈴聲",
+  "composer": "皮爾彭特",
+  "year": "1857",
+  "inst": { "lead": "flute", "bk": "piano" },
+  "credit": { "source": "依原曲旋律手寫（本遊戲製作）", "url": "", "licence": "公有領域" },
+  "tune": {
+    "bpm": 132, "meter": 4, "style": "march",
+    "parts": {
+      "C": {
+        "mel": "B4:1 B4 B4:2 | B4:1 B4 B4:2 | B4:1 D5 G4:1.5 A4:0.5 | B4:4 | C5:1 C5 C5:1.5 C5:0.5 | C5:1 B4 B4 B4:0.5 B4 | B4:1 A4 A4 B4 | A4:2 D5:2 | B4:1 B4 B4:2 | B4:1 B4 B4:2 | B4:1 D5 G4:1.5 A4:0.5 | B4:4 | C5:1 C5 C5:1.5 C5:0.5 | C5:1 B4 B4 B4:0.5 B4 | D5:1 D5 C5 A4 | G4:4",
+        "chords": "G:4 G:4 G:4 G:4 C:4 G:4 A7:4 D7:4 G:4 G:4 G:4 G:4 C:4 G:4 D7:4 G:4"
+      },
+      "V": {
+        "mel": "D4:1 B4 A4 G4 | D4:3 D4:0.5 D4 | D4:1 B4 A4 G4 | E4:4 | E4:1 C5 B4 A4 | F#4:4 | D5:1 D5 C5 A4 | B4:4 | D4:1 B4 A4 G4 | D4:4 | D4:1 B4 A4 G4 | E4:3 E4:1 | E4:1 C5 B4 A4 | D5:1 D5 D5 D5 | E5:1 D5 C5 A4 | G4:2 D5:2",
+        "chords": "G:4 G:4 G:4 C:4 C:4 D:4 D7:4 G:4 G:4 G:4 G:4 C:4 C:4 D:4 D7:4 G:4"
+      }
+    },
+    "form": ["C", "V", "C"]
+  }
+}

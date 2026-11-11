@@ -1,0 +1,24 @@
+{
+  "key": "anitra",
+  "name": "阿妮特拉之舞",
+  "composer": "葛利格",
+  "year": "1875",
+  "inst": {
+    "lead": "violin",
+    "bk": "strings"
+  },
+  "credit": {
+    "source": "Mutopia Project",
+    "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=281",
+    "licence": "Public Domain",
+    "by": "Deborah Lowrey"
+  },
+  "midi": {
+    "file": "tools/midi/anitrasdance.mid",
+    "mel": 1,
+    "ctr": 2,
+    "drop": [
+      8
+    ]
+  }
+}

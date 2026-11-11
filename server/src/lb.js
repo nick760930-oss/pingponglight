@@ -22,7 +22,7 @@ import { CHARTS } from './charts.js';
 import { cleanName, nameProblem, nameKey } from './names.js';
 import { friendWipe } from './friends.js';
 
-const DIFFS = 3, TICKET_MAX_MS = 3 * 3600e3, MAX_BODY = 16384, TOP = 100, HIDE_AT = 3, BOARD_CACHE_S = 30;
+const DIFFS = 5, TICKET_MAX_MS = 3 * 3600e3, MAX_BODY = 16384, TOP = 100, HIDE_AT = 3, BOARD_CACHE_S = 30;
 const MAX_ERR = 400, MISS = null;                      // ms; a missed beat is null in the log
 const TIER_MS = [45, 90, 150], TIER_W = [1, .8, .5, .25];
 // game.js bounce(): base = round(100 * TIER_M * speed^1.1 * (1 + .3 * pressure) * (power-up ? 2 : 1)), then + combo * 5;

@@ -113,7 +113,7 @@ async function online(p, st, song) {
   const bad = { id: C.id, room: 'ABCD', song: 'minuetg', d: 1 };
   ok((await post('/fr/invite', { pk: A.pk, ...bad })).j.error === 'notfriend', 'invite to a non-friend refused');
   ok((await post('/fr/decline', { pk: A.pk, id: C.id })).j.error === 'notfriend', 'decline to a non-friend refused');
-  for (const x of [{ room: 'ab' }, { room: 'ABC0' }, { song: 'Bad Song' }, { song: 'x'.repeat(25) }, { d: 3 }, { d: 1.5 }, { id: 'x' }]) ok((await post('/fr/invite', { pk: A.pk, id: B.id, room: 'ABCD', song: 'minuetg', d: 1, ...x })).s === 400, 'bad invite field refused: ' + JSON.stringify(x));
+  for (const x of [{ room: 'ab' }, { room: 'ABC0' }, { song: 'Bad Song' }, { song: 'x'.repeat(25) }, { d: 5 }, { d: 1.5 }, { id: 'x' }]) ok((await post('/fr/invite', { pk: A.pk, id: B.id, room: 'ABCD', song: 'minuetg', d: 1, ...x })).s === 400, 'bad invite field refused: ' + JSON.stringify(x));
 
   // WebSocket: auth required
   ok((await conn(null)).status === 403, 'ws without Origin rejected');

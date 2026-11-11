@@ -1,0 +1,35 @@
+{
+  "key": "sakura",
+  "name": "櫻花 さくらさくら",
+  "composer": "日本傳統曲",
+  "year": "約1888",
+  "inst": {
+    "lead": "flute",
+    "bk": "guitar"
+  },
+  "credit": {
+    "source": "依原曲旋律手寫（本遊戲製作）",
+    "url": "",
+    "licence": "公有領域"
+  },
+  "tune": {
+    "bpm": 96,
+    "meter": 4,
+    "style": "arp",
+    "parts": {
+      "A": {
+        "mel": "A4:1 A4 B4:2 | A4:1 A4 B4:2 | A4:1 B4 C5 B4 | A4:1 B4 A4 F4 | E4:4 | E4:1 E4 F4 E4 | A4:1 B4 A4 F4 | E4:4",
+        "chords": "Am:4 Am:4 Am:4 F:4 E:4 Am:4 F:4 Am:4"
+      },
+      "B": {
+        "mel": "C5:1 C5 E5:2 | C5:1 B4 A4:2 | B4:1 B4 C5 B4 | A4:1 B4 A4 F4 | E4:4 | A4:1 A4 B4:2 | A4:1 B4 A4 F4 | A4:4",
+        "chords": "Am:4 Am:4 E:4 F:4 E:4 Am:4 F:4 Am:4"
+      }
+    },
+    "form": [
+      "A",
+      "B",
+      "A"
+    ]
+  }
+}
