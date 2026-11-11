@@ -82,6 +82,7 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
 .srow input[type=range]{flex:1 1 auto;accent-color:#7cf0ff}
 .srow .v{flex:0 0 3.2em;text-align:right;font-variant-numeric:tabular-nums;color:var(--dim)}
 .tog{min-width:4.2em}
+.mlv{display:inline-flex;gap:2px;vertical-align:-1px;margin-right:4px}.mlv i{width:4px;height:9px;border-radius:1px;background:#2c3257}.mlv i.on{background:var(--c)}
 .tog.on{background:linear-gradient(90deg,#3fd8ff,#8f6bff);color:#04060f;border-color:transparent;font-weight:700}
 #calPad{display:block;width:100%;height:110px;margin:10px 0;font-size:18px;border-radius:18px}
 #calPad.beat{background:rgba(124,240,255,.28)}
@@ -185,6 +186,7 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
   <div class="srow"><label>伴奏音量</label><input type="range" min="0" max="100" id="vBk"><span class="v" id="vBkV"></span></div>
   <div class="srow"><label>音效音量</label><input type="range" min="0" max="100" id="vFx"><span class="v" id="vFxV"></span></div>
   <div class="srow"><label>減少特效</label><button class="tog" id="tFx"></button><label style="flex:0 0 auto;margin-left:14px">震動回饋</label><button class="tog" id="tVib"></button></div>
+  <div class="srow"><label>音樂隨連擊變化</label><button class="tog" id="tMl"></button></div>
   <div class="srow"><label>延遲補償</label><button id="bCal">校準</button><span class="v" id="calV" style="flex:1 1 auto;text-align:left;margin-left:6px"></span></div>
   <p id="aDiag" style="font-size:11px;color:#8a93c0;margin:4px 0 0;text-align:center"></p>
   <div class="row"><button id="bTest">測試聲音</button><button class="pri" id="bSetX">返回首頁</button></div>
@@ -229,9 +231,9 @@ function rr(x,px,py,w,h,r){x.beginPath();x.moveTo(px+r,py);x.arcTo(px+w,py,px+w,
 /* ================= audio =================
    Rhythm-game style mix: the BACKING (everything except the melody line) plays continuously and quietly;
    the MELODY is the foreground voice and only sounds when the player hits the matching beat. */
-let AC=null,master=null,wet=null,useAC=false,busMel=null,busBk=null,busFx=null;
+let AC=null,master=null,wet=null,useAC=false,busMel=null,busBk=null,busFx=null,bkLP=null,melSend=null;
 const RM=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
-const SET=Object.assign({mel:80,bk:80,fx:80,lowFx:RM,vib:true,lat:null},(()=>{try{return JSON.parse(lsGet('ppl-set')||'{}')}catch(e){return{}}})());
+const SET=Object.assign({mel:80,bk:80,fx:80,lowFx:RM,vib:true,lat:null,ml:true},(()=>{try{return JSON.parse(lsGet('ppl-set')||'{}')}catch(e){return{}}})());
 function saveSet(){lsSet('ppl-set',JSON.stringify(SET))}
 function applyVol(){if(!AC)return;busMel.gain.value=SET.mel/80;busBk.gain.value=SET.bk/80;busFx.gain.value=SET.fx/80}
 // audio latency compensation (s): sounds are scheduled this much earlier so they are HEARD on the beat
@@ -268,7 +270,7 @@ let acStale=false,acWatch={t:-1,w:0};
 // such a context is closed and rebuilt on the next button press (never in the middle of a run)
 function resetAudio(){   // decoded samples (AudioBuffers) stay valid across contexts
   try{if(AC&&AC.close)AC.close()}catch(e){}
-  AC=null;master=wet=busMel=busBk=busFx=null;noiseBuf=null;live.length=0;acStale=false;acWatch={t:-1,w:0};
+  AC=null;master=wet=busMel=busBk=busFx=bkLP=melSend=null;mlFx=-1;noiseBuf=null;live.length=0;acStale=false;acWatch={t:-1,w:0};
 }
 function initAudio(force){
   if(AC&&(force||acStale||AC.state==='closed'||AC.state==='interrupted')&&(st!=='play'||paused))resetAudio();
@@ -287,7 +289,9 @@ function initAudio(force){
     // small-hall reverb (generated impulse response) instead of a slap-back echo
     wet=AC.createConvolver();wet.buffer=hallIR(2.2);const wOut=AC.createGain();wOut.gain.value=.85;wet.connect(wOut);wOut.connect(master);
     busMel=AC.createGain();busBk=AC.createGain();busFx=AC.createGain();
-    for(const[b,send]of[[busMel,.3],[busBk,.2],[busFx,.25]]){b.connect(master);const sg=AC.createGain();sg.gain.value=send;b.connect(sg);sg.connect(wet)}
+    // backing passes a low-pass so music layer 0 can sound distant; the melody's reverb send grows at layer 3
+    bkLP=AC.createBiquadFilter();bkLP.type='lowpass';bkLP.Q.value=-3.01;bkLP.frequency.value=AC.sampleRate/2;busBk.connect(bkLP);
+    for(const[b,send]of[[busMel,.3],[bkLP,.2],[busFx,.25]]){b.connect(master);const sg=AC.createGain();sg.gain.value=send;b.connect(sg);sg.connect(wet);if(b===busMel)melSend=sg}
     applyVol();
     AC.onstatechange=audioStatus;
   }catch(e){AC=null}
@@ -496,6 +500,25 @@ let balls=[],bumps=[],items=[],rings=[],floats=[],parts=[],aims=[],missCount=0,r
 let shake=0,flash={a:0,hue:0},easeT=0,starT=0,shield=0,rangeT=0,rangeMul=1,edgeGlow=[0,0,0,0],edgeHue=[0,0,0,0],spawnT=4,itemT=8;
 const LEADIN=2.6,CPN=25;
 const DIFFS=[{n:'簡單',nb:1,gap:1.0,spd:1.0,dmg:20},{n:'普通',nb:2,gap:.55,spd:1.0,dmg:25},{n:'困難',nb:2,gap:.4,spd:1.2,dmg:34}];
+/* music layers: the accompaniment grows with unbroken good hits; a miss drops one layer */
+const ML_STEP=[10,15,25],ML_NAME=['微光','明亮','輝映','星耀'],ML_HUE=[225,185,265,48],ML_TIP=['','和聲與鼓組加入','加入副旋律','主旋律加入高八度鐘聲'];
+let mlv=0,mgrow=0,mlBan=null,mlFx=-1;
+const mlOn=()=>SET.ml!==false&&mode!=='tut';
+const mlFull=()=>!mlOn()||st!=='play';        // layering off (or not playing): the full accompaniment, as before
+function mlSet(v,up){
+  mlv=v;mgrow=0;
+  mlBan={text:'音樂層次 · '+ML_NAME[v],tip:up?ML_TIP[v]:'',hue:ML_HUE[v],up,t:1.5,max:1.5};
+  if(up){edgeGlow[1]=edgeGlow[3]=1;edgeHue[1]=edgeHue[3]=ML_HUE[v];flash.a=Math.max(flash.a,.12);flash.hue=ML_HUE[v]}
+  hud();
+}
+function mlTick(){   // backing filter + melody reverb follow the layer (only touched when it changes)
+  if(!AC||!bkLP||!melSend)return;
+  const full=mlFull(),k=full?1:mlv;
+  if(k===mlFx)return;mlFx=k;
+  const now=AC.currentTime;
+  bkLP.frequency.cancelScheduledValues(now);bkLP.frequency.setTargetAtTime(!full&&mlv<1?1300:AC.sampleRate/2,now,.25);   // at Nyquist the filter is exactly transparent
+  melSend.gain.cancelScheduledValues(now);melSend.gain.setTargetAtTime(!full&&mlv>=3?.48:.3,now,.3);
+}
 let di=(v=>isNaN(v)?1:Math.min(2,Math.max(0,v)))(parseInt(lsGet('pmb6-di')||'1',10)),SPD=1;
 D=DIFFS[di];
 // records are keyed by song id (not level number) so adding songs never shifts them
@@ -555,7 +578,7 @@ function hud(){
   if(mode==='duel'){const tot=score+DU.opp.s;$('#pf').style.width=(tot?score/tot*100:50)+'%';duelSub()}   // tug-of-war bar
   else $('#pf').style.width=(tg.length?resolved/tg.length*100:0)+'%';
   const lf=$('#life');lf.style.width=life+'%';lf.classList.toggle('low',life<35);
-  $('#combo').innerHTML=(combo>1?'連擊 '+combo+' · ':'')+resolved+' / '+tg.length+(rangeT>0?(rangeMul>1?' · 範圍放大':' · 範圍縮小'):'')+(starT>0?' · 分數×2':'')+(shield?' · 護盾':'');
+  $('#combo').innerHTML=(mlOn()&&st==='play'?'<span class="mlv" style="--c:hsl('+ML_HUE[mlv]+',90%,'+(mlv?68:62)+'%)">'+[0,1,2,3].map(i=>'<i'+(i<=mlv?' class="on"':'')+'></i>').join('')+'</span>'+ML_NAME[mlv]+' · ':'')+(combo>1?'連擊 '+combo+' · ':'')+resolved+' / '+tg.length+(rangeT>0?(rangeMul>1?' · 範圍放大':' · 範圍縮小'):'')+(starT>0?' · 分數×2':'')+(shield?' · 護盾':'');
 }
 function newBall(ti){
   const s=sideOf(ti),dy=srand(-.35,.35),l=Math.hypot(1,dy);
@@ -573,7 +596,7 @@ function startRun(from){
   bi=bkList.findIndex(n=>n[0]/100>=offset);if(bi<0)bi=bkList.length;
   resolved=from;nt=from+nb;score=from?cp.score:0;if(!from)cp={ti:0,score:0};
   combo=0;maxCombo=0;tierCount=[0,0,0,0];shake=0;exitT=0;easeT=0;starT=0;shield=0;rangeT=0;rangeMul=1;paused=false;resumeCD=0;life=100;missCount=0;runFrom=from;flash.a=0;edgeGlow=[0,0,0,0];
-  bumps=[];items=[];rings=[];floats=[];parts=[];aims=[];spawnT=5;itemT=9;tickQ=[];cutAll();
+  bumps=[];items=[];rings=[];floats=[];parts=[];aims=[];spawnT=5;itemT=9;tickQ=[];cutAll();mlv=0;mgrow=0;mlBan=null;
   balls=[];for(let j=0;j<nb;j++)if(from+j<tg.length)balls.push(newBall(from+j));
   endAt=mode==='tut'?timeOf(tg[tg.length-1].t)+2:timeOf(song.dur)+1.2;
   st='ready';hudShow(true);preloadSong(song);
@@ -603,7 +626,7 @@ async function launch(){
   if(useAC)gAC=AC.currentTime+.08;else gT=-.08;
   tickQ=[LEADIN-1.5,LEADIN-1,LEADIN-.5];
   for(const b of balls){planLaps(b);b.vr=0;b.v=ballWant(b);b.vr=b.v}
-  st='play';audioStatus();setMedia(true);
+  st='play';audioStatus();setMedia(true);hud();
 }
 
 /* ================= input ================= */
@@ -715,6 +738,7 @@ function playMel(ti,cents,vol){
     const n=melList[i],w=timeOf(n[0]/100)-Gn;
     if(w<-.05&&i>t.mi)continue;                    // notes already in the past are dropped
     voice(n[2],Math.max(0,w-L),n[1]/100/SPD,vol,cents,true);
+    if(AC&&!mlFull()&&mlv>=3){const p=n[2]+12;pluck(440*Math.pow(2,(p-69)/12),AC.currentTime+Math.max(0,w-L),clamp(n[1]/100/SPD,.25,1.2),vol*.28,[[1,1],[3,.12]],.6,busMel,cents)}   // layer 3: octave bell
   }
 }
 function resolveTarget(b){
@@ -735,6 +759,7 @@ function bounce(b,tx,ty,p){
   b.win=null;b.sq=1;b.sqn=old;
   playMel(b.ti,cents,T.vol);                                   // melody is heard ONLY on a correct hit
   tierCount[ti]++;combo=ti<=2?combo+1:0;life=Math.min(100,life+[3,2,1,0][ti]);if(ti===0)vib(12);maxCombo=Math.max(maxCombo,combo);
+  if(mlOn()&&ti<=2&&mlv<3&&++mgrow>=ML_STEP[mlv])mlSet(mlv+1,true);   // "尚可" neither counts nor breaks the climb
   const sf=Math.pow(Math.max(.3,b.v/V0),1.1),pts=Math.round((100*T.m*sf*(1+.3*p)*(starT>0?2:1))*(mode==='duel'&&DU.sprint?2:1))+combo*5;
   score+=pts;
   const hue=T.hue,fx=b.x+nx*40,fy=b.y;
@@ -751,6 +776,7 @@ function bounce(b,tx,ty,p){
 }
 function miss(b){
   missCount++;combo=0;
+  if(mlOn()){if(mlv>0)mlSet(mlv-1,false);else mgrow=0}
   const old=b.side,nx=old===1?-1:1,sh=shield>0;
   if(sh)shield--;else life=Math.max(0,life-(D.dmg||0));   // a plain miss stays silent
   vib(sh?20:[40,30,40]);
@@ -805,6 +831,7 @@ function jingleLose(){
 }
 function countUp(el,to){const t0=performance.now();(function f(n){const k=Math.min(1,(n-t0)/900);el.textContent=Math.round(to*k*(2-k)).toLocaleString();if(k<1)requestAnimationFrame(f)})(t0)}
 function showResult(ok,msg){
+  hud();   // st is no longer 'play': clears the music-layer meter behind the result card
   const N=Math.max(1,tg.length-runFrom),hits=tierCount[0]+tierCount[1]+tierCount[2]+tierCount[3],played=Math.max(1,hits+missCount);
   const w=tierCount[0]+tierCount[1]*.8+tierCount[2]*.5+tierCount[3]*.25,acc=w/(ok?N:played);
   const rank=acc>=.95&&missCount===0?'S':acc>=.85?'A':acc>=.7?'B':acc>=.5?'C':'D';
@@ -911,6 +938,7 @@ function updateBall(b,dt){
 }
 function update(dt){
   time+=dt;
+  mlTick();if(mlBan&&!paused&&!portrait&&(mlBan.t-=dt)<=0)mlBan=null;
   shake=Math.max(0,shake-dt*22);flash.a=Math.max(0,flash.a-dt*.6);
   for(let i=0;i<4;i++)edgeGlow[i]=Math.max(0,edgeGlow[i]-dt*2.2);
   for(let i=rings.length-1;i>=0;i--){rings[i].life-=dt;if(rings[i].life<=0)rings.splice(i,1)}
@@ -930,7 +958,10 @@ function update(dt){
   while(tickQ.length&&tickQ[0]-L<Gn+.3){const w=tickQ.shift()-Gn-L;tick(Math.max(0,w),.1)}
   while(bi<bkList.length&&timeOf(bkList[bi][0]/100)-L<Gn+1){
     const n=bkList[bi++],t0=timeOf(n[0]/100),w=t0-Gn-L;if(t0>endAt-.8)continue;
-    if(w>-.05){const k=n[3];if(k===2)drum(n[2],Math.max(0,w));else if(k===3)cvoice(n[2],Math.max(0,w),n[1]/100/SPD,.12);else voice(n[2],Math.max(0,w),n[1]/100/SPD,.16*bkV[bi-1],0,false)}}
+    if(w>-.05){const k=n[3],full=mlFull();
+      if(k===2){if(full||mlv>=1||n[2]===36)drum(n[2],Math.max(0,w))}                  // layer 0 keeps only the kick
+      else if(k===3){if(full||mlv>=2)cvoice(n[2],Math.max(0,w),n[1]/100/SPD,.12)}      // counter-melody from layer 2
+      else voice(n[2],Math.max(0,w),n[1]/100/SPD,.16*bkV[bi-1]*(full||mlv>=1||n[2]<52?1:.45),0,false)}}   // layer 0: harmony soft, bass full
   if(rangeT>0){rangeT-=dt;if(rangeT<=0){rangeMul=1;hud()}}
   if(mode==='duel'){if(DU.fogT>0)DU.fogT-=dt;if(DU.shrinkT>0){DU.shrinkT-=dt;if(DU.shrinkT<=0)hud()}if(DU.banner&&(DU.banner.t-=dt)<=0)DU.banner=null;
     if(!DU.sprint&&tg.length&&resolved>=tg.length*.8){DU.sprint=true;DU.banner={text:'最後衝刺！分數 ×2',hue:48,t:2.2,max:2.2};flash.a=.25;flash.hue=48;hud()}}
@@ -1032,8 +1063,9 @@ function drawBalls(x){
   for(const b of balls){
     const sc=b.pop<1?(1-Math.pow(1-b.pop,3)):1,r=BR*sc,col=starT>0?50:h;
     x.save();x.globalCompositeOperation='lighter';x.lineCap='round';x.lineJoin='round';
+    const glow=!mlFull()&&mlv>=3;   // layer 3: brighter, wider trail
     for(let i=1;i<b.trail.length;i++){
-      const f=i/b.trail.length;x.strokeStyle=`hsla(${col},100%,65%,${f*f*.6})`;x.lineWidth=BR*1.7*f;
+      const f=i/b.trail.length;x.strokeStyle=`hsla(${col},100%,${glow?72:65}%,${f*f*(glow?.9:.6)})`;x.lineWidth=BR*(glow?2.2:1.7)*f;
       x.beginPath();x.moveTo(b.trail[i-1].x,b.trail[i-1].y);x.lineTo(b.trail[i].x,b.trail[i].y);x.stroke();
     }
     x.drawImage(sprite(col),b.x-r*3.6,b.y-r*3.6,r*7.2,r*7.2);x.restore();
@@ -1105,6 +1137,12 @@ function draw(){
   if(st==='play'&&G()<LEADIN&&!paused){const n=Math.ceil((LEADIN-G())/.5);if(n<=3&&n>=1){ctx.fillStyle='rgba(232,236,255,.55)';ctx.font='800 '+Math.round(Math.min(FR.h*.3,90))+'px "Noto Sans TC",sans-serif';ctx.fillText(String(n),W/2,FR.y+FR.h*.62)}}
   if(st==='play'&&AC&&AC.state!=='running'&&!paused){ctx.fillStyle='#ffb86b';ctx.font='700 15px "Noto Sans TC",sans-serif';ctx.fillText('聲音未啟用：請點擊畫面，並確認裝置未開啟靜音。',W/2,FR.y+FR.h-12)}
   if(mode==='duel'&&(st==='play'||st==='over'||st==='done'))drawDuel(ctx);
+  if(mlBan&&st==='play'){const b=mlBan,k=b.t/b.max,fs=Math.round(Math.min(b.up?24:18,FR.h*(b.up?.08:.06))),y=FR.y+FR.h*.44-(1-k)*10;   // music layer change
+    ctx.globalAlpha=Math.min(1,k*2.5)*(b.up?1:.7);ctx.font=(b.up?'700 ':'400 ')+fs+'px "Noto Sans TC",sans-serif';
+    ctx.fillStyle=b.up?`hsl(${b.hue},100%,80%)`:'#8a93c0';if(b.up&&!SET.lowFx){ctx.shadowColor=`hsl(${b.hue},100%,60%)`;ctx.shadowBlur=14}
+    ctx.fillText(b.text,W/2,y);ctx.shadowBlur=0;
+    if(b.tip){ctx.fillStyle='#8a93c0';ctx.font='400 '+Math.round(fs*.55)+'px "Noto Sans TC",sans-serif';ctx.fillText(b.tip,W/2,y+fs*.95)}
+    ctx.globalAlpha=1}
   if(paused){ctx.fillStyle='rgba(4,5,13,.6)';ctx.fillRect(0,0,W,H);
     if(resumeCD>0){ctx.fillStyle='#e8ecff';ctx.font='800 '+Math.round(Math.min(FR.h*.3,90))+'px "Noto Sans TC",sans-serif';ctx.fillText(String(Math.ceil(resumeCD/.5)),W/2,FR.y+FR.h*.62)}}
 }
@@ -1295,11 +1333,12 @@ function audioDiag(){
 function syncSet(){
   audioDiag();
   for(const[k,id]of[['mel','vMel'],['bk','vBk'],['fx','vFx']]){$('#'+id).value=SET[k];$('#'+id+'V').textContent=SET[k]}
-  const tg2=(id,on)=>{const b=$('#'+id);b.textContent=on?'開啟':'關閉';b.classList.toggle('on',on)};tg2('tFx',SET.lowFx);tg2('tVib',SET.vib);
+  const tg2=(id,on)=>{const b=$('#'+id);b.textContent=on?'開啟':'關閉';b.classList.toggle('on',on)};tg2('tFx',SET.lowFx);tg2('tVib',SET.vib);tg2('tMl',SET.ml!==false);
   const ms=Math.round(latS()*1000);$('#calV').textContent=(ms>=0?'+':'')+ms+' ms'+(SET.lat==null?'（自動）':'');$('#calCur').textContent=(ms>=0?'+':'')+ms+' ms';
 }
 for(const[k,id]of[['mel','vMel'],['bk','vBk'],['fx','vFx']])$('#'+id).oninput=e=>{SET[k]=+e.target.value;applyVol();saveSet();syncSet()};
 $('#tFx').onclick=()=>{SET.lowFx=!SET.lowFx;saveSet();syncSet()};
+$('#tMl').onclick=()=>{SET.ml=SET.ml===false;saveSet();syncSet()};
 $('#tVib').onclick=()=>{SET.vib=!SET.vib;saveSet();syncSet();vib(30)};
 $('#bSet').onclick=()=>{initAudio();syncSet();$('#home').classList.add('hidden');$('#set').classList.remove('hidden')};
 function closeSet(){$('#set').classList.add('hidden');showHome()}
