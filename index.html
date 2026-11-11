@@ -12,7 +12,14 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>PingPongLight</title>
-<meta name="description" content="整首名曲連續播放；光球飛到框線時在拍子上碰球，主旋律才會響起。球的方向由碰到球的位置與力道決定。">
+<meta name="description" content="在拍子上擊中光球，親手奏出《給愛麗絲》等 31 首經典名曲。單人闖關點亮星空，也能和朋友線上對戰。">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PingPongLight">
+<meta property="og:title" content="PingPongLight｜在節拍上奏出名曲">
+<meta property="og:description" content="在拍子上擊中光球，親手奏出《給愛麗絲》等 31 首經典名曲。單人闖關點亮星空，也能和朋友線上對戰。">
+<meta property="og:url" content="https://pingponglight.vercel.app/">
+<meta property="og:image" content="https://pingponglight.vercel.app/icon-512.png">
+<meta property="og:locale" content="zh_TW">
 <meta name="theme-color" content="#05060f">
 <style>
 :root{--bg:#05060f;--fg:#e8ecff;--dim:#8a93c0;--accent:#7cf0ff}
@@ -117,6 +124,23 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
 #prog.duel{background:linear-gradient(90deg,#ff5d9e,#ff8fd1)}
 #prog.duel #pf{background:linear-gradient(90deg,#3fd8ff,#7cf0ff);box-shadow:none;transition:width .3s}
 .dres{font-size:30px;font-weight:800;margin:2px 0}
+.skyw{position:relative;width:100%;height:100%;max-width:1100px;border-radius:18px;overflow:hidden;background:radial-gradient(ellipse at 30% 20%,#1b2250 0%,#0a0c22 55%,#05060f 100%);border:1px solid rgba(255,255,255,.1)}
+#skySvg{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
+#skySvg .hit{cursor:pointer}
+#skySvg .dust{animation:skyDrift 90s linear infinite alternate}
+@keyframes skyDrift{to{transform:translate(-18px,8px)}}
+.skytop{position:absolute;left:16px;right:52px;top:10px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--dim);z-index:1;pointer-events:none}
+.skytop b{font-size:16px;letter-spacing:.08em;color:var(--fg)}.skytop em{font-style:normal;color:#ffd36b;font-weight:700}
+.skytop .xbtn{pointer-events:auto}
+.skyleg{position:absolute;left:0;right:0;bottom:8px;display:flex;flex-wrap:wrap;justify-content:center;gap:4px 16px;font-size:12px;color:var(--dim);pointer-events:none}
+.skyleg span{display:inline-flex;align-items:center;gap:5px}.skyleg i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.skycard{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:320px;width:calc(100% - 32px);z-index:2;padding:14px 18px}
+.skycard h3{margin:2px 0;font-size:19px}.skycard .sub{font-size:12px;color:var(--dim)}
+.skycard table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0}.skycard td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.1);text-align:left}.skycard td:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.skyHint[hidden]{display:none}
+.skyHint{display:block;margin:8px auto 0;padding:4px 12px;font-size:14px;color:#ffd36b;background:rgba(255,211,107,.08);border-color:rgba(255,211,107,.35)}
+@media (prefers-reduced-motion:reduce){#skySvg .dust{animation:none}}
+@media (max-height:480px){.skyleg{font-size:11px;bottom:4px}.skytop{top:6px}.skycard{padding:10px 14px}.skycard table{margin:4px 0}.skycard td{padding:2px 6px}}
 @media (max-height:480px){#calPad{height:80px}.srow{margin:4px 0;font-size:13px}.hbtns{margin:12px 0 6px}button.big{font-size:16px;padding:10px 30px}.rright td{padding:1px 8px;font-size:13px}#rscore{font-size:22px}.chip{padding:5px 10px;font-size:12px}.chips{margin:4px 0 0}.kicker{font-size:11px}.card p{font-size:12px;margin:4px 0}.card{padding:8px 18px}.card h2{font-size:20px}.card ul{font-size:12px;line-height:1.5;margin:4px 0}.row{margin-top:8px}}
 </style>
 </head>
@@ -137,6 +161,7 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
     <button class="pri big" id="bStart">開始遊戲</button>
   </div>
   <div class="hbtns" style="margin-top:0">
+    <button id="bSky">星空 <small id="skyN" style="color:#ffd36b"></small></button>
     <button id="bDuel">線上對戰</button>
     <button id="bTut">新手教學</button>
     <button id="bHow">操作說明</button>
@@ -171,9 +196,16 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
     <div class="rleft"><div id="rank"></div><div id="rscore">0</div><div id="rnew"></div></div>
     <div class="rright"><table id="rtab"></table></div>
   </div>
+  <button class="skyHint" id="rsky" hidden></button>
   <div class="row"><button class="pri" id="bNext">下一關</button><button class="pri" id="bCont">從存檔點繼續</button><button id="bRetry">再挑戰一次</button><button id="bSel">關卡選擇</button><button id="bShare">分享成績</button><button class="pri" id="bAgain" style="display:none">再戰一局</button><button id="bLeave" style="display:none">離開房間</button></div>
 </div></div>
 
+<div class="ov hidden" id="sky"><div class="skyw">
+  <div class="skytop"><b>星空</b><span id="skyStat"></span><button class="xbtn" id="skyX" aria-label="關閉">✕</button></div>
+  <svg id="skySvg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet" aria-label="星空收集圖"></svg>
+  <div class="skyleg"><span><i style="background:#cfe6ff"></i>簡單</span><span><i style="background:#7cf0ff"></i>普通</span><span><i style="background:#ffd36b"></i>困難</span><span>顏色＝最高通關難度　大小＝最佳評級</span></div>
+  <div class="card skycard" id="skyCard" hidden></div>
+</div></div>
 <div class="ov hidden" id="duel"><div class="card" style="max-width:560px">
   <button class="xbtn" id="dX" aria-label="關閉">✕</button>
   <div class="kicker">線上對戰</div>

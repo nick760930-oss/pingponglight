@@ -306,9 +306,31 @@ function pickTargets(mel,gap){
 }
 const STARS=SONGS.map(s=>{const m=s.n.filter(n=>n[3]===1).length/Math.max(1,s.dur);return m<1?1:m<2?2:m<3?3:m<4.5?4:5});
 const starTxt=n=>'★'.repeat(n)+'☆'.repeat(5-n);
+// when the tune rests or holds one note for long (Canon's slow voice, long intros), lend the top accompaniment line
+// to the player so the beats keep flowing; those notes then ring only when hit, like the tune itself
+const FILL_GAP=160,FILL_EDGE=30,FILL_MIN=25,FILL_LOW=55;   // centiseconds, MIDI pitch
+// a held tune note of the same pitch would make the lent note sound like the tune stuttering
+const ringing=(t,p)=>melList.some(n=>n[2]===p&&n[0]<=t&&t<n[0]+n[1]);
+function lendTop(){
+  const on=[0,...melList.map(n=>n[0])],take=new Set();   // the song start counts as an edge, so silent intros fill too
+  for(let g=0;g+1<on.length;g++){
+    const a=on[g],b=on[g+1];if(b-a<=FILL_GAP)continue;
+    let last=-1e9;
+    for(let j=0;j<bkList.length;j++){
+      const t=bkList[j][0];if(t<a+(g?FILL_EDGE:0)||t>b-FILL_EDGE||bkList[j][3]!==0)continue;
+      let top=j;for(let k=j+1;k<bkList.length&&bkList[k][0]-t<=3;k++)if(bkList[k][3]===0&&bkList[k][2]>bkList[top][2])top=k;   // top note of the chord
+      if(bkList[top][2]<FILL_LOW||t-last<FILL_MIN||ringing(t,bkList[top][2]))continue;
+      take.add(top);last=t;
+    }
+  }
+  if(!take.size)return;
+  melList=melList.concat([...take].map(i=>bkList[i])).sort((x,y)=>x[0]-y[0]||y[2]-x[2]);
+  bkList=bkList.filter((_,i)=>!take.has(i));
+}
 function prepare(s){
   melList=[];bkList=[];
   for(const n of s.n)(n[3]===1?melList:bkList).push(n);
+  lendTop();
   // chords: notes struck together share the loudness so dense accompaniment never swamps the tune
   bkV=new Float32Array(bkList.length);
   for(let i=0;i<bkList.length;i++){
@@ -422,7 +444,7 @@ function newBall(ti){
   return{x:FR.x+FR.w*(s===1?srand(.25,.4):srand(.6,.75)),y:FR.y+FR.h*(nb===2?(ti%2?.7:.3):.5),dx:(s===1?1:-1)/l,dy:dy/l,v:0,pop:0,ti,side:s,win:null,trail:[],sq:0,sqn:0,laps:0,away:false};
 }
 function startRun(from){
-  from=from||0;
+  from=from||0;$('#sky').classList.add('hidden');
   if(mode==='tut'){D=TUTD;si=SONGS.findIndex(s=>s.key==='twinkle');if(si<0)si=0}
   else D=DIFFS[di];
   RNG=mode==='duel'?mulberry32(DU.seed):Math.random;
@@ -674,6 +696,7 @@ function showResult(ok,msg){
   const rank=acc>=.95&&missCount===0?'S':acc>=.85?'A':acc>=.7?'B':acc>=.5?'C':'D';
   const kS=KEY_SC(si,di),kR=KEY_RK(si,di),prev=parseInt(lsGet(kS)||'0',10);
   const newBest=ok&&mode==='normal'&&score>prev;
+  const skyB=ok&&mode==='normal'?starOf(si):null,skyC=SKY.find(c=>c[2].some(t=>t[2]===si)),skyCB=!!skyC&&skyDone(skyC);
   if(mode==='tut'){lsSet('ppl-tut','1')}
   else if(ok&&mode==='normal'){
     lsSet(KEY_CL(si),'1');
@@ -689,6 +712,11 @@ function showResult(ok,msg){
   const row=(l,v,c)=>'<tr><td style="color:'+(c||'inherit')+'">'+l+'</td><td>'+v+'</td></tr>';
   $('#rtab').innerHTML=row('完美',tierCount[0],'#ffd36b')+row('極佳',tierCount[1],'#7cf0ff')+row('良好',tierCount[2],'#8fe388')+row('尚可',tierCount[3],'#9aa3c7')+row('失誤',missCount,'#ff7a93')
     +row('最高連擊',maxCombo)+row('精準度',Math.round(acc*100)+'%')+row('完成度',Math.min(resolved,tg.length)-runFrom+' / '+N);
+  const rs=$('#rsky');rs.hidden=true;rs.textContent='';
+  if(skyB){const a=starOf(si),full=!!skyC&&!skyCB&&skyDone(skyC);
+    rs.textContent=full?'✦ '+skyC[0]+'完成':!skyB.lit?'✦ 《'+song.name+'》在星空中亮起了':(a.d>skyB.d||a.r>skyB.r)?'✦ 《'+song.name+'》在星空中更亮了':'';
+    rs.hidden=!rs.textContent;
+    if(full)setTimeout(()=>{if(AC&&!$('#end').classList.contains('hidden'))[62,66,69,74].forEach((p,k)=>voice(p,k*.06,1.6,.12,0,true,busFx))},1500)}
   countUp($('#rscore'),score);
   const hasNext=mode==='tut'||(mode==='normal'&&ok&&si+1<SONGS.length&&unlocked(si+1));
   $('#bNext').style.display=hasNext?'':'none';$('#bNext').textContent=mode==='tut'?'開始第 1 關':'下一關';
@@ -709,7 +737,7 @@ function win(){
   setTimeout(()=>{if(st==='done')showResult(true)},500);
 }
 function hudShow(v){$('#hud').style.visibility=v?'visible':'hidden';$('#bSkipH').style.display=v&&mode==='tut'?'':'none';$('#bPause').style.display=mode==='duel'?'none':'';$('#prog').classList.toggle('duel',v&&mode==='duel')}
-function showHome(){mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#home').classList.remove('hidden');audioStatus()}
+function showHome(){mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#sky').classList.add('hidden');$('#home').classList.remove('hidden');skyBadge();audioStatus()}
 function showSelect(){mode='normal';setMedia(false);hudShow(false);st='menu';cutAll();balls=[];buildChips();$('#home').classList.add('hidden');$('#end').classList.add('hidden');$('#menu').classList.remove('hidden')}
 
 /* ================= update ================= */
@@ -1215,6 +1243,100 @@ function buildChips(){
     b.onclick=()=>{if(!ul)return;si=i;buildChips();initAudio();preloadSong(SONGS[i])};c.appendChild(b);
   });
 }
+/* ================= star map ================= */
+// constellations by era: [name, label position, [x, y, song key]..., links between stars]
+const SKY=[
+  ['古老旋律座',[150,48],[[90,110,'green'],[150,80,'twinkle'],[210,120,'auld'],[170,175,'grace'],[105,190,'silent']],[[0,1],[1,2],[2,3],[3,4],[4,0]]],
+  ['巴洛克座',[170,262],[[80,320,'canon'],[140,292,'prelude'],[200,330,'minuetg'],[262,302,'spring'],[232,382,'air'],[150,402,'hallelujah']],[[0,1],[1,2],[2,3],[2,4],[4,5],[5,0]]],
+  ['古典座',[445,30],[[330,95,'turkish'],[390,62,'nacht'],[450,102,'k545'],[510,78,'moon'],[565,132,'fifth'],[500,172,'elise'],[420,162,'ode']],[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,2]]],
+  ['浪漫座',[480,240],[[360,305,'schubert'],[420,272,'traum'],[480,312,'nocturne'],[540,282,'wedding'],[602,322,'danube'],[572,392,'lullaby'],[490,412,'minute'],[410,382,'gounod']],[[0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,0]]],
+  ['晚浪漫與印象座',[745,46],[[680,112,'carmen'],[742,82,'mountain'],[802,132,'gymno'],[762,192,'entertainer'],[700,182,'clair']],[[0,1],[1,2],[2,3],[3,4],[4,0]]],
+  ['霓虹座',[840,262],[[770,335,'neon'],[845,295,'pixel'],[905,362,'velvet']],[[0,1],[1,2]]]
+].map(([name,lp,stars,links])=>[name,lp,stars.map(([x,y,k])=>[x,y,SONGS.findIndex(s=>s.key===k)]),links]);
+const SKY_SHORT={auld:'驪歌',k545:'K.545',nocturne:'夜曲'};
+const SKY_C=['#cfe6ff','#7cf0ff','#ffd36b'];
+// one star: best rank and score per difficulty, highest difficulty cleared, best rank overall
+function starOf(i){
+  const per=[0,1,2].map(d=>{const r=lsGet(KEY_RK(i,d));return RANKS.includes(r)?{r,s:parseInt(lsGet(KEY_SC(i,d))||'0',10)||0}:null});
+  let d=-1,r=-1;per.forEach((p,k)=>{if(p){d=k;r=Math.max(r,RANKS.indexOf(p.r))}});
+  let old=false;if(d<0&&cleared(i)){d=0;r=0;old=true}   // cleared before ranks were kept
+  return{lit:d>=0,d,r,per,old};
+}
+const skyDone=c=>c[2].every(t=>t[2]>=0&&starOf(t[2]).lit);
+function skyCount(){
+  let lit=0,s=0;for(let i=0;i<SONGS.length;i++){const v=starOf(i);if(v.lit)lit++;if(v.r===4)s++}
+  return{lit,s,full:SKY.filter(skyDone).length};
+}
+function skyBadge(){$('#skyN').textContent=skyCount().lit+'/'+SONGS.length}
+let skyBack='home';
+function skyDraw(){
+  const svg=$('#skySvg'),NS='http://www.w3.org/2000/svg';svg.textContent='';
+  const el=(t,a,p)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(p||svg).appendChild(e);return e};
+  const defs=el('defs',{});for(let i=0;i<3;i++){const f=el('filter',{id:'skg'+i,x:'-200%',y:'-200%',width:'500%',height:'500%'},defs);el('feGaussianBlur',{stdDeviation:2+i},f)}
+  const motion=!SET.lowFx&&!RM;
+  const dust=el('g',motion?{class:'dust'}:{});let sd=7;const rnd=()=>(sd=(sd*16807)%2147483647)/2147483647;
+  for(let i=0;i<220;i++)el('circle',{cx:(rnd()*1040-20).toFixed(1),cy:(rnd()*520-10).toFixed(1),r:(rnd()*.9+.2).toFixed(2),fill:'#fff',opacity:(rnd()*.35+.05).toFixed(2)},dust);
+  const root=el('g',{transform:'translate(40,44) scale(.92)'});   // room for the top bar and the legend
+  for(const C of SKY){
+    const [name,[lx,ly],stars,links]=C,done=skyDone(C);
+    for(const [a,b] of links){const A=stars[a],B=stars[b];if(A[2]<0||B[2]<0)continue;el('line',{x1:A[0],y1:A[1],x2:B[0],y2:B[1],stroke:done?'#ffd36b':'#5a64a0','stroke-width':done?1.4:.8,opacity:done?.7:.22,'stroke-dasharray':done?'':'3 4'},root)}
+    const t=el('text',{x:lx,y:ly,'text-anchor':'middle','font-size':done?15:13,fill:done?'#ffd36b':'#5a64a0','letter-spacing':2,'font-weight':done?700:400},root);t.textContent=name;
+    for(const [x,y,i] of stars){
+      if(i<0)continue;
+      const v=starOf(i),ul=unlocked(i),lab=SKY_SHORT[SONGS[i].key]||SONGS[i].name;
+      if(!v.lit){
+        el('circle',{cx:x,cy:y,r:2.6,fill:'#3a4270',opacity:ul?1:.45},root);
+        const tx=el('text',{x,y:y+16,'text-anchor':'middle','font-size':10,fill:'#4f5890',opacity:ul?1:.6},root);tx.textContent=lab;
+      }else{
+        const r=3+v.r*1.1,c=SKY_C[v.d];
+        el('circle',{cx:x,cy:y,r:(r*2.2).toFixed(1),fill:c,opacity:.25,filter:'url(#skg2)'},root);
+        const core=el('circle',{cx:x,cy:y,r:r.toFixed(1),fill:c},root);
+        if(v.r===4){core.setAttribute('filter','url(#skg0)');if(motion)el('animate',{attributeName:'opacity',values:'1;.6;1',dur:'2.4s',repeatCount:'indefinite'},core)}
+        v.per.forEach((p,k)=>el('circle',{cx:x-6+k*6,cy:(y+r+6).toFixed(1),r:1.4,fill:p||(v.old&&!k)?SKY_C[k]:'#3a4270'},root));
+        const tx=el('text',{x,y:(y+r+19).toFixed(1),'text-anchor':'middle','font-size':11,fill:'#c3caf0'},root);tx.textContent=lab;
+      }
+      const hit=el('circle',{cx:x,cy:y,r:30,fill:'transparent',class:'hit',tabindex:0,role:'button','aria-label':SONGS[i].name},root);   // finger-sized target
+      hit.addEventListener('click',e=>{e.stopPropagation();skyCardShow(i,name)});
+      hit.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();skyCardShow(i,name)}});
+    }
+  }
+  const n=skyCount();
+  $('#skyStat').innerHTML='點亮 <em>'+n.lit+'</em> / '+SONGS.length+' · 完整星座 <em>'+n.full+'</em> / '+SKY.length+' · S 評級 <em>'+n.s+'</em>';
+}
+function skyCardShow(i,cname){
+  const s=SONGS[i],v=starOf(i),ul=unlocked(i),c=$('#skyCard');c.textContent='';
+  const add=(t,cls,txt,p)=>{const e=document.createElement(t);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;(p||c).appendChild(e);return e};
+  add('div','sub',cname);add('h3','',s.name);add('div','sub',s.composer+' · '+s.year);
+  if(ul){
+    const tb=add('table');
+    DIFFS.forEach((df,k)=>{const tr=add('tr','',null,tb),p=v.per[k];add('td','',df.n,tr);const td=add('td','',p?p.r+' · '+p.s.toLocaleString():v.old&&!k?'已通關':'未通關',tr);td.style.color=p?RANK_COL[p.r]:v.old&&!k?'#cfe6ff':'#8a93c0'});
+  }else{
+    const need=i-2-SONGS.reduce((a,_,k)=>a+(cleared(k)?1:0),0);
+    add('p','','再通過 '+need+' 首曲目後開放。').style.margin='10px 0';
+  }
+  const row=add('div','row');
+  if(ul){add('button','pri','挑戰這首',row).onclick=()=>{
+    const nd=[0,1,2].find(k=>!v.per[k]&&!(v.old&&!k));if(nd!=null){di=nd;lsSet('pmb6-di',String(nd))}   // lowest difficulty not yet cleared
+    si=i;skyClose(true);initAudio();preloadSong(s);showSelect()}}
+  add('button','','關閉',row).onclick=e=>{e.stopPropagation();c.hidden=true};
+  c.hidden=false;
+}
+function skyOpen(from){
+  skyBack=from;skyDraw();$('#skyCard').hidden=true;
+  $('#'+from).classList.add('hidden');$('#sky').classList.remove('hidden');
+}
+function skyClose(leaving){
+  $('#sky').classList.add('hidden');$('#skyCard').hidden=true;
+  if(!leaving)$('#'+skyBack).classList.remove('hidden');
+  skyBadge();
+}
+const skyOn=()=>!$('#sky').classList.contains('hidden');
+$('#bSky').onclick=()=>{initAudio();skyOpen('home')};
+$('#skyX').onclick=()=>skyClose();
+$('#sky').addEventListener('click',e=>{if(!e.target.closest('#skyCard'))$('#skyCard').hidden=true});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&skyOn()){if(!$('#skyCard').hidden)$('#skyCard').hidden=true;else skyClose()}});
+$('#rsky').onclick=()=>skyOpen('end');
+skyBadge();
 const tutDone=()=>!!lsGet('ppl-tut')||SONGS.some((_,i)=>cleared(i));
 function startTut(){mode='tut';startRun(0)}
 $('#bStart').onclick=()=>{initAudio();goFs();if(!tutDone())startTut();else showSelect()};
@@ -1320,5 +1442,5 @@ if(!unlocked(si))si=0;
 for(const f of[layout,buildChips,hud,audioStatus]){try{f()}catch(e){showErr(e)}}   // one failing step must not stop start-up
 if('serviceWorker' in navigator&&location.protocol==='https:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));hudShow(false);$('#fsHint').style.display=(!(DE.requestFullscreen||DE.webkitRequestFullscreen)&&!standalone)?'block':'none';
 requestAnimationFrame(frame);
-window.__pb={get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:FR,HR:HRe(),tiers:tierCount,cents:lastCents,p:lastP,pSrc,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},setTs(v){ts=v},setSong(i){si=i},tg:()=>tg.map(t=>t.t),pause:pauseGame,resume:resumeGame,shareImg,STARS,il:()=>instLoad,gaps:()=>{const r=[];for(const it of items)for(const o of bumps)r.push(Math.hypot(it.x-o.x,it.y-o.y)-itemGap(o.Rm));return r}};
+window.__pb={get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:FR,HR:HRe(),tiers:tierCount,cents:lastCents,p:lastP,pSrc,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},setTs(v){ts=v},setSong(i){si=i},skyRes(k,d,ok){const j=SONGS.findIndex(x=>x.key===k);if(j<0)return null;mode='normal';si=j;song=SONGS[si];di=d;D=DIFFS[d];score=1000;tierCount=[tg.length||10,0,0,0];missCount=0;st='done';showResult(ok,'');const r=$('#rsky');return r.hidden?'':r.textContent},tg:()=>tg.map(t=>t.t),pause:pauseGame,resume:resumeGame,shareImg,STARS,il:()=>instLoad,gaps:()=>{const r=[];for(const it of items)for(const o of bumps)r.push(Math.hypot(it.x-o.x,it.y-o.y)-itemGap(o.Rm));return r}};
 })();

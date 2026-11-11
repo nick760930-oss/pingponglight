@@ -1,6 +1,8 @@
 {
   "name": "PingPongLight",
   "short_name": "PingPongLight",
+  "description": "在拍子上擊中光球，親手奏出經典名曲的節奏彈球遊戲。",
+  "lang": "zh-Hant",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",
