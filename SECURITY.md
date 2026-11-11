@@ -82,5 +82,5 @@ node server/test/friends.js http://127.0.0.1:8788
 
 1. 密鑰（第一次才需要）：`npx wrangler secret bulk .prod-secrets.json`（檔案在 `server/`，已列入 .gitignore；`LB_ADMIN` 另存在 `server/.prod-admin`）
 2. 資料庫：`npx wrangler d1 migrations apply pingponglight-lb --remote`（`wrangler deploy` 不會自動套）
-3. 伺服器：`npm run deploy`
+3. 伺服器：`npm run deploy`（wrangler 固定在 4.100.0：2026-11-11 用 4.160.0 部署時，任何 D1 綁定都回 10021「failed to generate」，4.100.0 正常。升級前先用一個只綁 D1 的測試 Worker 確認）
 4. 最後推送網站（Vercel 從 main 自動部署）
