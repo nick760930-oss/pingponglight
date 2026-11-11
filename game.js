@@ -723,7 +723,7 @@ function showResult(ok,msg){
     const pr=lsGet(kR);if(!pr||RANKS.indexOf(rank)>RANKS.indexOf(pr))lsSet(kR,rank);
     cp={ti:0,score:0};
   }
-  $('#rk').textContent=mode==='tut'?'教學完成':(ok?'過關':'失敗');
+  $('#rk').textContent=mode==='tut'?'教學完成':(ok?'通關':'失敗');
   $('#rt').textContent=(mode==='tut'?'新手教學':'第 '+(si+1)+' 關')+' · 《'+song.name+'》· '+D.n;
   lastRes={ok,rank,score,acc,maxCombo,name:song.name,label:$('#rt').textContent};
   const rk=$('#rank');rk.textContent=ok?rank:'失敗';rk.style.color=ok?RANK_COL[rank]:'#ff7a93';rk.style.fontSize=ok?'':'clamp(40px,11vh,64px)';
@@ -747,7 +747,7 @@ function showResult(ok,msg){
   else for(const id of['bRetry','bSel'])$('#'+id).style.display='';
   $('#end').classList.remove('hidden');
   const rl=$('#rlb');rl.hidden=true;
-  if(ok&&mode==='normal'&&!runFrom){if(RUN&&RUN.ok)lbSubmit(RUN);else if(!ME){rl.hidden=false;$('#rlbT').textContent='取暱稱後，過關成績就會列入排行榜';const b=$('#rlbB');b.textContent='取暱稱';b.hidden=false}}
+  if(ok&&mode==='normal'&&!runFrom){if(RUN&&RUN.ok)lbSubmit(RUN);else if(!ME){rl.hidden=false;$('#rlbT').textContent='設定暱稱後，通關成績將列入排行榜';const b=$('#rlbB');b.textContent='設定暱稱';b.hidden=false}}
   RUN=null;
   if(ok)jingleWin(rank);else jingleLose();
 }
@@ -1081,7 +1081,7 @@ function duelOpen(){if(!ME){nickOpen('duel');return}initAudio();$('#home').class
 function duelView(){const inRoom=!!(DU.ws&&DU.code);$('#dJoin').hidden=inRoom;$('#dRoom').hidden=!inRoom}
 async function duelCreate(){
   initAudio();dmsg('建立房間中⋯');
-  try{const r=await fetch(DUEL_URL+'/new');if(r.status===429){dmsg('操作太頻繁，請一分鐘後再試。');return}
+  try{const r=await fetch(DUEL_URL+'/new');if(r.status===429){dmsg('操作太頻繁，請稍等 1 分鐘後再次嘗試。');return}
     const j=await r.json();if(typeof j.code!=='string')throw 0;duelJoin(j.code)}
   catch(e){dmsg('無法連線到對戰伺服器，請稍後再試。')}
 }
@@ -1118,7 +1118,7 @@ function duelOn(d){
   if(d.t==='start'){if(mode==='duel'&&(st==='play'||st==='ready'))return;
     const at=+d.at,now=duelNow();duelStart({at:Number.isFinite(at)&&Math.abs(at-now)<15000?at:now+4500,seed:dInt(d.seed,0,4294967295),song:dInt(d.song,0,SONGS.length-1),di:dInt(d.di,0,DIFFS.length-1)});return}
   if(d.t==='st'){if(mode!=='duel')return;const o=DU.opp,was=o.c;o.s=dInt(d.s,0,1e8);o.c=dInt(d.c,0,1e5);o.l=dInt(d.l,0,100);o.r=dInt(d.r,0,1e5);o.j=dInt(d.j,-1,4);o.jt=performance.now();
-    if(was>=10&&o.c===0&&mode==='duel'&&st==='play')DU.banner={text:'對手斷連！',hue:185,t:1.4,max:1.4};
+    if(was>=10&&o.c===0&&mode==='duel'&&st==='play')DU.banner={text:'對手連線中斷',hue:185,t:1.4,max:1.4};
     hud();return}
   if(d.t==='atk'){const now=performance.now();if(!DATK.includes(d.k)||now-(DU.atkT||0)<1500)return;DU.atkT=now;duelAttacked(d.k);return}
   if(d.t==='fin'){if(mode!=='duel'||DU.oppFin)return;d={s:dInt(d.s,0,1e8),ok:d.ok===true,rank:DRANKS.includes(d.rank)?d.rank:'—',mc:dInt(d.mc,0,1e5)};DU.oppFin=d;if(DU.myFin)duelResult();else if(mode==='duel'&&st==='play')DU.banner={text:'對手已'+(d.ok?'完成':'出局'),hue:d.ok?48:350,t:2,max:2};return}
@@ -1129,13 +1129,13 @@ function duelOn(d){
 }
 function duelRoomUI(){
   $('#dCodeT').textContent='房號 '+DU.code;
-  $('#dPl').innerHTML=[0,1].map(i=>{const p=DU.players.find(q=>q.i===i);return p?'<span class="'+(p.ready?'ok':'')+'">'+(p.i===DU.you?'你：':'')+esc(p.name)+(p.ready?' ✓ 準備':'')+'</span>':'<span style="opacity:.5">等待對手加入⋯</span>'}).join('');
+  $('#dPl').innerHTML=[0,1].map(i=>{const p=DU.players.find(q=>q.i===i);return p?'<span class="'+(p.ready?'ok':'')+'">'+(p.i===DU.you?'您：':'')+esc(p.name)+(p.ready?' ✓ 準備':'')+'</span>':'<span style="opacity:.5">等待對手加入⋯</span>'}).join('');
   const host=DU.you===DU.host,rk=i=>{const r=lsGet(KEY_RK(i,DU.cfg.di));return RANKS.includes(r)?r:''};
   DSONG.set(SONGS.map((x,i)=>({v:i,text:(i+1)+'. '+x.name,note:rk(i)})),DU.cfg.song);
   DDI.set(DIFFS.map((x,i)=>({v:i,text:x.n})),DU.cfg.di);
   DSONG.setDisabled(!host);DDI.setDisabled(!host);
   const b=$('#dReady');b.textContent=DU.ready?'取消準備':'準備';b.classList.toggle('pri',!DU.ready);
-  if(!$('#duel').classList.contains('hidden'))dmsg(DU.players.length<2?(DU.note||'把房號告訴朋友，或按「邀請朋友」分享連結。'):(host?'你是房主，可以選曲目和難度。兩人都按「準備」就開始。':'房主選曲中，兩人都按「準備」就開始。'));
+  if(!$('#duel').classList.contains('hidden'))dmsg(DU.players.length<2?(DU.note||'請將房號提供給好友，或按「邀請朋友」分享連結。'):(host?'由您選擇曲目與難度，雙方按下「準備」後開始。':'房主選曲中，雙方按下「準備」後開始。'));
 }
 function duelStart(d){
   ddClose();DU.seed=d.seed>>>0||1;DU.startAt=d.at;if(DU.prevDi==null)DU.prevDi=di;
@@ -1246,7 +1246,7 @@ document.addEventListener('scroll',e=>{if(DDopen&&!DDopen.p.contains(e.target))d
 const DSONG=makeDD($('#dSong'),'曲目'),DDI=makeDD($('#dDi'),'難度');
 DSONG.onchange=v=>dsend({t:'cfg',song:v,di:DDI.value});
 DDI.onchange=v=>dsend({t:'cfg',song:DSONG.value,di:v});   // the server's room update then refreshes the rank notes
-$('#dShare').onclick=()=>{const u=(APP?SITE:location.origin+location.pathname)+'?room='+DU.code;shareText('來 PingPongLight 跟我對戰！房號 '+DU.code,u,dmsg)};
+$('#dShare').onclick=()=>{const u=(APP?SITE:location.origin+location.pathname)+'?room='+DU.code;shareText('邀請您在 PingPongLight 線上對戰，房號 '+DU.code,u,dmsg)};
 $('#bAgain').onclick=duelAgain;
 $('#bLeave').onclick=duelLeave;
 (function(){try{const r=new URLSearchParams(location.search).get('room');if(r){lsSet('ppl-tut','1');DU.pend=r.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);setTimeout(()=>{duelOpen();if(ME){$('#dCode').value=DU.pend;DU.pend=''}},50)}}catch(e){}})();
@@ -1276,7 +1276,7 @@ function capCall(pl,m,o){return window.Capacitor&&Capacitor.nativePromise?Capaci
 async function shareText(text,url,say){
   if(APP){capCall('Share','share',{title:'PingPongLight',text,url}).catch(()=>{});return}   // a cancelled share sheet is not an error worth showing
   try{if(navigator.share){await navigator.share({title:'PingPongLight',text,url});return}}catch(e){if(e&&e.name==='AbortError')return}
-  try{await navigator.clipboard.writeText(text+' '+url);if(say)say('已複製，可以直接貼給朋友。')}catch(e){if(say)say(text+' '+url)}
+  try{await navigator.clipboard.writeText(text+' '+url);if(say)say('已複製，可貼上分享。')}catch(e){if(say)say(text+' '+url)}
 }
 
 /* ---- nickname: required before anything online; unique and filtered by the server ---- */
@@ -1284,8 +1284,8 @@ let nickMode='';
 function nickOpen(m){
   nickMode=m||'first';$('#nkIn').value=ME?ME.name:(lsGet('ppl-name')||'');$('#nkMsg').textContent='';
   $('#nkK').textContent=nickMode==='first'?'歡迎來到 PingPongLight':'暱稱';
-  $('#nkT').textContent=nickMode==='rename'?'更改暱稱':'先取一個暱稱';
-  const sk=$('#nkSkip');sk.hidden=false;sk.textContent=nickMode==='first'?'先離線玩':'取消';
+  $('#nkT').textContent=nickMode==='rename'?'變更暱稱':'請設定暱稱';
+  const sk=$('#nkSkip');sk.hidden=false;sk.textContent=nickMode==='first'?'暫不設定，離線遊玩':'取消';
   $('#nick').classList.remove('hidden');setTimeout(()=>{try{$('#nkIn').focus({preventScroll:true})}catch(e){}},60);
 }
 async function nickGo(){
@@ -1294,9 +1294,9 @@ async function nickGo(){
   const b=$('#nkGo');b.disabled=true;msg.textContent='確認中⋯';
   const j=await api('/lb/name',{pk:pkey(),name:v});b.disabled=false;
   if(j.ok){setMe({id:dInt(j.id,1,1e12),name:dName(j.name)||v});msg.textContent='';nickClose(true);return}
-  if(j.error==='name')msg.textContent=j.why==='taken'?'這個暱稱已經有人使用，請換一個。':j.why==='empty'?'暱稱至少要有一個文字或數字。':'暱稱含有不適合的字詞，請換一個。';
-  else if(j.error==='slow')msg.textContent='操作太頻繁，請等一分鐘再試。';
-  else{msg.textContent=nickMode==='first'?'目前連不上伺服器。可以先離線玩單人模式，下次開啟時再取暱稱。':'目前連不上伺服器，請稍後再試。';$('#nkSkip').hidden=false}
+  if(j.error==='name')msg.textContent=j.why==='taken'?'此暱稱已有人使用，請更換。':j.why==='empty'?'暱稱須包含至少一個文字或數字。':'暱稱含有不當字詞，請更換。';
+  else if(j.error==='slow')msg.textContent='操作太頻繁，請稍等 1 分鐘後再次嘗試。';
+  else{msg.textContent=nickMode==='first'?'目前無法連線至伺服器。您可以先離線遊玩單人模式，下次開啟時再設定暱稱。':'目前無法連線至伺服器，請稍後再試。';$('#nkSkip').hidden=false}
 }
 function nickClose(done){
   $('#nick').classList.add('hidden');const m=nickMode;nickMode='';syncSet();
@@ -1335,11 +1335,11 @@ async function lbSubmit(R){
   if(lastRes!==tok)return;
   if(j.ok&&j.me&&typeof j.me==='object'&&!j.me.hidden){
     const k='ppl-lr-'+R.key+'-'+R.d,prev=dInt(lsGet(k),0,1e9),r=dInt(j.me.r,1,1e9);lsSet(k,String(r));LBC.delete(R.key+'-'+R.d);
-    t.innerHTML='排行榜 <b>第 '+r+' 名</b>／共 '+dInt(j.total,1,1e9)+' 人'+(prev&&r<prev?'<em>↑ 上升 '+(prev-r)+' 名</em>':'')+(j.improved===false?' <span class="dim">（沒有超過你的最佳紀錄）</span>':'');
-    b.textContent='看排行榜';b.hidden=false;
-  }else if(j.ok)t.textContent='你的暱稱被多人檢舉，暫時不會顯示在排行榜上';
+    t.innerHTML='排行榜 <b>第 '+r+' 名</b>／共 '+dInt(j.total,1,1e9)+' 人'+(prev&&r<prev?'<em>↑ 上升 '+(prev-r)+' 名</em>':'')+(j.improved===false?' <span class="dim">（未超越您的最佳紀錄）</span>':'');
+    b.textContent='查看排行榜';b.hidden=false;
+  }else if(j.ok)t.textContent='您的暱稱遭多人檢舉，暫時不會顯示於排行榜';
   else{if(j.error==='noname')setMe(null);
-    t.textContent=j.error==='noname'?'找不到你的暱稱，請到「設定」重新取暱稱':j.error==='slow'?'操作太頻繁，這次成績沒有上傳':j.error==='net'||j._s===0||j._s>=500?'目前連不上伺服器，這次成績沒有列入排行榜':'這次成績無法驗證，沒有列入排行榜'}
+    t.textContent=j.error==='noname'?'找不到您的暱稱，請至「設定」重新設定暱稱':j.error==='slow'?'操作太頻繁，本次成績未上傳':j.error==='net'||j._s===0||j._s>=500?'目前無法連線至伺服器，本次成績未列入排行榜':'本次成績無法驗證，未列入排行榜'}
 }
 $('#rlbB').onclick=()=>{if(!ME)nickOpen('result');else lbOpen(si,di)};
 const LBV={i:0,d:0,open:-1,v:null};let lbTok=0;
@@ -1348,19 +1348,19 @@ function lbSeg(){$('#lbD').innerHTML=DIFFS.map((x,k)=>'<button data-d="'+k+'" cl
 async function lbLoad(){
   const t=++lbTok,L=$('#lbL');L.innerHTML='<div class="lbmsg">載入中⋯</div>';$('#lbMe').hidden=true;
   const v=await lbGet(SONGS[LBV.i].key,LBV.d);if(t!==lbTok)return;
-  if(!v){L.innerHTML='<div class="lbmsg">目前連不上伺服器，請稍後再試。</div>';return}
+  if(!v){L.innerHTML='<div class="lbmsg">目前無法連線至伺服器，請稍後再試。</div>';return}
   LBV.v=v;lbRender();
 }
-const lbCells=(r,mine)=>'<span class="'+(r.r<=3?'m'+r.r:'')+'"><b>'+r.r+'</b></span><span class="nmc">'+esc(mine?'你（'+r.name+'）':r.name)+'</span><span><b>'+pct(r.acc)+'</b></span><span>'+r.score.toLocaleString()+'</span><span>'+r.combo+'</span>';
+const lbCells=(r,mine)=>'<span class="'+(r.r<=3?'m'+r.r:'')+'"><b>'+r.r+'</b></span><span class="nmc">'+esc(mine?'您（'+r.name+'）':r.name)+'</span><span><b>'+pct(r.acc)+'</b></span><span>'+r.score.toLocaleString()+'</span><span>'+r.combo+'</span>';
 function lbRender(){
   const v=LBV.v,L=$('#lbL'),rows=v.top.filter(r=>!HIDE.has(r.id)||(ME&&r.id===ME.id));
   L.innerHTML=rows.length?rows.map(r=>{const mine=ME&&r.id===ME.id;
     return '<div class="lbrow">'+lbCells(r,mine)+(mine?'<span></span>':'<button class="more" data-id="'+r.id+'" aria-label="檢舉或隱藏 '+esc(r.name)+'">⋯</button>')+'</div>'
       +(LBV.open===r.id?'<div class="opt"><button data-rep="'+r.id+'">檢舉不雅暱稱</button><button data-hide="'+r.id+'">隱藏這位玩家</button><button data-x="1">取消</button></div>':'')}).join('')
-    :'<div class="lbmsg">還沒有人上榜，過關就能成為第一名。</div>';
+    :'<div class="lbmsg">目前尚無紀錄。</div>';
   const M=$('#lbMe'),note=t=>'<span></span><span class="nmc" style="font-weight:400;color:#8a93c0">'+t+'</span><span></span><span></span><span></span><span></span>';
   M.hidden=false;
-  M.innerHTML=!ME?note('取暱稱後，過關成績就會列入排行榜'):!v.me?note('過關這個難度，就會列入排行榜'):v.me.hidden?note('你的暱稱被多人檢舉，暫時不會顯示'):lbCells(v.me,true)+'<span style="font-size:11px;color:#8a93c0">/'+v.total+'</span>';
+  M.innerHTML=!ME?note('設定暱稱後，通關成績將列入排行榜'):!v.me?note('通關此難度後，即會列入排行榜'):v.me.hidden?note('您的暱稱遭多人檢舉，暫時不會顯示'):lbCells(v.me,true)+'<span style="font-size:11px;color:#8a93c0">/'+v.total+'</span>';
 }
 $('#lbD').onclick=e=>{const b=e.target.closest('button[data-d]');if(!b)return;LBV.d=+b.dataset.d;LBV.open=-1;lbSeg();lbLoad()};
 $('#lbL').onclick=async e=>{
@@ -1368,7 +1368,7 @@ $('#lbL').onclick=async e=>{
   if(D.id){const id=+D.id;LBV.open=LBV.open===id?-1:id;lbRender();return}
   if(D.x){LBV.open=-1;lbRender();return}
   if(D.hide){HIDE.add(+D.hide);saveHide();LBV.open=-1;lbRender();return}
-  if(D.rep){const id=+D.rep;if(!ME){b.textContent='取暱稱後才能檢舉';return}b.disabled=true;b.textContent='送出中⋯';const j=await api('/lb/report',{id,pk:pkey()});b.textContent=j.ok?'已檢舉，謝謝':'送出失敗';
+  if(D.rep){const id=+D.rep;if(!ME){b.textContent='設定暱稱後才能檢舉';return}b.disabled=true;b.textContent='送出中⋯';const j=await api('/lb/report',{id,pk:pkey()});b.textContent=j.ok?'已送出檢舉，感謝回報':'送出失敗';
     setTimeout(()=>{if(LBV.open===id){LBV.open=-1;lbRender()}},1300)}
 };
 function lbClose(){$('#lbv').classList.add('hidden');if(!$('#menu').classList.contains('hidden'))selDetail()}
@@ -1392,10 +1392,10 @@ function buildChips(){
     const ul=unlocked(i),rk=rkOf(i,di);
     h+='<button class="sr'+(i===si?' on':'')+(ul?'':' lock')+'" data-i="'+i+'"><span class="no">'+(i+1)+'</span>'
       +'<span class="tx"><span class="nm">'+esc(s.name)+'</span><span class="mt">'+esc(s.year+' · '+s.composer)+'<i>'+starTxt(STARS[i])+'</i></span></span>'
-      +'<span class="pips" aria-label="已過關難度">'+[0,1,2].map(d=>'<i class="'+(rkOf(i,d)?'d'+d:'')+'"></i>').join('')+'</span>'
+      +'<span class="pips" aria-label="已通關難度">'+[0,1,2].map(d=>'<i class="'+(rkOf(i,d)?'d'+d:'')+'"></i>').join('')+'</span>'
       +'<span class="rk"'+(rk?' style="color:'+RANK_COL[rk]+'"':'')+'>'+(rk||'—')+'</span></button>';
   });
-  $('#chips').innerHTML=h||'<div class="sempty">'+(selF===1?'這個難度的曲目都過關了，換個難度挑戰看看。':'這個難度還沒有過關的曲目。')+'</div>';
+  $('#chips').innerHTML=h||'<div class="sempty">'+(selF===1?'此難度的曲目皆已通關，可改選其他難度挑戰。':'此難度尚無已通關的曲目。')+'</div>';
   selDetail();
 }
 function selScroll(){const on=$('#chips .sr.on');if(on)try{on.scrollIntoView({block:'center'})}catch(e){}}
@@ -1406,14 +1406,14 @@ function selDetail(){
   $('#diffs').innerHTML=DIFFS.map((df,k)=>'<button data-d="'+k+'" class="'+(k===di?'on':'')+'">'+df.n+'<small>'+(df.nb===2?'雙球':'單球')+(df.spd>1?' · 快 '+df.spd+' 倍':'')+'</small></button>').join('');
   const rk=rkOf(i,di),sc=parseInt(lsGet(KEY_SC(i,di))||'0',10)||0,ac=parseInt(lsGet(KEY_AC(i,di))||'0',10)||0;
   $('#sB').innerHTML=rk?'<span class="bk" style="color:'+RANK_COL[rk]+'">'+rk+'</span><span>'+(ac?'精準度 <b>'+pct(ac)+'</b> · ':'')+'最高分 <b>'+sc.toLocaleString()+'</b><br><span id="sRank"></span></span>'
-    :'<span class="bk" style="color:#3c4370">—</span><span>這個難度還沒過關<br><span id="sRank"></span></span>';
+    :'<span class="bk" style="color:#3c4370">—</span><span>此難度尚未通關<br><span id="sRank"></span></span>';
   $('#bGo').disabled=!unlocked(i);
   const t=++selTok,mini=$('#sMini');mini.innerHTML='<p>排行榜載入中⋯</p>';
   clearTimeout(selTm);selTm=setTimeout(async()=>{   // wait for the player to settle on a song
     const v=await lbGet(s.key,di);if(t!==selTok)return;const r=$('#sRank');
-    if(!v){mini.innerHTML='<p>離線中，暫時看不到排行榜</p>';return}
+    if(!v){mini.innerHTML='<p>離線中，暫時無法顯示排行榜</p>';return}
     const top=v.top.filter(x=>!HIDE.has(x.id)).slice(0,3);
-    mini.innerHTML=top.length?top.map(x=>'<div><b class="m'+x.r+'">'+x.r+'</b><span>'+esc(x.name)+'</span><span>'+pct(x.acc)+'</span></div>').join(''):'<p>還沒有人上榜</p>';
+    mini.innerHTML=top.length?top.map(x=>'<div><b class="m'+x.r+'">'+x.r+'</b><span>'+esc(x.name)+'</span><span>'+pct(x.acc)+'</span></div>').join(''):'<p>目前尚無紀錄</p>';
     if(r)r.innerHTML=v.me&&!v.me.hidden?'排行榜 <b style="color:#ffd36b">第 '+v.me.r+' 名</b>／共 '+v.total+' 人':'';
   },250);
 }
@@ -1452,20 +1452,20 @@ function frOn(d){
   if(d.t==='inv'){const room=String(d.room||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);if(room.length!==4)return;
     const f=d.from&&typeof d.from==='object'?d.from:{};
     FD.inv={id:dInt(f.id,0,1e12),name:who(f),room,song:SONGS.findIndex(x=>x.key===d.song),d:dInt(d.d,0,2),exp:Date.now()+55000};invShow();return}
-  if(d.t==='invno'){toast(who(d.from)+' 現在不方便，晚點再約');return}
-  if(d.t==='req'){toast(who(d.from)+' 想加你為好友');frBadge(true);if(frIsOpen())frLoad();return}
-  if(d.t==='friend'){toast(dName(d.name)+' 和你成為好友了');frBadge(true);if(frIsOpen())frLoad();return}
+  if(d.t==='invno'){toast(who(d.from)+' 目前無法接受邀請');return}
+  if(d.t==='req'){toast(who(d.from)+' 想加您為好友');frBadge(true);if(frIsOpen())frLoad();return}
+  if(d.t==='friend'){toast('已與 '+dName(d.name)+' 成為好友');frBadge(true);if(frIsOpen())frLoad();return}
 }
 let toastTm=0;
 function toast(text){
-  if(FD.inv)return;const T=$('#invT');T.dataset.k='note';$('#invA').textContent=text;$('#invB').textContent='';$('#invNo').hidden=true;$('#invOk').textContent='好';
+  if(FD.inv)return;const T=$('#invT');T.dataset.k='note';$('#invA').textContent=text;$('#invB').textContent='';$('#invNo').hidden=true;$('#invOk').textContent='確定';
   T.hidden=busyNow();clearTimeout(toastTm);toastTm=setTimeout(()=>{if(T.dataset.k==='note')T.hidden=true},4500);
 }
 function invShow(){   // never over a run in progress: it appears when the run ends
   const v=FD.inv,T=$('#invT');if(!v)return;
   if(Date.now()>v.exp){FD.inv=null;T.hidden=true;return}
   if(busyNow()){if(T.dataset.k==='inv')T.hidden=true;return}
-  T.dataset.k='inv';$('#invA').innerHTML='<b>'+esc(v.name)+'</b> 邀請你對戰';
+  T.dataset.k='inv';$('#invA').innerHTML='<b>'+esc(v.name)+'</b> 邀請您對戰';
   $('#invB').textContent=(v.song>=0?'《'+SONGS[v.song].name+'》· '+DIFFS[v.d].n+' · ':'')+'還有 '+Math.ceil((v.exp-Date.now())/1000)+' 秒';
   $('#invNo').hidden=false;$('#invOk').textContent='加入';T.hidden=false;
 }
@@ -1482,13 +1482,13 @@ function frOpen(){
   if(!ME){nickOpen('friends');return}
   initAudio();$('#home').classList.add('hidden');$('#frv').classList.remove('hidden');$('#frMsg').textContent='';FD.open=-1;
   $('#frCode').textContent=FD.code?fcode(FD.code):'⋯';
-  api('/fr/me',{pk:pkey()}).then(j=>{if(typeof j.code==='string'&&/^[A-Z0-9]{8}$/.test(j.code)){FD.code=j.code;$('#frCode').textContent=fcode(j.code)}else if(!FD.code)$('#frCode').textContent=j.error==='noname'?'請先取暱稱':'離線中'});
+  api('/fr/me',{pk:pkey()}).then(j=>{if(typeof j.code==='string'&&/^[A-Z0-9]{8}$/.test(j.code)){FD.code=j.code;$('#frCode').textContent=fcode(j.code)}else if(!FD.code)$('#frCode').textContent=j.error==='noname'?'請先設定暱稱':'離線中'});
   frLoad();clearInterval(FD.poll);FD.poll=setInterval(()=>{if(frIsOpen()&&!document.hidden)frLoad()},15000);
 }
 function frClose(){clearInterval(FD.poll);showHome()}
 async function frLoad(){
   const j=await api('/fr/list',{pk:pkey()});
-  if(j.error){if(frIsOpen()&&!FD.list)$('#frList').innerHTML='<div class="lbmsg">'+(j.error==='noname'?'請先取暱稱。':'目前連不上伺服器，請稍後再試。')+'</div>';return}
+  if(j.error){if(frIsOpen()&&!FD.list)$('#frList').innerHTML='<div class="lbmsg">'+(j.error==='noname'?'請先設定暱稱。':'目前無法連線至伺服器，請稍後再試。')+'</div>';return}
   const P=a=>Array.isArray(a)?a.slice(0,300).filter(x=>x&&typeof x==='object').map(x=>({id:dInt(x.id,0,1e12),name:dName(x.name)||'玩家',on:x.on===1||x.on===true,
     st:['home','menu','play','duel'].includes(x.st)?x.st:null,song:typeof x.song==='string'?x.song:null,seen:Number.isFinite(+x.seen)?+x.seen:0})):[];
   FD.list={friends:P(j.friends),incoming:P(j.incoming),outgoing:P(j.outgoing),blocked:P(j.blocked)};frBadgeSet();if(frIsOpen())frRender();
@@ -1499,10 +1499,10 @@ function frRender(){
   const L=FD.list;if(!L)return;const busy=f=>f.st==='play'||f.st==='duel';
   const on=L.friends.filter(f=>f.on).length;$('#frOn').textContent=on?on+' 位在線上':'';
   const fs=L.friends.slice().sort((a,b)=>(b.on-a.on)||(busy(a)-busy(b))||a.name.localeCompare(b.name,'zh-Hant'));
-  let h=fs.length?'':'<div class="lbmsg">還沒有好友。把左邊的好友碼傳給朋友，或輸入朋友的好友碼。</div>';
+  let h=fs.length?'':'<div class="lbmsg">尚無好友。請將左側的好友碼提供給朋友，或輸入朋友的好友碼。</div>';
   for(const f of fs){
     const sn=f.song?SONGS.find(x=>x.key===f.song):null,cls=!f.on?'':busy(f)?'busy':'on';
-    const sub=!f.on?'離線'+(f.seen?' · '+ago(f.seen):''):f.st==='duel'?'對戰中 · 打完就能邀請':f.st==='play'?'遊戲中'+(sn?' · 《'+sn.name+'》':'')+' · 打完就能邀請':f.st==='menu'?'在線上 · 正在選歌':'在線上';
+    const sub=!f.on?'離線'+(f.seen?' · '+ago(f.seen):''):f.st==='duel'?'對戰中 · 結束後即可邀請':f.st==='play'?'遊戲中'+(sn?' · 《'+sn.name+'》':'')+' · 結束後即可邀請':f.st==='menu'?'在線上 · 選曲中':'在線上';
     h+='<div class="fr"><span class="dot '+cls+'"></span><span class="tx"><span class="nm">'+esc(f.name)+'</span><span class="mt '+cls+'">'+esc(sub)+'</span></span>'
       +(f.on&&!busy(f)?'<button class="pri inv" data-inv="'+f.id+'">邀請對戰</button>':'')
       +'<button class="more" data-more="'+f.id+'" aria-label="'+esc(f.name)+' 的更多選項">⋯</button></div>';
@@ -1512,9 +1512,9 @@ function frRender(){
   if(L.blocked.length){h+='<div class="fsec">已封鎖</div>';for(const f of L.blocked)h+='<div class="fr"><span class="dot"></span><span class="tx"><span class="nm">'+esc(f.name)+'</span></span><button data-ub="'+f.id+'">解除封鎖</button></div>'}
   $('#frList').innerHTML=h;
   const R=$('#frReq');R.hidden=!L.incoming.length;
-  R.innerHTML=L.incoming.map(f=>'<div><span><b>'+esc(f.name)+'</b> 想加你為好友</span><button class="pri" data-acc="'+f.id+'">接受</button><button data-dec="'+f.id+'">略過</button></div>').join('');
+  R.innerHTML=L.incoming.map(f=>'<div><span><b>'+esc(f.name)+'</b> 想加您為好友</span><button class="pri" data-acc="'+f.id+'">接受</button><button data-dec="'+f.id+'">略過</button></div>').join('');
 }
-async function frAct(path,body){const j=await api(path,Object.assign({pk:pkey()},body));$('#frMsg').textContent=j.error?(j.error==='net'?'目前連不上伺服器。':'操作失敗，請稍後再試。'):'';FD.open=-1;await frLoad()}
+async function frAct(path,body){const j=await api(path,Object.assign({pk:pkey()},body));$('#frMsg').textContent=j.error?(j.error==='net'?'目前無法連線至伺服器。':'操作失敗，請稍後再試。'):'';FD.open=-1;await frLoad()}
 $('#frList').onclick=e=>{const b=e.target.closest('button');if(!b)return;const D=b.dataset;
   if(D.more){const id=+D.more;FD.open=FD.open===id?-1:id;frRender();return}
   if(D.x){FD.open=-1;frRender();return}
@@ -1527,12 +1527,12 @@ $('#frAdd').onclick=async()=>{
   const c=$('#frIn').value.toUpperCase().replace(/[^A-Z0-9]/g,''),m=$('#frMsg');
   if(c.length!==8){m.textContent='好友碼是 8 個英文字母和數字。';return}
   m.textContent='送出中⋯';const j=await api('/fr/add',{pk:pkey(),code:c});
-  m.textContent=j.friends?'你們成為好友了！':j.pending?'已送出邀請，等對方接受。':({nocode:'找不到這個好友碼。',self:'這是你自己的好友碼。',already:'你們已經是好友了。',full:'好友或待確認的邀請已達上限。',slow:'操作太頻繁，請稍後再試。',net:'目前連不上伺服器。'})[j.error]||'送出失敗，請稍後再試。';
+  m.textContent=j.friends?'已成為好友。':j.pending?'已送出邀請，等待對方接受。':({nocode:'找不到這個好友碼。',self:'這是您自己的好友碼。',already:'雙方已是好友。',full:'好友或待確認的邀請已達上限。',slow:'操作太頻繁，請稍等 1 分鐘後再次嘗試。',net:'目前無法連線至伺服器。'})[j.error]||'送出失敗，請稍後再試。';
   if(j.ok){$('#frIn').value='';frLoad()}
 };
 $('#frIn').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('#frAdd').click()}});
-$('#frCopy').onclick=async()=>{if(!FD.code)return;const t=fcode(FD.code);try{await navigator.clipboard.writeText(t);$('#frMsg').textContent='已複製好友碼。'}catch(e){$('#frMsg').textContent='無法複製，請直接告訴朋友：'+t}};
-$('#frSend').onclick=()=>{if(FD.code)shareText('來 PingPongLight 加我好友！我的好友碼是 '+fcode(FD.code),SITE,t=>{$('#frMsg').textContent=t})};
+$('#frCopy').onclick=async()=>{if(!FD.code)return;const t=fcode(FD.code);try{await navigator.clipboard.writeText(t);$('#frMsg').textContent='已複製好友碼。'}catch(e){$('#frMsg').textContent='無法複製，請直接提供給朋友：'+t}};
+$('#frSend').onclick=()=>{if(FD.code)shareText('邀請您在 PingPongLight 加我為好友，好友碼：'+fcode(FD.code),SITE,t=>{$('#frMsg').textContent=t})};
 $('#frX').onclick=frClose;
 $('#bFr').onclick=frOpen;
 async function frInvite(id,b){
@@ -1542,7 +1542,7 @@ async function frInvite(id,b){
   clearInterval(FD.poll);$('#frv').classList.add('hidden');duelOpen();
   duelJoin(code,()=>{dsend({t:'cfg',song:si,di});DU.note='邀請送出中⋯';duelRoomUI();
     api('/fr/invite',{pk:pkey(),id,room:code,song:SONGS[si].key,d:di}).then(j=>{
-      DU.note=j.ok?(j.delivered?'已邀請 '+name+'，等對方加入⋯':name+' 剛好離線了，可以把房號告訴對方。'):j.error==='notfriend'?'你們已經不是好友了。':'邀請沒有送出，可以把房號告訴對方。';
+      DU.note=j.ok?(j.delivered?'已邀請 '+name+'，等待對方加入⋯':name+' 目前離線，請將房號提供給對方。'):j.error==='notfriend'?'雙方已不是好友。':'邀請未送出，請將房號提供給對方。';
       if(DU.ws)duelRoomUI()})});
 }
 /* ================= star map ================= */
@@ -1659,7 +1659,7 @@ function audioDiag(){
   el.textContent=AC?'音訊狀態：'+AC.state+' · '+Math.round(AC.sampleRate/100)/10+' kHz · 工作階段 '+ses:'音訊尚未啟動';
 }
 function syncSet(){
-  audioDiag();$('#sNick').textContent=ME?ME.name:'（還沒有暱稱）';$('#bNick').textContent=ME?'改名':'取暱稱';
+  audioDiag();$('#sNick').textContent=ME?ME.name:'（尚未設定暱稱）';$('#bNick').textContent=ME?'變更暱稱':'設定暱稱';
   for(const[k,id]of[['mel','vMel'],['bk','vBk'],['fx','vFx']]){$('#'+id).value=SET[k];$('#'+id+'V').textContent=SET[k]}
   const tg2=(id,on)=>{const b=$('#'+id);b.textContent=on?'開啟':'關閉';b.classList.toggle('on',on)};tg2('tFx',SET.lowFx);tg2('tVib',SET.vib);tg2('tMl',SET.ml!==false);
   const ms=Math.round(latS()*1000);$('#calV').textContent=(ms>=0?'+':'')+ms+' ms'+(SET.lat==null?'（自動）':'');$('#calCur').textContent=(ms>=0?'+':'')+ms+' ms';
@@ -1673,12 +1673,12 @@ $('#bNick').onclick=()=>nickOpen(ME?'rename':'set');
 let wipeT=-1e9;
 $('#bWipe').onclick=async()=>{   // two taps: the first one only arms it
   const b=$('#bWipe'),idle='刪除我的線上資料';
-  if(performance.now()-wipeT>4000){wipeT=performance.now();b.textContent='再按一次：永久刪除暱稱、排行與好友';setTimeout(()=>{if(performance.now()-wipeT>=4000)b.textContent=idle},4100);return}
+  if(performance.now()-wipeT>4000){wipeT=performance.now();b.textContent='再按一次以永久刪除暱稱、排行榜成績與好友資料';setTimeout(()=>{if(performance.now()-wipeT>=4000)b.textContent=idle},4100);return}
   wipeT=-1e9;b.disabled=true;b.textContent='刪除中⋯';
   const j=await api('/lb/delete',{pk:pkey()});b.disabled=false;
-  if(!j.ok){b.textContent='刪除失敗，請連上網路後再試';setTimeout(()=>{b.textContent=idle},3000);return}
+  if(!j.ok){b.textContent='刪除失敗，請連線後再次嘗試';setTimeout(()=>{b.textContent=idle},3000);return}
   frDisconnect();try{for(const k of Object.keys(localStorage))if(/^ppl-(pk|me|hide|lr-)/.test(k))localStorage.removeItem(k)}catch(e){}
-  HIDE.clear();setMe(null);LBC.clear();FD.list=null;FD.code='';$('#frN').textContent='';b.textContent='已刪除。單人模式的進度仍保留在這台裝置上';setTimeout(()=>{b.textContent=idle},4000);syncSet();
+  HIDE.clear();setMe(null);LBC.clear();FD.list=null;FD.code='';$('#frN').textContent='';b.textContent='已刪除。單人模式的進度仍保留於此裝置';setTimeout(()=>{b.textContent=idle},4000);syncSet();
 };
 $('#bSet').onclick=()=>{initAudio();syncSet();$('#home').classList.add('hidden');$('#set').classList.remove('hidden')};
 function closeSet(){$('#set').classList.add('hidden');showHome()}

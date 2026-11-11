@@ -309,7 +309,7 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
 
 <div class="ov hidden" id="menu"><div class="sel">
   <div class="selTop"><button id="bBack">‹ 返回</button><h2>選擇曲目</h2>
-    <div class="tabs" id="sTabs" role="tablist"><button data-f="0">全部<b></b></button><button data-f="1">還沒過關<b></b></button><button data-f="2">已過關<b></b></button></div></div>
+    <div class="tabs" id="sTabs" role="tablist"><button data-f="0">全部<b></b></button><button data-f="1">未通關<b></b></button><button data-f="2">已通關<b></b></button></div></div>
   <div class="selBody">
     <div class="slist" id="chips"></div>
     <div class="sdet">
@@ -333,7 +333,7 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
     <div class="rright"><table id="rtab"></table></div>
   </div>
   <button class="skyHint" id="rsky" hidden></button>
-  <div class="rlb" id="rlb" hidden><span id="rlbT"></span><button id="rlbB" hidden>看排行榜</button></div>
+  <div class="rlb" id="rlb" hidden><span id="rlbT"></span><button id="rlbB" hidden>查看排行榜</button></div>
   <div class="row"><button class="pri" id="bNext">下一關</button><button class="pri" id="bCont">從存檔點繼續</button><button id="bRetry">再挑戰一次</button><button id="bSel">關卡選擇</button><button id="bShare">分享成績</button><button class="pri" id="bAgain" style="display:none">再戰一局</button><button id="bLeave" style="display:none">離開房間</button></div>
 </div></div>
 
@@ -376,7 +376,7 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
   <div class="srow"><label>音效音量</label><input type="range" min="0" max="100" id="vFx"><span class="v" id="vFxV"></span></div>
   <div class="srow"><label>減少特效</label><button class="tog" id="tFx"></button><label style="flex:0 0 auto;margin-left:14px">震動回饋</label><button class="tog" id="tVib"></button></div>
   <div class="srow"><label>音樂隨連擊變化</label><button class="tog" id="tMl"></button></div>
-  <div class="srow"><label>暱稱</label><span class="v" id="sNick" style="flex:1 1 auto;text-align:left;margin-left:6px"></span><button id="bNick">改名</button></div>
+  <div class="srow"><label>暱稱</label><span class="v" id="sNick" style="flex:1 1 auto;text-align:left;margin-left:6px"></span><button id="bNick">變更暱稱</button></div>
   <div class="srow"><label>延遲補償</label><button id="bCal">校準</button><span class="v" id="calV" style="flex:1 1 auto;text-align:left;margin-left:6px"></span></div>
   <p id="aDiag" style="font-size:11px;color:#8a93c0;margin:4px 0 0;text-align:center"></p>
   <div class="row"><button class="warn" id="bWipe">刪除我的線上資料</button></div>
@@ -399,25 +399,25 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
   <div class="lbrow lbcol"><span>名次</span><span>玩家</span><span>精準度</span><span>分數</span><span>最高連擊</span><span></span></div>
   <div class="lbl" id="lbL"></div>
   <div class="lbrow lbme" id="lbMe" hidden></div>
-  <p class="lbn">依精準度排名，精準度相同時比分數（吃到道具、打得越用力分數越高）。按「⋯」可以檢舉不雅暱稱，或只對自己隱藏這位玩家。</p>
+  <p class="lbn">依精準度排名，精準度相同時依分數排序。按「⋯」可檢舉不雅暱稱，或僅對自己隱藏該玩家。</p>
 </div></div>
 
 <div class="ov hidden" id="nick"><div class="card">
   <div class="kicker" id="nkK">歡迎來到 PingPongLight</div>
-  <h2 id="nkT">先取一個暱稱</h2>
-  <p>暱稱會顯示在排行榜和好友名單上，不能和別人重複。</p>
+  <h2 id="nkT">請設定暱稱</h2>
+  <p>暱稱將顯示於排行榜與好友名單，不得與他人重複。</p>
   <div class="row"><input id="nkIn" maxlength="12" placeholder="暱稱，最多 12 字" autocomplete="nickname" enterkeyhint="done"></div>
   <p class="nkm" id="nkMsg"></p>
-  <p class="small">不需要註冊，只會上傳暱稱和成績。請不要使用真實姓名。之後可以在「設定」改名，或刪除所有線上資料。</p>
-  <div class="row"><button id="nkSkip" hidden>先離線玩</button><button class="pri" id="nkGo">確定</button></div>
+  <p class="small">無須註冊，僅上傳暱稱與成績。請勿使用真實姓名。之後可於「設定」變更暱稱，或刪除所有線上資料。</p>
+  <div class="row"><button id="nkSkip" hidden>暫不設定，離線遊玩</button><button class="pri" id="nkGo">確定</button></div>
 </div></div>
 
 <div class="ov hidden" id="frv"><div class="frw">
   <div class="selTop"><button id="frX">‹ 返回</button><h2>好友</h2><span class="on" id="frOn"></span></div>
   <div class="frb">
     <div class="frl">
-      <div><div class="kicker">你的好友碼</div><div class="fcode" id="frCode">⋯</div>
-        <div class="btns"><button id="frCopy">複製</button><button id="frSend">傳給朋友</button></div></div>
+      <div><div class="kicker">您的好友碼</div><div class="fcode" id="frCode">⋯</div>
+        <div class="btns"><button id="frCopy">複製</button><button id="frSend">分享好友碼</button></div></div>
       <div><div class="kicker">加好友</div>
         <div class="fadd" style="margin-top:6px"><input id="frIn" maxlength="9" placeholder="朋友的好友碼" autocomplete="off" autocapitalize="characters" spellcheck="false"><button class="pri" id="frAdd">送出</button></div>
         <p class="fmsg" id="frMsg"></p></div>
