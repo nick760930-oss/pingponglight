@@ -551,12 +551,12 @@ async function toggleFs(){
   else await goFs();
 }
 ['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault()));
-document.addEventListener('touchmove',e=>{if(!(e.target.closest&&e.target.closest('.card')))e.preventDefault()},{passive:false});
-document.addEventListener('touchstart',e=>{if(e.touches.length>1&&!(e.target.closest&&e.target.closest('.card')))e.preventDefault()},{passive:false});
+document.addEventListener('touchmove',e=>{if(!(e.target.closest&&e.target.closest('.card,.ddp')))e.preventDefault()},{passive:false});
+document.addEventListener('touchstart',e=>{if(e.touches.length>1&&!(e.target.closest&&e.target.closest('.card,.ddp')))e.preventDefault()},{passive:false});
 document.addEventListener('dblclick',e=>e.preventDefault());
 document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('selectstart',e=>{if(!(e.target.closest&&e.target.closest('input,select,textarea')))e.preventDefault()});
-document.addEventListener('wheel',e=>{if(e.ctrlKey||!(e.target.closest&&e.target.closest('.card')))e.preventDefault()},{passive:false});
+document.addEventListener('wheel',e=>{if(e.ctrlKey||!(e.target.closest&&e.target.closest('.card,.ddp')))e.preventDefault()},{passive:false});
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['+','-','=','0'].includes(e.key))e.preventDefault();
   else if(e.key==='Escape'||e.key==='p'||e.key==='P'){if(st==='play'){if(paused&&!resumeCD)resumeGame();else pauseGame()}}});
 const standalone=!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches));
@@ -1045,16 +1045,16 @@ function duelJoin(code){
   ws.onmessage=e=>{if(DU.ws!==ws||typeof e.data!=='string'||e.data.length>4096)return;
     let d;try{d=JSON.parse(e.data)}catch(_){return}if(!d||typeof d!=='object'||Array.isArray(d)||typeof d.t!=='string'||!dAllow(d.t))return;
     try{duelOn(d)}catch(err){}};
-  ws.onclose=ev=>{if(DU.ws!==ws)return;DU.ws=null;
+  ws.onclose=ev=>{if(DU.ws!==ws)return;DU.ws=null;ddClose();
     if(mode==='duel'&&st==='play'){DU.left=true;DU.banner={text:'與伺服器的連線中斷',hue:350,t:3,max:3}}
     else{DU.code='';duelView();dmsg(ev.code===1006&&!DU.players.length?'無法加入：房間不存在、已滿，或操作太頻繁。':'連線已中斷。')}};
   clearInterval(DU.pingIv);DU.pingIv=setInterval(()=>dsend({t:'ping',c:Date.now()}),5000);
 }
-function duelClose(silent){
+function duelClose(silent){ddClose();
   clearInterval(DU.pingIv);const w=DU.ws;DU.ws=null;DU.code='';DU.players=[];DU.phase='lobby';
   try{if(w)w.close()}catch(e){}if(!silent)duelView();
 }
-function duelLeave(){duelClose();if(DU.prevDi!=null){di=DU.prevDi;DU.prevDi=null}mode='normal';$('#duel').classList.add('hidden');showHome()}
+function duelLeave(){ddClose();duelClose();if(DU.prevDi!=null){di=DU.prevDi;DU.prevDi=null}mode='normal';$('#duel').classList.add('hidden');showHome()}
 function duelOn(d){
   if(d.t==='pong'){const now=Date.now(),c=+d.c,sv=+d.s,rtt=now-c;if(!Number.isFinite(c)||!Number.isFinite(sv)||rtt<0||rtt>10000)return;d={c,s:sv};DU.pings.push({rtt,off:d.s-(d.c+rtt/2)});DU.pings.sort((a,b)=>a.rtt-b.rtt);DU.pings=DU.pings.slice(0,8);
     const best=DU.pings.slice(0,3);DU.off=best.reduce((a,p)=>a+p.off,0)/best.length;return}   // clock offset from the fastest round trips
@@ -1079,14 +1079,15 @@ function duelOn(d){
 function duelRoomUI(){
   $('#dCodeT').textContent='房號 '+DU.code;
   $('#dPl').innerHTML=[0,1].map(i=>{const p=DU.players.find(q=>q.i===i);return p?'<span class="'+(p.ready?'ok':'')+'">'+(p.i===DU.you?'你：':'')+esc(p.name)+(p.ready?' ✓ 準備':'')+'</span>':'<span style="opacity:.5">等待對手加入⋯</span>'}).join('');
-  const host=DU.you===DU.host,sel=$('#dSong'),dd=$('#dDi');
-  if(sel.options.length!==SONGS.length){sel.innerHTML=SONGS.map((x,i)=>'<option value="'+i+'">'+(i+1)+'. '+x.name+'</option>').join('');dd.innerHTML=DIFFS.map((x,i)=>'<option value="'+i+'">'+x.n+'</option>').join('')}
-  sel.value=DU.cfg.song;dd.value=DU.cfg.di;sel.disabled=dd.disabled=!host;
+  const host=DU.you===DU.host,rk=i=>{const r=lsGet(KEY_RK(i,DU.cfg.di));return RANKS.includes(r)?r:''};
+  DSONG.set(SONGS.map((x,i)=>({v:i,text:(i+1)+'. '+x.name,note:rk(i)})),DU.cfg.song);
+  DDI.set(DIFFS.map((x,i)=>({v:i,text:x.n})),DU.cfg.di);
+  DSONG.setDisabled(!host);DDI.setDisabled(!host);
   const b=$('#dReady');b.textContent=DU.ready?'取消準備':'準備';b.classList.toggle('pri',!DU.ready);
   if(!$('#duel').classList.contains('hidden'))dmsg(DU.players.length<2?'把房號告訴朋友，或按「邀請朋友」分享連結。':(host?'你是房主，可以選曲目和難度。兩人都按「準備」就開始。':'房主選曲中，兩人都按「準備」就開始。'));
 }
 function duelStart(d){
-  DU.seed=d.seed>>>0||1;DU.startAt=d.at;if(DU.prevDi==null)DU.prevDi=di;
+  ddClose();DU.seed=d.seed>>>0||1;DU.startAt=d.at;if(DU.prevDi==null)DU.prevDi=di;
   si=Math.max(0,Math.min(SONGS.length-1,d.song|0));di=d.di|0;mode='duel';
   $('#duel').classList.add('hidden');$('#end').classList.add('hidden');
   startRun(0);
@@ -1147,8 +1148,53 @@ $('#dGo').onclick=()=>duelJoin($('#dCode').value);
 $('#dCode').addEventListener('keydown',e=>{if(e.key==='Enter')duelJoin($('#dCode').value)});
 $('#dLeave').onclick=duelLeave;
 $('#dReady').onclick=()=>{initAudio();dsend({t:'ready',v:!DU.ready})};
-$('#dSong').onchange=e=>{dsend({t:'cfg',song:+e.target.value,di:+$('#dDi').value})};
-$('#dDi').onchange=e=>{dsend({t:'cfg',song:+$('#dSong').value,di:+e.target.value})};
+/* ---- game-styled dropdown: pill button + dark option panel (replaces the OS-drawn <select> list) ---- */
+let DDopen=null;
+function makeDD(host,label){
+  const btn=document.createElement('button'),txt=document.createElement('span'),ar=document.createElement('i');
+  btn.type='button';btn.className='ddb';btn.setAttribute('aria-haspopup','listbox');btn.setAttribute('aria-expanded','false');
+  ar.textContent='▼';ar.setAttribute('aria-hidden','true');btn.append(txt,ar);host.appendChild(btn);
+  const D={value:0,items:[],disabled:false,onchange:null,label,btn,
+    set(items,v){D.items=items;D.value=v;const it=items.find(o=>o.v===v);txt.textContent=it?it.text:'';btn.setAttribute('aria-label',label+'，'+(it?it.text:''));
+      if(DDopen&&DDopen.D===D)ddPlace()},   // the card layout may have moved (e.g. the opponent joined)
+    setDisabled(x){D.disabled=!!x;btn.disabled=!!x;if(x&&DDopen&&DDopen.D===D)ddClose()}};
+  btn.onclick=()=>{if(DDopen&&DDopen.D===D)ddClose();else ddOpen(D)};
+  btn.addEventListener('keydown',e=>{if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();ddOpen(D)}});
+  return D;
+}
+function ddOpen(D){
+  ddClose();if(D.disabled||!D.items.length)return;
+  const p=document.createElement('div');p.className='ddp';p.setAttribute('role','listbox');p.setAttribute('aria-label',D.label);
+  for(const o of D.items){const b=document.createElement('div'),t=document.createElement('span');
+    b.className='ddo'+(o.v===D.value?' on':'');b.setAttribute('role','option');b.setAttribute('aria-selected',String(o.v===D.value));b.tabIndex=-1;b.dataset.v=o.v;
+    t.textContent=o.text;b.appendChild(t);if(o.note){const s=document.createElement('small');s.textContent=o.note;s.setAttribute('aria-label','最佳評級 '+o.note);b.appendChild(s)}
+    b.onclick=()=>ddPick(o.v);p.appendChild(b)}
+  p.addEventListener('keydown',ddKey);document.body.appendChild(p);
+  D.btn.classList.add('open');D.btn.setAttribute('aria-expanded','true');DDopen={D,p};ddPlace();
+  const cur=p.querySelector('.on')||p.firstChild;cur.focus({preventScroll:true});p.scrollTop=cur.offsetTop-(p.clientHeight-cur.offsetHeight)/2;
+}
+function ddPlace(){   // below the button, or above it when there is more room there; always inside the screen
+  const {D,p}=DDopen,r=D.btn.getBoundingClientRect(),vh=innerHeight,vw=innerWidth,m=8,below=vh-r.bottom-m-6,above=r.top-m-6,up=below<160&&above>below;
+  p.style.maxHeight=Math.max(60,Math.min(260,up?above:below))+'px';
+  const w=Math.min(Math.max(r.width,220),vw-2*m);p.style.width=w+'px';p.style.left=Math.max(m,Math.min(vw-m-w,r.left+r.width/2-w/2))+'px';
+  if(up){p.style.top='auto';p.style.bottom=(vh-r.top+6)+'px'}else{p.style.bottom='auto';p.style.top=(r.bottom+6)+'px'}
+}
+function ddPick(v){const D=DDopen.D;ddClose();D.btn.focus({preventScroll:true});if(v!==D.value){D.set(D.items,v);if(D.onchange)D.onchange(v)}}
+function ddClose(){if(!DDopen)return;const {D,p}=DDopen;DDopen=null;p.remove();D.btn.classList.remove('open');D.btn.setAttribute('aria-expanded','false')}
+function ddKey(e){
+  const o=[...DDopen.p.children],i=o.indexOf(document.activeElement);
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){e.preventDefault();o[Math.max(0,Math.min(o.length-1,(i<0?0:i)+(e.key==='ArrowDown'?1:-1)))].focus()}
+  else if(e.key==='Home'||e.key==='End'){e.preventDefault();o[e.key==='Home'?0:o.length-1].focus()}
+  else if(e.key==='Enter'||e.key===' '){e.preventDefault();if(i>=0)ddPick(+o[i].dataset.v)}
+  else if(e.key==='Escape'){e.preventDefault();e.stopPropagation();const b=DDopen.D.btn;ddClose();b.focus()}
+  else if(e.key==='Tab'){DDopen.D.btn.focus({preventScroll:true});ddClose()}   // default Tab then moves on from the button
+}
+document.addEventListener('pointerdown',e=>{if(DDopen&&!DDopen.p.contains(e.target)&&!DDopen.D.btn.contains(e.target))ddClose()},true);
+addEventListener('resize',ddClose);
+document.addEventListener('scroll',e=>{if(DDopen&&!DDopen.p.contains(e.target))ddClose()},true);   // the card scrolled: the panel would drift off its button
+const DSONG=makeDD($('#dSong'),'曲目'),DDI=makeDD($('#dDi'),'難度');
+DSONG.onchange=v=>dsend({t:'cfg',song:v,di:DDI.value});
+DDI.onchange=v=>dsend({t:'cfg',song:DSONG.value,di:v});   // the server's room update then refreshes the rank notes
 $('#dShare').onclick=()=>{const u=location.origin+location.pathname+'?room='+DU.code,t='來 PingPongLight 跟我對戰！房號 '+DU.code;
   try{if(navigator.share){navigator.share({title:'PingPongLight 對戰邀請',text:t,url:u}).catch(()=>{});return}}catch(e){}
   try{navigator.clipboard.writeText(t+' '+u);dmsg('已複製邀請連結。')}catch(e){dmsg(u)}};

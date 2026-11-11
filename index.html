@@ -88,7 +88,27 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
 #calPad.beat{background:rgba(124,240,255,.28)}
 .stars{color:#ffd36b;letter-spacing:-1px}
 .chip.lock{opacity:.45}
-#duel input,#duel select{font:inherit;font-size:15px;color:var(--fg);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:8px 12px;user-select:text;-webkit-user-select:text}
+/* game-styled dropdown (the option panel is fixed to the viewport so the card never clips or scrolls it) */
+.dd{display:inline-block}
+.ddb{display:inline-flex;align-items:center;gap:8px;padding:8px 14px 8px 16px;max-width:15em}
+.ddb>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ddb i{font-style:normal;font-size:10px;color:var(--accent);transition:transform .15s}
+.ddb.open{border-color:#7cf0ff;box-shadow:0 0 0 3px rgba(124,240,255,.18)}.ddb.open i{transform:rotate(180deg)}
+.ddb[disabled]{opacity:.5;cursor:default}.ddb[disabled] i{display:none}.ddb[disabled]:active{transform:none}
+.ddb:focus-visible,.ddo:focus-visible{outline:2px solid #7cf0ff;outline-offset:2px}
+.ddp{position:fixed;z-index:19;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch;text-align:left;
+  background:linear-gradient(160deg,rgba(34,40,90,.98),rgba(14,16,40,.98));border:1px solid rgba(255,255,255,.16);border-radius:16px;padding:6px;
+  box-shadow:0 14px 40px rgba(0,0,0,.55),0 0 30px rgba(80,120,255,.25);animation:ddIn .12s ease-out}
+.ddp{scrollbar-width:thin;scrollbar-color:rgba(124,240,255,.4) transparent}
+.ddp::-webkit-scrollbar{width:6px}.ddp::-webkit-scrollbar-track{background:transparent;margin:10px 0}
+.ddp::-webkit-scrollbar-thumb{background:rgba(124,240,255,.4);border-radius:3px}
+@keyframes ddIn{from{opacity:0;transform:translateY(-4px)}}
+.ddo{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:8px 12px;border-radius:999px;font-size:14px;color:#cfd5f5;cursor:pointer;outline:none}
+.ddo small{color:var(--dim);font-size:11px;font-weight:700}
+.ddo:hover,.ddo:focus{background:rgba(255,255,255,.08)}
+.ddo.on{background:linear-gradient(90deg,#3fd8ff,#8f6bff);color:#04060f;font-weight:700}.ddo.on small{color:#04060f;opacity:.7}
+@media (prefers-reduced-motion:reduce){.ddp{animation:none}}
+#duel input{font:inherit;font-size:15px;color:var(--fg);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:8px 12px;user-select:text;-webkit-user-select:text}
 #dCode{width:6.5em;text-align:center;letter-spacing:.3em;text-transform:uppercase}
 #dCodeT{font-size:30px;letter-spacing:.25em;margin:4px 0}
 .dpl{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:6px 0}
@@ -167,7 +187,7 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
     <div id="dCodeT"></div>
     <div class="row" style="margin-top:2px"><button id="dShare">邀請朋友</button></div>
     <div class="dpl" id="dPl"></div>
-    <div class="srow" style="justify-content:center"><label style="flex:0 0 auto">曲目</label><select id="dSong"></select><label style="flex:0 0 auto">難度</label><select id="dDi"></select></div>
+    <div class="srow" style="justify-content:center"><label style="flex:0 0 auto">曲目</label><span class="dd" id="dSong"></span><label style="flex:0 0 auto">難度</label><span class="dd" id="dDi"></span></div>
     <div class="row"><button class="pri" id="dReady">準備</button><button id="dLeave">離開房間</button></div>
   </div>
   <p id="dMsg" style="color:#ffb86b;font-size:13px;min-height:1.2em"></p>
