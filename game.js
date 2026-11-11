@@ -31,7 +31,7 @@ function applyVol(){if(!AC)return;busMel.gain.value=SET.mel/80;busBk.gain.value=
 // audio latency compensation (s): sounds are scheduled this much earlier so they are HEARD on the beat
 function latS(){if(SET.lat!=null)return clamp(SET.lat,-100,400)/1000;if(!AC)return 0;return clamp((AC.outputLatency||AC.baseLatency||0),0,.3)}
 // the app shell cannot save a downloaded file: offer the score card only where the system share sheet takes images
-function shareOK(){if(!APP)return true;try{return !!(navigator.canShare&&navigator.canShare({files:[new File([new Blob(['x'],{type:'image/png'})],'s.png',{type:'image/png'})]}))}catch(e){return false}}
+function shareOK(){if(!APP)return true;try{return !!(window.Capacitor&&Capacitor.isPluginAvailable&&Capacitor.isPluginAvailable('Share')&&Capacitor.isPluginAvailable('Filesystem'))}catch(e){return false}}
 function vib(p){if(!SET.vib)return;try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
 try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}   // iOS 16.4+: Web Audio keeps playing with the silent switch on
 let silentEl=null;
@@ -449,7 +449,7 @@ function newBall(ti){
   return{x:FR.x+FR.w*(s===1?srand(.25,.4):srand(.6,.75)),y:FR.y+FR.h*(nb===2?(ti%2?.7:.3):.5),dx:(s===1?1:-1)/l,dy:dy/l,v:0,pop:0,ti,side:s,win:null,trail:[],sq:0,sqn:0,laps:0,away:false};
 }
 function startRun(from){
-  from=from||0;$('#sky').classList.add('hidden');
+  from=from||0;$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');
   if(mode==='tut'){D=TUTD;si=SONGS.findIndex(s=>s.key==='twinkle');if(si<0)si=0}
   else D=DIFFS[di];
   RNG=mode==='duel'?mulberry32(DU.seed):Math.random;
@@ -462,6 +462,7 @@ function startRun(from){
   combo=0;maxCombo=0;tierCount=[0,0,0,0];shake=0;exitT=0;easeT=0;starT=0;shield=0;rangeT=0;rangeMul=1;paused=false;resumeCD=0;life=100;missCount=0;runFrom=from;flash.a=0;edgeGlow=[0,0,0,0];
   bumps=[];items=[];rings=[];floats=[];parts=[];aims=[];spawnT=5;itemT=9;tickQ=[];cutAll();mlv=0;mgrow=0;mlBan=null;
   balls=[];for(let j=0;j<nb;j++)if(from+j<tg.length)balls.push(newBall(from+j));
+  RUN=mode==='normal'&&!from&&ME?{log:new Array(tg.length).fill(null),ok:true,ticket:null,key:song.key,d:di}:null;   // only full solo runs can enter the leaderboard
   endAt=mode==='tut'?timeOf(tg[tg.length-1].t)+2:timeOf(song.dur)+1.2;
   st='ready';hudShow(true);preloadSong(song);
   $('#sub').textContent=(mode==='tut'?'新手教學':'第 '+(si+1)+' 關')+' · 《'+song.name+'》 · '+D.n+' · '+tg.length+' 拍'+(nb===2?' · 雙球':'')+(from?' · 自第 '+(from+1)+' 拍':'');
@@ -491,6 +492,7 @@ async function launch(){
   tickQ=[LEADIN-1.5,LEADIN-1,LEADIN-.5];
   for(const b of balls){planLaps(b);b.vr=0;b.v=ballWant(b);b.vr=b.v}
   st='play';audioStatus();setMedia(true);hud();
+  if(RUN&&!RUN.ticket)RUN.ticket=api('/lb/start',{song:RUN.key,d:RUN.d}).then(j=>typeof j.run==='string'?j.run:{e:j.error||'net'});   // the server's signed start time
 }
 
 /* ================= input ================= */
@@ -518,6 +520,7 @@ function tap(x,y,e){
   for(const b of balls){if(!b.win)continue;const d=Math.hypot(b.x-x,b.y-y);if(d<=HRe()&&d<bd){bd=d;best=b}}
   rings.push({x,y,r0:6,life:.3,max:.3,hue:best?hueNow():220,w:1.5});     // visual only; a wrong tap makes no sound
   if(!best)return;
+  if(RUN&&e&&e.isTrusted===false)RUN.ok=false;   // a tap made by a script, not a finger: this run stays off the leaderboard
   const p=pressureOf(e);lastP=p;
   bounce(best,x,y,p);
 }
@@ -596,6 +599,16 @@ function burst(x,y,hue,n,sp,life){
 }
 function nextPitch(){const t=tg[Math.min(tg.length-1,Math.max(0,resolved))];return melList[t.mi][2]}
 function keyBell(vol){if(!AC)return;const p=nextPitch()+12;pluck(440*Math.pow(2,(p-69)/12),AC.currentTime,.5,vol*.7,[[1,1],[3,.12]],.5,busFx,0)}   // in-key accent (never a clash)
+// an obstacle hit plays the chord the backing is on right now, in the backing instrument: it blends into the accompaniment
+function harmNote(vol){
+  if(!AC)return;
+  const t=(G()-LEADIN)*SPD+offset;let j=Math.min(bi,bkList.length)-1;
+  while(j>=0&&(bkList[j][3]!==0||bkList[j][0]/100>t))j--;
+  if(j<0){keyBell(vol*.6);return}
+  let p=bkList[j][2];for(let k=j-1;k>=0&&bkList[j][0]-bkList[k][0]<=3;k--)if(bkList[k][3]===0)p=Math.max(p,bkList[k][2]);   // top of that chord
+  while(p<60)p+=12;while(p>76)p-=12;
+  voice(p,0,.45,vol,0,false);
+}
 function playMel(ti,cents,vol){
   const t=tg[ti],Gn=G(),L=latS();
   for(let i=t.mi;i<t.mend;i++){
@@ -624,7 +637,8 @@ function bounce(b,tx,ty,p){
   playMel(b.ti,cents,T.vol);                                   // melody is heard ONLY on a correct hit
   tierCount[ti]++;combo=ti<=2?combo+1:0;life=Math.min(100,life+[3,2,1,0][ti]);if(ti===0)vib(12);maxCombo=Math.max(maxCombo,combo);
   if(mlOn()&&ti<=2&&mlv<3&&++mgrow>=ML_STEP[mlv])mlSet(mlv+1,true);   // "尚可" neither counts nor breaks the climb
-  const sf=Math.pow(Math.max(.3,b.v/V0),1.1),pts=Math.round((100*T.m*sf*(1+.3*p)*(starT>0?2:1))*(mode==='duel'&&DU.sprint?2:1))+combo*5;
+  const sf=Math.pow(Math.max(.3,b.v/V0),1.1),base=Math.round((100*T.m*sf*(1+.3*p)*(starT>0?2:1))*(mode==='duel'&&DU.sprint?2:1)),pts=base+combo*5;
+  if(RUN&&b.ti<RUN.log.length)RUN.log[b.ti]=[Math.max(-400,Math.min(400,Math.trunc(e*1000))),base];   // ms toward zero keeps the same timing tier as here
   score+=pts;
   const hue=T.hue,fx=b.x+nx*40,fy=b.y;
   floats.push({x:fx,y:fy-6,text:T.n,hue,life:.9,max:.9,size:ti===0?1.5:ti===1?1.25:1});
@@ -717,6 +731,7 @@ function showResult(ok,msg){
   const row=(l,v,c)=>'<tr><td style="color:'+(c||'inherit')+'">'+l+'</td><td>'+v+'</td></tr>';
   $('#rtab').innerHTML=row('完美',tierCount[0],'#ffd36b')+row('極佳',tierCount[1],'#7cf0ff')+row('良好',tierCount[2],'#8fe388')+row('尚可',tierCount[3],'#9aa3c7')+row('失誤',missCount,'#ff7a93')
     +row('最高連擊',maxCombo)+row('精準度',Math.round(acc*100)+'%')+row('完成度',Math.min(resolved,tg.length)-runFrom+' / '+N);
+  if(ok&&mode==='normal'&&!runFrom){const bp=Math.floor(acc*10000),kA=KEY_AC(si,di);if(bp>(parseInt(lsGet(kA)||'0',10)||0))lsSet(kA,String(bp))}
   const rs=$('#rsky');rs.hidden=true;rs.textContent='';
   if(skyB){const a=starOf(si),full=!!skyC&&!skyCB&&skyDone(skyC);
     rs.textContent=full?'✦ '+skyC[0]+'完成':!skyB.lit?'✦ 《'+song.name+'》在星空中亮起了':(a.d>skyB.d||a.r>skyB.r)?'✦ 《'+song.name+'》在星空中更亮了':'';
@@ -731,6 +746,9 @@ function showResult(ok,msg){
   if(mode==='duel'){for(const id of['bNext','bCont','bRetry','bSel'])$('#'+id).style.display='none';duelFinish(ok,rank,acc)}
   else for(const id of['bRetry','bSel'])$('#'+id).style.display='';
   $('#end').classList.remove('hidden');
+  const rl=$('#rlb');rl.hidden=true;
+  if(ok&&mode==='normal'&&!runFrom){if(RUN&&RUN.ok)lbSubmit(RUN);else if(!ME){rl.hidden=false;$('#rlbT').textContent='取暱稱後，過關成績就會列入排行榜';const b=$('#rlbB');b.textContent='取暱稱';b.hidden=false}}
+  RUN=null;
   if(ok)jingleWin(rank);else jingleLose();
 }
 function over(msg){
@@ -742,8 +760,8 @@ function win(){
   setTimeout(()=>{if(st==='done')showResult(true)},500);
 }
 function hudShow(v){$('#hud').style.visibility=v?'visible':'hidden';$('#bSkipH').style.display=v&&mode==='tut'?'':'none';$('#bPause').style.display=mode==='duel'?'none':'';$('#prog').classList.toggle('duel',v&&mode==='duel')}
-function showHome(){mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#sky').classList.add('hidden');$('#home').classList.remove('hidden');skyBadge();audioStatus()}
-function showSelect(){mode='normal';setMedia(false);hudShow(false);st='menu';cutAll();balls=[];buildChips();$('#home').classList.add('hidden');$('#end').classList.add('hidden');$('#menu').classList.remove('hidden')}
+function showHome(){mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');$('#frv').classList.add('hidden');$('#home').classList.remove('hidden');skyBadge();audioStatus();frBadge()}
+function showSelect(){mode='normal';setMedia(false);hudShow(false);st='menu';cutAll();balls=[];buildChips();$('#home').classList.add('hidden');$('#end').classList.add('hidden');$('#lbv').classList.add('hidden');$('#menu').classList.remove('hidden');selScroll()}
 
 /* ================= update ================= */
 function wallFx(b,e){rings.push({x:b.x,y:b.y,r0:BR*.5,life:.3,max:.3,hue:hueNow()+80,w:1.5});edgeGlow[e]=Math.max(edgeGlow[e],.18);edgeHue[e]=hueNow()}
@@ -780,7 +798,7 @@ function updateBall(b,dt){
       const nx=dx/d,ny=dy/d,dot=b.dx*nx+b.dy*ny;
       if(dot<0){const rx=b.dx-2*dot*nx,ry=b.dy-2*dot*ny;b.dx=.45*b.dx+.55*rx;b.dy=.45*b.dy+.55*ry;const l=Math.hypot(b.dx,b.dy)||1;b.dx/=l;b.dy/=l}   // mild deflection
       b.x=o.x+nx*(h+BR+1);b.y=o.y+ny*(h+BR+1);
-      b.win=null;shake=Math.max(shake,5);flash.a=.16;flash.hue=345;keyBell(.06);
+      b.win=null;shake=Math.max(shake,5);flash.a=.16;flash.hue=345;harmNote(.1);
       burst(b.x,b.y,345,14,BR*14,.6);
       rings.push({x:b.x,y:b.y,r0:BR,life:.4,max:.4,hue:345,w:3},{x:o.x,y:o.y,r0:h,life:.3,max:.3,hue:350,w:3});
     }
@@ -1059,7 +1077,7 @@ function dAllow(t){if(t!=='st'&&t!=='atk')return true;const now=performance.now(
 const duelNow=()=>Date.now()+DU.off;
 function dsend(o){try{if(DU.ws&&DU.ws.readyState===1)DU.ws.send(JSON.stringify(o))}catch(e){}}
 function dmsg(t){$('#dMsg').textContent=t||''}
-function duelOpen(){initAudio();$('#home').classList.add('hidden');$('#duel').classList.remove('hidden');$('#dName').value=lsGet('ppl-name')||'';duelView()}
+function duelOpen(){if(!ME){nickOpen('duel');return}initAudio();$('#home').classList.add('hidden');$('#duel').classList.remove('hidden');$('#dName').value=ME.name;$('#dName').parentNode.hidden=true;duelView()}
 function duelView(){const inRoom=!!(DU.ws&&DU.code);$('#dJoin').hidden=inRoom;$('#dRoom').hidden=!inRoom}
 async function duelCreate(){
   initAudio();dmsg('建立房間中⋯');
@@ -1067,14 +1085,14 @@ async function duelCreate(){
     const j=await r.json();if(typeof j.code!=='string')throw 0;duelJoin(j.code)}
   catch(e){dmsg('無法連線到對戰伺服器，請稍後再試。')}
 }
-function duelJoin(code){
+function duelJoin(code,onOpen){
   initAudio();code=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);
   if(code.length!==4){dmsg('請輸入 4 碼房號。');return}
   const nm=($('#dName').value||'').trim().slice(0,12);if(nm)lsSet('ppl-name',nm);
   duelClose(true);dmsg('連線中⋯');
   let ws;try{ws=new WebSocket(DUEL_URL.replace(/^http/,'ws')+'/ws/'+code)}catch(e){dmsg('無法連線到對戰伺服器。');return}
   DU.ws=ws;DU.code=code;DU.left=false;DU.pings=[];
-  ws.onopen=()=>{dmsg('');dsend({t:'hello',name:nm||''});for(let k=0;k<6;k++)setTimeout(()=>dsend({t:'ping',c:Date.now()}),k*250);duelView()};
+  ws.onopen=()=>{dmsg('');dsend({t:'hello',name:nm||''});for(let k=0;k<6;k++)setTimeout(()=>dsend({t:'ping',c:Date.now()}),k*250);duelView();if(onOpen)onOpen()};
   ws.onmessage=e=>{if(DU.ws!==ws||typeof e.data!=='string'||e.data.length>4096)return;
     let d;try{d=JSON.parse(e.data)}catch(_){return}if(!d||typeof d!=='object'||Array.isArray(d)||typeof d.t!=='string'||!dAllow(d.t))return;
     try{duelOn(d)}catch(err){}};
@@ -1083,7 +1101,7 @@ function duelJoin(code){
     else{DU.code='';duelView();dmsg(ev.code===1006&&!DU.players.length?'無法加入：房間不存在、已滿，或操作太頻繁。':'連線已中斷。')}};
   clearInterval(DU.pingIv);DU.pingIv=setInterval(()=>dsend({t:'ping',c:Date.now()}),5000);
 }
-function duelClose(silent){ddClose();
+function duelClose(silent){ddClose();DU.note='';
   clearInterval(DU.pingIv);const w=DU.ws;DU.ws=null;DU.code='';DU.players=[];DU.phase='lobby';
   try{if(w)w.close()}catch(e){}if(!silent)duelView();
 }
@@ -1117,7 +1135,7 @@ function duelRoomUI(){
   DDI.set(DIFFS.map((x,i)=>({v:i,text:x.n})),DU.cfg.di);
   DSONG.setDisabled(!host);DDI.setDisabled(!host);
   const b=$('#dReady');b.textContent=DU.ready?'取消準備':'準備';b.classList.toggle('pri',!DU.ready);
-  if(!$('#duel').classList.contains('hidden'))dmsg(DU.players.length<2?'把房號告訴朋友，或按「邀請朋友」分享連結。':(host?'你是房主，可以選曲目和難度。兩人都按「準備」就開始。':'房主選曲中，兩人都按「準備」就開始。'));
+  if(!$('#duel').classList.contains('hidden'))dmsg(DU.players.length<2?(DU.note||'把房號告訴朋友，或按「邀請朋友」分享連結。'):(host?'你是房主，可以選曲目和難度。兩人都按「準備」就開始。':'房主選曲中，兩人都按「準備」就開始。'));
 }
 function duelStart(d){
   ddClose();DU.seed=d.seed>>>0||1;DU.startAt=d.at;if(DU.prevDi==null)DU.prevDi=di;
@@ -1173,7 +1191,7 @@ function duelResult(){
   if(res.startsWith('勝'))vib([20,40,20,40,60]);
 }
 function duelAgain(){$('#end').classList.add('hidden');hudShow(false);st='menu';balls=[];mode='normal';dsend({t:'again'});$('#duel').classList.remove('hidden');duelView();duelRoomUI()}
-$('#bDuel').onclick=duelOpen;
+$('#bDuel').onclick=()=>duelOpen();
 if(/WORKERS_SUBDOMAIN/.test(DUEL_URL))$('#bDuel').style.display='none';   // hidden until the duel server is deployed
 $('#dX').onclick=()=>{if(DU.ws){duelLeave()}else{$('#duel').classList.add('hidden');showHome()}};
 $('#dNew').onclick=duelCreate;
@@ -1228,25 +1246,304 @@ document.addEventListener('scroll',e=>{if(DDopen&&!DDopen.p.contains(e.target))d
 const DSONG=makeDD($('#dSong'),'曲目'),DDI=makeDD($('#dDi'),'難度');
 DSONG.onchange=v=>dsend({t:'cfg',song:v,di:DDI.value});
 DDI.onchange=v=>dsend({t:'cfg',song:DSONG.value,di:v});   // the server's room update then refreshes the rank notes
-$('#dShare').onclick=()=>{const u=(APP?SITE:location.origin+location.pathname)+'?room='+DU.code,t='來 PingPongLight 跟我對戰！房號 '+DU.code;
-  try{if(navigator.share){navigator.share({title:'PingPongLight 對戰邀請',text:t,url:u}).catch(()=>{});return}}catch(e){}
-  try{navigator.clipboard.writeText(t+' '+u);dmsg('已複製邀請連結。')}catch(e){dmsg(u)}};
+$('#dShare').onclick=()=>{const u=(APP?SITE:location.origin+location.pathname)+'?room='+DU.code;shareText('來 PingPongLight 跟我對戰！房號 '+DU.code,u,dmsg)};
 $('#bAgain').onclick=duelAgain;
 $('#bLeave').onclick=duelLeave;
-(function(){try{const r=new URLSearchParams(location.search).get('room');if(r){lsSet('ppl-tut','1');setTimeout(()=>{duelOpen();$('#dCode').value=r.toUpperCase().slice(0,4)},50)}}catch(e){}})();
+(function(){try{const r=new URLSearchParams(location.search).get('room');if(r){lsSet('ppl-tut','1');DU.pend=r.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);setTimeout(()=>{duelOpen();if(ME){$('#dCode').value=DU.pend;DU.pend=''}},50)}}catch(e){}})();
 
 /* ================= menu ================= */
 const mmss=t=>{t=Math.round(t);return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
+/* ================= online: nickname, leaderboard, friends ================= */
+// No account: one random key per install identifies the player; the server keeps only its hash.
+// Everything that comes back from the server is treated like duel messages: clamped, whitelisted, escaped.
+const NET=DUEL_URL,PF=APP?((window.Capacitor&&Capacitor.getPlatform&&Capacitor.getPlatform())==='android'?'android':'ios'):'web';
+function pkey(){let k=lsGet('ppl-pk');if(!/^[0-9a-f]{32}$/.test(k||'')){const a=new Uint8Array(16);crypto.getRandomValues(a);k=Array.from(a,b=>b.toString(16).padStart(2,'0')).join('');lsSet('ppl-pk',k)}return k}
+let ME=(()=>{try{const m=JSON.parse(lsGet('ppl-me')||'null');return m&&Number.isInteger(m.id)&&typeof m.name==='string'&&m.name?{id:m.id,name:dName(m.name)}:null}catch(e){return null}})();
+function setMe(m){ME=m;if(m)lsSet('ppl-me',JSON.stringify(m));else{try{localStorage.removeItem('ppl-me')}catch(e){}}}
+let RUN=null;   // this run's beat log: [timing error ms, base points] per beat, null = missed
+async function api(path,body,ms){
+  const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||8000);
+  try{const r=await fetch(NET+path,{method:'POST',body:JSON.stringify(body),signal:c.signal});   // text body: no CORS preflight
+    let j=null;try{j=await r.json()}catch(e){}
+    return j&&typeof j==='object'&&!Array.isArray(j)?Object.assign(j,{_s:r.status}):{_s:r.status,error:'net'}}
+  catch(e){return{_s:0,error:'net'}}finally{clearTimeout(t)}
+}
+const pct=bp=>(dInt(bp,0,10000)/100).toFixed(2)+'%';
+const KEY_AC=(i,d)=>'ppl-ac-'+SONGS[i].key+'-'+d;
+const HIDE=new Set((()=>{try{const a=JSON.parse(lsGet('ppl-hide')||'[]');return Array.isArray(a)?a.filter(Number.isInteger).slice(0,500):[]}catch(e){return[]}})());
+const saveHide=()=>lsSet('ppl-hide',JSON.stringify([...HIDE]));
+function capCall(pl,m,o){return window.Capacitor&&Capacitor.nativePromise?Capacitor.nativePromise(pl,m,o):Promise.reject(new Error('no bridge'))}
+async function shareText(text,url,say){
+  if(APP){capCall('Share','share',{title:'PingPongLight',text,url}).catch(()=>{});return}   // a cancelled share sheet is not an error worth showing
+  try{if(navigator.share){await navigator.share({title:'PingPongLight',text,url});return}}catch(e){if(e&&e.name==='AbortError')return}
+  try{await navigator.clipboard.writeText(text+' '+url);if(say)say('已複製，可以直接貼給朋友。')}catch(e){if(say)say(text+' '+url)}
+}
+
+/* ---- nickname: required before anything online; unique and filtered by the server ---- */
+let nickMode='';
+function nickOpen(m){
+  nickMode=m||'first';$('#nkIn').value=ME?ME.name:(lsGet('ppl-name')||'');$('#nkMsg').textContent='';
+  $('#nkK').textContent=nickMode==='first'?'歡迎來到 PingPongLight':'暱稱';
+  $('#nkT').textContent=nickMode==='rename'?'更改暱稱':'先取一個暱稱';
+  const sk=$('#nkSkip');sk.hidden=false;sk.textContent=nickMode==='first'?'先離線玩':'取消';
+  $('#nick').classList.remove('hidden');setTimeout(()=>{try{$('#nkIn').focus({preventScroll:true})}catch(e){}},60);
+}
+async function nickGo(){
+  const v=dName($('#nkIn').value).replace(/\s+/g,' '),msg=$('#nkMsg');
+  if(!v){msg.textContent='請輸入暱稱。';return}
+  const b=$('#nkGo');b.disabled=true;msg.textContent='確認中⋯';
+  const j=await api('/lb/name',{pk:pkey(),name:v});b.disabled=false;
+  if(j.ok){setMe({id:dInt(j.id,1,1e12),name:dName(j.name)||v});msg.textContent='';nickClose(true);return}
+  if(j.error==='name')msg.textContent=j.why==='taken'?'這個暱稱已經有人使用，請換一個。':j.why==='empty'?'暱稱至少要有一個文字或數字。':'暱稱含有不適合的字詞，請換一個。';
+  else if(j.error==='slow')msg.textContent='操作太頻繁，請等一分鐘再試。';
+  else{msg.textContent=nickMode==='first'?'目前連不上伺服器。可以先離線玩單人模式，下次開啟時再取暱稱。':'目前連不上伺服器，請稍後再試。';$('#nkSkip').hidden=false}
+}
+function nickClose(done){
+  $('#nick').classList.add('hidden');const m=nickMode;nickMode='';syncSet();
+  if(!done)return;
+  LBC.clear();frConnect();
+  if(m==='duel'){duelOpen();if(DU.pend){$('#dCode').value=DU.pend;DU.pend=''}}
+  else if(m==='friends')frOpen();
+  else if(m==='result')$('#rlb').hidden=true;
+}
+$('#nkGo').onclick=nickGo;
+$('#nkIn').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();nickGo()}});
+$('#nkSkip').onclick=()=>nickClose(false);
+async function netBoot(){
+  if(!ME){nickOpen('first');return}
+  const j=await api('/lb/me',{pk:pkey()});
+  if(j.me===null){setMe(null);nickOpen('first');return}   // the server no longer knows this key (records deleted)
+  if(j.me&&typeof j.me==='object'&&typeof j.me.name==='string')setMe({id:dInt(j.me.id,1,1e12),name:dName(j.me.name)||ME.name});
+  frConnect();frBadge(true);
+}
+
+/* ---- leaderboard ---- */
+const LBC=new Map();   // board -> {t, v}; kept 30 s so browsing songs does not hit the server on every tap
+function lbClean(j){
+  const row=r=>({r:dInt(r.r,0,1e9),id:dInt(r.id,0,1e12),name:dName(r.name)||'玩家',acc:dInt(r.acc,0,10000),err:dInt(r.err,0,999),combo:dInt(r.combo,0,1e5),score:dInt(r.score,0,1e9),hidden:r.hidden===true});
+  return{top:Array.isArray(j.top)?j.top.slice(0,100).filter(r=>r&&typeof r==='object').map(row):[],total:dInt(j.total,0,1e9),me:j.me&&typeof j.me==='object'?row(j.me):null};
+}
+async function lbGet(key,d,fresh){
+  const k=key+'-'+d,c=LBC.get(k);if(!fresh&&c&&performance.now()-c.t<30000)return c.v;
+  const j=await api('/lb/board',ME?{song:key,d,pk:pkey()}:{song:key,d});if(j.error)return null;
+  const v=lbClean(j);LBC.set(k,{t:performance.now(),v});return v;
+}
+async function lbSubmit(R){
+  const t=$('#rlbT'),b=$('#rlbB'),tok=lastRes;$('#rlb').hidden=false;b.hidden=true;t.textContent='成績上傳中⋯';
+  const run=R.ticket?await R.ticket:{e:'net'};
+  const j=typeof run==='string'?await api('/lb/submit',{run,pk:pkey(),log:R.log,pf:PF}):{error:run.e};
+  if(lastRes!==tok)return;
+  if(j.ok&&j.me&&typeof j.me==='object'&&!j.me.hidden){
+    const k='ppl-lr-'+R.key+'-'+R.d,prev=dInt(lsGet(k),0,1e9),r=dInt(j.me.r,1,1e9);lsSet(k,String(r));LBC.delete(R.key+'-'+R.d);
+    t.innerHTML='排行榜 <b>第 '+r+' 名</b>／共 '+dInt(j.total,1,1e9)+' 人'+(prev&&r<prev?'<em>↑ 上升 '+(prev-r)+' 名</em>':'')+(j.improved===false?' <span class="dim">（沒有超過你的最佳紀錄）</span>':'');
+    b.textContent='看排行榜';b.hidden=false;
+  }else if(j.ok)t.textContent='你的暱稱被多人檢舉，暫時不會顯示在排行榜上';
+  else{if(j.error==='noname')setMe(null);
+    t.textContent=j.error==='noname'?'找不到你的暱稱，請到「設定」重新取暱稱':j.error==='slow'?'操作太頻繁，這次成績沒有上傳':j.error==='net'||j._s===0||j._s>=500?'目前連不上伺服器，這次成績沒有列入排行榜':'這次成績無法驗證，沒有列入排行榜'}
+}
+$('#rlbB').onclick=()=>{if(!ME)nickOpen('result');else lbOpen(si,di)};
+const LBV={i:0,d:0,open:-1,v:null};let lbTok=0;
+function lbOpen(i,d){LBV.i=i;LBV.d=d;LBV.open=-1;$('#lbT').textContent='《'+SONGS[i].name+'》';lbSeg();$('#lbv').classList.remove('hidden');lbLoad()}
+function lbSeg(){$('#lbD').innerHTML=DIFFS.map((x,k)=>'<button data-d="'+k+'" class="'+(k===LBV.d?'on':'')+'">'+x.n+'</button>').join('')}
+async function lbLoad(){
+  const t=++lbTok,L=$('#lbL');L.innerHTML='<div class="lbmsg">載入中⋯</div>';$('#lbMe').hidden=true;
+  const v=await lbGet(SONGS[LBV.i].key,LBV.d);if(t!==lbTok)return;
+  if(!v){L.innerHTML='<div class="lbmsg">目前連不上伺服器，請稍後再試。</div>';return}
+  LBV.v=v;lbRender();
+}
+const lbCells=(r,mine)=>'<span class="'+(r.r<=3?'m'+r.r:'')+'"><b>'+r.r+'</b></span><span class="nmc">'+esc(mine?'你（'+r.name+'）':r.name)+'</span><span><b>'+pct(r.acc)+'</b></span><span>'+r.score.toLocaleString()+'</span><span>'+r.combo+'</span>';
+function lbRender(){
+  const v=LBV.v,L=$('#lbL'),rows=v.top.filter(r=>!HIDE.has(r.id)||(ME&&r.id===ME.id));
+  L.innerHTML=rows.length?rows.map(r=>{const mine=ME&&r.id===ME.id;
+    return '<div class="lbrow">'+lbCells(r,mine)+(mine?'<span></span>':'<button class="more" data-id="'+r.id+'" aria-label="檢舉或隱藏 '+esc(r.name)+'">⋯</button>')+'</div>'
+      +(LBV.open===r.id?'<div class="opt"><button data-rep="'+r.id+'">檢舉不雅暱稱</button><button data-hide="'+r.id+'">隱藏這位玩家</button><button data-x="1">取消</button></div>':'')}).join('')
+    :'<div class="lbmsg">還沒有人上榜，過關就能成為第一名。</div>';
+  const M=$('#lbMe'),note=t=>'<span></span><span class="nmc" style="font-weight:400;color:#8a93c0">'+t+'</span><span></span><span></span><span></span><span></span>';
+  M.hidden=false;
+  M.innerHTML=!ME?note('取暱稱後，過關成績就會列入排行榜'):!v.me?note('過關這個難度，就會列入排行榜'):v.me.hidden?note('你的暱稱被多人檢舉，暫時不會顯示'):lbCells(v.me,true)+'<span style="font-size:11px;color:#8a93c0">/'+v.total+'</span>';
+}
+$('#lbD').onclick=e=>{const b=e.target.closest('button[data-d]');if(!b)return;LBV.d=+b.dataset.d;LBV.open=-1;lbSeg();lbLoad()};
+$('#lbL').onclick=async e=>{
+  const b=e.target.closest('button');if(!b)return;const D=b.dataset;
+  if(D.id){const id=+D.id;LBV.open=LBV.open===id?-1:id;lbRender();return}
+  if(D.x){LBV.open=-1;lbRender();return}
+  if(D.hide){HIDE.add(+D.hide);saveHide();LBV.open=-1;lbRender();return}
+  if(D.rep){const id=+D.rep;if(!ME){b.textContent='取暱稱後才能檢舉';return}b.disabled=true;b.textContent='送出中⋯';const j=await api('/lb/report',{id,pk:pkey()});b.textContent=j.ok?'已檢舉，謝謝':'送出失敗';
+    setTimeout(()=>{if(LBV.open===id){LBV.open=-1;lbRender()}},1300)}
+};
+function lbClose(){$('#lbv').classList.add('hidden');if(!$('#menu').classList.contains('hidden'))selDetail()}
+$('#lbX').onclick=lbClose;
+$('#lbv').addEventListener('click',e=>{if(e.target.id==='lbv')lbClose()});
+
+/* ---- song select ---- */
+let selF=0,selTok=0,selTm=0;
+const ERAS=[[1750,'巴洛克與更早','～1750'],[1820,'古典時期','1750–1820'],[1950,'浪漫與印象派','1820–1910'],[1e9,'原創曲','本遊戲原創']];
+const yearOf=s=>{const m=String(s.year||'').match(/\d{4}/);return m?+m[0]:0};
+const rkOf=(i,d)=>{const r=lsGet(KEY_RK(i,d));return RANKS.includes(r)?r:''};
+const durTxt=s=>{const t=Math.round(s.dur||0);return Math.floor(t/60)+' 分 '+String(t%60).padStart(2,'0')+' 秒'};
 function buildChips(){
-  const d=$('#diffs');d.innerHTML='';
-  DIFFS.forEach((df,i)=>{const b=document.createElement('button');b.className='chip'+(i===di?' sel':'');b.innerHTML=df.n+'<small>'+(df.nb===2?'雙球':'單球')+(df.spd>1?' · 速度×'+df.spd:'')+'</small>';b.onclick=()=>{di=i;lsSet('pmb6-di',String(i));buildChips()};d.appendChild(b)});
-  const c=$('#chips');c.innerHTML='';
+  const done=SONGS.map((_,i)=>!!rkOf(i,di)),n2=done.filter(Boolean).length,cnt=[SONGS.length,SONGS.length-n2,n2];
+  document.querySelectorAll('#sTabs button').forEach((b,k)=>{b.classList.toggle('on',k===selF);b.setAttribute('aria-selected',String(k===selF));b.querySelector('b').textContent=cnt[k]});
+  let h='',era=-1;
   SONGS.forEach((s,i)=>{
-    const ul=unlocked(i),b=document.createElement('button');b.className='chip'+(i===si?' sel':'')+(ul?'':' lock');
-    const rk=(r=>RANKS.includes(r)?r:'')(lsGet(KEY_RK(i,di)));
-    b.innerHTML=(ul?'':'🔒 ')+(i+1)+'. '+s.name+'<small>'+s.year+' · '+s.composer+' · <span class="stars">'+starTxt(STARS[i])+'</span>'+(rk?' · '+rk:'')+'</small>';
-    b.onclick=()=>{if(!ul)return;si=i;buildChips();initAudio();preloadSong(SONGS[i])};c.appendChild(b);
+    if(selF&&(selF===2)!==done[i])return;
+    const e=ERAS.findIndex(x=>yearOf(s)<x[0]);
+    if(e!==era){era=e;h+='<div class="era">'+ERAS[e][1]+'<small>'+ERAS[e][2]+'</small><span class="eh">簡 普 困　評級</span></div>'}
+    const ul=unlocked(i),rk=rkOf(i,di);
+    h+='<button class="sr'+(i===si?' on':'')+(ul?'':' lock')+'" data-i="'+i+'"><span class="no">'+(i+1)+'</span>'
+      +'<span class="tx"><span class="nm">'+esc(s.name)+'</span><span class="mt">'+esc(s.year+' · '+s.composer)+'<i>'+starTxt(STARS[i])+'</i></span></span>'
+      +'<span class="pips" aria-label="已過關難度">'+[0,1,2].map(d=>'<i class="'+(rkOf(i,d)?'d'+d:'')+'"></i>').join('')+'</span>'
+      +'<span class="rk"'+(rk?' style="color:'+RANK_COL[rk]+'"':'')+'>'+(rk||'—')+'</span></button>';
   });
+  $('#chips').innerHTML=h||'<div class="sempty">'+(selF===1?'這個難度的曲目都過關了，換個難度挑戰看看。':'這個難度還沒有過關的曲目。')+'</div>';
+  selDetail();
+}
+function selScroll(){const on=$('#chips .sr.on');if(on)try{on.scrollIntoView({block:'center'})}catch(e){}}
+function selDetail(){
+  const i=si,s=SONGS[i];if(!s)return;
+  $('#sK').textContent='第 '+(i+1)+' 關 · '+s.year;$('#sN').textContent=s.name;
+  $('#sM').innerHTML=esc(s.composer+' · '+durTxt(s))+'<i>'+starTxt(STARS[i])+'</i>';
+  $('#diffs').innerHTML=DIFFS.map((df,k)=>'<button data-d="'+k+'" class="'+(k===di?'on':'')+'">'+df.n+'<small>'+(df.nb===2?'雙球':'單球')+(df.spd>1?' · 快 '+df.spd+' 倍':'')+'</small></button>').join('');
+  const rk=rkOf(i,di),sc=parseInt(lsGet(KEY_SC(i,di))||'0',10)||0,ac=parseInt(lsGet(KEY_AC(i,di))||'0',10)||0;
+  $('#sB').innerHTML=rk?'<span class="bk" style="color:'+RANK_COL[rk]+'">'+rk+'</span><span>'+(ac?'精準度 <b>'+pct(ac)+'</b> · ':'')+'最高分 <b>'+sc.toLocaleString()+'</b><br><span id="sRank"></span></span>'
+    :'<span class="bk" style="color:#3c4370">—</span><span>這個難度還沒過關<br><span id="sRank"></span></span>';
+  $('#bGo').disabled=!unlocked(i);
+  const t=++selTok,mini=$('#sMini');mini.innerHTML='<p>排行榜載入中⋯</p>';
+  clearTimeout(selTm);selTm=setTimeout(async()=>{   // wait for the player to settle on a song
+    const v=await lbGet(s.key,di);if(t!==selTok)return;const r=$('#sRank');
+    if(!v){mini.innerHTML='<p>離線中，暫時看不到排行榜</p>';return}
+    const top=v.top.filter(x=>!HIDE.has(x.id)).slice(0,3);
+    mini.innerHTML=top.length?top.map(x=>'<div><b class="m'+x.r+'">'+x.r+'</b><span>'+esc(x.name)+'</span><span>'+pct(x.acc)+'</span></div>').join(''):'<p>還沒有人上榜</p>';
+    if(r)r.innerHTML=v.me&&!v.me.hidden?'排行榜 <b style="color:#ffd36b">第 '+v.me.r+' 名</b>／共 '+v.total+' 人':'';
+  },250);
+}
+$('#chips').onclick=e=>{const b=e.target.closest('.sr');if(!b)return;const i=+b.dataset.i;if(!unlocked(i))return;
+  si=i;document.querySelectorAll('#chips .sr.on').forEach(x=>x.classList.remove('on'));b.classList.add('on');initAudio();preloadSong(SONGS[i]);selDetail()};
+$('#sTabs').onclick=e=>{const b=e.target.closest('button[data-f]');if(!b)return;selF=+b.dataset.f;buildChips();$('#chips').scrollTop=0};
+$('#diffs').onclick=e=>{const b=e.target.closest('button[data-d]');if(!b)return;di=+b.dataset.d;lsSet('pmb6-di',String(di));buildChips()};
+$('#bLb').onclick=()=>lbOpen(si,di);
+
+/* ---- friends: presence socket, list, invites ---- */
+const FD={ws:null,iv:0,back:0,retry:0,last:'',list:null,poll:0,inv:null,code:'',open:-1,bt:-1e9};
+const frIsOpen=()=>!$('#frv').classList.contains('hidden');
+const busyNow=()=>st==='play'||st==='ready'||st==='starting';
+function frConnect(){
+  if(!ME||FD.ws||document.hidden)return;clearTimeout(FD.retry);
+  let ws;try{ws=new WebSocket(NET.replace(/^http/,'ws')+'/fr/ws')}catch(e){return}
+  FD.ws=ws;FD.last='';
+  ws.onopen=()=>{try{ws.send(JSON.stringify({t:'auth',pk:pkey()}))}catch(e){}};
+  ws.onmessage=e=>{if(FD.ws!==ws||typeof e.data!=='string'||e.data.length>2048)return;let d;try{d=JSON.parse(e.data)}catch(_){return}
+    if(!d||typeof d!=='object'||Array.isArray(d)||typeof d.t!=='string')return;try{frOn(d)}catch(err){}};
+  ws.onclose=e=>{if(FD.ws!==ws)return;FD.ws=null;if(!ME||document.hidden||e.code===1008)return;   /* 1008: unknown key, replaced by another device, or flooding */FD.back=Math.min(60000,(FD.back||2000)*2);FD.retry=setTimeout(frConnect,FD.back)};
+}
+function frDisconnect(){clearTimeout(FD.retry);const w=FD.ws;FD.ws=null;try{if(w)w.close()}catch(e){}}
+function frSend(o){try{if(FD.ws&&FD.ws.readyState===1)FD.ws.send(JSON.stringify(o))}catch(e){}}
+function frStatus(force){   // what friends see: home / choosing a song / playing / in a duel
+  if(!FD.ws)return;const playing=busyNow()||st==='done'||st==='over';
+  const s=mode==='duel'?'duel':playing?'play':!$('#duel').classList.contains('hidden')?'duel':!$('#menu').classList.contains('hidden')?'menu':'home';
+  const sg=s==='play'&&mode!=='tut'&&song?song.key:null,k=s+'|'+sg;if(!force&&k===FD.last)return;FD.last=k;frSend({t:'st',s,song:sg});
+}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)frDisconnect();else frConnect()});   // a closed or backgrounded game shows as offline
+setInterval(()=>{frSend({t:'ping'})},30000);
+setInterval(()=>{frStatus();if(FD.inv)invShow();else if($('#invT').dataset.k==='inv')$('#invT').hidden=true;if(!$('#home').classList.contains('hidden'))frBadge()},1000);
+function frOn(d){
+  if(d.t==='hi'){FD.back=0;frStatus(true);return}
+  const who=f=>dName(f&&typeof f==='object'?f.name:'')||'好友';
+  if(d.t==='inv'){const room=String(d.room||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);if(room.length!==4)return;
+    const f=d.from&&typeof d.from==='object'?d.from:{};
+    FD.inv={id:dInt(f.id,0,1e12),name:who(f),room,song:SONGS.findIndex(x=>x.key===d.song),d:dInt(d.d,0,2),exp:Date.now()+55000};invShow();return}
+  if(d.t==='invno'){toast(who(d.from)+' 現在不方便，晚點再約');return}
+  if(d.t==='req'){toast(who(d.from)+' 想加你為好友');frBadge(true);if(frIsOpen())frLoad();return}
+  if(d.t==='friend'){toast(dName(d.name)+' 和你成為好友了');frBadge(true);if(frIsOpen())frLoad();return}
+}
+let toastTm=0;
+function toast(text){
+  if(FD.inv)return;const T=$('#invT');T.dataset.k='note';$('#invA').textContent=text;$('#invB').textContent='';$('#invNo').hidden=true;$('#invOk').textContent='好';
+  T.hidden=busyNow();clearTimeout(toastTm);toastTm=setTimeout(()=>{if(T.dataset.k==='note')T.hidden=true},4500);
+}
+function invShow(){   // never over a run in progress: it appears when the run ends
+  const v=FD.inv,T=$('#invT');if(!v)return;
+  if(Date.now()>v.exp){FD.inv=null;T.hidden=true;return}
+  if(busyNow()){if(T.dataset.k==='inv')T.hidden=true;return}
+  T.dataset.k='inv';$('#invA').innerHTML='<b>'+esc(v.name)+'</b> 邀請你對戰';
+  $('#invB').textContent=(v.song>=0?'《'+SONGS[v.song].name+'》· '+DIFFS[v.d].n+' · ':'')+'還有 '+Math.ceil((v.exp-Date.now())/1000)+' 秒';
+  $('#invNo').hidden=false;$('#invOk').textContent='加入';T.hidden=false;
+}
+$('#invOk').onclick=()=>{const T=$('#invT');T.hidden=true;if(T.dataset.k!=='inv')return;const v=FD.inv;FD.inv=null;if(v&&Date.now()<=v.exp)frJoin(v)};
+$('#invNo').onclick=()=>{const v=FD.inv;FD.inv=null;$('#invT').hidden=true;if(v)api('/fr/decline',{pk:pkey(),id:v.id})};
+function frJoin(v){
+  initAudio();if(mode==='duel'&&busyNow())return;
+  for(const o of['#set','#cal','#frv','#lbv','#pause','#nick','#duel'])$(o).classList.add('hidden');
+  if(DU.ws)duelClose(true);showHome();duelOpen();duelJoin(v.room);
+}
+const fcode=c=>c.slice(0,4)+'-'+c.slice(4);
+const ago=ms=>{if(!ms)return '';const s=(Date.now()-ms)/1000;return s<3600?Math.max(1,Math.round(s/60))+' 分鐘前':s<86400?Math.round(s/3600)+' 小時前':Math.round(s/86400)+' 天前'};
+function frOpen(){
+  if(!ME){nickOpen('friends');return}
+  initAudio();$('#home').classList.add('hidden');$('#frv').classList.remove('hidden');$('#frMsg').textContent='';FD.open=-1;
+  $('#frCode').textContent=FD.code?fcode(FD.code):'⋯';
+  api('/fr/me',{pk:pkey()}).then(j=>{if(typeof j.code==='string'&&/^[A-Z0-9]{8}$/.test(j.code)){FD.code=j.code;$('#frCode').textContent=fcode(j.code)}else if(!FD.code)$('#frCode').textContent=j.error==='noname'?'請先取暱稱':'離線中'});
+  frLoad();clearInterval(FD.poll);FD.poll=setInterval(()=>{if(frIsOpen()&&!document.hidden)frLoad()},15000);
+}
+function frClose(){clearInterval(FD.poll);showHome()}
+async function frLoad(){
+  const j=await api('/fr/list',{pk:pkey()});
+  if(j.error){if(frIsOpen()&&!FD.list)$('#frList').innerHTML='<div class="lbmsg">'+(j.error==='noname'?'請先取暱稱。':'目前連不上伺服器，請稍後再試。')+'</div>';return}
+  const P=a=>Array.isArray(a)?a.slice(0,300).filter(x=>x&&typeof x==='object').map(x=>({id:dInt(x.id,0,1e12),name:dName(x.name)||'玩家',on:x.on===1||x.on===true,
+    st:['home','menu','play','duel'].includes(x.st)?x.st:null,song:typeof x.song==='string'?x.song:null,seen:Number.isFinite(+x.seen)?+x.seen:0})):[];
+  FD.list={friends:P(j.friends),incoming:P(j.incoming),outgoing:P(j.outgoing),blocked:P(j.blocked)};frBadgeSet();if(frIsOpen())frRender();
+}
+function frBadge(force){if(!ME)return;if(!force&&performance.now()-FD.bt<30000)return;FD.bt=performance.now();frLoad()}
+function frBadgeSet(){const L=FD.list;if(!L)return;const on=L.friends.filter(f=>f.on).length,inc=L.incoming.length;$('#frN').textContent=(on?String(on):'')+(inc?(on?' · ':'')+inc+' 個邀請':'')}
+function frRender(){
+  const L=FD.list;if(!L)return;const busy=f=>f.st==='play'||f.st==='duel';
+  const on=L.friends.filter(f=>f.on).length;$('#frOn').textContent=on?on+' 位在線上':'';
+  const fs=L.friends.slice().sort((a,b)=>(b.on-a.on)||(busy(a)-busy(b))||a.name.localeCompare(b.name,'zh-Hant'));
+  let h=fs.length?'':'<div class="lbmsg">還沒有好友。把左邊的好友碼傳給朋友，或輸入朋友的好友碼。</div>';
+  for(const f of fs){
+    const sn=f.song?SONGS.find(x=>x.key===f.song):null,cls=!f.on?'':busy(f)?'busy':'on';
+    const sub=!f.on?'離線'+(f.seen?' · '+ago(f.seen):''):f.st==='duel'?'對戰中 · 打完就能邀請':f.st==='play'?'遊戲中'+(sn?' · 《'+sn.name+'》':'')+' · 打完就能邀請':f.st==='menu'?'在線上 · 正在選歌':'在線上';
+    h+='<div class="fr"><span class="dot '+cls+'"></span><span class="tx"><span class="nm">'+esc(f.name)+'</span><span class="mt '+cls+'">'+esc(sub)+'</span></span>'
+      +(f.on&&!busy(f)?'<button class="pri inv" data-inv="'+f.id+'">邀請對戰</button>':'')
+      +'<button class="more" data-more="'+f.id+'" aria-label="'+esc(f.name)+' 的更多選項">⋯</button></div>';
+    if(FD.open===f.id)h+='<div class="fopt"><button data-rm="'+f.id+'">刪除好友</button><button class="warn" data-bl="'+f.id+'">封鎖</button><button data-x="1">取消</button></div>';
+  }
+  if(L.outgoing.length){h+='<div class="fsec">等待對方接受</div>';for(const f of L.outgoing)h+='<div class="fr"><span class="dot"></span><span class="tx"><span class="nm">'+esc(f.name)+'</span><span class="mt">已送出好友邀請</span></span><button data-rm="'+f.id+'">取消</button></div>'}
+  if(L.blocked.length){h+='<div class="fsec">已封鎖</div>';for(const f of L.blocked)h+='<div class="fr"><span class="dot"></span><span class="tx"><span class="nm">'+esc(f.name)+'</span></span><button data-ub="'+f.id+'">解除封鎖</button></div>'}
+  $('#frList').innerHTML=h;
+  const R=$('#frReq');R.hidden=!L.incoming.length;
+  R.innerHTML=L.incoming.map(f=>'<div><span><b>'+esc(f.name)+'</b> 想加你為好友</span><button class="pri" data-acc="'+f.id+'">接受</button><button data-dec="'+f.id+'">略過</button></div>').join('');
+}
+async function frAct(path,body){const j=await api(path,Object.assign({pk:pkey()},body));$('#frMsg').textContent=j.error?(j.error==='net'?'目前連不上伺服器。':'操作失敗，請稍後再試。'):'';FD.open=-1;await frLoad()}
+$('#frList').onclick=e=>{const b=e.target.closest('button');if(!b)return;const D=b.dataset;
+  if(D.more){const id=+D.more;FD.open=FD.open===id?-1:id;frRender();return}
+  if(D.x){FD.open=-1;frRender();return}
+  if(D.rm){frAct('/fr/remove',{id:+D.rm});return}
+  if(D.bl){frAct('/fr/block',{id:+D.bl});return}
+  if(D.ub){frAct('/fr/unblock',{id:+D.ub});return}
+  if(D.inv)frInvite(+D.inv,b)};
+$('#frReq').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.acc)frAct('/fr/respond',{id:+b.dataset.acc,accept:true});else if(b.dataset.dec)frAct('/fr/respond',{id:+b.dataset.dec,accept:false})};
+$('#frAdd').onclick=async()=>{
+  const c=$('#frIn').value.toUpperCase().replace(/[^A-Z0-9]/g,''),m=$('#frMsg');
+  if(c.length!==8){m.textContent='好友碼是 8 個英文字母和數字。';return}
+  m.textContent='送出中⋯';const j=await api('/fr/add',{pk:pkey(),code:c});
+  m.textContent=j.friends?'你們成為好友了！':j.pending?'已送出邀請，等對方接受。':({nocode:'找不到這個好友碼。',self:'這是你自己的好友碼。',already:'你們已經是好友了。',full:'好友或待確認的邀請已達上限。',slow:'操作太頻繁，請稍後再試。',net:'目前連不上伺服器。'})[j.error]||'送出失敗，請稍後再試。';
+  if(j.ok){$('#frIn').value='';frLoad()}
+};
+$('#frIn').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('#frAdd').click()}});
+$('#frCopy').onclick=async()=>{if(!FD.code)return;const t=fcode(FD.code);try{await navigator.clipboard.writeText(t);$('#frMsg').textContent='已複製好友碼。'}catch(e){$('#frMsg').textContent='無法複製，請直接告訴朋友：'+t}};
+$('#frSend').onclick=()=>{if(FD.code)shareText('來 PingPongLight 加我好友！我的好友碼是 '+fcode(FD.code),SITE,t=>{$('#frMsg').textContent=t})};
+$('#frX').onclick=frClose;
+$('#bFr').onclick=frOpen;
+async function frInvite(id,b){
+  const f=FD.list&&FD.list.friends.find(x=>x.id===id),name=f?f.name:'好友';b.disabled=true;b.textContent='建立房間⋯';
+  let code=null;try{const r=await fetch(DUEL_URL+'/new');if(r.ok){const j=await r.json();if(typeof j.code==='string')code=j.code}}catch(e){}
+  if(!code){b.disabled=false;b.textContent='邀請對戰';$('#frMsg').textContent='無法建立房間，請稍後再試。';return}
+  clearInterval(FD.poll);$('#frv').classList.add('hidden');duelOpen();
+  duelJoin(code,()=>{dsend({t:'cfg',song:si,di});DU.note='邀請送出中⋯';duelRoomUI();
+    api('/fr/invite',{pk:pkey(),id,room:code,song:SONGS[si].key,d:di}).then(j=>{
+      DU.note=j.ok?(j.delivered?'已邀請 '+name+'，等對方加入⋯':name+' 剛好離線了，可以把房號告訴對方。'):j.error==='notfriend'?'你們已經不是好友了。':'邀請沒有送出，可以把房號告訴對方。';
+      if(DU.ws)duelRoomUI()})});
 }
 /* ================= star map ================= */
 // constellations by era: [name, label position, [x, y, song key]..., links between stars]
@@ -1362,7 +1659,7 @@ function audioDiag(){
   el.textContent=AC?'音訊狀態：'+AC.state+' · '+Math.round(AC.sampleRate/100)/10+' kHz · 工作階段 '+ses:'音訊尚未啟動';
 }
 function syncSet(){
-  audioDiag();
+  audioDiag();$('#sNick').textContent=ME?ME.name:'（還沒有暱稱）';$('#bNick').textContent=ME?'改名':'取暱稱';
   for(const[k,id]of[['mel','vMel'],['bk','vBk'],['fx','vFx']]){$('#'+id).value=SET[k];$('#'+id+'V').textContent=SET[k]}
   const tg2=(id,on)=>{const b=$('#'+id);b.textContent=on?'開啟':'關閉';b.classList.toggle('on',on)};tg2('tFx',SET.lowFx);tg2('tVib',SET.vib);tg2('tMl',SET.ml!==false);
   const ms=Math.round(latS()*1000);$('#calV').textContent=(ms>=0?'+':'')+ms+' ms'+(SET.lat==null?'（自動）':'');$('#calCur').textContent=(ms>=0?'+':'')+ms+' ms';
@@ -1372,6 +1669,17 @@ $('#tFx').onclick=()=>{SET.lowFx=!SET.lowFx;saveSet();syncSet()};
 $('#tMl').onclick=()=>{SET.ml=SET.ml===false;saveSet();syncSet()};
 if(!navigator.vibrate){$('#tVib').style.display='none';$('#tVib').previousElementSibling.style.display='none'}   // iPhone browsers and apps have no vibration API
 $('#tVib').onclick=()=>{SET.vib=!SET.vib;saveSet();syncSet();vib(30)};
+$('#bNick').onclick=()=>nickOpen(ME?'rename':'set');
+let wipeT=-1e9;
+$('#bWipe').onclick=async()=>{   // two taps: the first one only arms it
+  const b=$('#bWipe'),idle='刪除我的線上資料';
+  if(performance.now()-wipeT>4000){wipeT=performance.now();b.textContent='再按一次：永久刪除暱稱、排行與好友';setTimeout(()=>{if(performance.now()-wipeT>=4000)b.textContent=idle},4100);return}
+  wipeT=-1e9;b.disabled=true;b.textContent='刪除中⋯';
+  const j=await api('/lb/delete',{pk:pkey()});b.disabled=false;
+  if(!j.ok){b.textContent='刪除失敗，請連上網路後再試';setTimeout(()=>{b.textContent=idle},3000);return}
+  frDisconnect();try{for(const k of Object.keys(localStorage))if(/^ppl-(pk|me|hide|lr-)/.test(k))localStorage.removeItem(k)}catch(e){}
+  HIDE.clear();setMe(null);LBC.clear();FD.list=null;FD.code='';$('#frN').textContent='';b.textContent='已刪除。單人模式的進度仍保留在這台裝置上';setTimeout(()=>{b.textContent=idle},4000);syncSet();
+};
 $('#bSet').onclick=()=>{initAudio();syncSet();$('#home').classList.add('hidden');$('#set').classList.remove('hidden')};
 function closeSet(){$('#set').classList.add('hidden');showHome()}
 $('#bSetX').onclick=closeSet;$('#bSetC').onclick=closeSet;
@@ -1423,6 +1731,8 @@ function shareImg(){
 $('#bShare').onclick=()=>{
   const c=shareImg();if(!c)return;
   const text='我在 PingPongLight '+lastRes.label+' 拿到 '+lastRes.rank+'（'+lastRes.score.toLocaleString()+' 分）';
+  if(APP){const data=c.toDataURL('image/png').split(',')[1];   // the app: save to the cache folder, then the system share sheet
+    capCall('Filesystem','writeFile',{path:'pingponglight-result.png',data,directory:'CACHE'}).then(r=>capCall('Share','share',{title:'PingPongLight',text,files:[r.uri]})).catch(()=>{});return}
   c.toBlob(bl=>{
     if(!bl)return;
     try{const f=new File([bl],'pingponglight.png',{type:'image/png'});
@@ -1449,5 +1759,6 @@ for(const f of[layout,buildChips,hud,audioStatus]){try{f()}catch(e){showErr(e)}}
 if(APP)$('#bFs').style.display='none';
 else if('serviceWorker' in navigator&&location.protocol==='https:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));hudShow(false);$('#fsHint').style.display=(!(DE.requestFullscreen||DE.webkitRequestFullscreen)&&!standalone)?'block':'none';
 requestAnimationFrame(frame);
+try{netBoot()}catch(e){}
 window.__pb={get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:FR,HR:HRe(),tiers:tierCount,cents:lastCents,p:lastP,pSrc,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},setTs(v){ts=v},setSong(i){si=i},skyRes(k,d,ok){const j=SONGS.findIndex(x=>x.key===k);if(j<0)return null;mode='normal';si=j;song=SONGS[si];di=d;D=DIFFS[d];score=1000;tierCount=[tg.length||10,0,0,0];missCount=0;st='done';showResult(ok,'');const r=$('#rsky');return r.hidden?'':r.textContent},tg:()=>tg.map(t=>t.t),pause:pauseGame,resume:resumeGame,shareImg,STARS,il:()=>instLoad,gaps:()=>{const r=[];for(const it of items)for(const o of bumps)r.push(Math.hypot(it.x-o.x,it.y-o.y)-itemGap(o.Rm));return r}};
 })();

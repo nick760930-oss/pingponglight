@@ -11,6 +11,9 @@
 // - phase rules: config/ready only in the lobby, state/attacks only while playing, one result per round;
 // - config changes are throttled (they are the only lobby message that writes storage);
 // - idle sockets (no ping for 75 s) are closed so dead or parked connections cannot hold a room.
+import { handleLb } from './lb.js';
+import { handleFr } from './friends.js';
+export { Hub } from './friends.js';             // presence Durable Object (friends)
 const ALPH = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';          // no 0/O/1/I/L
 // the website, plus the iOS store app (Capacitor serves its bundled files from capacitor://localhost)
 const PROD = /^(https:\/\/pingponglight\.vercel\.app|capacitor:\/\/localhost)$/, LOCAL = /^http:\/\/(localhost|127\.0\.0\.1)(:\d{1,5})?$/;
@@ -45,6 +48,26 @@ async function limited(env, key) {    // true when this key is over its limit
 export default {
   async fetch(req, env) {
     const url = new URL(req.url), origin = req.headers.get('Origin');
+    if (url.pathname.startsWith('/lb/')) {           // leaderboard (POST); moderation (/lb/admin) is token-only, no page
+      const admin = url.pathname === '/lb/admin';
+      if (!admin && !okOrigin(origin, env)) return new Response('forbidden', { status: 403, headers: BASE_H });
+      const H = admin ? BASE_H : cors(origin);
+      if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: { ...H, 'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Max-Age': '86400' } });
+      return handleLb(req, env, url.pathname, clientKey(req), origin, H, limited);
+    }
+    if (url.pathname.startsWith('/fr/')) {           // friends: JSON over POST, plus the presence WebSocket
+      if (!okOrigin(origin, env)) return new Response('forbidden', { status: 403, headers: BASE_H });
+      const who = clientKey(req);
+      if (url.pathname === '/fr/ws') {
+        if (req.headers.get('Upgrade') !== 'websocket') return new Response('expected websocket', { status: 426, headers: BASE_H });
+        if (!env.HUB || !env.LB) return new Response('off', { status: 503, headers: BASE_H });
+        if (await limited(env, 'frws:' + who)) return new Response('slow down', { status: 429, headers: { ...BASE_H, 'Retry-After': '60' } });
+        return env.HUB.get(env.HUB.idFromName('hub')).fetch(req);
+      }
+      const H = cors(origin);
+      if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: { ...H, 'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Max-Age': '86400' } });
+      return handleFr(req, env, url.pathname, who, origin, H, limited);
+    }
     if (req.method !== 'GET') return new Response('method not allowed', { status: 405, headers: BASE_H });
     if (url.pathname === '/' || url.pathname === '/health') return new Response('PingPongLight duel server', { headers: BASE_H });
     if (!okOrigin(origin, env)) return new Response('forbidden', { status: 403, headers: BASE_H });

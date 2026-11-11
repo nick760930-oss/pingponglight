@@ -1,3 +1,5 @@
 node_modules/
 .wrangler/
 .dev.vars
+.prod-admin
+.prod-secrets.json

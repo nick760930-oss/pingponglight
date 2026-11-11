@@ -6,6 +6,8 @@
 	<string>$(CAPACITOR_DEBUG)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>zh_TW</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>在分享選單選擇「儲存影像」時，把成績圖片存到你的相簿。</string>
 	<key>CFBundleDisplayName</key>
         <string>PingPongLight</string>
 	<key>CFBundleExecutable</key>

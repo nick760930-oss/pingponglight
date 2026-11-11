@@ -7,12 +7,31 @@ workers_dev = true
 name = "ROOMS"
 class_name = "Room"
 
+[[durable_objects.bindings]]
+name = "HUB"
+class_name = "Hub"
+
 [[migrations]]
 tag = "v1"
 new_sqlite_classes = ["Room"]
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["Hub"]
 
 # Per-IP limit for /new and /ws (Workers Rate Limiting). The code skips the check if this binding is missing.
 [[ratelimits]]
 name = "RL"
 namespace_id = "1001"
 simple = { limit = 30, period = 60 }
+
+# Leaderboard and friends database (game-only; created 2026-11-11). Moving to the game's own Cloudflare account
+# later (SECURITY.md A1): `wrangler d1 export pingponglight-lb --remote --output lb.sql`, create the database there,
+# `wrangler d1 execute <new> --remote --file lb.sql`, then put the new id here.
+# Schema: migrations/ (`npx wrangler d1 migrations apply LB --local`, or --remote once the real id is set).
+# Secrets (`wrangler secret put`): LB_SECRET signs run tickets; LB_ADMIN unlocks /lb/admin.
+[[d1_databases]]
+binding = "LB"
+database_name = "pingponglight-lb"
+database_id = "54ad7e71-3518-44a8-895e-89aeaec04053"
+migrations_dir = "migrations"

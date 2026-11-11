@@ -5,7 +5,7 @@
 ## 設計原則
 
 1. **單人模式完全不依賴網路。** 曲目、音色、存檔都在玩家裝置上。伺服器就算被攻擊或停擺，也只影響線上對戰。
-2. **不設帳號、不放金鑰、不留存個資。** 伺服器只在記憶體中暫時處理 IP（計算頻率限制）和對戰暱稱，不寫入紀錄。上架填 Google Play「資料安全性」和 Apple 隱私標籤時要據實揭露這兩項。客戶端程式裡沒有任何秘密。
+2. **不設帳號、客戶端不放金鑰。** 玩家裝置產生 128 位元隨機識別碼，伺服器只存其 SHA-256。D1 資料庫（`pingponglight-lb`）存暱稱、每板最佳成績與逐拍紀錄、好友碼／好友／邀請／封鎖、最後上線時間、檢舉者 IP 雜湊。上架填 Google Play「資料安全性」和 Apple 隱私標籤時要據實揭露：暱稱（公開）、遊戲內容（成績）、使用者 ID（識別碼雜湊），用途是 App 功能，不用於追蹤，可在 App 內刪除（Apple 5.1.1(v)）。伺服器秘密 `LB_SECRET`（場次票簽章）與 `LB_ADMIN`（管理員）只存在 Cloudflare secret。
 3. **伺服器不信任任何輸入。** 每則訊息都限制大小、頻率、格式和數值範圍；對手送來的資料一律重新消毒後才顯示。
 4. **Origin 檢查只是過濾，不是驗證。** 非瀏覽器程式可以偽造 Origin，所以真正的防線是頻率限制和資源上限。
 
@@ -19,7 +19,7 @@
 | 4 | WebSocket 訊息洪水、巨大訊息 | 每連線 token bucket（容量 30、每秒補 8）；單則超過 512 字元，或累計違規 60 次就斷線；閒置 75 秒踢除（每 30 秒巡一次，最晚約 105 秒） | 低 | — |
 | 5 | XSS（惡意暱稱、評級字串） | 伺服器清洗名稱；客戶端顯示前一律以 `esc()` 跳脫或用 textContent，評級以白名單驗證；CSP `script-src 'self'`（樣式仍允許 inline） | 低 | — |
 | 6 | 點擊劫持、內嵌、降級攻擊 | `frame-ancestors 'none'`、X-Frame-Options、HSTS 兩年、COOP | 低 | — |
-| 7 | 作弊（竄改分數、假完成） | 伺服器限制數值範圍、每局只收一次完成；攻擊道具有間隔 | 中：休閒對戰無法完全防作弊，沒有排行榜所以影響有限 | 做排行榜前要改伺服器驗證 |
+| 7 | 排行榜作弊（假成績、自動點擊） | 伺服器從逐拍紀錄重算精準度與分數（每拍分數不得超過該拍上限）；場次票（HMAC 簽章，必須經過約整首歌的時間、3 小時內有效）擋直接送假成績；程式產生的點擊（isTrusted=false）不上傳；拍子異常穩定標記 sus=1 供人工檢查（不拒收）；保存最佳那次的逐拍紀錄；三個不同網路檢舉自動隱藏；管理員可隱藏、刪除 | 中：裝置端的自動點擊程式（特別是 Android 無障礙服務）產生的是真實觸控，JS 偵測不到；改過的客戶端可以宣稱每拍都拿最高分 | B1 |
 | 8 | 帳號被盜後推送惡意更新 | — | **高**：這是上架後最實際的風險 | A3 |
 | 9 | App 內載入外部程式碼或被導向外站 | （App 尚未建立） | — | A4 |
 | 10 | 供應鏈（套件被植入） | 網頁端零第三方套件；伺服器只依賴 wrangler，且有 lock 檔 | 低 | 部署前 `npm audit` |
@@ -53,16 +53,34 @@
 - 伺服器白名單（`server/src/index.js` 的 `PROD`）加入 App 的來源：Android `https://localhost`（Capacitor 6 起的預設）、iOS `capacitor://localhost`。
 - App 內不會套用 `vercel.json` 的標頭，要在 `index.html` 加 `<meta http-equiv="Content-Security-Policy">`（meta 寫法不支援 `frame-ancestors`，App 內也不需要）。
 
+**B1. App Attest／Play Integrity**（上架原生 App 後）
+- 只接受真的 App、真的裝置送來的成績；網頁版成績另列或降權。需要原生外掛與伺服器端驗證。
+
+**B2. 排行榜管理**
+- 管理指令：`POST /lb/admin {token, op}`，op 有 `reports`、`flagged`、`run`（看逐拍紀錄）、`hide`、`unhide`、`delete`。token 為 `LB_ADMIN`。
+- 資料庫可隨時搬：`npx wrangler d1 export pingponglight-lb --remote --output lb.sql` 匯出成 SQL，任何 SQLite 都能匯入。
+
 **A5. 監控與應變**（要你本人操作，我可以一步步帶）
 - Cloudflare 設定用量通知；Vercel 設定流量通知。
 - 遭受攻擊時，最快的止血方式是暫時停用對戰：把 `DUEL_URL` 改回占位字串，對戰按鈕就會隱藏。單人模式不受影響。
 
 ## 回歸測試
 
-伺服器改動後要跑攻擊測試（24 項）：
+伺服器改動後要跑三組測試（攻擊 24 項、排行榜 66 項、好友 93 項），測試前清空本機資料表：
 
 ```
 node server/test/attack.js http://127.0.0.1:8788
+node server/test/lb.js http://127.0.0.1:8788
+node server/test/friends.js http://127.0.0.1:8788
 ```
 
 測試前先在 `server/` 執行 `npx wrangler dev --port 8788`（`.dev.vars` 已設定 `ALLOW_LOCAL=1`）。
+
+## 部署順序（排行榜與好友）
+
+順序錯了會讓暱稱和對戰全部失效（沒有密鑰時 `/lb/*` 回 503，而對戰需要暱稱）：
+
+1. 密鑰（第一次才需要）：`npx wrangler secret bulk .prod-secrets.json`（檔案在 `server/`，已列入 .gitignore；`LB_ADMIN` 另存在 `server/.prod-admin`）
+2. 資料庫：`npx wrangler d1 migrations apply pingponglight-lb --remote`（`wrangler deploy` 不會自動套）
+3. 伺服器：`npm run deploy`
+4. 最後推送網站（Vercel 從 main 自動部署）

@@ -42,6 +42,8 @@ button:hover{background:rgba(255,255,255,.14)}
 button:active{transform:scale(.96)}
 button.pri{background:linear-gradient(90deg,#3fd8ff,#8f6bff);border-color:transparent;color:#04060f;font-weight:700}
 .ov{position:fixed;inset:0;height:100%;height:100dvh;display:flex;align-items:center;justify-content:center;background:rgba(3,4,12,.88);padding:12px;transition:opacity .4s;z-index:5}
+#lbv,#frv{z-index:6}#nick{z-index:8}
+[hidden]{display:none!important}
 .ov.hidden{opacity:0;pointer-events:none;visibility:hidden;transition:opacity .4s,visibility 0s .4s}
 .ov.hidden *{pointer-events:none!important}
 .card{position:relative;max-width:580px;width:100%;max-height:96vh;max-height:calc(100dvh - 16px);overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;background:linear-gradient(160deg,rgba(30,36,80,.85),rgba(14,16,40,.94));border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:16px 22px;text-align:center;box-shadow:0 20px 80px rgba(80,120,255,.25)}
@@ -51,10 +53,134 @@ button.pri{background:linear-gradient(90deg,#3fd8ff,#8f6bff);border-color:transp
 .kicker{font-size:12px;letter-spacing:.2em;color:var(--accent)}
 .row{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
 .chips{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin:8px 0 2px}
-#chips{max-height:128px;overflow-y:auto;overscroll-behavior:contain;padding:2px}
 .chip{padding:7px 12px;font-size:13px}
 .chip.sel{background:linear-gradient(90deg,#3fd8ff,#8f6bff);color:#04060f;border-color:transparent;font-weight:700}
 .chip small{opacity:.75;margin-left:4px;font-weight:400}
+/* song select: one song per row, grouped by era; details and the leaderboard preview on the right */
+#menu{padding:max(8px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));align-items:stretch}
+.sel{width:100%;max-width:960px;height:100%;margin:0 auto;display:flex;flex-direction:column;gap:6px}
+.selTop{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.selTop h2{margin:0;font-size:17px;letter-spacing:.06em}
+.tabs{display:flex;gap:18px;margin-left:auto}
+.tabs button{background:none;border:0;border-bottom:2px solid transparent;border-radius:0;padding:8px 2px 6px;color:var(--dim);font-size:13px}
+.tabs button:hover{background:none;color:var(--fg)}
+.tabs button.on{color:var(--fg);border-bottom-color:var(--accent)}
+.tabs b{font-weight:400;color:#6f78a8;margin-left:5px;font-variant-numeric:tabular-nums}
+.selBody{flex:1 1 auto;min-height:0;display:flex;gap:18px}
+.slist{flex:1 1 0;min-width:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;-webkit-overflow-scrolling:touch;border-top:1px solid rgba(255,255,255,.12)}
+.era{position:sticky;top:0;z-index:1;display:flex;gap:10px;align-items:baseline;padding:7px 10px 4px;background:#070917;font-size:11px;letter-spacing:.14em;color:var(--accent);border-bottom:1px solid rgba(255,255,255,.07)}
+.era small{letter-spacing:.04em;color:#6f78a8;font-size:11px}
+.era .eh{margin-left:auto;display:flex;gap:10px;letter-spacing:.02em;color:#6f78a8}
+.sr{display:flex;align-items:center;gap:12px;width:100%;min-height:50px;padding:5px 10px;background:none;border:0;border-bottom:1px solid rgba(255,255,255,.06);border-radius:0;text-align:left}
+.sr:hover{background:rgba(255,255,255,.04)}
+.sr:active{transform:none}
+.sr.on{background:rgba(124,240,255,.09)}
+.sr.on .nm{color:var(--accent)}
+.sr.lock{opacity:.45}
+.sr .no{width:22px;flex:0 0 auto;text-align:right;font-size:12px;color:#6f78a8;font-variant-numeric:tabular-nums}
+.sr .tx{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:1px}
+.sr .nm{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sr .mt{font-size:11px;color:#8a93c0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sr .mt i{font-style:normal;color:#c9a95a;letter-spacing:-.05em;margin-left:6px}
+.pips{display:flex;gap:6px;flex:0 0 auto}
+.pips i{width:8px;height:8px;border-radius:50%;box-sizing:border-box;border:1.5px solid #39406b}
+.pips i.d0{background:#cfe6ff;border-color:#cfe6ff}.pips i.d1{background:#7cf0ff;border-color:#7cf0ff}.pips i.d2{background:#ffd36b;border-color:#ffd36b}
+.sr .rk{width:20px;flex:0 0 auto;text-align:right;font-size:15px;font-weight:800;color:#3c4370}
+.sempty{padding:24px 10px;color:var(--dim);font-size:13px;text-align:center}
+.sdet{width:296px;flex:0 0 auto;display:flex;flex-direction:column;gap:8px;padding-left:18px;border-left:1px solid rgba(255,255,255,.12);overflow-y:auto;touch-action:pan-y}
+.sdet h3{margin:0;font-size:20px;line-height:1.25}
+.sdet .mt{font-size:12px;color:#b9c1ea}
+.sdet .mt i{font-style:normal;color:#c9a95a;margin-left:4px}
+.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid rgba(255,255,255,.18);border-radius:10px;overflow:hidden}
+.seg button{border:0;border-radius:0;background:none;padding:5px 2px;font-size:13px;line-height:1.25;display:flex;flex-direction:column;align-items:center;min-height:42px;justify-content:center}
+.seg button+button{border-left:1px solid rgba(255,255,255,.14)}
+.seg button small{font-size:10px;color:#8a93c0}
+.seg button.on{background:#e8ecff;color:#05060f;font-weight:700}
+.seg button.on small{color:#3b4270}
+.seg button:active{transform:none}
+.best{display:flex;gap:12px;align-items:center;font-size:12px;color:#b9c1ea;line-height:1.5}
+.best .bk{font-size:28px;font-weight:800;line-height:1;min-width:24px}
+.best b{color:var(--fg);font-variant-numeric:tabular-nums}
+.mini{display:flex;flex-direction:column;font-size:12px;border-top:1px solid rgba(255,255,255,.08)}
+.mini>div{display:grid;grid-template-columns:20px 1fr auto;gap:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.mini>p{margin:6px 0;color:var(--dim)}
+.mini b,.lbl b{font-variant-numeric:tabular-nums}
+.m1{color:#ffd36b}.m2{color:#d7deef}.m3{color:#e0a87a}
+.sdet .grow{flex:1 1 auto}
+.sdet .act{display:flex;gap:8px}
+.sdet .act .pri{flex:1 1 auto;font-size:16px;letter-spacing:.12em}
+@media (max-height:380px){.sr{min-height:44px}.sdet{gap:5px}.sdet h3{font-size:17px}.best .bk{font-size:22px}}
+/* leaderboard */
+.lbc{max-width:680px;text-align:left;display:flex;flex-direction:column;gap:6px;height:calc(100dvh - 24px);max-height:440px;padding:12px 18px}
+.lbh{display:flex;align-items:center;gap:14px;padding-right:44px}
+.lbh h3{margin:2px 0 0;font-size:18px}
+.lbh .seg{width:220px;margin-left:auto}
+.lbh .seg button{min-height:36px}
+.lbrow{display:grid;grid-template-columns:42px minmax(0,1fr) 72px 64px 64px 40px;align-items:center;gap:6px;padding:0 10px;font-size:13px}
+.lbrow>span:nth-child(n+3){text-align:right;font-variant-numeric:tabular-nums}
+.lbcol{font-size:11px;color:#8a93c0}
+.lbl{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;border-top:1px solid rgba(255,255,255,.12)}
+.lbl .lbrow{min-height:36px;border-bottom:1px solid rgba(255,255,255,.06)}
+.lbl .lbrow .nmc{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lbl .more{background:none;border:0;padding:0;width:40px;height:34px;color:#8a93c0;font-size:15px;border-radius:8px}
+.lbl .opt{display:flex;gap:8px;justify-content:flex-end;padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03)}
+.lbl .opt button{font-size:12px;padding:6px 12px}
+.lbme{min-height:40px;border:1px solid rgba(124,240,255,.35);border-radius:10px;background:rgba(124,240,255,.07)}
+.lbme .nmc{font-weight:700}
+.lbn{margin:0;font-size:11px;color:#8a93c0;text-align:center}
+.lbmsg{padding:20px;text-align:center;color:var(--dim);font-size:13px}
+/* result: leaderboard line */
+.rlb{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:8px auto 0;font-size:14px;color:#cfd5f5}
+.rlb b{color:#ffd36b}
+.rlb em{font-style:normal;font-size:12px;color:#8fe388;margin-left:6px}
+.rlb .dim{font-size:12px;color:#8a93c0}
+.rlb button{font-size:12px;padding:5px 12px}
+/* nickname */
+#nick .card{max-width:440px}
+#nick input,#frv input{font:inherit;font-size:16px;color:var(--fg);background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:10px 14px;width:100%;max-width:300px;user-select:text;-webkit-user-select:text}
+#nick input:focus,#frv input:focus{outline:none;border-color:var(--accent)}
+.nkm{min-height:1.3em;font-size:13px;color:#ffb86b!important;margin:4px 0!important}
+.small{font-size:12px!important;color:#8a93c0!important}
+button.warn{color:#ffb3c0;border-color:rgba(255,122,147,.45)}
+/* friends */
+#frv{padding:max(8px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));align-items:stretch}
+.frw{width:100%;max-width:960px;height:100%;margin:0 auto;display:flex;flex-direction:column;gap:6px}
+.frw .selTop .on{font-size:12px;color:#8fe388}
+.frb{flex:1 1 auto;min-height:0;display:flex;gap:18px}
+.frl{width:276px;flex:0 0 auto;display:flex;flex-direction:column;gap:12px;overflow-y:auto;touch-action:pan-y;padding-right:18px;border-right:1px solid rgba(255,255,255,.12)}
+.frl .kicker{letter-spacing:.14em;font-size:11px}
+.fcode{font-size:26px;font-weight:800;letter-spacing:.14em;font-variant-numeric:tabular-nums;margin:2px 0 6px;user-select:text;-webkit-user-select:text}
+.frl .btns{display:flex;gap:6px;flex-wrap:wrap}
+.frl .btns button{font-size:13px;padding:7px 14px}
+.fadd{display:flex;gap:6px}
+.fadd input{font-size:14px!important;padding:8px 12px!important;min-width:0;flex:1 1 auto;letter-spacing:.08em;text-transform:uppercase}
+.fadd button{font-size:13px;padding:7px 14px;flex:0 0 auto}
+.fmsg{font-size:12px;color:#ffb86b;min-height:1.2em;margin:0}
+.freq{display:flex;flex-direction:column;gap:6px;font-size:13px;padding:8px 0;border-top:1px solid rgba(255,255,255,.08)}
+.freq>div{display:flex;align-items:center;gap:6px}
+.freq>div>span{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.freq button{font-size:12px;padding:5px 11px}
+.fl{flex:1 1 0;min-width:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;border-top:1px solid rgba(255,255,255,.12)}
+.fr{display:flex;align-items:center;gap:12px;min-height:54px;padding:4px 6px 4px 12px;border-bottom:1px solid rgba(255,255,255,.06)}
+.fr .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;box-sizing:border-box;border:1.5px solid #4a5180}
+.fr .dot.on{background:#8fe388;border-color:#8fe388}.fr .dot.busy{background:#ffd36b;border-color:#ffd36b}
+.fr .tx{flex:1 1 auto;min-width:0;display:flex;flex-direction:column}
+.fr .nm{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fr .mt{font-size:12px;color:#8a93c0}
+.fr .mt.on{color:#8fe388}.fr .mt.busy{color:#d9b65e}
+.fr .inv{font-size:13px;padding:8px 14px}
+.fr .more{background:none;border:0;width:40px;height:40px;padding:0;color:#8a93c0;font-size:15px;border-radius:8px}
+.fopt{display:flex;gap:8px;justify-content:flex-end;padding:6px 10px;border-bottom:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.03)}
+.fopt button{font-size:12px;padding:6px 12px}
+.fsec{padding:10px 12px 4px;font-size:11px;letter-spacing:.14em;color:#8a93c0}
+/* friend invite / notice: a strip at the top of any screen */
+#invT{position:fixed;left:50%;top:max(10px,env(safe-area-inset-top));transform:translateX(-50%);z-index:20;width:min(480px,calc(100% - 32px));display:flex;align-items:center;gap:10px;padding:9px 10px 9px 16px;background:#141a3f;border:1px solid rgba(143,227,136,.55);border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.6)}
+#invT[hidden]{display:none!important}
+#invT .tx{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;font-size:14px}
+#invT .tx small{font-size:12px;color:#b9c1ea}
+#invT button{font-size:13px;padding:8px 14px;flex:0 0 auto}
+#invT .ok{background:#8fe388;color:#05060f;border-color:transparent;font-weight:700}
+@media (max-width:700px){.sdet{width:240px;padding-left:12px}.frl{width:220px;padding-right:12px}.tabs{gap:12px}}
 #home{background:rgba(3,4,12,.5)}
 .home{max-width:560px;width:100%;text-align:center;padding:8px}
 .logo{font-size:clamp(34px,9vh,58px);font-weight:800;letter-spacing:.05em;background:linear-gradient(90deg,#7cf0ff,#b794ff,#ff8fd1);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1.1}
@@ -137,7 +263,7 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
 .skycard{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:320px;width:calc(100% - 32px);z-index:2;padding:14px 18px}
 .skycard h3{margin:2px 0;font-size:19px}.skycard .sub{font-size:12px;color:var(--dim)}
 .skycard table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0}.skycard td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.1);text-align:left}.skycard td:last-child{text-align:right;font-variant-numeric:tabular-nums}
-.skyHint[hidden]{display:none}
+.skyHint[hidden]{display:none!important}
 .skyHint{display:block;margin:8px auto 0;padding:4px 12px;font-size:14px;color:#ffd36b;background:rgba(255,211,107,.08);border-color:rgba(255,211,107,.35)}
 @media (prefers-reduced-motion:reduce){#skySvg .dust{animation:none}}
 @media (max-height:480px){.skyleg{font-size:11px;bottom:4px}.skytop{top:6px}.skycard{padding:10px 14px}.skycard table{margin:4px 0}.skycard td{padding:2px 6px}}
@@ -163,6 +289,7 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
   <div class="hbtns" style="margin-top:0">
     <button id="bSky">星空 <small id="skyN" style="color:#ffd36b"></small></button>
     <button id="bDuel">線上對戰</button>
+    <button id="bFr">好友 <small id="frN" style="color:#8fe388"></small></button>
     <button id="bTut">新手教學</button>
     <button id="bHow">操作說明</button>
     <button id="bSet">設定</button>
@@ -180,13 +307,22 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
   <p id="fsHint" style="display:none;font-size:12px;color:#8a93c0;margin:6px 0 0">iPhone 全螢幕：點選「分享」→「加入主畫面」，並由主畫面圖示開啟。</p>
 </div></div>
 
-<div class="ov hidden" id="menu"><div class="card">
-  <div class="kicker">關卡選擇</div>
-  <div class="kicker" style="margin-top:8px">難度</div>
-  <div class="chips" id="diffs"></div>
-  <div class="kicker" style="margin-top:6px">關卡（依年代）</div>
-  <div class="chips" id="chips"></div>
-  <div class="row"><button class="pri" id="bGo">開始</button><button id="bBack">返回首頁</button></div>
+<div class="ov hidden" id="menu"><div class="sel">
+  <div class="selTop"><button id="bBack">‹ 返回</button><h2>選擇曲目</h2>
+    <div class="tabs" id="sTabs" role="tablist"><button data-f="0">全部<b></b></button><button data-f="1">還沒過關<b></b></button><button data-f="2">已過關<b></b></button></div></div>
+  <div class="selBody">
+    <div class="slist" id="chips"></div>
+    <div class="sdet">
+      <div class="kicker" id="sK"></div>
+      <h3 id="sN"></h3>
+      <div class="mt" id="sM"></div>
+      <div class="seg" id="diffs"></div>
+      <div class="best" id="sB"></div>
+      <div class="mini" id="sMini"></div>
+      <div class="grow"></div>
+      <div class="act"><button id="bLb">排行榜</button><button class="pri" id="bGo">開始</button></div>
+    </div>
+  </div>
 </div></div>
 
 <div class="ov hidden" id="end"><div class="card res">
@@ -197,6 +333,7 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
     <div class="rright"><table id="rtab"></table></div>
   </div>
   <button class="skyHint" id="rsky" hidden></button>
+  <div class="rlb" id="rlb" hidden><span id="rlbT"></span><button id="rlbB" hidden>看排行榜</button></div>
   <div class="row"><button class="pri" id="bNext">下一關</button><button class="pri" id="bCont">從存檔點繼續</button><button id="bRetry">再挑戰一次</button><button id="bSel">關卡選擇</button><button id="bShare">分享成績</button><button class="pri" id="bAgain" style="display:none">再戰一局</button><button id="bLeave" style="display:none">離開房間</button></div>
 </div></div>
 
@@ -239,8 +376,10 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
   <div class="srow"><label>音效音量</label><input type="range" min="0" max="100" id="vFx"><span class="v" id="vFxV"></span></div>
   <div class="srow"><label>減少特效</label><button class="tog" id="tFx"></button><label style="flex:0 0 auto;margin-left:14px">震動回饋</label><button class="tog" id="tVib"></button></div>
   <div class="srow"><label>音樂隨連擊變化</label><button class="tog" id="tMl"></button></div>
+  <div class="srow"><label>暱稱</label><span class="v" id="sNick" style="flex:1 1 auto;text-align:left;margin-left:6px"></span><button id="bNick">改名</button></div>
   <div class="srow"><label>延遲補償</label><button id="bCal">校準</button><span class="v" id="calV" style="flex:1 1 auto;text-align:left;margin-left:6px"></span></div>
   <p id="aDiag" style="font-size:11px;color:#8a93c0;margin:4px 0 0;text-align:center"></p>
+  <div class="row"><button class="warn" id="bWipe">刪除我的線上資料</button></div>
   <div class="row"><button id="bTest">測試聲音</button><button class="pri" id="bSetX">返回首頁</button></div>
 </div></div>
 
@@ -254,6 +393,42 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
 </div></div>
 
 <div id="err" style="display:none;position:fixed;left:12px;right:12px;bottom:10px;z-index:20;background:rgba(60,10,25,.95);border:1px solid #ff7a93;border-radius:12px;padding:8px 12px;font-size:12px;color:#ffd0d8;text-align:left"><span id="errT"></span> <button id="errR" style="margin-left:8px;padding:4px 12px;font-size:12px">重新載入</button></div>
+<div class="ov hidden" id="lbv"><div class="card lbc">
+  <button class="xbtn" id="lbX" aria-label="關閉">✕</button>
+  <div class="lbh"><div><div class="kicker">排行榜 · 前 100 名</div><h3 id="lbT"></h3></div><div class="seg" id="lbD"></div></div>
+  <div class="lbrow lbcol"><span>名次</span><span>玩家</span><span>精準度</span><span>分數</span><span>最高連擊</span><span></span></div>
+  <div class="lbl" id="lbL"></div>
+  <div class="lbrow lbme" id="lbMe" hidden></div>
+  <p class="lbn">依精準度排名，精準度相同時比分數（吃到道具、打得越用力分數越高）。按「⋯」可以檢舉不雅暱稱，或只對自己隱藏這位玩家。</p>
+</div></div>
+
+<div class="ov hidden" id="nick"><div class="card">
+  <div class="kicker" id="nkK">歡迎來到 PingPongLight</div>
+  <h2 id="nkT">先取一個暱稱</h2>
+  <p>暱稱會顯示在排行榜和好友名單上，不能和別人重複。</p>
+  <div class="row"><input id="nkIn" maxlength="12" placeholder="暱稱，最多 12 字" autocomplete="nickname" enterkeyhint="done"></div>
+  <p class="nkm" id="nkMsg"></p>
+  <p class="small">不需要註冊，只會上傳暱稱和成績。請不要使用真實姓名。之後可以在「設定」改名，或刪除所有線上資料。</p>
+  <div class="row"><button id="nkSkip" hidden>先離線玩</button><button class="pri" id="nkGo">確定</button></div>
+</div></div>
+
+<div class="ov hidden" id="frv"><div class="frw">
+  <div class="selTop"><button id="frX">‹ 返回</button><h2>好友</h2><span class="on" id="frOn"></span></div>
+  <div class="frb">
+    <div class="frl">
+      <div><div class="kicker">你的好友碼</div><div class="fcode" id="frCode">⋯</div>
+        <div class="btns"><button id="frCopy">複製</button><button id="frSend">傳給朋友</button></div></div>
+      <div><div class="kicker">加好友</div>
+        <div class="fadd" style="margin-top:6px"><input id="frIn" maxlength="9" placeholder="朋友的好友碼" autocomplete="off" autocapitalize="characters" spellcheck="false"><button class="pri" id="frAdd">送出</button></div>
+        <p class="fmsg" id="frMsg"></p></div>
+      <div class="freq" id="frReq" hidden></div>
+    </div>
+    <div class="fl" id="frList"></div>
+  </div>
+</div></div>
+
+<div id="invT" hidden role="status"><span class="tx"><span id="invA"></span><small id="invB"></small></span><button id="invNo">稍後</button><button class="ok" id="invOk">加入</button></div>
+
 <div class="ov hidden" id="rot"><b>⟳</b>請將裝置橫向使用</div>
 
 <script src="songs.js"></script>
