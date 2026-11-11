@@ -30,6 +30,8 @@ function saveSet(){lsSet('ppl-set',JSON.stringify(SET))}
 function applyVol(){if(!AC)return;busMel.gain.value=SET.mel/80;busBk.gain.value=SET.bk/80;busFx.gain.value=SET.fx/80}
 // audio latency compensation (s): sounds are scheduled this much earlier so they are HEARD on the beat
 function latS(){if(SET.lat!=null)return clamp(SET.lat,-100,400)/1000;if(!AC)return 0;return clamp((AC.outputLatency||AC.baseLatency||0),0,.3)}
+// the app shell cannot save a downloaded file: offer the score card only where the system share sheet takes images
+function shareOK(){if(!APP)return true;try{return !!(navigator.canShare&&navigator.canShare({files:[new File([new Blob(['x'],{type:'image/png'})],'s.png',{type:'image/png'})]}))}catch(e){return false}}
 function vib(p){if(!SET.vib)return;try{if(navigator.vibrate)navigator.vibrate(p)}catch(e){}}
 try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}   // iOS 16.4+: Web Audio keeps playing with the silent switch on
 let silentEl=null;
@@ -39,6 +41,9 @@ function wavUri(){   // 0.25 s of silence as a data URI (keeps iOS audio session
   for(let i=0;i<n;i++)b[44+i]=128;
   let s='';for(const x of b)s+=String.fromCharCode(x);return 'data:audio/wav;base64,'+btoa(s);
 }
+// running inside the store app (Capacitor shell): no browser chrome, no service worker, links point at the website
+const APP=location.protocol==='capacitor:'||!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
+const SITE='https://pingponglight.vercel.app/';
 const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 function stopSilent(){try{if(silentEl){silentEl.pause();silentEl.removeAttribute('src');silentEl.load();silentEl=null}}catch(e){}}
 function unlockAudio(){
@@ -581,7 +586,7 @@ document.addEventListener('selectstart',e=>{if(!(e.target.closest&&e.target.clos
 document.addEventListener('wheel',e=>{if(e.ctrlKey||!(e.target.closest&&e.target.closest('.card,.ddp')))e.preventDefault()},{passive:false});
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['+','-','=','0'].includes(e.key))e.preventDefault();
   else if(e.key==='Escape'||e.key==='p'||e.key==='P'){if(st==='play'){if(paused&&!resumeCD)resumeGame();else pauseGame()}}});
-const standalone=!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches));
+const standalone=APP||!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches));
 if(!(DE.requestFullscreen||DE.webkitRequestFullscreen)&&!standalone)$('#fsHint').style.display='block';
 
 /* ================= game logic ================= */
@@ -720,7 +725,7 @@ function showResult(ok,msg){
   countUp($('#rscore'),score);
   const hasNext=mode==='tut'||(mode==='normal'&&ok&&si+1<SONGS.length&&unlocked(si+1));
   $('#bNext').style.display=hasNext?'':'none';$('#bNext').textContent=mode==='tut'?'開始第 1 關':'下一關';
-  $('#bShare').style.display=mode==='tut'||!ok?'none':'';
+  $('#bShare').style.display=mode==='tut'||!ok||!shareOK()?'none':'';
   const cb=$('#bCont');if(!ok&&cp.ti>0){cb.style.display='';cb.textContent='從第 '+(cp.ti+1)+' 拍繼續'}else cb.style.display='none';
   for(const id of['bAgain','bLeave'])$('#'+id).style.display=mode==='duel'?'':'none';
   if(mode==='duel'){for(const id of['bNext','bCont','bRetry','bSel'])$('#'+id).style.display='none';duelFinish(ok,rank,acc)}
@@ -1039,7 +1044,7 @@ function frame(now){
 /* ================= online duel ================= */
 // The server address is fixed. A ?duel= override is honoured only on a local dev page and only for a local server,
 // so a shared link can never point players at someone else's server.
-const DUEL_URL=(()=>{if(!/^(localhost|127\.0\.0\.1)$/.test(location.hostname))return 'https://pingponglight-duel.nick760930.workers.dev';
+const DUEL_URL=(()=>{if(location.protocol!=='http:'||!/^(localhost|127\.0\.0\.1)$/.test(location.hostname))return 'https://pingponglight-duel.nick760930.workers.dev';
   try{const q=new URLSearchParams(location.search).get('duel');if(q&&/^http:\/\/(localhost|127\.0\.0\.1)(:\d{1,5})?$/.test(q))return q}catch(e){}
   return 'http://'+location.hostname+':8787'})();
 // Everything from the network is untrusted: escape before HTML, clamp numbers, whitelist enums.
@@ -1223,7 +1228,7 @@ document.addEventListener('scroll',e=>{if(DDopen&&!DDopen.p.contains(e.target))d
 const DSONG=makeDD($('#dSong'),'曲目'),DDI=makeDD($('#dDi'),'難度');
 DSONG.onchange=v=>dsend({t:'cfg',song:v,di:DDI.value});
 DDI.onchange=v=>dsend({t:'cfg',song:DSONG.value,di:v});   // the server's room update then refreshes the rank notes
-$('#dShare').onclick=()=>{const u=location.origin+location.pathname+'?room='+DU.code,t='來 PingPongLight 跟我對戰！房號 '+DU.code;
+$('#dShare').onclick=()=>{const u=(APP?SITE:location.origin+location.pathname)+'?room='+DU.code,t='來 PingPongLight 跟我對戰！房號 '+DU.code;
   try{if(navigator.share){navigator.share({title:'PingPongLight 對戰邀請',text:t,url:u}).catch(()=>{});return}}catch(e){}
   try{navigator.clipboard.writeText(t+' '+u);dmsg('已複製邀請連結。')}catch(e){dmsg(u)}};
 $('#bAgain').onclick=duelAgain;
@@ -1365,6 +1370,7 @@ function syncSet(){
 for(const[k,id]of[['mel','vMel'],['bk','vBk'],['fx','vFx']])$('#'+id).oninput=e=>{SET[k]=+e.target.value;applyVol();saveSet();syncSet()};
 $('#tFx').onclick=()=>{SET.lowFx=!SET.lowFx;saveSet();syncSet()};
 $('#tMl').onclick=()=>{SET.ml=SET.ml===false;saveSet();syncSet()};
+if(!navigator.vibrate){$('#tVib').style.display='none';$('#tVib').previousElementSibling.style.display='none'}   // iPhone browsers and apps have no vibration API
 $('#tVib').onclick=()=>{SET.vib=!SET.vib;saveSet();syncSet();vib(30)};
 $('#bSet').onclick=()=>{initAudio();syncSet();$('#home').classList.add('hidden');$('#set').classList.remove('hidden')};
 function closeSet(){$('#set').classList.add('hidden');showHome()}
@@ -1410,7 +1416,7 @@ function shareImg(){
   x.fillStyle='#e8ecff';x.font='700 40px '+F;x.fillText(r.label,70,210,700);
   x.font='800 86px '+F;x.fillText(r.score.toLocaleString(),70,340);
   x.fillStyle='#b9c1ea';x.font='500 32px '+F;x.fillText('精準度 '+Math.round(r.acc*100)+'%　最高連擊 '+r.maxCombo,70,410);
-  x.fillStyle='#8a93c0';x.font='400 26px '+F;x.fillText(location.host+'　'+new Date().toLocaleDateString('zh-TW'),70,560);
+  x.fillStyle='#8a93c0';x.font='400 26px '+F;x.fillText((APP?new URL(SITE).host:location.host)+'　'+new Date().toLocaleDateString('zh-TW'),70,560);
   x.textAlign='center';x.fillStyle=RANK_COL[r.rank];x.shadowColor=RANK_COL[r.rank];x.shadowBlur=40;x.font='800 300px '+F;x.fillText(r.rank,950,420);
   return c;
 }
@@ -1440,7 +1446,8 @@ document.addEventListener('webkitfullscreenchange',()=>setTimeout(layout,100));
 addEventListener('orientationchange',()=>setTimeout(layout,200));
 if(!unlocked(si))si=0;
 for(const f of[layout,buildChips,hud,audioStatus]){try{f()}catch(e){showErr(e)}}   // one failing step must not stop start-up
-if('serviceWorker' in navigator&&location.protocol==='https:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));hudShow(false);$('#fsHint').style.display=(!(DE.requestFullscreen||DE.webkitRequestFullscreen)&&!standalone)?'block':'none';
+if(APP)$('#bFs').style.display='none';
+else if('serviceWorker' in navigator&&location.protocol==='https:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));hudShow(false);$('#fsHint').style.display=(!(DE.requestFullscreen||DE.webkitRequestFullscreen)&&!standalone)?'block':'none';
 requestAnimationFrame(frame);
 window.__pb={get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:FR,HR:HRe(),tiers:tierCount,cents:lastCents,p:lastP,pSrc,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},setTs(v){ts=v},setSong(i){si=i},skyRes(k,d,ok){const j=SONGS.findIndex(x=>x.key===k);if(j<0)return null;mode='normal';si=j;song=SONGS[si];di=d;D=DIFFS[d];score=1000;tierCount=[tg.length||10,0,0,0];missCount=0;st='done';showResult(ok,'');const r=$('#rsky');return r.hidden?'':r.textContent},tg:()=>tg.map(t=>t.t),pause:pauseGame,resume:resumeGame,shareImg,STARS,il:()=>instLoad,gaps:()=>{const r=[];for(const it of items)for(const o of bumps)r.push(Math.hypot(it.x-o.x,it.y-o.y)-itemGap(o.Rm));return r}};
 })();

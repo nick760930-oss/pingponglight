@@ -1,3 +1,5 @@
 server/
 TESTING.md
 SECURITY.md
+app/
+codemagic.yaml

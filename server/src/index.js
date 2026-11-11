@@ -12,7 +12,8 @@
 // - config changes are throttled (they are the only lobby message that writes storage);
 // - idle sockets (no ping for 75 s) are closed so dead or parked connections cannot hold a room.
 const ALPH = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';          // no 0/O/1/I/L
-const PROD = /^https:\/\/pingponglight\.vercel\.app$/, LOCAL = /^http:\/\/(localhost|127\.0\.0\.1)(:\d{1,5})?$/;
+// the website, plus the iOS store app (Capacitor serves its bundled files from capacitor://localhost)
+const PROD = /^(https:\/\/pingponglight\.vercel\.app|capacitor:\/\/localhost)$/, LOCAL = /^http:\/\/(localhost|127\.0\.0\.1)(:\d{1,5})?$/;
 const okOrigin = (o, env) => !!o && (PROD.test(o) || (env.ALLOW_LOCAL === '1' && LOCAL.test(o)));
 const BASE_H = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer' };
 const cors = o => ({ ...BASE_H, 'Access-Control-Allow-Origin': o, Vary: 'Origin' });

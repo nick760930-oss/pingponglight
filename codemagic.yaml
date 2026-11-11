@@ -1,0 +1,31 @@
+# Cloud macOS build for the iOS app (this project is developed on Windows).
+# No triggering block: builds start only by hand, so an ordinary push never uploads anything.
+# Needs, in the Codemagic dashboard: an App Store Connect API key integration named "PingPongLight ASC".
+workflows:
+  ios-testflight:
+    name: iOS → TestFlight
+    max_build_duration: 30
+    instance_type: mac_mini_m2
+    integrations:
+      app_store_connect: PingPongLight ASC
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.lumivo.pingponglight
+      xcode: latest
+      node: 22
+    scripts:
+      - name: Bundle the game files into the app
+        script: cd app && npm ci && npm run sync
+      - name: Signing profiles
+        script: xcode-project use-profiles --project app/ios/App/App.xcodeproj
+      - name: Build number
+        script: cd app/ios/App && agvtool new-version -all "$BUILD_NUMBER"
+      - name: Build ipa
+        script: xcode-project build-ipa --project app/ios/App/App.xcodeproj --scheme App
+    artifacts:
+      - build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true

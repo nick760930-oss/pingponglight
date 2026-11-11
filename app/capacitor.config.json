@@ -1,0 +1,16 @@
+{
+  "appId": "com.lumivo.pingponglight",
+  "appName": "PingPongLight",
+  "webDir": "www",
+  "ios": {
+    "contentInset": "never",
+    "scrollEnabled": false,
+    "allowsLinkPreview": false,
+    "limitsNavigationsToAppBoundDomains": false,
+    "webContentsDebuggingEnabled": false
+  },
+  "server": {
+    "iosScheme": "capacitor",
+    "hostname": "localhost"
+  }
+}
