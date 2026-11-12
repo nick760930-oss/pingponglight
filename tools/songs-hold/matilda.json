@@ -1,0 +1,31 @@
+{
+  "key": "matilda",
+  "name": "流浪者瑪蒂爾達（華爾興瑪蒂爾達）",
+  "composer": "澳洲傳統民謠",
+  "year": "1895",
+  "inst": {
+    "lead": "clarinet",
+    "bk": "piano"
+  },
+  "credit": {
+    "source": "Wikipedia〈Waltzing Matilda〉內嵌 LilyPond 樂譜",
+    "url": "https://en.wikipedia.org/wiki/Waltzing_Matilda",
+    "licence": "CC BY-SA 4.0（樂譜作者見條目歷史）",
+    "note": "旋律取自來源樂譜並照原曲整首重複一次；和弦為手動編配（參考來源鋼琴伴奏）"
+  },
+  "tune": {
+    "bpm": 110,
+    "meter": 4,
+    "style": "march",
+    "parts": {
+      "A": {
+        "mel": "A4:0.75 A4:0.25 A4:0.5 A4 G4:1 G4 F4 A4:0.5 F4 D4 E4 F4:1 C4 F4:0.75 A4:0.25 C5:1 C5:0.5 C5 C5 C5 C5:1 C5:0.5 r F4 G4 A4:1 A4:0.5 A4 G4:1 G4 F4:0.5 G4 A4 F4 D4 E4 F4:1 C4 F4:0.75 A4:0.25 C5:1 A#4:0.5 A4 G4:1 G4:0.5 G4 F4:1 r C5 C5:0.75 C5:0.25 C5:1 A4 F5 F5:0.75 E5:0.25 D5:1 C5 C5 C5:0.75 C5:0.25 D5:1 C5:0.75 C5:0.25 C5:1 A#4:0.5 A4 G4 r F4 G4 A4:1 A4:0.5 A4 G4:1 G4 F4:0.5 G4 A4 F4 D4 E4 F4:1 C4 F4:0.75 A4:0.25 C5:1 A#4:0.5 A4 G4:1 G4:0.5 G4 F4:1 r",
+        "chords": "F:2 C7:2 F:4 F:4 C7:3 F:1 F:2 C7:2 F:4 F:4 C7:2 F:2 F:4 F:2 Bb:2 C7:4 F:2 C7:1 F:1 F:2 C7:2 F:4 F:4 C7:2 F:2"
+      }
+    },
+    "form": [
+      "A",
+      "A"
+    ]
+  }
+}

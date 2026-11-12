@@ -1,0 +1,22 @@
+{
+  "key": "friendjesus",
+  "name": "耶穌恩友",
+  "composer": "康弗斯（What a Friend 曲調）",
+  "year": "1868",
+  "inst": {
+    "lead": "choir",
+    "bk": "organ"
+  },
+  "credit": {
+    "source": "Open Hymnal Project（ABC）",
+    "url": "http://openhymnal.org/Abc/What_A_Friend_We_Have_In_Jesus-untitled.abc",
+    "licence": "Public Domain",
+    "note": "和弦取自 ABC 其餘三聲部（逐拍和聲分析）"
+  },
+  "score": {
+    "file": "tools/src2/friendjesus/What_A_Friend_We_Have_In_Jesus-untitled.abc",
+    "bpm": 90,
+    "style": "pad",
+    "chords": "F:4 Bb:4 F:4 C:4 F:4 Bb:4 F:2 C7:1 C:1 F:3 C:4 C7:1 F:4 Bb:2 F:2 C:4 F:4 Bb:4 F:2 C7:1 C:1 F:3"
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "key": "yankee",
+  "name": "洋基歌（洋基都都）",
+  "composer": "傳統（美國）",
+  "year": "傳統",
+  "inst": {
+    "lead": "recorder",
+    "bk": "piano"
+  },
+  "credit": {
+    "source": "Wikimedia Commons〈Yankee Doodle (pg).mid〉（Rabanus Flavus / Peter Gerloff 製作）",
+    "url": "https://commons.wikimedia.org/wiki/File:Yankee_Doodle_(pg).mid",
+    "licence": "CC0（旋律為傳統曲調）",
+    "note": "旋律取自 MIDI 第 1 軌（八度重複處取低音；原檔的第二遍主歌在第 3 軌，音高相同）；A、B 兩段照原曲順序重複；和聲依 MIDI 手動簡化為和弦"
+  },
+  "tune": {
+    "bpm": 111,
+    "meter": 4,
+    "style": "march",
+    "parts": {
+      "A": {
+        "mel": "r:0.5 E4 A4 A4 B4 C#5 A4 C#5 B4 G#4 A4 A4 B4 C#5 A4:1 G#4:0.25 r E4:0.5 A4 A4 B4 C#5 D5 C#5 B4 A4 G#4 E4 F#4 G#4 A4:1",
+        "chords": "r:0.5 A:3.5 E7:1 A:3 E7:1 A:2 D:1 E7:3 A:1"
+      },
+      "B": {
+        "mel": "A4:0.75 r:0.25 F#4:0.75 G#4:0.25 F#4:0.5 E4 F#4 G#4 A4:0.75 r:0.25 E4:0.75 F#4:0.25 E4:0.5 D4 C#4 D4 E4:0.75 r:0.25 F#4:0.75 G#4:0.25 F#4:0.5 E4 F#4 G#4 A4 F#4 E4 A4 G#4 B4 A4:1",
+        "chords": "A:1 B7:4 A:4 B7:3 A:2 E7:1 A:1"
+      },
+      "TG": {
+        "mel": "A4:1 r:0.25 A4:1.5",
+        "chords": "A:2.75",
+        "free": true
+      }
+    },
+    "form": [
+      "A",
+      "B",
+      "A",
+      "B",
+      "A",
+      "B",
+      "TG"
+    ]
+  }
+}

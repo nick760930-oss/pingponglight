@@ -1,0 +1,32 @@
+{
+  "key": "scarborough",
+  "name": "斯卡博羅市集",
+  "composer": "英國傳統民謠",
+  "year": "約1670",
+  "inst": {
+    "lead": "guitar",
+    "bk": "guitar"
+  },
+  "credit": {
+    "source": "Wikipedia〈Scarborough Fair (ballad)〉條目內嵌 LilyPond 譜（score-3，D dorian 通行版）",
+    "url": "https://en.wikipedia.org/wiki/Scarborough_Fair_%28ballad%29",
+    "licence": "CC BY-SA 4.0（譜）；旋律為傳統民謠，公有領域",
+    "note": "旋律與和弦取自 score-3.ly（和弦取自其 chordmode），照原曲反覆兩段；與 Commons〈Scarborough Fair (ballad).mid〉（CC0）交叉比對（tools/melcheck.mjs）"
+  },
+  "tune": {
+    "bpm": 100,
+    "meter": 3,
+    "style": "arp",
+    "parts": {
+      "A": {
+        "mel": "D4:2 D4:1 A4:0.5 A4:1.5 A4:1 E4:1.5 F4:0.5 E4:1 D4:3 r:1 A4 C5 D5:2 C5:1 A4 B4 G4 A4:2 D5:1 D5:2 D5:1 C5:2 A4:1 A4 G4 F4 E4:3 D4:2 A4:1 G4:2 F4:1 E4 D4 C4 D4:3",
+        "chords": "Dm:6 Am:3 Dm:3 Am:3 Dm:4 G:2 Dm:6 Am:3 Dm:3 Am:3 Dm:3 Am7:6 Dm:3",
+        "free": false
+      }
+    },
+    "form": [
+      "A",
+      "A"
+    ]
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "key": "lastrose",
+  "name": "夏日最後的玫瑰",
+  "composer": "愛爾蘭傳統旋律（Thomas Moore 詞，Stevenson 編曲「Martha」版）",
+  "year": "1813",
+  "inst": {
+    "lead": "violin",
+    "bk": "piano"
+  },
+  "credit": {
+    "source": "Mutopia Project",
+    "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=434",
+    "licence": "Public Domain",
+    "by": "Stan Sanderson",
+    "note": "旋律與 Mutopia id=575 版（03-TheLastRoseOfSummer.mid，CC 公有領域）交叉比對"
+  },
+  "midi": {
+    "file": "tools/src2/lastrose/lrose.mid",
+    "mel": 1,
+    "speed": 1.5
+  }
+}

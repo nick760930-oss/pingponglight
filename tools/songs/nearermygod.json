@@ -1,0 +1,9 @@
+{
+  "key": "nearermygod",
+  "name": "更近我主（Bethany）",
+  "composer": "梅森",
+  "year": "1856",
+  "inst": { "lead": "choir", "bk": "organ" },
+  "credit": { "source": "Open Hymnal Project（ABC）；MIDI／LilyPond 取自 Mutopia Project 供交叉比對", "url": "http://openhymnal.org/Abc/Nearer_My_God_To_Thee-Bethany.abc", "licence": "Public Domain" },
+  "score": { "file": "tools/src2/nearermygod/Nearer_My_God_To_Thee-Bethany.abc", "bpm": 140, "style": "pad", "chordEvery": 3 }
+}

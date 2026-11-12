@@ -1,0 +1,9 @@
+{
+  "key": "dannyboy",
+  "name": "丹尼男孩（倫敦德里之歌）",
+  "composer": "愛爾蘭傳統旋律",
+  "year": "約1855",
+  "inst": { "lead": "violin", "bk": "strings" },
+  "credit": { "source": "abcnotation.com（trillian.mit.edu/~jc/music/abc）", "url": "https://abcnotation.com/tunePage?a=trillian.mit.edu/~jc/music/abc/air/Danny_Boy_F/0000", "licence": "Public Domain（旋律；只用旋律，不用 Weatherly 歌詞）", "note": "旋律與 Wikipedia〈Londonderry Air〉的 LilyPond 樂譜交叉比對（tools/melcheck.mjs）" },
+  "score": { "file": "tools/src2/dannyboy/danny-boy.abc", "bpm": 80, "style": "arp" }
+}

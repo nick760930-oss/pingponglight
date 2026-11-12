@@ -1,0 +1,22 @@
+{
+  "key": "lochlomond",
+  "name": "羅蒙湖（美麗的羅蒙湖畔）",
+  "composer": "蘇格蘭民謠",
+  "year": "傳統（1841 年刊載）",
+  "inst": {
+    "lead": "flute",
+    "bk": "guitar"
+  },
+  "credit": {
+    "source": "abcnotation.com（Allan's Violin Gems，Nigel Gatherer 輸入）",
+    "url": "https://abcnotation.com/tunePage?a=trillian.mit.edu/~jc/music/abc/air/Bonnie_Banks_of_Loch_Lomond/0000",
+    "licence": "Public Domain（傳統蘇格蘭民謠，1841 年 Songs of Scotland 刊載）",
+    "note": "只用旋律；和弦為手動編配"
+  },
+  "score": {
+    "file": "tools/src2/lochlomond/the-bonnie-banks-of-loch-lomond.abc",
+    "bpm": 90,
+    "style": "block",
+    "chords": "D:1 G:4 D:4 G:4 Em:4 Em:4 C:4 G:4 D:4 G:4 Am:4 G:4 Em:4 Em:4 C:4 G:4 D:2 G:1"
+  }
+}

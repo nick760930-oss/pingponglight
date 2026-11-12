@@ -1,37 +1,46 @@
 {
   "key": "santalucia",
-  "name": "聖塔露西亞 Santa Lucia",
-  "composer": "科特勞",
+  "name": "聖塔露西亞",
+  "composer": "特奧多羅・科特勞（Teodoro Cottrau）",
   "year": "1849",
   "inst": {
     "lead": "violin",
     "bk": "guitar"
   },
   "credit": {
-    "source": "依原曲旋律手寫（本遊戲製作）",
-    "url": "",
-    "licence": "公有領域"
+    "source": "abcnotation.com（The Everyday Song Book, 1927，John Chambers 輸入）",
+    "url": "https://abcnotation.com/tunePage?a=trillian.mit.edu/~jc/music/book/EverydaySongBook/144_Santa_Lucia/0000",
+    "licence": "Public Domain（科特勞卒於 1879）",
+    "note": "旋律取自 3/8 拍 ABC，與另一份 3/4 拍 ABC 交叉比對；和弦取自 3/4 版 ABC 的和弦記號並換算成 3/8 拍；結尾第一、二房子的反覆由手動展開（工具展開 volta 有誤）"
   },
   "tune": {
-    "bpm": 126,
+    "bpm": 110,
     "meter": 3,
     "style": "waltz",
     "parts": {
       "A": {
-        "mel": "E5:1.5 D5:0.5 C5:1 | D5:2 G4:1 | C5:1.5 B4:0.5 A4:1 | G4:3 | G4:1 C5:1 C5:1 | E5:1.5 D5:0.5 C5:1 | D5:1 E5:1 F5:1 | E5:3",
-        "chords": "C:3 G7:3 C:3 G7:3 C:3 C:3 G7:3 C:3"
+        "mel": "G4:1 G4:1.5 C5:0.5 C5 B4 B4:2 F4:1 F4:1.5 A4:0.5 A4 G4 G4:2 E4:1 A4 G4 G4:0.5 F#4 F4:2 F4:1 E4 D4 A4 G4:2 G4:1 G4:1.5 C5:0.5 C5 B4 B4:2 F4:1 F4:1.5 A4:0.5 A4 G4 G4:2 E4:1 A4 G4 F4:0.5 F#4 F4:2 F4:1 E4 D4 A4 G4:2",
+        "chords": "C:3 G7:3 F:3 C:3 A7:3 Dm:3 G7:3 C:3 C:3 G7:3 F:3 C:3 A7:3 Dm:3 G7:3 C:3"
       },
       "B": {
-        "mel": "G5:1.5 F5:0.5 E5:1 | F5:2 D5:1 | E5:1.5 D5:0.5 C5:1 | D5:2 G4:1 | C5:1 E5:1 G5:1 | A5:1.5 G5:0.5 F5:1 | E5:1 D5:1 B4:1 | C5:3",
-        "chords": "C:3 G7:3 C:3 G7:3 C:3 F:3 G7:3 C:3"
+        "mel": "E5:1 D5 C5 B4:0.5 A4 D5:2 D5:1 C5 A4 F#4:0.5 G4 C5:2 E5:0.5 C5 C5 G4 G4 E4 F4 D5 D5:2",
+        "chords": "C:3 Dm:3 F:3 C:3 C:3 Dm:3"
+      },
+      "E1": {
+        "mel": "D5:1 A4:1.5 B4:0.5 D5:1 C5:2",
+        "chords": "G7:3 C:3"
+      },
+      "E2": {
+        "mel": "D5:1 E5:1.5 D5:0.5 D5:1 C5:2",
+        "chords": "G7:3 G7:1 C:2"
       }
     },
     "form": [
       "A",
       "B",
+      "E1",
       "B",
-      "A",
-      "B"
+      "E2"
     ]
   }
 }

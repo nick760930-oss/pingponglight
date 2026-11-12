@@ -1,0 +1,42 @@
+{
+  "key": "restyemerry",
+  "name": "上帝保佑諸位紳士",
+  "composer": "英國傳統聖誕歌",
+  "year": "約1700",
+  "inst": {
+    "lead": "choir",
+    "bk": "organ"
+  },
+  "credit": {
+    "source": "Open Hymnal Project（ABC）",
+    "url": "http://openhymnal.org/Abc/God_Rest_Ye_Merry_Gentlemen-God_Rest_Ye_Merry_Gentlemen.abc",
+    "licence": "Public Domain",
+    "note": "旋律取自 ABC 第一聲部，照原曲反覆兩段；和弦由 ABC 四部和聲逐拍分析"
+  },
+  "tune": {
+    "bpm": 136,
+    "meter": 4,
+    "style": "block",
+    "parts": {
+      "I": {
+        "mel": "r:3 E4:1",
+        "chords": "r:3 Em:1",
+        "free": true
+      },
+      "A": {
+        "mel": "E4:1 B4 B4 A4 G4 F#4 E4 D4 E4 F#4 G4 A4 B4:3 E4:1 E4 B4 B4 A4 G4 F#4 E4 D4 E4 F#4 G4 A4 B4:2 r:1 B4 C5 A4 B4 C5 D5 E5 B4 A4 G4 E4 F#4 G4 A4:2 G4:1 A4 B4:2 C5:1 B4 B4 A4 G4 F#4 E4:2 G4:0.5 F#4 E4:1 A4:2 G4:1 A4 B4 C5 D5 E5 B4 A4 G4 F#4 E4:3 E4:1",
+        "chords": "Em:2 B:1 B7:1 Em:1 Bm:1 C:1 G:1 C:1 B:1 Em:1 Am:1 B:3 Em:3 B:1 B7:1 Em:1 Bm:1 C:1 G:1 C:1 B:1 Em:1 Am:1 B:2 C:1 Em:1 Am:1 D:1 G:1 C:1 G7:1 C:1 G:1 B7:1 Em:1 C#dim:1 D:1 G:1 D:1 D7:1 Em:1 D:1 G:2 C:1 G:2 F#dim:1 Em:1 B:1 Em:3 C#dim:1 D:1 D7:1 Em:1 F#dim:1 G:1 C:1 G:1 C:1 G:1 F#dim:1 Em:1 B:1 Em:4"
+      },
+      "Z": {
+        "mel": "E4:1 B4 B4 A4 G4 F#4 E4 D4 E4 F#4 G4 A4 B4:3 E4:1 E4 B4 B4 A4 G4 F#4 E4 D4 E4 F#4 G4 A4 B4:2 r:1 B4 C5 A4 B4 C5 D5 E5 B4 A4 G4 E4 F#4 G4 A4:2 G4:1 A4 B4:2 C5:1 B4 B4 A4 G4 F#4 E4:2 G4:0.5 F#4 E4:1 A4:2 G4:1 A4 B4 C5 D5 E5 B4 A4 G4 F#4 E4:3",
+        "chords": "Em:2 B:1 B7:1 Em:1 Bm:1 C:1 G:1 C:1 B:1 Em:1 Am:1 B:3 Em:3 B:1 B7:1 Em:1 Bm:1 C:1 G:1 C:1 B:1 Em:1 Am:1 B:2 C:1 Em:1 Am:1 D:1 G:1 C:1 G7:1 C:1 G:1 B7:1 Em:1 C#dim:1 D:1 G:1 D:1 D7:1 Em:1 D:1 G:2 C:1 G:2 F#dim:1 Em:1 B:1 Em:3 C#dim:1 D:1 D7:1 Em:1 F#dim:1 G:1 C:1 G:1 C:1 G:1 F#dim:1 Em:1 B:1 Em:3",
+        "free": true
+      }
+    },
+    "form": [
+      "I",
+      "A",
+      "Z"
+    ]
+  }
+}

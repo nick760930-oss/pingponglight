@@ -1,0 +1,43 @@
+{
+  "key": "happybday",
+  "name": "生日快樂歌",
+  "composer": "米爾德里德・希爾、派蒂・希爾姊妹",
+  "year": "1893",
+  "inst": {
+    "lead": "piano",
+    "bk": "strings"
+  },
+  "credit": {
+    "source": "Wikimedia Commons〈Happy birthday to you (Zum Geburtstag viel Glück).mid〉（Rabanus Flavus / Peter Gerloff 製作）",
+    "url": "https://commons.wikimedia.org/wiki/File:Happy_birthday_to_you_(Zum_Geburtstag_viel_Gl%C3%BCck).mid",
+    "licence": "Public domain（旋律為傳統／公有領域）",
+    "note": "旋律音高取自 MIDI 第 1 軌，節奏依通行譜規整為 3/4；唱三遍，最後一遍重複末句；和弦為本遊戲編配"
+  },
+  "tune": {
+    "bpm": 113,
+    "meter": 3,
+    "style": "waltz",
+    "parts": {
+      "P0": {
+        "mel": "r:2",
+        "chords": "r:2",
+        "free": true
+      },
+      "V": {
+        "mel": "D4:0.75 D4:0.25 | E4:1 D4:1 G4:1 | F#4:2 D4:0.75 D4:0.25 | E4:1 D4:1 A4:1 | G4:2 D4:0.75 D4:0.25 | D5:1 B4:1 G4:1 | F#4:1 E4:1 C5:0.75 C5:0.25 | B4:1 G4:1 A4:1 | G4:2",
+        "chords": "G:1 G:3 D7:3 D7:3 G:3 G7:3 C:3 G:2 D7:1 G:2"
+      },
+      "VL": {
+        "mel": "D4:0.75 D4:0.25 | E4:1 D4:1 G4:1 | F#4:2 D4:0.75 D4:0.25 | E4:1 D4:1 A4:1 | G4:2 D4:0.75 D4:0.25 | D5:1 B4:1 G4:1 | F#4:1 E4:1 C5:0.75 C5:0.25 | B4:1 G4:1 A4:1 | G4:2 C5:0.75 C5:0.25 | B4:1 G4:1 A4:1 | G4:3",
+        "chords": "G:1 G:3 D7:3 D7:3 G:3 G7:3 C:3 G:2 D7:1 G:2 C:1 G:2 D7:1 G:3",
+        "free": true
+      }
+    },
+    "form": [
+      "P0",
+      "V",
+      "V",
+      "VL"
+    ]
+  }
+}

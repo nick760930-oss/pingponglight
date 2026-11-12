@@ -1,0 +1,22 @@
+{
+  "key": "harkherald",
+  "name": "聽啊，天使報佳音",
+  "composer": "孟德爾頌",
+  "year": "1840",
+  "inst": {
+    "lead": "choir",
+    "bk": "organ"
+  },
+  "credit": {
+    "source": "Mutopia Project",
+    "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1261",
+    "licence": "Public Domain",
+    "by": "Steve Dunlop",
+    "note": "旋律與 Open Hymnal Project ABC 交叉比對"
+  },
+  "midi": {
+    "file": "tools/src2/harkherald/mendelssohn.mid",
+    "mel": 1,
+    "speed": 1.667
+  }
+}

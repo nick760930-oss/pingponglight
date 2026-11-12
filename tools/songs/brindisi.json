@@ -1,0 +1,25 @@
+{
+  "key": "brindisi",
+  "name": "飲酒歌（茶花女）",
+  "composer": "威爾第",
+  "year": "1853",
+  "inst": {
+    "lead": "violin",
+    "bk": "piano"
+  },
+  "credit": {
+    "source": "Mutopia Project（La Traviata N° 2 Brindisi，鋼琴改編，N. Toledo；排版 Alberto Corella）",
+    "url": "https://www.mutopiaproject.org/ftp/VerdiG/Traviata_02/Traviata_02.mid",
+    "licence": "Public Domain / No rights reserved",
+    "by": "Alberto Corella"
+  },
+  "midi": {
+    "file": "tools/src2/brindisi/Traviata_02.mid",
+    "mel": 1,
+    "crop": [
+      34,
+      108.6
+    ],
+    "speed": 1.7
+  }
+}

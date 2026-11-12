@@ -1,0 +1,22 @@
+{
+  "key": "songbie",
+  "name": "送別",
+  "composer": "奧德威（J. P. Ordway）曲，李叔同填詞",
+  "year": "1868",
+  "inst": {
+    "lead": "flute",
+    "bk": "piano"
+  },
+  "credit": {
+    "source": "維基百科〈送別（歌曲）〉條目內嵌 LilyPond 譜",
+    "url": "https://zh.wikipedia.org/wiki/%E9%80%81%E5%88%AB_%28%E6%AD%8C%E6%9B%B2%29",
+    "licence": "CC BY-SA 4.0（譜）；旋律為公有領域",
+    "note": "與日文維基〈旅愁〉條目譜（CC BY-SA 4.0）交叉比對（tools/melcheck.mjs）"
+  },
+  "score": {
+    "file": "tools/src2/songbie/score-1.ly",
+    "bpm": 90,
+    "style": "arp",
+    "chords": "C:4 F:2 C:2 C:4 G:4 C:4 F:2 C:2 C:2 G7:2 C:4 F:2 C:2 G:2 C:2 F:2 Am:2 G7:4 C:4 F:2 C:2 C:2 G7:2 C:3"
+  }
+}

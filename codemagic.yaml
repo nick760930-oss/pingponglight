@@ -11,7 +11,7 @@ workflows:
     environment:
       ios_signing:
         distribution_type: app_store
-        bundle_identifier: com.lumivo.pingponglight
+        bundle_identifier: com.nocticat.pingponglight
       xcode: latest
       node: 22
     scripts:

@@ -1,0 +1,9 @@
+{
+  "key": "loreley",
+  "name": "羅蕾萊",
+  "composer": "西爾歇",
+  "year": "1837",
+  "inst": { "lead": "violin", "bk": "piano" },
+  "credit": { "source": "Mutopia Project（Friedrich Silcher, Die Loreley）", "url": "https://www.mutopiaproject.org/ftp/SilcherF/loreley/loreley.mid", "licence": "Public Domain / No rights reserved" },
+  "midi": { "file": "tools/src2/loreley/loreley.mid", "mel": 1, "speed": 0.9 }
+}

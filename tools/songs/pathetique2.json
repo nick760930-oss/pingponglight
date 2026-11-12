@@ -1,0 +1,25 @@
+{
+  "key": "pathetique2",
+  "name": "悲愴奏鳴曲 第二樂章",
+  "composer": "貝多芬",
+  "year": "1799",
+  "inst": {
+    "lead": "piano",
+    "bk": "piano"
+  },
+  "credit": {
+    "source": "Mutopia Project",
+    "url": "https://www.mutopiaproject.org/ftp/BeethovenLv/O13/pathetique-2/pathetique-2.mid",
+    "licence": "Public Domain",
+    "note": "MIDI 與 LilyPond 皆取自 Mutopia；另以 Wikimedia Commons Pathétique-2.mid 交叉比對"
+  },
+  "midi": {
+    "file": "tools/src2/pathetique2/pathetique-2.mid",
+    "mel": 1,
+    "crop": [
+      0,
+      53.2
+    ],
+    "speed": 1.07
+  }
+}

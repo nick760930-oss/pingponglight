@@ -1,0 +1,9 @@
+{
+  "key": "mollymalone",
+  "name": "莫莉．馬龍（鳥蛤與淡菜）",
+  "composer": "愛爾蘭傳統歌曲",
+  "year": "1883",
+  "inst": { "lead": "violin", "bk": "guitar" },
+  "credit": { "source": "Wikimedia Commons〈Molly Malone.mid〉", "url": "https://commons.wikimedia.org/wiki/File:Molly_Malone.mid", "licence": "CC0", "by": "Rabanus Flavus（Peter Gerloff）", "note": "樂譜圖檔 Student's Songs 1884 僅作對照（公有領域）" },
+  "midi": { "file": "tools/src2/mollymalone/Molly_Malone.mid", "mel": 1, "crop": [0.2, 48.45], "speed": 0.87 }
+}

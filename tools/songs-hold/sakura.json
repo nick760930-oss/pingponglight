@@ -1,35 +1,14 @@
 {
   "key": "sakura",
-  "name": "櫻花 さくらさくら",
-  "composer": "日本傳統曲",
-  "year": "約1888",
-  "inst": {
-    "lead": "flute",
-    "bk": "guitar"
-  },
+  "name": "櫻花（さくらさくら）",
+  "composer": "日本傳統民謠",
+  "year": "傳統",
+  "inst": { "lead": "flute", "bk": "piano" },
   "credit": {
-    "source": "依原曲旋律手寫（本遊戲製作）",
-    "url": "",
-    "licence": "公有領域"
+    "source": "Wikimedia Commons〈Sakura.MID〉（Rainer Lewalter 製作，轉自 de.wikipedia）",
+    "url": "https://commons.wikimedia.org/wiki/File:Sakura.MID",
+    "licence": "CC BY-SA 2.0 de（Creative Commons Attribution-Share Alike 2.0 Germany；旋律為日本傳統民謠）",
+    "note": "此 MIDI 只有單一旋律軌，沒有伴奏；已確認為完整的〈さくらさくら〉旋律（含第二段重複與結尾），不另行編配"
   },
-  "tune": {
-    "bpm": 96,
-    "meter": 4,
-    "style": "arp",
-    "parts": {
-      "A": {
-        "mel": "A4:1 A4 B4:2 | A4:1 A4 B4:2 | A4:1 B4 C5 B4 | A4:1 B4 A4 F4 | E4:4 | E4:1 E4 F4 E4 | A4:1 B4 A4 F4 | E4:4",
-        "chords": "Am:4 Am:4 Am:4 F:4 E:4 Am:4 F:4 Am:4"
-      },
-      "B": {
-        "mel": "C5:1 C5 E5:2 | C5:1 B4 A4:2 | B4:1 B4 C5 B4 | A4:1 B4 A4 F4 | E4:4 | A4:1 A4 B4:2 | A4:1 B4 A4 F4 | A4:4",
-        "chords": "Am:4 Am:4 E:4 F:4 E:4 Am:4 F:4 Am:4"
-      }
-    },
-    "form": [
-      "A",
-      "B",
-      "A"
-    ]
-  }
+  "midi": { "file": "tools/src2/sakura/Sakura.MID", "mel": 1 }
 }

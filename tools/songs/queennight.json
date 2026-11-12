@@ -1,0 +1,9 @@
+{
+  "key": "queennight",
+  "name": "夜后詠嘆調（復仇的火焰在我心中燃燒）",
+  "composer": "莫札特",
+  "year": "1791",
+  "inst": { "lead": "flute", "bk": "strings", "bass": "cello" },
+  "credit": { "source": "Mutopia Project（魔笛 K.620 第14首 Der Hölle Rache，完整總譜 MIDI）", "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-mids.zip", "licence": "Public Domain / No rights reserved" },
+  "midi": { "file": "tools/src2/queennight/MF14-ArieScore.mid", "mel": 9, "crop": [3.2, 43.45], "drop": [0] }
+}

@@ -799,7 +799,7 @@ function showResult(ok,msg){
     cp={ti:0,score:0};
   }
   $('#rk').textContent=mode==='tut'?'教學完成':(ok?'通關':'失敗');
-  $('#rt').textContent=(mode==='tut'?'新手教學':'第 '+(si+1)+' 關')+' · 《'+song.name+'》· '+D.n;
+  $('#rt').textContent=(mode==='tut'?'新手教學':'第 '+(si+1)+' 關')+' · 《'+song.name+'》 · '+D.n;
   lastRes={ok,rank,score,acc,maxCombo,name:song.name,label:$('#rt').textContent};
   const rk=$('#rank');rk.textContent=ok?rank:'失敗';rk.style.color=ok?RANK_COL[rank]:'#ff7a93';rk.style.fontSize=ok?'':'clamp(40px,11vh,64px)';
   $('#rnew').innerHTML=newBest?'<span class="badge">新紀錄</span>':(ok?'':'<span class="sub">'+(msg||'')+'</span>');
@@ -1219,11 +1219,11 @@ function duelView(){
   if(DU.ws&&DU.code&&DU.joined){mpSelOpen();return}
   mpLobbyUI();mpRooms();DU.roomsIv=setInterval(()=>{if(!$('#duel').classList.contains('hidden')&&!DU.ws&&!document.hidden)mpRooms()},10000);
 }
-const Q_MAX=[[4,'最多 4 人'],[6,'最多 6 人'],[8,'最多 8 人']];
+const Q_MAX=[[4,'4 人'],[6,'6 人'],[8,'8 人']];
 function mpLobbyUI(){
   const L=DU.lob;
   $('#qDi').innerHTML=[-1,...DORD].map(d=>'<button class="chip'+(d===L.di?' sel':'')+'" data-d="'+d+'">'+(d<0?'不限':DIFFS[d].n)+'</button>').join('');
-  $('#qMax').innerHTML=Q_MAX.map(([m,t])=>'<button class="chip'+(m===L.max?' sel':'')+'" data-m="'+m+'">'+t+'</button>').join('');
+  QMAX.set(Q_MAX.map(([v,text])=>({v,text})),L.max);
   $('#qGo').textContent=DU.matching?'配對中⋯':'開始配對';$('#qGo').disabled=!!DU.matching;
 }
 async function mpRooms(){
@@ -1531,7 +1531,7 @@ function drawDuel(x){
 function duelFinish(ok,rank,acc){
   DU.myFin={s:score,ok,acc,rank:ok?rank:'—',mc:maxCombo};dsend({t:'fin',...DU.myFin});
   mpLadOff();
-  $('#deK').textContent=DU.n+' 人對戰';$('#deS').textContent='《'+song.name+'》· '+D.n;
+  $('#deK').textContent=DU.n+' 人對戰';$('#deS').textContent='《'+song.name+'》 · '+D.n;
   $('#deMe').innerHTML='本局成績　完美<b>'+tierCount[0]+'</b>　極佳<b>'+tierCount[1]+'</b>　良好<b>'+tierCount[2]+'</b>　尚可<b>'+tierCount[3]+'</b>　失誤<b>'+missCount+'</b>　最高連擊<b>'+maxCombo+'</b>';
   duelResult();
 }
@@ -1583,7 +1583,6 @@ navTap('#dGo',()=>duelJoin($('#dCode').value));
 $('#dCode').addEventListener('keydown',e=>{if(e.key==='Enter')duelJoin($('#dCode').value)});
 navTap('#qGo',mpMatch);
 $('#qDi').onclick=e=>{const b=e.target.closest('button[data-d]');if(!b)return;DU.lob.di=+b.dataset.d;lsSet('ppl-qdi',String(DU.lob.di));mpLobbyUI();mpRooms()};
-$('#qMax').onclick=e=>{const b=e.target.closest('button[data-m]');if(!b)return;DU.lob.max=+b.dataset.m;lsSet('ppl-qmax',String(DU.lob.max));mpLobbyUI()};
 navTap('#rRef',()=>mpRooms());
 $('#dRooms').onclick=e=>{const b=e.target.closest('button.rm');if(!b||b.classList.contains('off'))return;duelJoin(b.dataset.code)};
 /* ---- game-styled dropdown: pill button + dark option panel (replaces the OS-drawn <select> list) ---- */
@@ -1632,6 +1631,8 @@ addEventListener('resize',ddClose);
 document.addEventListener('scroll',e=>{if(DDopen&&!DDopen.p.contains(e.target))ddClose()},true);   // the card scrolled: the panel would drift off its button
 const DMAX=makeDD($('#dMax'),'人數上限');   // in the song page's top bar while in a room
 DMAX.onchange=v=>mpCfg({max:v});
+const QMAX=makeDD($('#qMax'),'人數上限');   // quick match in the lobby
+QMAX.onchange=v=>{if(![4,6,8].includes(v))return;DU.lob.max=v;lsSet('ppl-qmax',String(v));mpLobbyUI()};
 navTap('#dShare',()=>{const u=(APP?SITE:location.origin+location.pathname)+'?room='+DU.code;shareText('邀請您在 PingPongLight 線上對戰，房號 '+DU.code,u,dmsg)});
 navTap('#bAgain',()=>duelAgain(true));navTap('#bRoom',()=>duelAgain(false));navTap('#bLeave',duelLeave);
 (function(){try{const r=new URLSearchParams(location.search).get('room');if(r){lsSet('ppl-tut','1');DU.pend=r.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);setTimeout(()=>{duelOpen();if(ME){$('#dCode').value=DU.pend;DU.pend=''}},50)}}catch(e){}})();
@@ -1856,7 +1857,7 @@ function invShow(){   // never over a run in progress: it appears when the run e
   if(Date.now()>v.exp){FD.inv=null;T.hidden=true;return}
   if(busyNow()){if(T.dataset.k==='inv')T.hidden=true;return}
   T.dataset.k='inv';$('#invA').innerHTML='<b>'+esc(v.name)+'</b> 邀請您對戰';
-  $('#invB').textContent=(v.song>=0?'《'+SONGS[v.song].name+'》· '+DIFFS[v.d].n+' · ':'')+'還有 '+Math.ceil((v.exp-Date.now())/1000)+' 秒';
+  $('#invB').textContent=(v.song>=0?'《'+SONGS[v.song].name+'》 · '+DIFFS[v.d].n+' · ':'')+'還有 '+Math.ceil((v.exp-Date.now())/1000)+' 秒';
   $('#invNo').hidden=false;$('#invOk').textContent='加入';T.hidden=false;
 }
 $('#invOk').onclick=()=>{const T=$('#invT');T.hidden=true;if(T.dataset.k!=='inv')return;const v=FD.inv;FD.inv=null;if(v&&Date.now()<=v.exp)frJoin(v)};
@@ -1969,7 +1970,7 @@ const SKY_SHAPE={
   aql:[[19.85,8.87,.8],[19.77,10.61,2.7],[19.09,13.86,3],[20.19,-.82,3.2],[19.43,3.11,3.4],[19.1,-4.88,3.4],[19.92,6.41,3.7],[19.87,1,3.9],[18.99,15.07,4],[19.6,-1.29,4.4]],
   del:[[20.63,14.6,3.6],[20.66,15.91,3.8],[20.78,16.12,3.9],[20.55,11.3,4],[20.73,15.07,4.4]]};
 // which real pattern each constellation borrows; a name not listed takes the smallest free pattern that fits its songs
-const SKY_PICK={'古老旋律座':'lyra','巴洛克座':'orion','古典座':'uma','浪漫座':'sco','晚浪漫與印象座':'leo','鋼琴詩人座':'leo','歌劇座':'gem','芭蕾座':'cyg','管弦樂座':'sgr','進行曲座':'cma','圓舞曲座':'cas','聖誕座':'tau','聖詩座':'cru','童謠座':'boo','童謠民謠座':'boo','世界民謠座':'peg','亞洲座':'aql','霓虹座':'del'};
+const SKY_PICK={'古老旋律座':'lyra','巴洛克座':'orion','古典座':'uma','浪漫座':'sco','晚浪漫與印象座':'leo','鋼琴詩人座':'leo','歌劇座':'gem','芭蕾座':'cyg','管弦樂座':'sgr','進行曲座':'cma','圓舞曲座':'cas','聖誕座':'tau','聖詩座':'cyg','歌劇與名歌座':'cas','童謠座':'boo','童謠民謠座':'boo','世界民謠座':'peg','亞洲座':'aql','霓虹座':'del'};
 let SKY=null,skyBack='home';
 function skyBuild(){
   let sd=11;const rnd=()=>(sd=(sd*16807)%2147483647)/2147483647;

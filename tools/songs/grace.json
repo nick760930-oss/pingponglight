@@ -1,0 +1,30 @@
+{
+  "key": "grace",
+  "name": "奇異恩典",
+  "composer": "美國聖詩",
+  "year": "1835",
+  "inst": {
+    "lead": "flute",
+    "bk": "organ"
+  },
+  "credit": {
+    "source": "Wikimedia Commons〈Amazing grace (org).mid〉",
+    "url": "https://commons.wikimedia.org/wiki/File:Amazing_grace_(org).mid",
+    "licence": "CC0",
+    "by": "Rabanus Flavus（Peter Gerloff）"
+  },
+  "note": "New Britain 曲調，取 MIDI 的旋律聲部（第二段改接高八度聲部）加上原檔伴奏，整段取用。",
+  "midi": {
+    "file": "tools/src2/grace/Amazing_grace_org.mid",
+    "mel": [
+      1,
+      3
+    ],
+    "crop": [
+      0,
+      81
+    ],
+    "speed": 1.12,
+    "minMel": 0.1
+  }
+}

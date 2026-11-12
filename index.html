@@ -12,11 +12,11 @@
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>PingPongLight</title>
-<meta name="description" content="在拍子上擊中光球，親手奏出《給愛麗絲》等 43 首經典名曲。單人闖關點亮星空，也能和朋友線上對戰。">
+<meta name="description" content="在拍子上擊中光球，親手奏出《給愛麗絲》等 68 首經典名曲。單人闖關點亮星空，也能和朋友線上對戰。">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="PingPongLight">
 <meta property="og:title" content="PingPongLight｜在節拍上奏出名曲">
-<meta property="og:description" content="在拍子上擊中光球，親手奏出《給愛麗絲》等 43 首經典名曲。單人闖關點亮星空，也能和朋友線上對戰。">
+<meta property="og:description" content="在拍子上擊中光球，親手奏出《給愛麗絲》等 68 首經典名曲。單人闖關點亮星空，也能和朋友線上對戰。">
 <meta property="og:url" content="https://pingponglight.vercel.app/">
 <meta property="og:image" content="https://pingponglight.vercel.app/icon-512.png">
 <meta property="og:locale" content="zh_TW">
@@ -217,8 +217,8 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 #bPause,#bFs,#bSkipH{min-height:44px;min-width:52px;padding:6px 14px;font-size:16px;line-height:1;margin-bottom:2px;touch-action:manipulation}
 #bSkipH{font-size:14px}
 .set{max-width:520px;text-align:left}
-.set h2{text-align:center}
-.xbtn{position:absolute;top:8px;right:10px;padding:4px 11px;font-size:16px;line-height:1.2}
+.set h2{text-align:center;line-height:44px}
+.xbtn{position:absolute;top:8px;right:10px;min-width:44px;min-height:44px;padding:0 12px;display:inline-flex;align-items:center;justify-content:center;font-size:18px;line-height:1}
 .srow{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:14px}
 .srow label{flex:0 0 7.5em;color:#cfd5f5}
 .srow input[type=range]{flex:1 1 auto;accent-color:#7cf0ff}
@@ -268,7 +268,12 @@ button.tog:focus-visible{outline:none}button.tog:focus-visible::before{outline:2
 .mpc{max-width:860px;text-align:left}.mpc .kicker{text-align:center}
 .mpj{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:14px;margin-top:6px}
 .mpj h3{margin:4px 0 6px;font-size:15px;display:flex;align-items:center;gap:8px}.mpj h3 small{font-size:12px;font-weight:400;color:var(--dim)}
-.mpl{font-size:12px;color:var(--dim);margin:6px 0 4px}.mpj .chips{display:flex;flex-wrap:wrap;gap:6px}
+.mpl{font-size:12px;color:var(--dim);margin:6px 0 4px}.mpq .chips,.mpq .row{justify-content:flex-start}.mpq .chips button,#rRef{min-height:40px}
+.mpsel{display:flex;align-items:center;gap:10px;margin:10px 0 4px}.mpsel .mpl{margin:0;font-size:13px}
+.slist,.sdet,.lbl,.fl,.frl{scrollbar-width:thin;scrollbar-color:rgba(124,240,255,.4) transparent}
+.slist::-webkit-scrollbar,.sdet::-webkit-scrollbar,.lbl::-webkit-scrollbar,.fl::-webkit-scrollbar,.frl::-webkit-scrollbar{width:6px}
+.slist::-webkit-scrollbar-track,.sdet::-webkit-scrollbar-track,.lbl::-webkit-scrollbar-track,.fl::-webkit-scrollbar-track,.frl::-webkit-scrollbar-track{background:transparent}
+.slist::-webkit-scrollbar-thumb,.sdet::-webkit-scrollbar-thumb,.lbl::-webkit-scrollbar-thumb,.fl::-webkit-scrollbar-thumb,.frl::-webkit-scrollbar-thumb{background:rgba(124,240,255,.4);border-radius:3px}.mpj .chips{display:flex;flex-wrap:wrap;gap:6px}
 button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;color:#7cf0ff}
 .rlist{display:grid;gap:6px;max-height:46vh;overflow:auto}
 .rm{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-rows:auto auto;column-gap:10px;text-align:left;padding:7px 12px;border-radius:12px}
@@ -393,9 +398,9 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
 #skyCv{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}
 .skyz{position:absolute;right:12px;bottom:36px;display:flex;flex-direction:column;gap:8px;z-index:1}.skyz button{width:40px;height:40px;padding:0;font-size:20px;line-height:1;border-radius:50%}
 .srl{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-.skytop{position:absolute;left:16px;right:52px;top:10px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--dim);z-index:1;pointer-events:none}
+.skytop{position:absolute;left:16px;right:52px;top:18px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--dim);z-index:1;pointer-events:none}
 .skytop b{font-size:16px;letter-spacing:.08em;color:var(--fg)}.skytop em{font-style:normal;color:#ffd36b;font-weight:700}
-.skytop .xbtn,.skytop button{pointer-events:auto}#skyBk{padding:4px 12px;font-size:13px}
+.skytop .xbtn,.skytop button{pointer-events:auto}.skytop .xbtn{top:calc(50% - 22px)}#skyBk{padding:4px 12px;font-size:13px}
 .skyleg{position:absolute;left:0;right:0;bottom:8px;display:flex;flex-wrap:wrap;justify-content:center;gap:4px 16px;font-size:12px;color:var(--dim);pointer-events:none}
 .skyleg span{display:inline-flex;align-items:center;gap:5px}.skyleg i{width:8px;height:8px;border-radius:50%;display:inline-block}
 .skycard{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:320px;width:calc(100% - 32px);z-index:2;padding:14px 18px}
@@ -403,7 +408,7 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
 .skycard table{border-collapse:collapse;width:100%;font-size:13px;margin:8px 0}.skycard td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.1);text-align:left}.skycard td:last-child{text-align:right;font-variant-numeric:tabular-nums}
 .skyHint[hidden]{display:none!important}
 .skyHint{display:block;margin:8px auto 0;padding:4px 12px;font-size:14px;color:#ffd36b;background:rgba(255,211,107,.08);border-color:rgba(255,211,107,.35)}
-@media (max-height:480px){.skyleg{font-size:11px;bottom:4px}.skytop{top:6px}.skycard{padding:10px 14px}.skycard table{margin:4px 0}.skycard td{padding:2px 6px}}
+@media (max-height:480px){.skyleg{font-size:11px;bottom:4px}.skytop{top:14px}.skycard{padding:10px 14px}.skycard table{margin:4px 0}.skycard td{padding:2px 6px}}
 @media (max-height:480px){#calPad{height:80px}.srow{margin:4px 0;font-size:13px}button.big{font-size:16px;padding:10px 30px}.rright td{padding:1px 8px;font-size:13px}#rscore{font-size:22px}.chip{padding:5px 10px;font-size:12px}.chips{margin:4px 0 0}.kicker{font-size:11px}.card p{font-size:12px;margin:4px 0}.card{padding:8px 18px}.card h2{font-size:20px}.card ul{font-size:12px;line-height:1.5;margin:4px 0}.row{margin-top:8px}}
 </style>
 </head>
@@ -435,7 +440,7 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
     <button id="bSet"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-2.7-1.1l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.1-2.7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 2.7-1.1V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0 1.1 2.7H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1.3z"/></svg> 設定</button>
   </div>
   <p id="aud" style="font-size:12px;margin:0;color:#ffb86b"></p>
-  <p class="foot">曲目來源：Mutopia Project 公共領域 MIDI · <a href="credits.html" style="color:#8a93c0">完整清單</a> · <a href="privacy.html" style="color:#8a93c0">隱私權政策</a></p>
+  <p class="foot"><a href="credits.html" style="color:#8a93c0">曲目來源與授權</a> · <a href="privacy.html" style="color:#8a93c0">隱私權政策</a></p>
   <p id="fsHint" style="display:none;font-size:12px;color:#8a93c0;margin:6px 0 0">iPhone 全螢幕：點選「分享」→「加入主畫面」，並由主畫面圖示開啟。</p>
 </div></div>
 
@@ -492,7 +497,7 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
     <div class="mpq">
       <h3>快速配對</h3>
       <div class="mpl">難度</div><div class="chips" id="qDi"></div>
-      <div class="mpl">人數</div><div class="chips" id="qMax"></div>
+      <div class="mpsel"><span class="mpl">人數上限</span><span class="dd" id="qMax"></span></div>
       <div class="row"><button class="pri" id="qGo">開始配對</button><button id="dNew">建立房間</button></div>
       <div class="row"><input id="dCode" maxlength="4" placeholder="房號" autocomplete="off" inputmode="latin" aria-label="房號"><button id="dGo">加入</button></div>
     </div>

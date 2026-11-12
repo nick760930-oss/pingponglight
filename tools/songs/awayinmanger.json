@@ -1,0 +1,43 @@
+{
+  "key": "awayinmanger",
+  "name": "馬槽搖籃（Away in a Manger）",
+  "composer": "默里（Mueller 曲調）",
+  "year": "1887",
+  "inst": {
+    "lead": "choir",
+    "bk": "organ"
+  },
+  "credit": {
+    "source": "Mutopia Project",
+    "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1264",
+    "licence": "Public Domain",
+    "by": "Steve Dunlop",
+    "note": "James R. Murray 的 Mueller 曲調（非 Kirkpatrick 的 Cradle Song）；旋律取自 mueller.ly／mueller.mid 女高音聲部，照原曲反覆兩段；和弦由 MIDI 四部和聲分析；與 Open Hymnal Project ABC 交叉比對"
+  },
+  "tune": {
+    "bpm": 100,
+    "meter": 3,
+    "style": "waltz",
+    "parts": {
+      "I": {
+        "mel": "r:2 C5:1",
+        "chords": "r:2 F:1",
+        "free": true
+      },
+      "A": {
+        "mel": "C5:1.5 Bb4:0.5 A4:1 A4 G4 F4 F4 E4 D4 C4:2 C4:1 C4:1.5 D4:0.5 C4:1 C4 G4 E4 D4 C4 F4 A4:2 C5:1 C5:1.5 Bb4:0.5 A4:1 A4 G4 F4 F4 E4 D4 C4:2 C4:1 Bb4:1.5 A4:0.5 G4:1 A4 G4 F4 G4 D4 E4 F4:2 C5:1",
+        "chords": "F:4 C7:1 F:1 Bb:1 C7:1 Bb:1 F:3 C7:6 Bb:1 F:9 C7:1 F:1 Bb:1 C7:1 Bb:1 F:3 C7:2 C:1 F:1 C7:1 F:1 Gm:2 C7:1 F:3"
+      },
+      "Z": {
+        "mel": "C5:1.5 Bb4:0.5 A4:1 A4 G4 F4 F4 E4 D4 C4:2 C4:1 C4:1.5 D4:0.5 C4:1 C4 G4 E4 D4 C4 F4 A4:2 C5:1 C5:1.5 Bb4:0.5 A4:1 A4 G4 F4 F4 E4 D4 C4:2 C4:1 Bb4:1.5 A4:0.5 G4:1 A4 G4 F4 G4 D4 E4 F4:2",
+        "chords": "F:4 C7:1 F:1 Bb:1 C7:1 Bb:1 F:3 C7:6 Bb:1 F:9 C7:1 F:1 Bb:1 C7:1 Bb:1 F:3 C7:2 C:1 F:1 C7:1 F:1 Gm:2 C7:1 F:2",
+        "free": true
+      }
+    },
+    "form": [
+      "I",
+      "A",
+      "Z"
+    ]
+  }
+}

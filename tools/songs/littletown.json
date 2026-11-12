@@ -1,0 +1,22 @@
+{
+  "key": "littletown",
+  "name": "伯利恆小鎮",
+  "composer": "雷德納（St. Louis 曲調）",
+  "year": "1868",
+  "inst": {
+    "lead": "choir",
+    "bk": "organ"
+  },
+  "credit": {
+    "source": "Mutopia Project",
+    "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1292",
+    "licence": "Public Domain",
+    "by": "Steve Dunlop",
+    "note": "旋律與 Open Hymnal Project ABC 交叉比對"
+  },
+  "midi": {
+    "file": "tools/src2/littletown/st_louis.mid",
+    "mel": 1,
+    "speed": 1.5
+  }
+}

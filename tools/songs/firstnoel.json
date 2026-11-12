@@ -1,0 +1,22 @@
+{
+  "key": "firstnoel",
+  "name": "第一個聖誕夜",
+  "composer": "英國傳統聖誕歌",
+  "year": "1833",
+  "inst": {
+    "lead": "choir",
+    "bk": "organ"
+  },
+  "credit": {
+    "source": "Mutopia Project",
+    "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1243",
+    "licence": "Public Domain",
+    "by": "Steve Dunlop",
+    "note": "旋律與 Open Hymnal Project ABC 交叉比對"
+  },
+  "midi": {
+    "file": "tools/src2/firstnoel/first_noel.mid",
+    "mel": 1,
+    "speed": 1.667
+  }
+}

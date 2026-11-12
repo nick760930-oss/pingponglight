@@ -1,0 +1,22 @@
+{
+  "key": "swanee",
+  "name": "故鄉的親人（斯旺尼河）",
+  "composer": "福斯特",
+  "year": "1851",
+  "inst": {
+    "lead": "clarinet",
+    "bk": "piano"
+  },
+  "credit": {
+    "source": "abcnotation.com（The Everyday Song Book, 1927，John Chambers 輸入）",
+    "url": "https://abcnotation.com/tunePage?a=trillian.mit.edu/~jc/music/book/EverydaySongBook/050_Old_Folks_at_Home/0000",
+    "licence": "Public Domain（福斯特卒於 1864）；只用旋律",
+    "note": "旋律與 Mutopia Project〈The Old Folks at Home〉（CC BY-SA 3.0）交叉比對；和弦為手動編配"
+  },
+  "score": {
+    "file": "tools/src2/swanee/old-folks-at-home.abc",
+    "bpm": 80,
+    "style": "block",
+    "chords": "D:4 G:4 D:4 A7:4 D:4 G:4 D:3 A7:2 D:4 D:4 G:4 D:4 A7:4 D:4 G:4 D:3 A7:2 D:4 A7:4 D:4 G:4 A7:4 D:4 G:4 D:3 A7:2 D:3"
+  }
+}

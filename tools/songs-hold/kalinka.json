@@ -1,0 +1,56 @@
+{
+  "key": "kalinka",
+  "name": "卡林卡",
+  "composer": "伊凡・拉里奧諾夫（Ivan Larionov）",
+  "year": "1860",
+  "inst": {
+    "lead": "violin",
+    "bk": "guitar"
+  },
+  "credit": {
+    "source": "abcnotation.com（John Chambers 輸入）",
+    "url": "https://abcnotation.com/tunePage?a=trillian.mit.edu/~jc/music/abc/Russia/Kalinka/0000",
+    "licence": "Public Domain（拉里奧諾夫卒於 1889）；只用旋律",
+    "note": "旋律與和弦記號取自該 ABC（tools/src2/kalinka 與 kalinka2 內容相同）；主歌—副歌—主歌依原譜順序，結尾回到主歌收在 D 小調主音（原譜副歌結尾為 D.C.）"
+  },
+  "tune": {
+    "bpm": 100,
+    "meter": 2,
+    "style": "block",
+    "parts": {
+      "S": {
+        "mel": "r:1 A4:1",
+        "chords": "r:1 Dm:1"
+      },
+      "Vp": {
+        "mel": "G4:1 E4:0.5 F4 G4:1 E4:0.5 F4 G4:1 F4:0.5 E4 D4:1 A4:0.5 A4 G4:0.75 F4:0.25 E4:0.5 F4 G4:1 E4:0.5 F4 G4:1 F4:0.5 E4 D4:1 A4",
+        "chords": "A7:6 Dm:2 A7:6 Dm:2"
+      },
+      "Vpp": {
+        "mel": "G4:1 E4:0.5 F4 G4:1 E4:0.5 F4 G4:1 F4:0.5 E4 D4:1 A4:0.5 A4 G4:0.75 F4:0.25 E4:0.5 F4 G4:1 E4:0.5 F4 G4:1 F4:0.5 E4 D4:1",
+        "chords": "A7:6 Dm:2 A7:6 Dm:1",
+        "free": true
+      },
+      "T": {
+        "mel": "D5:2 C5",
+        "chords": "Dm:2 C7:2"
+      },
+      "C": {
+        "mel": "A4:0.5 C5 A#4 A4:0.25 G4 F4:1 C4 A4:0.5 C5 A#4 A4:0.25 G4 F4:1 C4 D4 D4:0.5 E4 G4 F4 E4 D4 C4:1 C4 C4 C5 A4:0.5 C5 G4 A4 F4:1 C4 A4:0.5 C5 G4 A4 F4:1 C4 D4 D4:0.5 E4 G4 F4 E4 D4 C5:1 A#4 A4:2",
+        "chords": "F:1 C7:1 F:2 F:1 C7:1 F:2 Bb:2 G7:2 C:2 C:2 F:1 C7:1 F:2 F:1 C7:1 F:2 Bb:2 G7:2 C:1 Gm:1 A7:2"
+      },
+      "V3": {
+        "mel": "A4:1 G4 E4:0.5 F4 G4:1 E4:0.5 F4 G4:1 F4:0.5 E4 D4:1 A4:0.5 A4 G4:0.75 F4:0.25 E4:0.5 F4 G4:1 E4:0.5 F4 G4:1 F4:0.5 E4 D4:1",
+        "chords": "Dm:1 A7:6 Dm:2 A7:6 Dm:1"
+      }
+    },
+    "form": [
+      "S",
+      "Vp",
+      "Vpp",
+      "T",
+      "C",
+      "V3"
+    ]
+  }
+}

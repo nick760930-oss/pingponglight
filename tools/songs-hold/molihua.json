@@ -1,0 +1,32 @@
+{
+  "key": "molihua",
+  "name": "茉莉花",
+  "composer": "中國民歌（江蘇）",
+  "year": "傳統",
+  "inst": {
+    "lead": "flute",
+    "bk": "piano"
+  },
+  "credit": {
+    "source": "Wikipedia〈Mo Li Hua〉內嵌 LilyPond 樂譜（未使用條目中的 Jasmine_barrow.svg）",
+    "url": "https://en.wikipedia.org/wiki/Mo_Li_Hua",
+    "licence": "CC BY-SA 4.0（樂譜作者見條目歷史）",
+    "note": "旋律取自來源樂譜（含開頭兩小節反覆）並照原曲整首重複一次；和弦為手動編配"
+  },
+  "tune": {
+    "bpm": 106,
+    "meter": 4,
+    "style": "block",
+    "parts": {
+      "A": {
+        "mel": "E4:1 E4:0.5 G4 A4 C5 C5 A4 G4:1 G4:0.5 A4 G4:1 r E4 E4:0.5 G4 A4 C5 C5 A4 G4:1 G4:0.5 A4 G4:1 r G4 G4 G4 E4:0.5 G4 A4:1 A4 G4:2 E4:1 D4:0.5 E4 G4:1 E4:0.5 D4 C4:1 C4:0.5 D4 C4:2 E4:0.5 D4 C4 E4 D4:1.5 E4:0.5 G4:1 A4:0.5 C5 G4:2 D4:1 E4:0.5 G4 D4 E4 C4 A3 G3:2 A3:1 C4 D4:1.5 E4:0.5 C4 D4 C4 A3 G3:2",
+        "chords": "C:4 G:4 C:4 G:4 C:4 F:2 C:2 C:4 C:4 C:2 G:2 C:4 G:2 Am:2 C:2 Am:2 G:2 Am:2 C:2",
+        "free": true
+      }
+    },
+    "form": [
+      "A",
+      "A"
+    ]
+  }
+}

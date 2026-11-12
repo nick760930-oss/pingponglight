@@ -1,0 +1,9 @@
+{
+  "key": "haydn94",
+  "name": "驚愕交響曲 第二樂章",
+  "composer": "海頓",
+  "year": "1791",
+  "inst": { "lead": "violin", "bk": "strings" },
+  "credit": { "source": "Wikipedia〈Symphony No. 94 (Haydn)〉內嵌 LilyPond 樂譜", "url": "https://en.wikipedia.org/wiki/Symphony_No._94_%28Haydn%29", "licence": "CC BY-SA 4.0（樂譜作者見條目歷史）" },
+  "score": { "file": "tools/src2/haydn94/score-1.ly", "bpm": 47, "style": "block", "chords": "C:4 G7:4 C:4 C:1 D7:1 G:2 C:4 G7:4 C:4 C:1 D7:1 G:2" }
+}

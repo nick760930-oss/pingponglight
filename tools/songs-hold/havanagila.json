@@ -1,0 +1,21 @@
+{
+  "key": "havanagila",
+  "name": "哈瓦納吉拉",
+  "composer": "猶太傳統歌曲（伊德爾松整理）",
+  "year": "1918",
+  "inst": {
+    "lead": "clarinet",
+    "bk": "piano"
+  },
+  "credit": {
+    "source": "英文維基百科〈Hava Nagila〉條目內嵌 LilyPond 譜",
+    "url": "https://en.wikipedia.org/wiki/Hava_Nagila",
+    "licence": "CC BY-SA 4.0",
+    "note": "旋律與和弦取自條目 LilyPond 譜（含其 chordmode 和弦與漸快速度標記）"
+  },
+  "score": {
+    "file": "tools/src2/havanagila/score-1.ly",
+    "style": "march",
+    "chords": "D:4 D:4 Cm:4 D:1 Cm:1 D:2 D:4 D:4 Cm:4 D:1 Cm:1 D:2 D:1.5 Cm:0.5 D:2 Cm:1.5 Gm:0.5 Cm:2 Cm:4 D:1 Cm:1 D:2 D:1.5 Cm:0.5 D:2 Cm:1.5 Gm:0.5 Cm:2 Cm:4 D:1 Cm:1 D:2 Gm:4 Gm:4 Gm:8 Cm:8 D7:4 D:4 Gm:3"
+  }
+}

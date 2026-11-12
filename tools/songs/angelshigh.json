@@ -1,0 +1,22 @@
+{
+  "key": "angelshigh",
+  "name": "天使在高處歌唱",
+  "composer": "法國傳統聖誕歌（Gloria）",
+  "year": "約1700",
+  "inst": {
+    "lead": "choir",
+    "bk": "organ"
+  },
+  "credit": {
+    "source": "Open Hymnal Project（ABC）",
+    "url": "http://openhymnal.org/Abc/Angels_We_Have_Heard_On_High-Gloria.abc",
+    "licence": "Public Domain",
+    "note": "旋律取自 Open Hymnal Project ABC"
+  },
+  "score": {
+    "file": "tools/src2/angelshigh/Angels_We_Have_Heard_On_High-Gloria.abc",
+    "bpm": 120,
+    "style": "block",
+    "chords": "F:2 Am:2 G:1 C7:1 F:3 C:1 F:3 C7:1 F:4 Am:2 D7:1 C7:1 F:3 C:1 F:3 C7:1 F:4 Dm:2 Gm:2 C7:1 C:1 F:2 Bb:2 C:1 F:1 C:1 C7:1 F:1 C:1 F:1 Bb:1 F:2 C:2 F:2 Dm:2 Gm:2 C7:1 C:1 F:2 Bb:2 C:1 F:1 C:1 C7:1 F:1 C:1 F:1 Bb:1 F:2 C:1 C7:1 F:4"
+  }
+}

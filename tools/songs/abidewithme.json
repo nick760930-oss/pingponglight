@@ -1,0 +1,33 @@
+{
+  "key": "abidewithme",
+  "name": "求主同住（Abide with Me）",
+  "composer": "孟克（Eventide 曲調）",
+  "year": "1861",
+  "inst": {
+    "lead": "choir",
+    "bk": "organ"
+  },
+  "credit": {
+    "source": "Mutopia Project",
+    "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1241",
+    "licence": "Public Domain",
+    "by": "Steve Dunlop",
+    "note": "旋律取自 eventide.ly／eventide.mid 女高音聲部，照原曲反覆兩段；和弦由 MIDI 四部和聲逐拍分析；與 Open Hymnal Project ABC 交叉比對"
+  },
+  "tune": {
+    "bpm": 100,
+    "meter": 4,
+    "style": "pad",
+    "parts": {
+      "A": {
+        "mel": "F#4:2 F#4:1 E4 D4:2 A4 B4:1 A4 A4 G4 F#4:4 F#4:2 G4:1 A4 B4:2 A4 G4:1 E4 F#4 Ab4 A4:4 F#4:2 F#4:1 E4 D4:2 A4 A4:1 G4 G4 F#4 E4:4 E4:2 F#4:1 G4 F#4 E4 D4 G4 F#4:2 E4 D4:4",
+        "chords": "D:2 F#m:1 A7:1 Bm:2 D:2 G:1 A:1 D:1 A7:1 D:6 G:1 D:1 G:2 D:2 Em:1 A:1 D:1 Abdim:1 A:4 D:2 F#m:1 A7:1 Bm:2 D:1 F#m:1 G:2 B:1 B7:1 Em:4 A7:2 D:1 A7:1 D:1 A7:1 Bm:1 Em:1 D:2 A:1 A7:1 D:4",
+        "free": false
+      }
+    },
+    "form": [
+      "A",
+      "A"
+    ]
+  }
+}

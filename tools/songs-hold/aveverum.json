@@ -1,0 +1,9 @@
+{
+  "key": "aveverum",
+  "name": "聖體頌（Ave verum corpus）",
+  "composer": "莫札特",
+  "year": "1791",
+  "inst": { "lead": "choir", "bk": "choir", "bass": "organ" },
+  "credit": { "source": "Mutopia Project（Ave verum corpus, K.618，Kaiser 版）", "url": "https://www.mutopiaproject.org/ftp/MozartWA/AveverumM/AveverumM.mid", "licence": "Creative Commons（Mutopia：Some rights reserved，見原頁面）", "note": "MIDI 為 G 大調記譜，已移調 +7 半音回 D 大調；以 Wikipedia〈Ave verum corpus (Mozart)〉內嵌 LilyPond（CC BY-SA 4.0）交叉比對" },
+  "midi": { "file": "tools/src2/aveverum/AveverumM.mid", "mel": 1, "transpose": 7 }
+}

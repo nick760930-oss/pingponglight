@@ -1,0 +1,14 @@
+{
+  "key": "americabeaut",
+  "name": "美哉美國",
+  "composer": "山繆・沃德（曲，Materna）／凱瑟琳・貝茨（詞）",
+  "year": "1882",
+  "inst": { "lead": "choir", "bk": "organ" },
+  "credit": {
+    "source": "Wikimedia Commons〈America the Beautiful.mid〉（四部合唱 MIDI，作者 juan）",
+    "url": "https://commons.wikimedia.org/wiki/File:America_the_Beautiful.mid",
+    "licence": "Public domain（曲調 Materna 為 1882 年作品，沃德卒於 1903）；只用旋律與四部和聲，不用歌詞",
+    "note": "旋律取 Soprano 軌，保留 Bass／Tenor／Alto 三軌作伴奏；速度由原檔 98 放慢到約 93（speed 0.95）以達 40 秒"
+  },
+  "midi": { "file": "tools/src2/americabeaut/America_the_Beautiful.mid", "mel": 2, "speed": 0.95 }
+}

@@ -1,0 +1,22 @@
+{
+  "key": "cucaracha",
+  "name": "蟑螂（拉庫卡拉查）",
+  "composer": "墨西哥傳統民謠",
+  "year": "傳統",
+  "inst": {
+    "lead": "trumpet",
+    "bk": "guitar"
+  },
+  "credit": {
+    "source": "Wikipedia〈La Cucaracha〉內嵌 LilyPond 樂譜",
+    "url": "https://en.wikipedia.org/wiki/La_Cucaracha",
+    "licence": "CC BY-SA 4.0（樂譜作者見條目歷史）",
+    "note": "和弦為手動編配（來源和弦註明不甚可靠）"
+  },
+  "score": {
+    "file": "tools/src2/cucaracha/score-1.ly",
+    "bpm": 132,
+    "style": "waltz",
+    "chords": "C7:1.5 F:3 F:3 F:1.5 C7:1.5 C7:3 C7:3 C7:3 C7:3 F:3 F:3 F:3 F:3 Gm:3 C7:3 C7:3 C7:3 F:3 C7:1.5 F:3 F:3 F:1.5 C7:1.5 C7:3 C7:3 C7:3 C7:3 F:3 F:3 F:3 F:3 Gm:3 C7:3 C7:3 C7:3 F:3"
+  }
+}

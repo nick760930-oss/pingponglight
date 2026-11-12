@@ -1,10 +1,12 @@
 [
   ["古老旋律座", ["green", "twinkle", "auld", "grace", "silent"]],
   ["巴洛克座", ["canon", "prelude", "minuetg", "spring", "air", "hallelujah", "fireworks"]],
-  ["古典座", ["turkish", "nacht", "k545", "moon", "fifth", "elise", "ode"]],
-  ["浪漫座", ["schubert", "traum", "nocturne", "wedding", "minute", "gounod", "danube", "lullaby", "raindrop", "farmer", "anitra"]],
-  ["晚浪漫與印象座", ["carmen", "mountain", "gymno", "entertainer", "mapleleaf", "clair"]],
-  ["聖誕座", ["jingle", "deck", "holynight"]],
-  ["童謠民謠座", ["london", "jacques", "rowboat", "korobeiniki"]],
+  ["古典座", ["turkish", "nacht", "k545", "moon", "fifth", "elise", "ode", "pathetique2", "beet7"]],
+  ["浪漫座", ["schubert", "traum", "nocturne", "wedding", "minute", "gounod", "danube", "lullaby", "raindrop", "anitra", "fantaisie"]],
+  ["歌劇與名歌座", ["brindisi", "queennight", "homesweet", "lastrose", "loreley"]],
+  ["晚浪漫與印象座", ["carmen", "mountain", "gymno", "entertainer", "mapleleaf", "clair", "stripesfor"]],
+  ["聖誕座", ["jingle", "wishmerry", "deck", "holynight", "joyworld", "harkherald", "firstnoel", "restyemerry"]],
+  ["聖詩座", ["adeste", "littletown", "awayinmanger", "angelshigh", "friendjesus", "nearermygod", "abidewithme"]],
+  ["童謠民謠座", ["happybday", "london", "jacques", "rowboat", "korobeiniki", "jollygood", "yankee", "mollymalone", "alohaoe"]],
   ["霓虹座", ["neon", "pixel", "velvet"]]
 ]

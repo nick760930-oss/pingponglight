@@ -1,0 +1,20 @@
+{
+  "key": "homesweet",
+  "name": "甜蜜的家庭（Home, Sweet Home）",
+  "composer": "畢夏普",
+  "year": "1823",
+  "inst": {
+    "lead": "flute",
+    "bk": "piano"
+  },
+  "credit": {
+    "source": "Mutopia Project（Henry R. Bishop, Home! Sweet Home!）",
+    "url": "https://www.mutopiaproject.org/ftp/BishopHR/homeshome/homeshome.mid",
+    "licence": "Public Domain / No rights reserved",
+    "note": "與 Wikimedia Commons 11_Home_Sweet_Home.mid（Public domain）交叉比對"
+  },
+  "midi": {
+    "file": "tools/src2/homesweet/homeshome.mid",
+    "mel": 1
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "key": "fantaisie",
+  "name": "幻想即興曲（中段如歌主題）",
+  "composer": "蕭邦",
+  "year": "1834",
+  "inst": { "lead": "piano", "bk": "piano" },
+  "credit": { "source": "Mutopia Project（Chopin, Fantaisie-Impromptu Op. 66）", "url": "https://www.mutopiaproject.org/ftp/ChopinFF/O66/chopin_fantaisie-impromptu/chopin_fantaisie-impromptu.mid", "licence": "Public Domain / No rights reserved" },
+  "midi": { "file": "tools/src2/fantaisie/chopin_fantaisie-impromptu.mid", "mel": 1, "crop": [65.1, 118.5] }
+}

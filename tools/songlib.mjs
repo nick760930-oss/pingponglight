@@ -1,6 +1,7 @@
 // Song sources -> game note lists. A note is [startCs, durCs, midiPitch, kind]:
 // kind 1 = tune (the player plays it), 3 = counter-melody, 0 = accompaniment, 2 = drum.
 import { readFileSync } from 'node:fs';
+import { loadScore, secAt, MODE_SCALE } from './scorelib.mjs';
 
 /* ---------------- MIDI (Standard MIDI File, format 0 or 1) ---------------- */
 export function readMidi(path) {
@@ -68,13 +69,13 @@ export function skyline(notes, gap = 0.03) {
 }
 
 /* spec.midi = { file, mel: trackIndex | [tracks], ctr?: track, drop?: [tracks], crop?: [startSec, endSec],
-                 transpose?: semitones, melShift?: semitones (tune only), speed?: 1, minDur?: seconds } */
+                 transpose?: semitones, melShift?: semitones (tune only), speed?: 1, minDur?: seconds, minMel?: seconds (tune-track notes shorter than this, e.g. grace notes, stay accompaniment) } */
 export function fromMidi(spec, root) {
   const m = spec.midi, mid = readMidi(root + '/' + m.file);
   const melT = [].concat(m.mel), drop = new Set(m.drop || []), [c0, c1] = m.crop || [0, 1e9], sp = m.speed || 1;
   const inCrop = n => n.s >= c0 - 1e-3 && n.s < c1;
   const pick = ts => mid.tracks.filter(t => ts.includes(t.i)).flatMap(t => t.notes).filter(n => n.ch !== 9 && inCrop(n));
-  const mel = skyline(pick(melT)), melSet = new Set(mel.map(n => n.s.toFixed(3) + ':' + n.pitch));
+  const mel = skyline(pick(melT).filter(n => n.e - n.s >= (m.minMel || 0))), melSet = new Set(mel.map(n => n.s.toFixed(3) + ':' + n.pitch));
   const ctr = m.ctr != null ? skyline(pick([].concat(m.ctr))) : [];
   const ctrT = [].concat(m.ctr ?? []), bk = [];
   for (const t of mid.tracks) {   // everything else accompanies, including the inner voices of the tune's own track
@@ -129,7 +130,7 @@ function seqOf(str, parse) {
   return { list: out, beats: t };
 }
 // accompaniment for one chord of `len` beats starting at beat t (times in beats)
-function comp(style, c, t, len, meter) {
+export function comp(style, c, t, len, meter) {
   const out = [], bass = 36 + ((c.bass - 36 % 12 + 12) % 12) + (c.bass < 5 ? 12 : 0);   // E2..E3 range
   const voicing = c.iv.map(x => 55 + ((c.root + x - 55 % 12 + 24) % 12));             // close chord above G3
   voicing.sort((a, b) => a - b);
@@ -168,4 +169,125 @@ export function finish(n) {
   for (const x of n) x[0] -= shift;
   const end = Math.max(...n.map(x => x[0] + x[1])) / 100;
   return { n, dur: Math.round((end + 1.2) * 10) / 10 };
+}
+
+/* ---------------- score sources (ABC / LilyPond fragment / MusicXML), see scorelib.mjs ----------------
+   spec.score = { file, part?: voice/part index (default 0), repeats?: false to ignore repeat signs, crop?: [startBeat, endBeat] (quarter-note beats
+                  from the first note, after repeats are unfolded), cropBars?: [firstBar, lastBar] (1-based, a pickup bar is bar 0),
+                  transpose?, melShift?, bpm?: quarter notes per minute (overrides the source tempo), style?: block|waltz|march|arp|pad|none,
+                  chords?: "C:4 G7:4 ..." (beats are quarter-note beats counted from the cropped start; overrides the source chords),
+                  chordEvery?: quarter-note beats per inferred chord (default one per bar), pulse?: quarter-note beats per accompaniment pulse }
+   The tune notes are the melody; the accompaniment comes from the chords in the source if it has any, else a triad per bar picked from the melody. */
+function toChordObj(name) {
+  try { return chord(name) } catch (e) {
+    const m = /^([A-G][#b]?)(m(?!aj))?(.*)$/.exec(name.split('/')[0]);
+    if (m) {
+      const q = (m[2] ? 'm' : '') + (/7/.test(m[3]) && !/maj7/.test(m[3]) ? '7' : '');
+      try { return chord(m[1] + q) } catch (e2) { try { return chord(m[1] + (m[2] || '')) } catch (e3) { /* give up */ } }
+    }
+  }
+  return null;
+}
+const PCN = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+const chordLabel = c => PCN[c.root] + (c.iv[1] === 3 ? (c.iv[2] === 6 ? 'dim' : 'm') : '') + (c.iv[3] === 10 ? '7' : '') + (c.bass !== c.root ? '/' + PCN[c.bass] : '');
+function inferChord(w, key, prev, last) {
+  const sc = MODE_SCALE[key.mode] || MODE_SCALE.major, minorish = (sc[2] === 3);
+  const cands = [], prior = [0.6, 0.1, 0.05, 0.35, 0.5, 0.25, minorish ? 0.05 : -0.3];
+  for (let d = 0; d < 7; d++) {
+    const i3 = (sc[(d + 2) % 7] - sc[d] + 12) % 12, i5 = (sc[(d + 4) % 7] - sc[d] + 12) % 12;
+    cands.push({ root: (key.tonic + sc[d]) % 12, iv: [0, i3, i5], p: prior[d] });
+  }
+  if (minorish) cands.push({ root: (key.tonic + 7) % 12, iv: [0, 4, 7], p: 0.45 });
+  const total = w.reduce((a, b) => a + b, 0);
+  if (total < 1e-9) return prev || { root: key.tonic, bass: key.tonic, iv: [0, minorish ? 3 : 4, 7] };
+  let best = null, bs = -1e9;
+  for (const c of cands) {
+    let s = 0;
+    for (let pc = 0; pc < 12; pc++) {
+      if (!w[pc]) continue;
+      const k = (pc - c.root + 12) % 12;
+      s += w[pc] * (k === 0 ? 3 : k === c.iv[1] ? 2.5 : k === c.iv[2] ? 2 : -1.2);
+    }
+    s = s / total + c.p + (prev && prev.root === c.root && prev.iv[1] === c.iv[1] ? 0.15 : 0);
+    if (last && c.root === key.tonic && c.iv[1] === (minorish ? 3 : 4) && w[key.tonic] > 0) s += 0.6;
+    if (s > bs) { bs = s; best = c }
+  }
+  return { root: best.root, bass: best.root, iv: best.iv };
+}
+export function fromScore(spec, root) {
+  const S = spec.score, r = loadScore(root + '/' + S.file, { part: S.part || 0, repeats: S.repeats !== false });
+  const bb = r.barBeats, pk = r.pickup, tr = S.transpose || 0, ms = S.melShift || 0;
+  let c0 = 0, c1 = Infinity;
+  if (S.crop) [c0, c1] = S.crop;
+  else if (S.cropBars) { const [a, b] = S.cropBars; c0 = a <= 0 ? 0 : pk + (a - 1) * bb; c1 = pk + b * bb }
+  const mel = r.notes.filter(n => n.b >= c0 - 1e-4 && n.b < c1 - 1e-4).map(n => ({ b: n.b - c0, db: Math.min(n.db, c1 - n.b), p: n.p }));
+  if (!mel.length) throw new Error('score: no notes in the crop range');
+  const T = S.bpm ? [{ b: 0, qpm: S.bpm }] : r.tempos, s0 = secAt(T, c0);
+  const at = bq => Math.round((secAt(T, c0 + bq) - s0) * 100);
+  const end = Math.max(...mel.map(n => n.b + n.db));
+  const info = { bpm: S.bpm || r.bpm, meter: r.meter.join('/'), pickup: pk, key: r.key, sourceWarnings: r.warnings, bars: Math.ceil((end - pk) / bb - 1e-6) };
+  const out = [];
+  for (const n of mel) out.push([at(n.b), Math.max(8, at(n.b + n.db) - at(n.b) - 2), n.p + tr + ms, 1]);
+  const [mn, md] = r.meter, pulse = S.pulse || (md === 8 && mn >= 6 && mn % 3 === 0 ? 1.5 : 4 / md), meterP = bb / pulse;
+  const style = S.style || (Math.abs(meterP - 3) < 1e-6 ? 'waltz' : md === 8 && mn >= 6 ? 'arp' : 'block');
+  info.style = style; info.pulse = pulse;
+  if (style !== 'none') {
+    // chord segments covering [0, end)
+    let segs = [];
+    if (S.chords) {
+      let t = 0, len = bb;
+      for (const tok of S.chords.trim().split(/\s+/)) {
+        if (!tok || tok === '|') continue;
+        const [nm, l] = tok.split(':'); if (l != null) len = Number(l);
+        const c = toChordObj(nm); if (!c) throw new Error('score.chords: bad chord "' + tok + '"');
+        segs.push({ b0: t, b1: t + len, c }); t += len;
+      }
+      if (segs.length) segs[segs.length - 1].b1 = Math.max(segs[segs.length - 1].b1, end);
+      info.chordSource = 'spec';
+    } else {
+      const src = (r.chords || []).map(x => ({ b: x.b - c0, c: toChordObj(x.name) })).filter(x => x.c);
+      const inside = src.filter(x => x.b < end - 1e-6);
+      if (inside.length >= Math.max(2, mel.length / 40)) {
+        const ev = inside.filter(x => x.b >= 0), pre = src.filter(x => x.b < 0).pop();
+        if (pre && (!ev.length || ev[0].b > 1e-6)) ev.unshift({ b: 0, c: pre.c });
+        if (ev[0].b > 1e-6) ev[0] = { ...ev[0], b: 0 };
+        segs = ev.map((x, i) => ({ b0: x.b, b1: i + 1 < ev.length ? ev[i + 1].b : end, c: x.c }));
+        info.chordSource = 'source';
+      } else {
+        const every = S.chordEvery || bb;
+        let cuts = [0];
+        const first = ((pk - c0) % bb + bb) % bb;        // distance from the (cropped) start to the next bar line
+        for (let x = first > 1e-6 ? first : bb; x < end - 1e-6; x += bb) cuts.push(x);
+        cuts.push(end);
+        if (S.chordEvery) {
+          const all = [];
+          for (let i = 0; i + 1 < cuts.length; i++) for (let x = cuts[i]; x < cuts[i + 1] - 1e-6; x += every) all.push(x);
+          cuts = [...all, end];
+        }
+        let prev = null;
+        for (let i = 0; i + 1 < cuts.length; i++) {
+          const a = cuts[i], b = cuts[i + 1], w = new Array(12).fill(0);
+          for (const n of mel) {
+            const ov = Math.min(b, n.b + n.db) - Math.max(a, n.b);
+            if (ov > 1e-6) w[n.p % 12] += ov * (Math.abs(n.b - a) < 1e-6 ? 1.5 : Number.isInteger(n.b) ? 1.2 : 1);
+          }
+          const c = inferChord(w, r.key, prev, i + 2 === cuts.length); prev = c; segs.push({ b0: a, b1: b, c });
+        }
+        info.chordSource = 'inferred';
+      }
+    }
+    for (const sg of segs) sg.c = { root: (sg.c.root + tr + 12) % 12, bass: (sg.c.bass + tr + 12) % 12, iv: sg.c.iv };
+    info.chords = segs.map(s => chordLabel(s.c) + ':' + +(s.b1 - s.b0).toFixed(3)).join(' ');
+    const phase = ((c0 - pk) % bb + bb) % bb;
+    for (const sg of segs) {
+      const len = (sg.b1 - sg.b0) / pulse;
+      for (const [bt, d, p] of comp(style, sg.c, (sg.b0 + phase) / pulse, len, meterP)) {
+        const a = bt * pulse - phase, z = (bt + d) * pulse - phase;
+        if (a < -1e-6) continue;
+        out.push([at(a), Math.max(6, at(z) - at(a)), p, 0]);
+      }
+    }
+  }
+  out.info = info;
+  return out;
 }

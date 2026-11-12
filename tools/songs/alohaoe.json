@@ -1,0 +1,30 @@
+{
+  "key": "alohaoe",
+  "name": "夏威夷珍重再見（Aloha ʻOe）",
+  "composer": "莉莉烏卡拉尼女王（Liliʻuokalani）",
+  "year": "約1878",
+  "inst": {
+    "lead": "flute",
+    "bk": "guitar"
+  },
+  "credit": {
+    "source": "Wikimedia Commons〈Aloha oe song midi.mid〉",
+    "url": "https://commons.wikimedia.org/wiki/File:Aloha_oe_song_midi.mid",
+    "licence": "Public domain（作曲者 1917 年過世）",
+    "note": "旋律取自 MIDI 的獨唱軌（Voice）與合唱女高音軌（Soprano）；原檔 47～48 拍處獨唱軌有兩個極短的重複 F#4（0.07 拍）視為轉檔雜音略去；和聲依鋼琴與合唱聲部手動簡化為和弦；速度 103→96"
+  },
+  "tune": {
+    "bpm": 96,
+    "meter": 4,
+    "style": "arp",
+    "parts": {
+      "A": {
+        "mel": "D4:0.5 G4 B4:1.5 A4:0.5 G4 F#4 G4 E4 D4:2 r:1 B4 A4:1.5 G#4:0.5 A4 A4 C5 B4 A4:3 D4:0.5 G4 B4:1.5 A4:0.5 G4 F#4 G4 E4 D4:2 r:1 D4:0.5 D4 E4:1 A4:0.5 G4 F#4 B4 A4 F#4 G4:2.5 G4:0.5 G4 F#4 E4:1 G4 C5:0.5 E4 E4 E4 D4:1 G4 B4 G4:0.5 G4 F#4 F#4 F#4 G4 A4 G#4 A4 C5 B4:2 G4:1 r:0.5 F#4 E4:1 G4 C5:1.5 E4:0.5 D4 D4 G4 G4 B4:1.5 G4:0.5 F#4:1.5 G4:0.5 B4 A4:1 F#4:0.5 G4:3",
+        "chords": "G:2 C:2 G:4 D7:8 G:2 C:2 G:4 C:2 D7:2 G:4 C:6 G:2 D7:6 G:2 C:6 G:4 D7:2 G:4"
+      }
+    },
+    "form": [
+      "A"
+    ]
+  }
+}

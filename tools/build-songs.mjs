@@ -2,16 +2,18 @@
 //   node tools/build-songs.mjs            write songs.js
 //   node tools/build-songs.mjs --check    only report (no write)
 //   node tools/build-songs.mjs --only k   build one spec and print its stats (for working on a single song)
+//   node tools/build-songs.mjs --dir songs-new [--only k]   read the specs from another folder under tools/ (try-out; prints stats, never writes songs.js)
 // A spec: { key, name, composer, year, inst: {lead, bk, bass?, ctr?}, credit: {source, url, licence, by?},
-//           midi: {...} | tune: {...} }  (see songlib.mjs). Pieces already in songs.js without a spec are kept as they are.
+//           midi: {...} | tune: {...} | score: {...} }  (see songlib.mjs). Pieces already in songs.js without a spec are kept as they are.
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
-import { fromMidi, fromTune, finish } from './songlib.mjs';
+import { fromMidi, fromTune, fromScore, finish } from './songlib.mjs';
 
 const TOOLS = dirname(fileURLToPath(import.meta.url)), ROOT = join(TOOLS, '..');
 const args = process.argv.slice(2), check = args.includes('--check'), only = args.includes('--only') ? args[args.indexOf('--only') + 1] : null;
+const altDir = args.includes('--dir') ? args[args.indexOf('--dir') + 1] : null;
 const INST = ['piano', 'violin', 'viola', 'cello', 'strings', 'flute', 'recorder', 'guitar', 'organ', 'choir', 'trumpet', 'clarinet', 'pizz'];
 
 const box = { window: {} };
@@ -19,23 +21,24 @@ vm.runInNewContext(readFileSync(join(ROOT, 'songs.js'), 'utf8'), box);
 const DATA = { ...box.window.SONGDATA };
 const head = readFileSync(join(ROOT, 'songs.js'), 'utf8').match(/^\/\*[\s\S]*?\*\//)[0];
 
-const dir = join(TOOLS, 'songs'), specs = existsSync(dir) ? readdirSync(dir).filter(f => f.endsWith('.json')).sort() : [];
+const dir = join(TOOLS, altDir || 'songs'), specs = existsSync(dir) ? readdirSync(dir).filter(f => f.endsWith('.json')).sort() : [];
 const problems = [], stats = [];
 for (const f of specs) {
   const sp = JSON.parse(readFileSync(join(dir, f), 'utf8'));
   if (only && sp.key !== only) continue;
-  const where = 'tools/songs/' + f;
+  const where = 'tools/' + (altDir || 'songs') + '/' + f;
   try {
     for (const k of ['key', 'name', 'composer', 'year', 'inst', 'credit']) if (!sp[k]) throw new Error('missing "' + k + '"');
     if (!/^[a-z][a-z0-9]{1,15}$/.test(sp.key)) throw new Error('key must be 2-16 lowercase letters/digits');
     if (sp.key + '.json' !== f) throw new Error('file name must be <key>.json');
     for (const [r, v] of Object.entries(sp.inst)) if (!['lead', 'bk', 'bass', 'ctr'].includes(r) || !INST.includes(v)) throw new Error('bad inst ' + r + '=' + v);
     if (!sp.inst.lead || !sp.inst.bk) throw new Error('inst needs lead and bk');
-    const raw = sp.midi ? fromMidi(sp, ROOT) : sp.tune ? fromTune(sp) : null;
-    if (!raw) throw new Error('needs "midi" or "tune"');
+    const raw = sp.midi ? fromMidi(sp, ROOT) : sp.tune ? fromTune(sp) : sp.score ? fromScore(sp, ROOT) : null;
+    if (!raw) throw new Error('needs "midi", "tune" or "score"');
     const { n, dur } = finish(raw), tune = n.filter(x => x[3] === 1);
     if (tune.length < 20) throw new Error('only ' + tune.length + ' tune notes');
     const rate = tune.length / dur, lo = Math.min(...tune.map(x => x[2])), hi = Math.max(...tune.map(x => x[2]));
+    if (raw.info && (only || altDir)) console.log(sp.key + ': ' + JSON.stringify({ ...raw.info, key: undefined, sourceWarnings: undefined }) + (raw.info.sourceWarnings.length ? ' | source warnings: ' + raw.info.sourceWarnings.join(' | ') : ''));
     stats.push({ key: sp.key, name: sp.name, dur, tune: tune.length, rate: +rate.toFixed(2), range: lo + '-' + hi, all: n.length });
     if (dur > 150) problems.push(where + ': ' + dur + ' s is long (aim for 40-120 s; crop it)');
     if (rate > 6) problems.push(where + ': ' + rate.toFixed(1) + ' tune notes per second is very dense');
@@ -43,7 +46,7 @@ for (const f of specs) {
     DATA[sp.key] = { n, dur, name: sp.name, composer: sp.composer, year: String(sp.year), inst: sp.inst, credit: sp.credit, ...(sp.lead ? { lead: sp.lead } : {}) };
   } catch (e) { problems.push(where + ': ' + e.message) }
 }
-if (only) { console.table(stats); if (problems.length) console.log(problems.join('\n')); process.exit(problems.length ? 1 : 0) }
+if (only || altDir) { console.table(stats); if (problems.length) console.log(problems.join('\n')); process.exit(problems.length ? 1 : 0) }
 
 // songs parked in tools/songs-hold/ (pulled until fixed) are dropped from songs.js even if an older build had them
 const HOLD = join(TOOLS, 'songs-hold');
@@ -73,11 +76,14 @@ let html = readFileSync(cp, 'utf8');
 const A = '<!-- songs from tools/songs (generated) -->', B = '<!-- /songs from tools/songs -->';
 if (!html.includes(A)) html = html.replace('</tbody>', A + '\n' + B + '\n</tbody>');
 const kept = (html.match(/<tr><td class="no">/g) || []).length - (html.split(A)[1].split(B)[0].match(/<tr>/g) || []).length;
+// a licence with a public deed gets a link to it (CC0); public-domain pieces need none
+const LIC_URL = { 'CC0': 'https://creativecommons.org/publicdomain/zero/1.0/deed.zh_TW' };
+const licHtml = l => esc(l).replace(/CC0/, m => '<a href="' + LIC_URL[m] + '" target="_blank" rel="noopener noreferrer">' + m + '</a>');
 const rows = ORDER.filter(k => DATA[k].credit).map((k, i) => {
   const d = DATA[k], c = d.credit;
   const src = c.url ? '<a href="' + esc(c.url) + '" target="_blank" rel="noopener noreferrer">' + esc(c.source) + '</a>' : '<span class="muted">' + esc(c.source) + '</span>';
   return '<tr><td class="no">' + (kept + i + 1) + '</td><td>' + esc(d.name) + '</td><td>' + esc(d.composer) + '</td><td>' + esc(d.year) + '</td><td>' + src
-    + ' · ' + esc(c.licence) + (c.by ? ' · ' + esc(c.by) : '') + (c.note ? '<br><span class="muted">' + esc(c.note) + '</span>' : '') + '</td></tr>';
+    + ' · ' + licHtml(c.licence) + (c.by ? ' · ' + esc(c.by) : '') + (c.note ? '<br><span class="muted">' + esc(c.note) + '</span>' : '') + '</td></tr>';
 });
 html = html.split(A)[0] + A + '\n' + rows.join('\n') + (rows.length ? '\n' : '') + B + html.split(B)[1];
 writeFileSync(cp, html);

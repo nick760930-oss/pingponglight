@@ -1,0 +1,31 @@
+{
+  "key": "drunkensailor",
+  "name": "醉酒水手",
+  "composer": "傳統水手號子（英國）",
+  "year": "傳統",
+  "inst": {
+    "lead": "violin",
+    "bk": "guitar"
+  },
+  "credit": {
+    "source": "Paul Hardy's Session Tunebook 2026（abcnotation.com）",
+    "url": "https://abcnotation.com/tunePage?a=pghardy.net/tunebooks/pgh_session_tunebook/0168",
+    "licence": "CC BY-NC-SA（檔內註記）；旋律本身為傳統曲調",
+    "note": "旋律與和弦記號取自該 ABC，照原曲整首重複一次"
+  },
+  "tune": {
+    "bpm": 160,
+    "meter": 4,
+    "style": "march",
+    "parts": {
+      "A": {
+        "mel": "B4:1 B4:0.5 B4 B4:1 B4:0.5 B4 B4:1 E4 G4 B4 A4 A4:0.5 A4 A4:1 A4:0.5 A4 A4:1 D4 F#4 A4 B4 B4:0.5 B4 B4:1 B4:0.5 B4 B4:1 C#5 D5 E5 D5 B4 A4 F#4 E4:2 E4:1 r B4:2 B4:1.5 B4:0.5 B4:1 E4 G4 B4 A4:2 A4:1.5 A4:0.5 A4:1 D4 F#4 A4 B4:2 B4:1.5 B4:0.5 B4:1 C#5 D5 E5 D5 B4 A4 F#4 E4:2 E4:1 r",
+        "chords": "Em:8 D:8 Em:8 D:4 Em:4 Em:8 D:8 Em:8 D:4 Em:4"
+      }
+    },
+    "form": [
+      "A",
+      "A"
+    ]
+  }
+}

@@ -1,0 +1,2743 @@
+[
+ {
+  "key": "sakura",
+  "曲名": "櫻花",
+  "編號": "1",
+  "files": [
+   {
+    "path": "tools/src2/sakura/Sakura.MID",
+    "bytes": 518,
+    "sha256": "d1f1cfc4a76e8ab612a8c7a4205806ebd677f9f52923fccd96e26111ff255b0b",
+    "role": "primary",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/9/93/Sakura.MID?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Sakura.MID",
+    "licence": "CC BY-SA 2.0 de（Creative Commons Attribution-Share Alike 2.0 de）；作者：Rainer Lewalter；Credit：Transferred from de.wikipedia to Commons.; transfer was stated to be made by lud"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://imslp.org/wiki/Sakura_Sakura_(Folk_Music,_Japanese)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "arirang",
+  "曲名": "阿里郎",
+  "編號": "2",
+  "files": [
+   {
+    "path": "tools/src2/arirang/score-1.ly",
+    "bytes": 1001,
+    "sha256": "a6846fefc3e31c7ba0d51336e6d0d8f2f053156e2429319321826167916f6910",
+    "role": "primary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Arirang&oldid=1373992275",
+    "page": "https://en.wikipedia.org/wiki/Arirang",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1373992275,
+    "score_attrs": "vorbis=\"1\"",
+    "score_lang": "lilypond"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://imslp.org/wiki/Arirang_(Folk_Songs,_Korean)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "jollygood",
+  "曲名": "他是個好傢伙",
+  "編號": "4",
+  "files": [
+   {
+    "path": "tools/src2/jollygood/For_he's_a_jolly_good_fellow.mid",
+    "bytes": 3387,
+    "sha256": "46ea8e4d6b033437baf094416fe32c5d55a4d01a9a0b355fa4d2c0d173b5155b",
+    "role": "primary",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/0/0c/For_he%27s_a_jolly_good_fellow.mid?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:For_he%27s_a_jolly_good_fellow.mid",
+    "licence": "CC0（Creative Commons Zero, Public Domain Dedication）；作者：Melody: trad.; setting &amp; sound file: Rabanus Flavus (Peter Gerloff)；Credit：Own work"
+   },
+   {
+    "path": "tools/src2/jollygood/sec-score-1.ly",
+    "bytes": 516,
+    "sha256": "bf4ccc0334b16a1f7f3c79cdc86219310f443b563c36440311288db2d0dc6578",
+    "role": "secondary",
+    "url": "https://en.wikipedia.org/w/index.php?title=For_He%27s_a_Jolly_Good_Fellow&oldid=1384515815",
+    "page": "https://en.wikipedia.org/wiki/For_He%27s_a_Jolly_Good_Fellow",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1384515815,
+    "score_attrs": "sound=\"1\"",
+    "score_lang": "lilypond"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "homesweet",
+  "曲名": "我家甜蜜家",
+  "編號": "5",
+  "files": [
+   {
+    "path": "tools/src2/homesweet/homeshome.ly",
+    "bytes": 5647,
+    "sha256": "6a202db0514baba691576b96faa9bb484be3671dfbb3aa99e52d5d3cb4bc2be7",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BishopHR/homeshome/homeshome.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=435",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/homesweet/homeshome.mid",
+    "bytes": 5617,
+    "sha256": "f5f7e4a7f59bf3f6890ec25b3f25d0a2c938cc84a1dfb0f55ab6fc1ac5d995f7",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BishopHR/homeshome/homeshome.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=435",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/homesweet/11_Home_Sweet_Home.mid",
+    "bytes": 2318,
+    "sha256": "4f196bea612f909853ea834538d49234d628014b822b8c40c57466ebbf3f1f18",
+    "role": "secondary",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/1/1a/11_Home_Sweet_Home.mid?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:11_Home_Sweet_Home.mid",
+    "licence": "Public domain（Public domain）；作者：Hyacinth；Credit：Own work"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "mozart40",
+  "曲名": "第四十號交響曲",
+  "編號": "11",
+  "files": [
+   {
+    "path": "tools/src2/mozart40/score-1.ly",
+    "bytes": 257,
+    "sha256": "82a631c9594707ad40210981ec5109770ab6ce50964c2b09221529e5d63006fd",
+    "role": "primary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Symphony_No._40_%28Mozart%29&oldid=1366253684",
+    "page": "https://en.wikipedia.org/wiki/Symphony_No._40_%28Mozart%29",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1366253684,
+    "score_attrs": "sound=1",
+    "score_lang": "lilypond"
+   },
+   {
+    "path": "tools/src2/mozart40/score-2.ly",
+    "bytes": 1907,
+    "sha256": "c211b48b15d77d9a1f71403306f8ab1936b31144aed10f16ffcabba68fc53631",
+    "role": "primary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Symphony_No._40_%28Mozart%29&oldid=1366253684",
+    "page": "https://en.wikipedia.org/wiki/Symphony_No._40_%28Mozart%29",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1366253684,
+    "score_attrs": "sound=\"1\" lang=\"lilypond\"",
+    "score_lang": "lilypond"
+   },
+   {
+    "path": "tools/src2/mozart40/score-3.ly",
+    "bytes": 2530,
+    "sha256": "a1a8a3ad01c8f6d419538be380ac9dd436bee97472d5714b97e623c0381df0a0",
+    "role": "primary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Symphony_No._40_%28Mozart%29&oldid=1366253684",
+    "page": "https://en.wikipedia.org/wiki/Symphony_No._40_%28Mozart%29",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1366253684,
+    "score_attrs": "sound=\"1\" lang=\"lilypond\"",
+    "score_lang": "lilypond"
+   },
+   {
+    "path": "tools/src2/mozart40/score-4.ly",
+    "bytes": 291,
+    "sha256": "a3fc66d61ecae8c3674676e885fb987ebbff48c8a22700227eb544cb74cadfc1",
+    "role": "primary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Symphony_No._40_%28Mozart%29&oldid=1366253684",
+    "page": "https://en.wikipedia.org/wiki/Symphony_No._40_%28Mozart%29",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1366253684,
+    "score_attrs": "sound",
+    "score_lang": "lilypond"
+   },
+   {
+    "path": "tools/src2/mozart40/score-5.ly",
+    "bytes": 208,
+    "sha256": "9e41be853896a9339b2ded3f19564ea62ab46e411987bfeaf6c72fafd3b18419",
+    "role": "primary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Symphony_No._40_%28Mozart%29&oldid=1366253684",
+    "page": "https://en.wikipedia.org/wiki/Symphony_No._40_%28Mozart%29",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1366253684,
+    "score_attrs": "sound=\"1\"",
+    "score_lang": "lilypond"
+   },
+   {
+    "path": "tools/src2/mozart40/score-6.ly",
+    "bytes": 317,
+    "sha256": "0a4e09e49991c9e5e44a11f79cc14ac402de7659bb856add1830023bbbb28be6",
+    "role": "primary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Symphony_No._40_%28Mozart%29&oldid=1366253684",
+    "page": "https://en.wikipedia.org/wiki/Symphony_No._40_%28Mozart%29",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1366253684,
+    "score_attrs": "sound=\"1\"",
+    "score_lang": "lilypond"
+   },
+   {
+    "path": "tools/src2/mozart40/score-7.ly",
+    "bytes": 219,
+    "sha256": "0d50e34fc1bbd0f7432929125d6f1d6483e4030d923788c12a50a38c2dc630e7",
+    "role": "primary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Symphony_No._40_%28Mozart%29&oldid=1366253684",
+    "page": "https://en.wikipedia.org/wiki/Symphony_No._40_%28Mozart%29",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1366253684,
+    "score_attrs": "sound=\"1\"",
+    "score_lang": "lilypond"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://imslp.org/wiki/Symphony_No.40,_K.550_(Mozart,_Wolfgang_Amadeus)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "haydn94",
+  "曲名": "驚愕交響曲",
+  "編號": "12",
+  "files": [
+   {
+    "path": "tools/src2/haydn94/score-1.ly",
+    "bytes": 291,
+    "sha256": "4931e30ff697337b020ec20480ecbaff67e083691a9c9107e840af3a1cd2796f",
+    "role": "primary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Symphony_No._94_%28Haydn%29&oldid=1374479919",
+    "page": "https://en.wikipedia.org/wiki/Symphony_No._94_%28Haydn%29",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1374479919,
+    "score_attrs": "sound=\"1\"",
+    "score_lang": "lilypond"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://imslp.org/wiki/Symphony_No.94_in_G_major,_Hob.I:94_(Haydn,_Joseph)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "aveverum",
+  "曲名": "聖體頌",
+  "編號": "13",
+  "files": [
+   {
+    "path": "tools/src2/aveverum/AveverumM.ly",
+    "bytes": 7134,
+    "sha256": "5afdeedfda8d5120b7c1adf422ecf534dc169bfac78bca204620ce90c0fb93c2",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/AveverumM/AveverumM.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1708",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by/4.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/aveverum/AveverumM.mid",
+    "bytes": 5157,
+    "sha256": "4ca1a30af2c8009c60cf039ef9d4cfb30c8fb636852eb49797f7e8cf3b3e79e6",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/AveverumM/AveverumM.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1708",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by/4.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/aveverum/sec-score-1.ly",
+    "bytes": 306,
+    "sha256": "e62dad3c74709372450f332b86b4aab3e27605a274a16424b119e48809ec4134",
+    "role": "secondary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Ave_verum_corpus_%28Mozart%29&oldid=1361315691",
+    "page": "https://en.wikipedia.org/wiki/Ave_verum_corpus_%28Mozart%29",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1361315691,
+    "score_attrs": "sound=\"1\"",
+    "score_lang": "lilypond"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "pathetique2",
+  "曲名": "悲愴奏鳴曲第二樂章",
+  "編號": "14",
+  "files": [
+   {
+    "path": "tools/src2/pathetique2/pathetique-2.ly",
+    "bytes": 17471,
+    "sha256": "7d7c233230bc558d6275119b1ca9af1b4f5ebe762e29855698fc1e08032acc7a",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BeethovenLv/O13/pathetique-2/pathetique-2.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=295",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/pathetique2/pathetique-2.mid",
+    "bytes": 13382,
+    "sha256": "92c685ca98001473bcc21fa98110cc125ab489c1bf49be185e062d204a268492",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BeethovenLv/O13/pathetique-2/pathetique-2.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=295",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/pathetique2/Pathétique-2.mid",
+    "bytes": 12789,
+    "sha256": "14cdb50431c83367e695953946cdeb7ac9ef4fb43b7cedbebed3dbd7dd2b568c",
+    "role": "secondary",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/d/d1/Path%C3%A9tique-2.mid?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Path%C3%A9tique-2.mid",
+    "licence": "Public domain（Public domain）；作者：Ludwig van Beethoven；Credit：Own work"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "beet7",
+  "曲名": "第七號交響曲第二樂章",
+  "編號": "16",
+  "files": [
+   {
+    "path": "tools/src2/beet7/basso.ly",
+    "bytes": 5636,
+    "sha256": "4ae16117bea21a91dee26d899aa8b0d3965ebabfbf2c0f8bebb4bf03373cf40a",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BeethovenLv/O92/Symphony7_2/Symphony7_2-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=595",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/beet7/clarinetti.ly",
+    "bytes": 5314,
+    "sha256": "5d2498491bce530d5ce8e6ca9aaac5862e666684a8d53d32cf16b211aee85f8c",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BeethovenLv/O92/Symphony7_2/Symphony7_2-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=595",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/beet7/corni.ly",
+    "bytes": 4296,
+    "sha256": "fc0067fcfdb7d3d0e67f5584daff1c47ec033b145f0b90d91316d4667219ca9f",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BeethovenLv/O92/Symphony7_2/Symphony7_2-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=595",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/beet7/fagotti.ly",
+    "bytes": 6094,
+    "sha256": "3439b87952c24d1276bdc22bab34e10b286936ef15972adab570fdb77afdad35",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BeethovenLv/O92/Symphony7_2/Symphony7_2-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=595",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/beet7/flauti.ly",
+    "bytes": 5947,
+    "sha256": "b479d980a6c7be38d47a08308425b736ad94e07963ff033d8376f78f58b72a8b",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BeethovenLv/O92/Symphony7_2/Symphony7_2-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=595",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/beet7/oboi.ly",
+    "bytes": 6290,
+    "sha256": "9b5bb605f52b31ec36644137cfc6b7a4522855ec30dc38810198556d5b269884",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BeethovenLv/O92/Symphony7_2/Symphony7_2-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=595",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/beet7/Symphony7_2.ly",
+    "bytes": 2587,
+    "sha256": "f574ab08c14c88889537cfa9e9d12ac520b0be73394db9a7453d104be888b97d",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BeethovenLv/O92/Symphony7_2/Symphony7_2-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=595",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/beet7/timpani.ly",
+    "bytes": 1639,
+    "sha256": "3592453c0c92d960553624d5eb59564f9fd43fbd0cd8f33a68bd3ce9585d7fee",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BeethovenLv/O92/Symphony7_2/Symphony7_2-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=595",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/beet7/trombe.ly",
+    "bytes": 2417,
+    "sha256": "960114e7a9ed26573a06d9b8a89c55de708854c5d6222c2a2736fe4bb34a1472",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BeethovenLv/O92/Symphony7_2/Symphony7_2-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=595",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/beet7/viola.ly",
+    "bytes": 6279,
+    "sha256": "2013e3057b63405c1d8568f2249a18ffb2a4589888e1ed79238925046f61f8a8",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BeethovenLv/O92/Symphony7_2/Symphony7_2-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=595",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/beet7/violinoone.ly",
+    "bytes": 7424,
+    "sha256": "dc87788f0903e930ed57dd15d62f1e66f81a187a7e03a172030c863f3d2f6162",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BeethovenLv/O92/Symphony7_2/Symphony7_2-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=595",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/beet7/violinotwo.ly",
+    "bytes": 6181,
+    "sha256": "851d6bf4c2e648f8c5433d90ad5c68fab8267e8aed1f3a42c667c27b6fb4fc9d",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BeethovenLv/O92/Symphony7_2/Symphony7_2-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=595",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/beet7/violoncello.ly",
+    "bytes": 5791,
+    "sha256": "a1d8cccef00d2632defd2d152612c6217a16286c8f685b176820e237a3e55e46",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BeethovenLv/O92/Symphony7_2/Symphony7_2-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=595",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/beet7/Symphony7_2.mid",
+    "bytes": 60426,
+    "sha256": "7cf810b4625b9a272d3a0a9153d8beb5750fa3ee64122dc9f27b7661e997b903",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BeethovenLv/O92/Symphony7_2/Symphony7_2.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=595",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://imslp.org/wiki/Symphony_No.7,_Op.92_(Beethoven,_Ludwig_van)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "summer3",
+  "曲名": "四季「夏」第三樂章",
+  "編號": "23",
+  "files": [
+   {
+    "path": "tools/src2/summer3/summer-cello.ly",
+    "bytes": 1377,
+    "sha256": "e2a63dfe917b525f09ab9581a8a44a961af34e88bffbabb9d3f7757a87d9fc31",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer-header.ly",
+    "bytes": 1500,
+    "sha256": "cd909844b53a1eed64338a6511ec4b8c013e409d3c5c1bc99ce6a0dd68802a64",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer-score.ly",
+    "bytes": 4590,
+    "sha256": "998efe5801fb12e6f500a7e5356e40fdcdd70f43c490fa14f18e6b23b28d777a",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer-solo.ly",
+    "bytes": 1746,
+    "sha256": "472a5e3d35cd7d9edffe93c283dd19b651088252b641716f612aafbd3e4c448a",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer-sonnet.ly",
+    "bytes": 1846,
+    "sha256": "a72ea0c6f961c1fb6f64dff0a5416041e81fd63eea3343a359c9e38ed0ba955d",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer-viola.ly",
+    "bytes": 1291,
+    "sha256": "1b719a81b0f14ae4dd667f56e910377c8fb98fba1da6fd3ae11f2763ade9aa6d",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer-violin1.ly",
+    "bytes": 1324,
+    "sha256": "dfee991076080fa8ee680c6a1b70c155fc4f033aa3258ce01476fbf9c476d706",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer-violin2.ly",
+    "bytes": 1336,
+    "sha256": "cf5ba220866153ae046810eef8ebbb7c7da1a70fe08221eb0503f941fb492820",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer1.ly",
+    "bytes": 6140,
+    "sha256": "af1b955c9adef94c7824874f3e228821a8ee0958120601b4cbaae7b31f3dcd50",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer1a.ly",
+    "bytes": 3728,
+    "sha256": "15fa54a36bc5bf6ef0de1e65d9468392664ce2dcb1d7693e09cef80812069631",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer1b.ly",
+    "bytes": 3649,
+    "sha256": "4dcc4d04f519fdeaead75bdc27b40848892c0087573db0954fde833dd35d216d",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer1c.ly",
+    "bytes": 2353,
+    "sha256": "6cd3912a7f368c44e0a6263750fa8b3b5f3596769f9bcc5f7bbcb24e8a531411",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer1d.ly",
+    "bytes": 3272,
+    "sha256": "42329d5fd94c6a7f2b54de420cf1f2725897518611d49c41a7a1ea6fe607ad62",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer1f.ly",
+    "bytes": 1853,
+    "sha256": "f561cec7e5fb97e53ac53e2dcfb64ddaa1c1389b8e8650f4a362e0db6578937a",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer2.ly",
+    "bytes": 636,
+    "sha256": "27c006ef013d3ba9c3027d72d6402776961f4b6b9bd1b4aa6296bffe18bfb197",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer2a.ly",
+    "bytes": 1447,
+    "sha256": "2fbfe6f947860e204710d7eefe976a9df1913fc7cc6e0cf4002d9344863994ff",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer2b.ly",
+    "bytes": 1437,
+    "sha256": "77ec51f50f98e6cb49498290aed9faccac6d69dcc15e3d050f859af3ee935cbc",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer2c.ly",
+    "bytes": 497,
+    "sha256": "48ca68911b6b568a30412a9dc6434dbd333fd042300b93f6c646da5a7436a82a",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer2d.ly",
+    "bytes": 542,
+    "sha256": "92e7e0a9000fd895438c74d9333259a447410f9491d97b9f04bf1c5872d9dff5",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer3.ly",
+    "bytes": 5796,
+    "sha256": "86c5523503c93534a7932450b039743d6d52848cf79d88a03e3294e1528a260d",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer3a.ly",
+    "bytes": 3634,
+    "sha256": "2941df50917d8e00f4cb74613dabd2778a786b333acea3844384227cff3eeb7a",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer3b.ly",
+    "bytes": 3587,
+    "sha256": "f4189814e3c420380496d4c748fa709fbe0fb3e8a6a2ed7f8618f738357ec0af",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer3c.ly",
+    "bytes": 2998,
+    "sha256": "53cf7c454e9e4a81d3796e22f6a73f7a364b600c035d00458d1a81e252169d0e",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer3d.ly",
+    "bytes": 3308,
+    "sha256": "219945520043d07e6712f6947cbd32f28084aa1b9bbc6814b5fae2e18e366036",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer3f.ly",
+    "bytes": 1076,
+    "sha256": "ca1d5a2a0dcaa462275b727e94b55619fba0d41319d0a2240c1145e081ee66fc",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer-score-1.mid",
+    "bytes": 5694,
+    "sha256": "a8cd55fef5f2a65748b3bf42b97ea0fbe05f979d277b6de0627c849d55162055",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer-score-2.mid",
+    "bytes": 42304,
+    "sha256": "d6e8b3523b367455f0a3fa0080009bddddb742042d5b9b2c0432a25d5c8273b3",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/summer3/summer-score.mid",
+    "bytes": 30065,
+    "sha256": "a477f24156cbc0068f5c02a045a4cb870f6f128a291618e56b3ad45db51d689f",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/summer/summer-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=336",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://imslp.org/wiki/Violin_Concerto_in_G_minor,_RV_315_(Vivaldi,_Antonio)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "winter1",
+  "曲名": "四季「冬」第一樂章",
+  "編號": "24",
+  "files": [
+   {
+    "path": "tools/src2/winter1/winter-cello.ly",
+    "bytes": 1504,
+    "sha256": "3de50ecdf58b2290ad8e1b86e94a1934b2a5d68d8b1e00b4b0fc4c6df7a69418",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter-header.ly",
+    "bytes": 1503,
+    "sha256": "7e80f15240a211b96bfc06c8d376cad194bf0c3c0e29086bd0c462e9bd6e861a",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter-score.ly",
+    "bytes": 4741,
+    "sha256": "8b5792d5b4e0b922a6461428e86a4b665e9c153bf7949964cf5925ad578e0d55",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter-solo.ly",
+    "bytes": 1864,
+    "sha256": "5f4a33856f82ec78b9b2bc755a4789acc2ca54f967df6f193e56c049fd2a066b",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter-sonnet.ly",
+    "bytes": 2387,
+    "sha256": "ae24d96d4750837298ebfab842e80e35d97644d7503137651240749689cf5675",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter-viola.ly",
+    "bytes": 1394,
+    "sha256": "ca9f5a0800f26c8cbce8f1888e4d12fe1bbcb1636f653f0bd1e0e486d00afb1c",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter-violin1.ly",
+    "bytes": 1433,
+    "sha256": "89400ee68c0dead7c64c2054846de52a3d42b2a885e2b39ffde8e28663222d7a",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter-violin2.ly",
+    "bytes": 1442,
+    "sha256": "64dc9c4dcffd7915341886eed522e46ce7440de74644b3af16a8f9b9b98b5a88",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter1.ly",
+    "bytes": 6089,
+    "sha256": "3ec0129cecb4f39d35b50b38a846f5439be82aa612d4c96254b3277b7913a635",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter1a.ly",
+    "bytes": 3646,
+    "sha256": "8f2dbad33bfc556f45080f3e177c30d4a2f6438e852dbcc956156d412d2a9a5e",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter1b.ly",
+    "bytes": 3335,
+    "sha256": "461f4f6c70329c51acb8a21452139232d3325e04b0903b0a89a939cc07a9bcb6",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter1c.ly",
+    "bytes": 2926,
+    "sha256": "e34dd6a536b5fb89ac93eac37b77a1c82cf46f99b7f9335ef2ece351f666c770",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter1d.ly",
+    "bytes": 3172,
+    "sha256": "30107522fd9b40978b154cd9903e8c2406938bb89d9b9e948d1bc4af852f5f06",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter1f.ly",
+    "bytes": 644,
+    "sha256": "c9dabb222199bb97026f3be34eafc2b2f9161898d3351413a710d3db6caf16ff",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter2.ly",
+    "bytes": 903,
+    "sha256": "16bd9c371af689659540838844c850ffceb6baf365d0b6c15ad9c18feb4ffe96",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter2a.ly",
+    "bytes": 995,
+    "sha256": "8d243bab883c1215300749ba8874c4e1545e0bc80cec769f83ecbfe0b475e2d4",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter2b.ly",
+    "bytes": 1008,
+    "sha256": "1b6df5083f68e81db8df0003ac736798fc4bb2cdde3e1b2e5e73e0be52ff74ff",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter2c.ly",
+    "bytes": 339,
+    "sha256": "4eae60ad45f93b4724f6fcdebd71d25c3941a89b2a30f82983e56cac1466238b",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter2d.ly",
+    "bytes": 739,
+    "sha256": "a1c31471ff108d75544487d956b6275aab4fd46b6082cadfa7cd062eb63ec6ed",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter2f.ly",
+    "bytes": 272,
+    "sha256": "7cf5381a897d200c2240dd232b300c303c8e24b5e561b1e9d0f421de386a5088",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter3.ly",
+    "bytes": 5247,
+    "sha256": "f028c2d90186b1da9dab524c1ff55999507b1a572faae92f575e5e417078ad61",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter3a.ly",
+    "bytes": 2934,
+    "sha256": "18ff85577bc1ba12def123feaeea43af1d777e1d99982a9fc39a57db777cf624",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter3b.ly",
+    "bytes": 2969,
+    "sha256": "cc692c1540b25cf5675cd29d5e4cd4ac66caa3faeb6c77c0b8533083f0d886ad",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter3c.ly",
+    "bytes": 2516,
+    "sha256": "36213d2c40fa31f8414fcb5dc727270a9b3911569997429983cc9b210d06126e",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter3d.ly",
+    "bytes": 2217,
+    "sha256": "2b46a370d21720c4fbb067d6ca77342b4757c51a613b946a4e000449b61d3d7b",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter3f.ly",
+    "bytes": 709,
+    "sha256": "792e51a31f78123375743092ad2e0c33cd54df6e73f93a0ba17625f3192fb1e2",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter-score-1.mid",
+    "bytes": 7342,
+    "sha256": "4c708c073785ed2ca4f72aa69b244e91f4cf0ea6af64896d9feb3c7ec198f7fa",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter-score-2.mid",
+    "bytes": 22634,
+    "sha256": "245ef8976c000decf9bb6b3ffc2e62c9fb09c013475092afc730310b03ec0f4b",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/winter1/winter-score.mid",
+    "bytes": 27342,
+    "sha256": "4265d2320e01e8eb4934d7dd4a798c91e9a98bca58b35b9bd5c8db986a57e093",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VivaldiA/O8/winter/winter-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=351",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://imslp.org/wiki/Violin_Concerto_in_F_minor,_RV_297_(Vivaldi,_Antonio)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "cellobach",
+  "曲名": "無伴奏大提琴組曲第一號前奏曲",
+  "編號": "29",
+  "files": [
+   {
+    "path": "tools/src2/cellobach/bwv1007_sarabande.ly",
+    "bytes": 966,
+    "sha256": "21d526f194a920d7db7bf9f7d69d42912b3046c1e36c0d16fb23e0e7fe778c99",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007_courante.ly",
+    "bytes": 1687,
+    "sha256": "b40b1823b13063716b875cdc8f12af9c87f591dcf555d64112d21f432d5655e2",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007.ly",
+    "bytes": 1258,
+    "sha256": "bedcea8c2ab2c9dac452c9dbab2fb2a916345b56b82b89c3bcb468e2b46e06e7",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007_menuet_i.ly",
+    "bytes": 709,
+    "sha256": "adca3042dacb74b66a5aa326a64d900cd5f2ce0f5f4b97dba615dc72f65c8ab9",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007_gigue.ly",
+    "bytes": 1043,
+    "sha256": "dee27289ec491adeb17a61f97754a75cac911b00657f0f8cc642da6253e85a98",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007_allemande.ly",
+    "bytes": 2051,
+    "sha256": "c12f7750a5c4b94f1bb17a1ae2b879bbba448710905bc395606b3e28f0764eea",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007-viola.ly",
+    "bytes": 1166,
+    "sha256": "b5aa5631b0d20ab185b114b8e9448a5a698b2783c751a4ce1acacd2416306666",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007_prelude.ly",
+    "bytes": 2425,
+    "sha256": "90881f059385ffd2d141001360f5d3a4cee4249da6bab1f92ce752e8fb909b15",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007_menuet_ii.ly",
+    "bytes": 643,
+    "sha256": "55a8faba065e307c0532dab796d1be0d8ba6c799b715530c95d86870d9dfc054",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007-viola-5.mid",
+    "bytes": 1276,
+    "sha256": "9f43aa892c823cfc4f6cedb813c7e6fe4ad49d8a766234478734c628a770e307",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007.mid",
+    "bytes": 5401,
+    "sha256": "c55a2eae5e8d2e7a9570fe7ec8325c8825656893249878b946e6a2ead288a272",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007-6.mid",
+    "bytes": 2040,
+    "sha256": "cab8659d88e61bb7afb0f0f88d88893ccd51637089233b024d911a98114ed6c8",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007-2.mid",
+    "bytes": 3484,
+    "sha256": "c3d878ff1f6be76ace7a2ef8841f24f1f8a4a11007332f1db4de1de7f39c2bd6",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007-viola.mid",
+    "bytes": 5401,
+    "sha256": "396460bdaac1f3387b3e1fbca28a699e72857f945859508d3362a165ee6febf7",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007-viola-4.mid",
+    "bytes": 1352,
+    "sha256": "cca8de104e409f9a5fc5566e01328ce99620b8d63738c831da000824ee74209c",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007-viola-1.mid",
+    "bytes": 4034,
+    "sha256": "411ab01ed83857c241f4481dd637ce142dbb7850dad55c19cc8e67d6f8f87660",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007-4.mid",
+    "bytes": 1352,
+    "sha256": "211e69b89d662e010f1d3c183472723da4b49c799de9786b7623f47a346983af",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007-3.mid",
+    "bytes": 1475,
+    "sha256": "32d6992c07f5c0d604b76bd8112c38537d94e5eaf9bf203a51c862e153c52373",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007-viola-6.mid",
+    "bytes": 2040,
+    "sha256": "f262e9c66124229d250f16d1c26e83924dcf1dafe0445d02f4dbc61cb808207b",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007-viola-2.mid",
+    "bytes": 3484,
+    "sha256": "630b30ba00dd7d8036219b4435d885ef11b1309717106d3f197aadf665fa12a9",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007-viola-3.mid",
+    "bytes": 1475,
+    "sha256": "ef53f1fed329149969fd20f1aa5194770ca0f450ce576376fbc7755b2e2b2efc",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007-5.mid",
+    "bytes": 1276,
+    "sha256": "9c752a6b0df99982f2e9002ba9c72b3558e95f8fb9f10f7a1255a159f802e152",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/cellobach/bwv1007-1.mid",
+    "bytes": 4034,
+    "sha256": "59449437fd1455537d3fd9d8963eac4a9f2d413f0d446b39539edbc7090fe619",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV1007/bwv1007/bwv1007-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=517",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://imslp.org/wiki/6_Cello_Suites,_BWV_1007-1012_(Bach,_Johann_Sebastian)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "yankee",
+  "曲名": "洋基歌",
+  "編號": "30",
+  "files": [
+   {
+    "path": "tools/src2/yankee/Yankee_Doodle_(pg).mid",
+    "bytes": 4873,
+    "sha256": "fc29253b0a36f4c2e05c1fe82353b1cd22803d675d067767e990910ef84e85a4",
+    "role": "primary",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/3/36/Yankee_Doodle_%28pg%29.mid?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Yankee_Doodle_(pg).mid",
+    "licence": "CC0（Creative Commons Zero, Public Domain Dedication）；作者：Melody: trad.; setting &amp; sound file: Rabanus Flavus (Peter Gerloff)；Credit：Own work"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://imslp.org/wiki/Yankee_Doodle_(Anonymous)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "americabeaut",
+  "曲名": "美哉美國",
+  "編號": "33",
+  "files": [
+   {
+    "path": "tools/src2/americabeaut/America_the_Beautiful.mid",
+    "bytes": 1874,
+    "sha256": "7c6f08f0bbd17ec24c9d1c2cb74fdbf0d4f61ded446a987d995544302b64b350",
+    "role": "primary",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/0/02/America_the_Beautiful.mid?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:America_the_Beautiful.mid",
+    "licence": "Public domain（Public domain）；作者：juan；Credit：Usa"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://imslp.org/wiki/America_the_Beautiful_(Ward,_Samuel_Augustus)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "queennight",
+  "曲名": "夜后詠嘆調",
+  "編號": "38",
+  "files": [
+   {
+    "path": "tools/src2/queennight/violinoII.ly",
+    "bytes": 110,
+    "sha256": "7989afcfad1dd1fc70fb4d3f1c9ddc207470f74e65f83d62895c229ee1653873",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/corni.ly",
+    "bytes": 107,
+    "sha256": "ea639526bfb402622c077057f235f0723319eff873dd84781a8213ef2db28458",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/midi.ly",
+    "bytes": 102,
+    "sha256": "103ff6c071f1e5307eb2ceff899c2567c8518eb3e33992fc915c09115c982cad",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/viola.ly",
+    "bytes": 106,
+    "sha256": "8ee67055742d29f8cdcfdf511f61374189f4a664f85876af267b825b97116e06",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/MF14-ArieScore.ly",
+    "bytes": 85,
+    "sha256": "f7d19f7f2875ae3c7b6b30e7e518a9d832aa8347773890769cdffe29944f9871",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/oboi.ly",
+    "bytes": 105,
+    "sha256": "299332f80cb858afbadf58baa6fdb7c8a6eb201f1b4e47140233aa27c762cebb",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/trombe.ly",
+    "bytes": 108,
+    "sha256": "cc33e6f9be6e3f1495c0162021de7670d0913993be4ccde5decda4593b237485",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/konigindernacht.ly",
+    "bytes": 116,
+    "sha256": "ca4cc956f1c135faec00454fd44dd443d6f663187afa965f6834c1522323aa90",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/contrabasso.ly",
+    "bytes": 112,
+    "sha256": "4671e51fffb6c8dd0ec3376933a3ad3ca3276748da1d2d7aff02513e1b948213",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/flauti.ly",
+    "bytes": 107,
+    "sha256": "a5d977f90dd6328a3590e0a97a027982668a24cc3fd4136d61385f998c83f2d4",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/piece.ly",
+    "bytes": 244,
+    "sha256": "e7aaa83ec6e94fab1d4e80f56f957b5102e1c662e570ed476cf2ef775b7c29df",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/MF14-Arie.ly",
+    "bytes": 20181,
+    "sha256": "d75698dc610447c92f1cbbaa0b539e0b523850f84e8260e5a8d949fcabef6dc5",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/fagotti.ly",
+    "bytes": 108,
+    "sha256": "98792ff4e3c28f9d81deda0847b9dff96fa39feb8605bf57cd100e87d1be3cb2",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/violoncello.ly",
+    "bytes": 112,
+    "sha256": "d5433da9f7406da7664c243efda50a0e3340b576b37084c331766f5c5b3a91d5",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/timpani.ly",
+    "bytes": 110,
+    "sha256": "a4176bc9ad23a14ad01acc748e4cf2f401460dc0e399d620b3ecdb836cd59b7a",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/header.ly",
+    "bytes": 2740,
+    "sha256": "73459624d66e652cb2a1ed35fbbe5aab220b6b425009441345076a072df1dc9b",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/violinoI.ly",
+    "bytes": 109,
+    "sha256": "c054cdacccaacd0950b577314e4b2c4f9adbc827456681a012d2bc1b7f142c9a",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-lys.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/contrabasso.mid",
+    "bytes": 3827,
+    "sha256": "248e62777bb651de3b2799b78f8aa986fbd2c45ac2a034d63129007846871887",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/corni.mid",
+    "bytes": 1069,
+    "sha256": "dc5e42e2ba5f98705d6e5173a19c1a22dde04b574a35f081349c799594f8e4d2",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/fagotti.mid",
+    "bytes": 1977,
+    "sha256": "22638416b1fb53884004b5e71edfe05c2ea42bc75b94541a42a6449bd93b7a56",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/flauti.mid",
+    "bytes": 2398,
+    "sha256": "1ffac6145e417f846e2b998851537a49656d051b8161bfec59107ccab9e4c191",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/konigindernacht.mid",
+    "bytes": 4883,
+    "sha256": "345a709eb0eef33e4a87f00c26e2dffdbca412b4bf6b4633ba56b96763b24679",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/MF14-ArieScore.mid",
+    "bytes": 39763,
+    "sha256": "f37a581f42f6c378bfe396e0acaab9a190074bac072b2747f4fd2fe4384ddb67",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/oboi.mid",
+    "bytes": 1906,
+    "sha256": "4966538ab247155130ed6e0297cea86e964661b2307d954916c7d90f78dc5333",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/timpani.mid",
+    "bytes": 400,
+    "sha256": "d17fede20323e173ac7cccb95cca745c36ebb6b31c4a5c4bd8469fc634a1d6fc",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/trombe.mid",
+    "bytes": 674,
+    "sha256": "e03d7a58f7a823d10fc03c46db3fdec9f411816daa3eb0344c9253a38dd5ae7c",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/viola.mid",
+    "bytes": 5987,
+    "sha256": "af148a7a129d2699c4fde2f57b773f9b2f726ad14c4634534f67282febee3a4c",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/violinoII.mid",
+    "bytes": 6390,
+    "sha256": "25906282cc32fb8b1c3c193ddd3358117252559b863a1fac2e331211dae24046",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/violinoI.mid",
+    "bytes": 6720,
+    "sha256": "22ea4ddace5796cc1167d94de69b032339a346e33cb09e87ae6334f5bf31dcbd",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/queennight/violoncello.mid",
+    "bytes": 4498,
+    "sha256": "9e0293e6eca3c604ba932548f0b24a2d71b01e95a88c58fd74511291184e485d",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MozartWA/KV620/magicflute-14-aria/magicflute-14-aria-mids.zip",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=266",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://imslp.org/wiki/Die_Zauberfl%C3%B6te,_K.620_(Mozart,_Wolfgang_Amadeus)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "brindisi",
+  "曲名": "飲酒歌",
+  "編號": "45",
+  "files": [
+   {
+    "path": "tools/src2/brindisi/Traviata_02.ly",
+    "bytes": 16815,
+    "sha256": "e53bd3d383a5379d37c41387051cc7f50b89f0050ff8a8cf25cf6b1f4b5993f4",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VerdiG/Traviata_02/Traviata_02.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1215",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/brindisi/Traviata_02.mid",
+    "bytes": 17810,
+    "sha256": "b6d7d5243e9543e7d43cfb427ed7f2fb567165b7d4037734295cf44cb12bc4b2",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/VerdiG/Traviata_02/Traviata_02.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1215",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://imslp.org/wiki/La_traviata_(Verdi,_Giuseppe)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "loreley",
+  "曲名": "羅蕾萊",
+  "編號": "56",
+  "files": [
+   {
+    "path": "tools/src2/loreley/loreley.ly",
+    "bytes": 5269,
+    "sha256": "e3f11a39b913a128341bf903a8569b6e1562bebdce470e1a485117844e7cd14f",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/SilcherF/loreley/loreley.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=438",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/loreley/loreley.mid",
+    "bytes": 4173,
+    "sha256": "b89685628cd8226ef12d767c43d7f8bea8362a3b881763f6ef81d3268dda3922",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/SilcherF/loreley/loreley.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=438",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://cn.imslp.org/wiki/Loreley_(Silcher,_Friedrich)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "drunkensailor",
+  "曲名": "醉酒水手",
+  "編號": "57",
+  "files": [
+   {
+    "path": "tools/src2/drunkensailor/drunken-sailor.abc",
+    "bytes": 378,
+    "sha256": "b51c078a3bde68a7c2e70e2af785c1b6c102f3c3d68d8967f91eb7ff56f89411",
+    "role": "primary",
+    "url": "https://abcnotation.com/getResource/downloads/text_/drunken-sailor.abc?a=pghardy.net/tunebooks/pgh_session_tunebook/0168",
+    "page": "https://abcnotation.com/tunePage?a=pghardy.net/tunebooks/pgh_session_tunebook/0168",
+    "licence": "檔內註記：Z:Paul Hardy's Session Tunebook 2026 (see pghardy.net). Creative Commons CC BY-NC-SA licenced.；查證結果：傳統海歌，旋律 PD；但找到的 ABC 轉譜為 CC BY-NC-SA。"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "lochlomond",
+  "曲名": "羅蒙湖",
+  "編號": "58",
+  "files": [
+   {
+    "path": "tools/src2/lochlomond/the-bonnie-banks-of-loch-lomond.abc",
+    "bytes": 332,
+    "sha256": "13279159f54a2b34dfc5d14a375c1dcbff8721b5a9d960d9407a4691f82b8252",
+    "role": "primary",
+    "url": "https://abcnotation.com/getResource/downloads/text_/the-bonnie-banks-of-loch-lomond.abc?a=trillian.mit.edu/~jc/music/abc/air/Bonnie_Banks_of_Loch_Lomond/0000",
+    "page": "https://abcnotation.com/tunePage?a=trillian.mit.edu/~jc/music/abc/air/Bonnie_Banks_of_Loch_Lomond/0000",
+    "licence": "檔內未載明授權；查證結果：傳統蘇格蘭民謠，1841 年 Songs of Scotland 刊載，PD。",
+    "note": "原指定來源 trillian.mit.edu 不在允許網域，改取 abcnotation.com 上同路徑的鏡像頁"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "osusanna",
+  "曲名": "噢，蘇珊娜",
+  "編號": "59",
+  "files": [
+   {
+    "path": "tools/src2/osusanna/oh-susanna.abc",
+    "bytes": 382,
+    "sha256": "684eb0ec6cefa72cb6c7faebf098bd6da8dfd13dcfe4f41b5608ed17ebfef6c8",
+    "role": "primary",
+    "url": "https://abcnotation.com/getResource/downloads/text_/oh-susanna.abc?a=sniff.numachi.com/~rickheit/dtrad/abc_dtrad.tar.gz/abc_dtrad/OSUSANNA/0000",
+    "page": "https://abcnotation.com/tunePage?a=sniff.numachi.com/~rickheit/dtrad/abc_dtrad.tar.gz/abc_dtrad/OSUSANNA/0000",
+    "licence": "檔內未載明授權；查證結果：福斯特卒於 1864，PD；1848 年出版。"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://cn.imslp.org/wiki/Oh!_Susanna_(Foster,_Stephen)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "santalucia",
+  "曲名": "聖塔露西亞",
+  "編號": "60",
+  "files": [
+   {
+    "path": "tools/src2/santalucia/santa-lucia.abc",
+    "bytes": 1297,
+    "sha256": "cd84be7e1f59beb248a0534b7894aedd761ed0be84945448cff8a54256eebb9c",
+    "role": "primary",
+    "url": "https://abcnotation.com/getResource/downloads/text_/santa-lucia.abc?a=trillian.mit.edu/~jc/music/book/EverydaySongBook/144_Santa_Lucia/0000",
+    "page": "https://abcnotation.com/tunePage?a=trillian.mit.edu/~jc/music/book/EverydaySongBook/144_Santa_Lucia/0000",
+    "licence": "檔內未載明授權；查證結果：科特勞卒於 1879，PD；1849 年作品。",
+    "note": "原指定來源 trillian.mit.edu 不在允許網域，改取 abcnotation.com 上同路徑的鏡像頁"
+   },
+   {
+    "path": "tools/src2/santalucia/santa-lucia-c.abc",
+    "bytes": 1592,
+    "sha256": "9401938a65775ad8d0fc2194cda4f013b0401c0312277f6ca667ca92701644f6",
+    "role": "secondary",
+    "url": "https://abcnotation.com/getResource/downloads/text_/santa-lucia-c.abc?a=trillian.mit.edu/~jc/music/abc/Italy/SantaLucia/0000",
+    "page": "https://abcnotation.com/tunePage?a=trillian.mit.edu/~jc/music/abc/Italy/SantaLucia/0000",
+    "licence": "檔內未載明授權；查證結果：科特勞卒於 1879，PD；1849 年作品。",
+    "note": "原指定來源 trillian.mit.edu 不在允許網域，改取 abcnotation.com 上同路徑的鏡像頁"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "swanee",
+  "曲名": "故鄉的親人（斯旺尼河）",
+  "編號": "62",
+  "files": [
+   {
+    "path": "tools/src2/swanee/old-folks-at-home.abc",
+    "bytes": 1655,
+    "sha256": "1311278391f7858eff8abc31a82d23d3216a5cdf2d04c1a88ddc7a2999775840",
+    "role": "primary",
+    "url": "https://abcnotation.com/getResource/downloads/text_/old-folks-at-home.abc?a=trillian.mit.edu/~jc/music/book/EverydaySongBook/050_Old_Folks_at_Home/0000",
+    "page": "https://abcnotation.com/tunePage?a=trillian.mit.edu/~jc/music/book/EverydaySongBook/050_Old_Folks_at_Home/0000",
+    "licence": "檔內未載明授權；查證結果：福斯特卒於 1864，PD；1851。Mutopia 排版為 CC BY-SA 3.0，需標示來源並以相同方式分享。",
+    "note": "原指定來源 trillian.mit.edu 不在允許網域，改取 abcnotation.com 上同路徑的鏡像頁"
+   },
+   {
+    "path": "tools/src2/swanee/oldfolks.ly",
+    "bytes": 11155,
+    "sha256": "6a50b4b00825c9737634ae6815d3933ebb9753bcfb3608ce5b86a50f424fc69a",
+    "role": "secondary",
+    "url": "https://www.mutopiaproject.org/ftp/FosterSC/oldfolks/oldfolks.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1641",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/swanee/oldfolks.mid",
+    "bytes": 2450,
+    "sha256": "9cb33a69be67f5ab6540997c8d50dd9de21ecf124ca7c7a12eec2b956cb637f3",
+    "role": "secondary",
+    "url": "https://www.mutopiaproject.org/ftp/FosterSC/oldfolks/oldfolks.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1641",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/3.0/；頁面：Copyright:"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "kentucky",
+  "曲名": "我的肯塔基老家",
+  "編號": "63",
+  "files": [
+   {
+    "path": "tools/src2/kentucky/my-old-kentucky-home.abc",
+    "bytes": 1948,
+    "sha256": "4b5978ad91e5340bf4c4badb8ce02f0f1b5aa28d8464a705232df3ea7d3975a8",
+    "role": "primary",
+    "url": "https://abcnotation.com/getResource/downloads/text_/my-old-kentucky-home.abc?a=trillian.mit.edu/~jc/music/book/EverydaySongBook/211_My_Old_Kentucky_Home/0000",
+    "page": "https://abcnotation.com/tunePage?a=trillian.mit.edu/~jc/music/book/EverydaySongBook/211_My_Old_Kentucky_Home/0000",
+    "licence": "檔內未載明授權；查證結果：福斯特卒於 1864，PD；1853。原版歌詞含種族用語，只用旋律。",
+    "note": "原指定來源 trillian.mit.edu 不在允許網域，改取 abcnotation.com 上同路徑的鏡像頁"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://cn.imslp.org/wiki/My_Old_Kentucky_Home_(Foster,_Stephen)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "dannyboy",
+  "曲名": "丹尼男孩",
+  "編號": "65",
+  "files": [
+   {
+    "path": "tools/src2/dannyboy/score-1.ly",
+    "bytes": 751,
+    "sha256": "96f1f2f92742d9c03dfa62cd15ac85cbe21c0db818d171fc2d410cf50585bb38",
+    "role": "primary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Londonderry_Air&oldid=1379606583",
+    "page": "https://en.wikipedia.org/wiki/Londonderry_Air",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1379606583,
+    "score_attrs": "lang=\"lilypond\" sound=1",
+    "score_lang": "lilypond"
+   },
+   {
+    "path": "tools/src2/dannyboy/danny-boy.abc",
+    "bytes": 290,
+    "sha256": "e3da40dda54c5356d7b1a47df801c0112dad86201aa9438897bf62bebb38d1ff",
+    "role": "secondary",
+    "url": "https://abcnotation.com/getResource/downloads/text_/danny-boy.abc?a=trillian.mit.edu/~jc/music/abc/air/Danny_Boy_F/0000",
+    "page": "https://abcnotation.com/tunePage?a=trillian.mit.edu/~jc/music/abc/air/Danny_Boy_F/0000",
+    "licence": "檔內未載明授權；查證結果：愛爾蘭傳統旋律 Londonderry Air（Petrie 1855）PD；Weatherly 歌詞 1913 年（卒 1929），只用旋律。",
+    "note": "原指定來源 trillian.mit.edu 不在允許網域，改取 abcnotation.com 上同路徑的鏡像頁"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "kalinka",
+  "曲名": "Kalinka",
+  "編號": "68",
+  "files": [
+   {
+    "path": "tools/src2/kalinka/kalinka.abc",
+    "bytes": 383,
+    "sha256": "3b1b99b9b0be3f7c14cc04cad9e4443f234e47067e3e13c48da335522415aeab",
+    "role": "primary",
+    "url": "https://abcnotation.com/getResource/downloads/text_/kalinka.abc?a=trillian.mit.edu/~jc/music/abc/Russia/Kalinka/0000",
+    "page": "https://abcnotation.com/tunePage?a=trillian.mit.edu/~jc/music/abc/Russia/Kalinka/0000",
+    "licence": "檔內未載明授權；查證結果：拉里奧諾夫卒於 1889，PD；1860。避免使用 1930 年代後的合唱／軍歌團編曲。",
+    "note": "原指定來源 trillian.mit.edu 不在允許網域，改取 abcnotation.com 上同路徑的鏡像頁"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "funiculi",
+  "曲名": "登山纜車之歌",
+  "編號": "71",
+  "files": [
+   {
+    "path": "tools/src2/funiculi/funiculifunicula-g.abc",
+    "bytes": 901,
+    "sha256": "7d8cfa40e27de160da6cfa4d2e692e88631152b7c2965f5a8a64ff28f91b00c4",
+    "role": "primary",
+    "url": "https://abcnotation.com/getResource/downloads/text_/funiculifunicula-g.abc?a=trillian.mit.edu/~jc/music/abc/Italy/FuniculiFunicula/0000",
+    "page": "https://abcnotation.com/tunePage?a=trillian.mit.edu/~jc/music/abc/Italy/FuniculiFunicula/0000",
+    "licence": "檔內未載明授權；查證結果：丹薩卒於 1922，PD；1880。",
+    "note": "原指定來源 trillian.mit.edu 不在允許網域，改取 abcnotation.com 上同路徑的鏡像頁"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://cn.imslp.org/wiki/Funicul%C3%AC-funicul%C3%A0_(Denza,_Luigi)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "alohaoe",
+  "曲名": "夏威夷珍重再見",
+  "編號": "73",
+  "files": [
+   {
+    "path": "tools/src2/alohaoe/Aloha_oe_song_midi.mid",
+    "bytes": 4934,
+    "sha256": "a9bd52f7712c4ad8cbdce658040121557751adee6071c4e6e9d4d2b7af054755",
+    "role": "primary",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/d/d9/Aloha_oe_song_midi.mid?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Aloha_oe_song_midi.mid",
+    "licence": "Public domain（Public domain）；作者：Liliʻuokalani；Credit：Sheet music"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://cn.imslp.org/wiki/Aloha_Oe_(Liliuokalani)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "matilda",
+  "曲名": "流浪者瑪蒂爾達",
+  "編號": "75",
+  "files": [
+   {
+    "path": "tools/src2/matilda/score-1.ly",
+    "bytes": 2548,
+    "sha256": "a41560d38b105c0b6ca21002903fd1ca809b48c452ae3ad80a6dc9ad32ad5659",
+    "role": "primary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Waltzing_Matilda&oldid=1383795817",
+    "page": "https://en.wikipedia.org/wiki/Waltzing_Matilda",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1383795817,
+    "score_attrs": "raw sound",
+    "score_lang": "lilypond"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "cucaracha",
+  "曲名": "蟑螂",
+  "編號": "76",
+  "files": [
+   {
+    "path": "tools/src2/cucaracha/score-1.ly",
+    "bytes": 1831,
+    "sha256": "3b6d0b2962fe4544bcc915bb0177455e61eae8d435fffc361df578834a88ec2b",
+    "role": "primary",
+    "url": "https://en.wikipedia.org/w/index.php?title=La_Cucaracha&oldid=1383788036",
+    "page": "https://en.wikipedia.org/wiki/La_Cucaracha",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1383788036,
+    "score_attrs": "sound raw",
+    "score_lang": "lilypond"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "paganini24",
+  "曲名": "第二十四號隨想曲",
+  "編號": "78",
+  "files": [
+   {
+    "path": "tools/src2/paganini24/Caprice_24.ly",
+    "bytes": 13752,
+    "sha256": "9c3647e35e9430b09cba034f945aa5880652706660378bb83f63cb338574146b",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/PaganiniN/O1/Caprice_24/Caprice_24.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=2000",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/4.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/paganini24/Caprice_24.mid",
+    "bytes": 13382,
+    "sha256": "b74930766d3c2735e58ec568b727ac574a098fa880ea27353eb0546ebd10b662",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/PaganiniN/O1/Caprice_24/Caprice_24.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=2000",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/4.0/；頁面：Copyright:"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://cn.imslp.org/wiki/Caprices,_Op.1_(Paganini,_Niccol%C3%B2)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "revetude",
+  "曲名": "革命練習曲",
+  "編號": "80",
+  "files": [
+   {
+    "path": "tools/src2/revetude/op-10-12-wfi.ly",
+    "bytes": 34041,
+    "sha256": "3f68c0b7fcec5af44f4d41b55a1ec02d8c51a01aeece9cd4bae348a96556d0f1",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/ChopinFF/O10/op-10-12-wfi/op-10-12-wfi.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=743",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/revetude/op-10-12-wfi.mid",
+    "bytes": 20068,
+    "sha256": "1902287905aa68175f9d13207e6cfc397894d4210617ec1a5c1ae38334c3c7d6",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/ChopinFF/O10/op-10-12-wfi/op-10-12-wfi.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=743",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://cn.imslp.org/wiki/Etudes,_Op.10_(Chopin,_Fr%C3%A9d%C3%A9ric)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "fantaisie",
+  "曲名": "幻想即興曲",
+  "編號": "88",
+  "files": [
+   {
+    "path": "tools/src2/fantaisie/chopin_fantaisie-impromptu.ly",
+    "bytes": 15866,
+    "sha256": "3283d648e28120624ceaeec59cf2afc4bc25ef8ac18b1a3108c053c3f562cd33",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/ChopinFF/O66/chopin_fantaisie-impromptu/chopin_fantaisie-impromptu.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1693",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/fantaisie/chopin_fantaisie-impromptu.mid",
+    "bytes": 30982,
+    "sha256": "b29f6add7473b6e931c2e66349e860bf0e884cf68e19e90420a4870aae689f96",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/ChopinFF/O66/chopin_fantaisie-impromptu/chopin_fantaisie-impromptu.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1693",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://cn.imslp.org/wiki/Fantaisie-Impromptu,_Op.66_(Chopin,_Fr%C3%A9d%C3%A9ric)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "newworld2",
+  "曲名": "新世界交響曲第二樂章",
+  "編號": "98",
+  "files": [],
+  "problem": "primary 失敗：檔案超過 3MB（6835811 bytes），未下載",
+  "secondary_note": "secondary(imslp-pdf https://cn.imslp.org/wiki/Symphony_No.9,_Op.95_(Dvo%C5%99%C3%A1k,_Anton%C3%ADn)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "baabaa",
+  "曲名": "黑綿羊咩咩",
+  "編號": "101",
+  "files": [
+   {
+    "path": "tools/src2/baabaa/score-1.ly",
+    "bytes": 1187,
+    "sha256": "0647de418a7c618baae25ee8bc6483aab1abd74dd32f1a8ce350a55aa2ce2d1a",
+    "role": "primary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Baa%2C_Baa%2C_Black_Sheep&oldid=1383375940",
+    "page": "https://en.wikipedia.org/wiki/Baa%2C_Baa%2C_Black_Sheep",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1383375940,
+    "score_attrs": "sound raw",
+    "score_lang": "lilypond"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(abc http://trillian.mit.edu/~jc/music/book/EverydaySongBook/112_Twinkle_Twinkle_Little_Star.abc) 未取得：abcnotation 頁面找不到 .abc 下載連結（可能頁面不存在）: https://abcnotation.com/tunePage?a=trillian.mit.edu/~jc/music/book/EverydaySongBook/112_Twinkle_Twinkle_Little_Star/0000"
+ },
+ {
+  "key": "itsybitsy",
+  "曲名": "小蜘蛛爬水管",
+  "編號": "105",
+  "files": [
+   {
+    "path": "tools/src2/itsybitsy/score-1.ly",
+    "bytes": 1698,
+    "sha256": "91976e5b526dfb3ecf2af0ef8ec22cf2f0653cbc8315cf71a96e3256dc87a62f",
+    "role": "primary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Itsy_Bitsy_Spider&oldid=1384813236",
+    "page": "https://en.wikipedia.org/wiki/Itsy_Bitsy_Spider",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1384813236,
+    "score_attrs": "sound raw",
+    "score_lang": "lilypond"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "macdonald",
+  "曲名": "老麥克唐納有個農場",
+  "編號": "107",
+  "files": [
+   {
+    "path": "tools/src2/macdonald/Old_MacDonad_Had_a_Farm.pdf",
+    "bytes": 229892,
+    "sha256": "0e29fb148473a5b76e0fba6ee549bc627cf1878e9ddeda7b0e374f05d658929d",
+    "role": "primary",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Old_MacDonad_Had_a_Farm.pdf?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Old_MacDonad_Had_a_Farm.pdf",
+    "licence": "Public domain（Public domain）；作者：Unknown authorUnknown author；Credit：Roud Folk Song Index # 745"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "nearermygod",
+  "曲名": "更近我主",
+  "編號": "108",
+  "files": [
+   {
+    "path": "tools/src2/nearermygod/nmgtt.ly",
+    "bytes": 3037,
+    "sha256": "f141a679ba6ea40368235a73db914846ab1bc3eb8926ff344ca86e6182dc20d7",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MasonL/nmgtt/nmgtt.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1034",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/nearermygod/nmgtt.mid",
+    "bytes": 2335,
+    "sha256": "c579efd33d5239cf9fc15603f3cb42100e4487e8ad367a13e7ce3eaecf15e692",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MasonL/nmgtt/nmgtt.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1034",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/nearermygod/Nearer_My_God_To_Thee-Bethany.abc",
+    "bytes": 6254,
+    "sha256": "b6fba36699029908038643274d3119bb9e68adba5fab06567d027c4a35eb5ec9",
+    "role": "secondary",
+    "url": "http://openhymnal.org/Abc/Nearer_My_God_To_Thee-Bethany.abc",
+    "page": "http://openhymnal.org/Abc/Nearer_My_God_To_Thee-Bethany.abc",
+    "licence": "檔內註記：% to make sure that no copyright mistakes make it into this database. / % 1) It must be in the public domain or freely distributable / C: copyright: public domain.  This score is a part of the Open Hymnal Project, 2008 Revision.；查證結果：Lowell Mason 卒於 1872，旋律 1856，公有領域。英國另用 Horbury（Dykes 卒 1876，亦 PD），本來源是 Bethany，與目標備註一致。"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "abidewithme",
+  "曲名": "與主同在",
+  "編號": "109",
+  "files": [
+   {
+    "path": "tools/src2/abidewithme/eventide.ly",
+    "bytes": 4303,
+    "sha256": "afaf42fad2e4ffdfd28ad1c2d26b59434b2a1b0bbfd7a1189cccabb602fd12da",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MonkWH/eventide/eventide.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1241",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/abidewithme/eventide.mid",
+    "bytes": 1499,
+    "sha256": "1a1e1a2c28b23f3e769aa49958e32bd4aa1eaf8e4555729a9e1b2997649f71eb",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MonkWH/eventide/eventide.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1241",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/abidewithme/Abide_With_Me-Eventide.abc",
+    "bytes": 6294,
+    "sha256": "fbf1f449310cf3ae036954ccc0fa732c2ed547e9e134e6ce96cff75e171a8bfe",
+    "role": "secondary",
+    "url": "http://openhymnal.org/Abc/Abide_With_Me-Eventide.abc",
+    "page": "http://openhymnal.org/Abc/Abide_With_Me-Eventide.abc",
+    "licence": "檔內註記：% to make sure that no copyright mistakes make it into this database. / % 1) It must be in the public domain or freely distributable / C: copyright: public domain.  This score is a part of the Open Hymnal Project, 2008 Revision.；查證結果：Monk 卒於 1889，旋律 1861，公有領域。"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "friendjesus",
+  "曲名": "耶穌恩友",
+  "編號": "110",
+  "files": [
+   {
+    "path": "tools/src2/friendjesus/What_A_Friend_We_Have_In_Jesus-untitled.abc",
+    "bytes": 6377,
+    "sha256": "480e08277df21d43b370b10a9921999661dad596b85588076a3a492f5eebb316",
+    "role": "secondary",
+    "url": "http://openhymnal.org/Abc/What_A_Friend_We_Have_In_Jesus-untitled.abc",
+    "page": "http://openhymnal.org/Abc/What_A_Friend_We_Have_In_Jesus-untitled.abc",
+    "licence": "檔內註記：% to make sure that no copyright mistakes make it into this database. / % 1) It must be in the public domain or freely distributable / C: copyright: public domain.  This score is a part of the Open Hymnal Project, 2005 Revision.；查證結果：Charles C. Converse 卒於 1918，旋律 1868（1870 首刊於 Silver Wings），公有領域。"
+   }
+  ],
+  "problem": "primary 失敗：HTTP 403 https://hymnary.org/media/fetch/126126/hymnary/audio/CYBER/mid/e/r/i/erie.mid?dl=1"
+ },
+ {
+  "key": "firstnoel",
+  "曲名": "第一個聖誕夜",
+  "編號": "112",
+  "files": [
+   {
+    "path": "tools/src2/firstnoel/first_noel.ly",
+    "bytes": 4909,
+    "sha256": "9c3826496117f17e3bd1768020371a93194796ef9f12041afb54ad7e37daa923",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/Traditional/first_noel/first_noel.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1243",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/firstnoel/first_noel.mid",
+    "bytes": 2418,
+    "sha256": "5529d7e725981d92b5649b820c431e77a08fb71f0db94249d994e67a28546dea",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/Traditional/first_noel/first_noel.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1243",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/firstnoel/The_First_Noel-The_First_Noel.abc",
+    "bytes": 6260,
+    "sha256": "0b72382d6b764dbcff0fc5e495a335fc5e364867fe10e6aa45b0ee5dc75f51d4",
+    "role": "secondary",
+    "url": "http://openhymnal.org/Abc/The_First_Noel-The_First_Noel.abc",
+    "page": "http://openhymnal.org/Abc/The_First_Noel-The_First_Noel.abc",
+    "licence": "檔內註記：% to make sure that no copyright mistakes make it into this database. / % 1) It must be in the public domain or freely distributable / C: copyright: public domain.  This score is a part of the Open Hymnal Project, 2006 Revision.；查證結果：傳統英國聖誕頌歌，1823 Gilbert & Sandys 刊載；兩份來源皆標 PD。"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "restyemerry",
+  "曲名": "上帝保佑諸位紳士",
+  "編號": "113",
+  "files": [
+   {
+    "path": "tools/src2/restyemerry/God_Rest_Ye_Merry_Gentlemen-God_Rest_Ye_Merry_Gentlemen.abc",
+    "bytes": 7019,
+    "sha256": "e7984edc227ed3d8673403c7b797522a80c1c516566f6eb0efcac30afbf0c9dc",
+    "role": "primary",
+    "url": "http://openhymnal.org/Abc/God_Rest_Ye_Merry_Gentlemen-God_Rest_Ye_Merry_Gentlemen.abc",
+    "page": "http://openhymnal.org/Abc/God_Rest_Ye_Merry_Gentlemen-God_Rest_Ye_Merry_Gentlemen.abc",
+    "licence": "檔內註記：% to make sure that no copyright mistakes make it into this database. / % 1) It must be in the public domain or freely distributable / C: copyright: public domain.  This score is a part of the Open Hymnal Project, 2006 Revision.；查證結果：傳統英國頌歌，約 1833 刊載，起源更早，公有領域。"
+   },
+   {
+    "path": "tools/src2/restyemerry/sec-score-1.ly",
+    "bytes": 2112,
+    "sha256": "7bd5228399342832c3bfe3c7c78aa89114c212bb52c269d013786ef15f4a547a",
+    "role": "secondary",
+    "url": "https://en.wikipedia.org/w/index.php?title=God_Rest_Ye_Merry%2C_Gentlemen&oldid=1384267552",
+    "page": "https://en.wikipedia.org/wiki/God_Rest_Ye_Merry%2C_Gentlemen",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1384267552,
+    "score_attrs": "raw sound",
+    "score_lang": "lilypond"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "littletown",
+  "曲名": "伯利恆小鎮",
+  "編號": "116",
+  "files": [
+   {
+    "path": "tools/src2/littletown/st_louis.ly",
+    "bytes": 4524,
+    "sha256": "302611825c0733e76a878e8b1b4960b850ba3c21542c1fe4ba2a002160ee0d68",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/RednerLH/st_louis/st_louis.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1292",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/littletown/st_louis.mid",
+    "bytes": 1947,
+    "sha256": "fdd5a9362ae05bf3b8e667de5ca3c1e73b6832e0da9600b86315ff637589183b",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/RednerLH/st_louis/st_louis.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1292",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/littletown/O_Little_Town_Of_Bethlehem-St_Louis.abc",
+    "bytes": 6377,
+    "sha256": "1f54b428371e36ec8c553f1bdf82dfcfdb4df960fd6d8ef653cd0b97c139e214",
+    "role": "secondary",
+    "url": "http://openhymnal.org/Abc/O_Little_Town_Of_Bethlehem-St_Louis.abc",
+    "page": "http://openhymnal.org/Abc/O_Little_Town_Of_Bethlehem-St_Louis.abc",
+    "licence": "檔內註記：% to make sure that no copyright mistakes make it into this database. / % 1) It must be in the public domain or freely distributable / C: copyright: public domain.  This score is a part of the Open Hymnal Project, 2005 Revision.；查證結果：Lewis H. Redner 卒於 1908，旋律 1868，公有領域。這是美國旋律 St. Louis（英國另用 Forest Green，本查詢未涵蓋）。en.wikipedia.org/wiki/O_Little_Town_of_Bethlehem 條目內也有 LilyPond 樂譜可作第三份比對。"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "awayinmanger",
+  "曲名": "馬槽搖籃",
+  "編號": "117",
+  "files": [
+   {
+    "path": "tools/src2/awayinmanger/mueller.ly",
+    "bytes": 4138,
+    "sha256": "452892017f5b9487375d28787e1caafba190928191563c7a9d42ab1d4ba83f65",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MurrayJR/mueller/mueller.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1264",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/awayinmanger/mueller.mid",
+    "bytes": 1631,
+    "sha256": "d3a6632c836fa9190191ae300a249fb61916fb47679af565d72fb551f77ee228",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MurrayJR/mueller/mueller.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1264",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/awayinmanger/Away_In_A_Manger-Mueller.abc",
+    "bytes": 5059,
+    "sha256": "a2f89040f938cc0708385f7999d90d838df95f1f94b8391995adc987a5fe99e9",
+    "role": "secondary",
+    "url": "http://openhymnal.org/Abc/Away_In_A_Manger-Mueller.abc",
+    "page": "http://openhymnal.org/Abc/Away_In_A_Manger-Mueller.abc",
+    "licence": "檔內註記：% to make sure that no copyright mistakes make it into this database. / % 1) It must be in the public domain or freely distributable / C: copyright: public domain.  This score is a part of the Open Hymnal Project, 2006 Revision.；查證結果：Murray 卒於 1905，旋律 'Mueller' 1887，公有領域。這是 Murray 旋律，非 Kirkpatrick 1895 旋律（Commons 另有 Gerloff 的 Kirkpatrick 旋律 MIDI，未採用）。"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "rach3c",
+  "曲名": "升c小調前奏曲",
+  "編號": "123",
+  "files": [
+   {
+    "path": "tools/src2/rach3c/rach-prelude-op3-no2.ly",
+    "bytes": 32219,
+    "sha256": "debdb6768d1d365492315ced4d735704e56539ae967600538b6d3c123a7f6681",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/RachmaninoffS/O3/rach-prelude-op3-no2/rach-prelude-op3-no2.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=2033",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/4.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/rach3c/rach-prelude-op3-no2.mid",
+    "bytes": 15517,
+    "sha256": "cd7879a13accb06c539b1a74855121ed25ec4c71f8069473c6fc78ae56d7c43b",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/RachmaninoffS/O3/rach-prelude-op3-no2/rach-prelude-op3-no2.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=2033",
+    "licence": "CC: Some rights reserved http://creativecommons.org/licenses/by-sa/4.0/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/rach3c/sec-score-1.ly",
+    "bytes": 1515,
+    "sha256": "311e772a5b2e8d6a98671d20ad9ceb6210fc081278e6a8a16b414dca0a07bb89",
+    "role": "secondary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Prelude_in_C-sharp_minor_%28Rachmaninoff%29&oldid=1375508647",
+    "page": "https://en.wikipedia.org/wiki/Prelude_in_C-sharp_minor_%28Rachmaninoff%29",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1375508647,
+    "score_attrs": "sound=\"1\"",
+    "score_lang": "lilypond"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "stripesfor",
+  "曲名": "星條旗永不落",
+  "編號": "129",
+  "files": [
+   {
+    "path": "tools/src2/stripesfor/TheStarsAndStripesForever.ly",
+    "bytes": 16105,
+    "sha256": "ad02c5baeed1622b3bdac3b8e2f71fdf0a63dc56ab58c230b90de80b6915e8e9",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/SousaJP/TheStarsAndStripesForever/TheStarsAndStripesForever.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=626",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/stripesfor/TheStarsAndStripesForever.mid",
+    "bytes": 22170,
+    "sha256": "73e75e76c0708dbec4697ab61438b5c63ca3b5c1a56de59f1f5ab0478fd3b274",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/SousaJP/TheStarsAndStripesForever/TheStarsAndStripesForever.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=626",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://imslp.org/wiki/The_Stars_and_Stripes_Forever_(Sousa,_John_Philip)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "molihua",
+  "曲名": "茉莉花",
+  "編號": "379",
+  "files": [
+   {
+    "path": "tools/src2/molihua/score-1.ly",
+    "bytes": 900,
+    "sha256": "77d408609883203aecd4dec356fac8ee72c5b88e0a469ae66663927cd5804634",
+    "role": "primary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Mo_Li_Hua&oldid=1364372981",
+    "page": "https://en.wikipedia.org/wiki/Mo_Li_Hua",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1364372981,
+    "score_attrs": "sound raw",
+    "score_lang": "lilypond"
+   },
+   {
+    "path": "tools/src2/molihua/Jasmine_barrow.svg",
+    "bytes": 282222,
+    "sha256": "b38ce8fab032875191a11abe40de38f6b34951f3638aa8f3f2b58f50356a23c0",
+    "role": "secondary",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/b/bf/Jasmine_barrow.svg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Jasmine_barrow.svg",
+    "licence": "Public domain（Public domain）；作者：Asoer；Credit：Own work"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "happybday",
+  "曲名": "生日快樂歌",
+  "編號": "380",
+  "files": [
+   {
+    "path": "tools/src2/happybday/Happy_birthday_to_you_(Zum_Geburtstag_viel_Glück).mid",
+    "bytes": 3405,
+    "sha256": "cfa0fc5b932317e5231b2e92e2002758c3ecae0311e424f1c83d605f4c61db04",
+    "role": "primary",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/5/53/Happy_birthday_to_you_%28Zum_Geburtstag_viel_Gl%C3%BCck%29.mid?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Happy_birthday_to_you_(Zum_Geburtstag_viel_Gl%C3%BCck).mid",
+    "licence": "Public domain（Public domain）；作者：Tune: trad.; setting &amp; sound file: Rabanus Flavus (Peter Gerloff)；Credit：Own work"
+   },
+   {
+    "path": "tools/src2/happybday/sec-score-1.ly",
+    "bytes": 430,
+    "sha256": "1ebffef2d8356e79b38455e48d43c13e624ce2c801850d53a7029abc54a03a06",
+    "role": "secondary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Happy_Birthday_to_You&oldid=1383307771",
+    "page": "https://en.wikipedia.org/wiki/Happy_Birthday_to_You",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1383307771,
+    "score_attrs": "sound=\"1\"",
+    "score_lang": "lilypond"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "toccatad",
+  "曲名": "D小調觸技曲與賦格",
+  "編號": "384",
+  "files": [
+   {
+    "path": "tools/src2/toccatad/ToccataFugue.ly",
+    "bytes": 29556,
+    "sha256": "1640bbd2bf11a95e18db03fea285d30718254af0a694e1c36533d8109d71718c",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV565/ToccataFugue/ToccataFugue.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1780",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/toccatad/ToccataFugue.mid",
+    "bytes": 30267,
+    "sha256": "1aabd00967aded08d6633482c211af46f679d97f01cfeaca43c83a59dfeeeb6b",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/BachJS/BWV565/ToccataFugue/ToccataFugue.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1780",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/toccatad/sec-score-1.ly",
+    "bytes": 1307,
+    "sha256": "b0c2e97797c57e889859c8b32d836f2f819c2affc117a4b3172b66d93bf9756e",
+    "role": "secondary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Toccata_and_Fugue_in_D_minor%2C_BWV_565&oldid=1384847380",
+    "page": "https://en.wikipedia.org/wiki/Toccata_and_Fugue_in_D_minor%2C_BWV_565",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1384847380,
+    "score_attrs": "",
+    "score_lang": "lilypond"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "battlehymn",
+  "曲名": "共和國戰歌",
+  "編號": "386",
+  "files": [
+   {
+    "path": "tools/src2/battlehymn/sec-score-1.ly",
+    "bytes": 312,
+    "sha256": "6c8e09c271cd35c97797dd2fb52b091eac4740259b64883508b03991cc9c2455",
+    "role": "secondary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Battle_Hymn_of_the_Republic&oldid=1385015354",
+    "page": "https://en.wikipedia.org/wiki/Battle_Hymn_of_the_Republic",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1385015354,
+    "score_attrs": "sound=1",
+    "score_lang": "lilypond"
+   }
+  ],
+  "problem": "primary 失敗：hymnary 頁面無 MusicXML/MIDI 連結: https://hymnary.org/tune/battle_hymn_steffe（連結數 6）"
+ },
+ {
+  "key": "lastrose",
+  "曲名": "夏日最後的玫瑰",
+  "編號": "387",
+  "files": [
+   {
+    "path": "tools/src2/lastrose/lrose.ly",
+    "bytes": 6422,
+    "sha256": "b0fd103b4068d7a06adc7440df7dd4fec86859852ae915478840d2caed9bcb3a",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MooreT/lrose/lrose.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=434",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/lastrose/lrose.mid",
+    "bytes": 4908,
+    "sha256": "5f113e6c570be33e517ef5aaa74d87b64de01bba1a01ea3b2752b8e104e968e7",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/MooreT/lrose/lrose.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=434",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/lastrose/03-TheLastRoseOfSummer.ly",
+    "bytes": 3665,
+    "sha256": "b323e23f12a611cb8b77ab61200e52f36b3257e46ccd4aba1e5461d909d47e30",
+    "role": "secondary",
+    "url": "https://www.mutopiaproject.org/ftp/NeithardtA/O141/03-TheLastRoseOfSummer/03-TheLastRoseOfSummer.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=575",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/lastrose/03-TheLastRoseOfSummer.mid",
+    "bytes": 2260,
+    "sha256": "082c67be5f56648ea133c5f37a5882a55a173533901fe5eb9295f11cf6fe1055",
+    "role": "secondary",
+    "url": "https://www.mutopiaproject.org/ftp/NeithardtA/O141/03-TheLastRoseOfSummer/03-TheLastRoseOfSummer.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=575",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "kalinka2",
+  "曲名": "卡林卡",
+  "編號": "388",
+  "files": [
+   {
+    "path": "tools/src2/kalinka2/kalinka.abc",
+    "bytes": 383,
+    "sha256": "3b1b99b9b0be3f7c14cc04cad9e4443f234e47067e3e13c48da335522415aeab",
+    "role": "primary",
+    "url": "https://abcnotation.com/getResource/downloads/text_/kalinka.abc?a=trillian.mit.edu/~jc/music/abc/Russia/Kalinka/0000",
+    "page": "https://abcnotation.com/tunePage?a=trillian.mit.edu/~jc/music/abc/Russia/Kalinka/0000",
+    "licence": "檔內未載明授權；查證結果：Ivan Larionov 1860 作；其生卒年依英文維基條目連結應為 1830～1889（本次未再開條目核對），1889 年卒，已公有領域。"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "songbie",
+  "曲名": "送別",
+  "編號": "389",
+  "files": [
+   {
+    "path": "tools/src2/songbie/score-1.ly",
+    "bytes": 613,
+    "sha256": "64bc2e0ebea854f287be1ba094c74051144992a3dae99277648c69115b112e6c",
+    "role": "primary",
+    "url": "https://zh.wikipedia.org/w/index.php?title=%E9%80%81%E5%88%AB_%28%E6%AD%8C%E6%9B%B2%29&oldid=95100417",
+    "page": "https://zh.wikipedia.org/wiki/%E9%80%81%E5%88%AB_%28%E6%AD%8C%E6%9B%B2%29",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 95100417,
+    "score_attrs": "sound=\"1\" midi=”1“",
+    "score_lang": "lilypond"
+   },
+   {
+    "path": "tools/src2/songbie/sec-score-1.ly",
+    "bytes": 614,
+    "sha256": "568db2e0c001c44a176efa40888b5895b3cc3ed314e1c73dc95102b0cd1fc072",
+    "role": "secondary",
+    "url": "https://ja.wikipedia.org/w/index.php?title=%E6%97%85%E6%84%81_%28%E5%94%B1%E6%AD%8C%29&oldid=105903318",
+    "page": "https://ja.wikipedia.org/wiki/%E6%97%85%E6%84%81_%28%E5%94%B1%E6%AD%8C%29",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 105903318,
+    "score_attrs": "",
+    "score_lang": "lilypond"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "mollymalone",
+  "曲名": "莫莉．馬龍",
+  "編號": "390",
+  "files": [
+   {
+    "path": "tools/src2/mollymalone/Molly_Malone.mid",
+    "bytes": 6338,
+    "sha256": "f55a993f336977afde9b5fb8ca67ef93b30c802007ab0885cd10539d22c27b88",
+    "role": "primary",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/3/32/Molly_Malone.mid?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Molly_Malone.mid",
+    "licence": "CC0（Creative Commons Zero, Public Domain Dedication）；作者：Melody: from Ireland; setting &amp; sound file: Rabanus Flavus (Peter Gerloff)；Credit：Own work"
+   },
+   {
+    "path": "tools/src2/mollymalone/Cockles_and_Mussels_(Student's_Songs_1884).jpg",
+    "bytes": 460517,
+    "sha256": "5aa2d583061e38010322727b8f948c1e00195331c1898ac97a581c974030d405",
+    "role": "secondary",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/5/53/Cockles_and_Mussels_%28Student%27s_Songs_1884%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Cockles_and_Mussels_(Student%27s_Songs_1884).jpg",
+    "licence": "Public domain（Public domain）；作者：William Henry Hills (1859-1930)；Credit：Student's Songs, Cambridge Mass. 1884, p.55"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "scarborough",
+  "曲名": "斯卡博羅市集",
+  "編號": "392",
+  "files": [
+   {
+    "path": "tools/src2/scarborough/score-1.ly",
+    "bytes": 2117,
+    "sha256": "c5540b01c6186b9de621c3ae683e7ecb38afec014c59d5e87237efd9f5850e2f",
+    "role": "primary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Scarborough_Fair_%28ballad%29&oldid=1383708689",
+    "page": "https://en.wikipedia.org/wiki/Scarborough_Fair_%28ballad%29",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1383708689,
+    "score_attrs": "sound raw",
+    "score_lang": "lilypond"
+   },
+   {
+    "path": "tools/src2/scarborough/score-2.ly",
+    "bytes": 740,
+    "sha256": "cbef70993c9d966b039189f021ee1c179c143232fd6ce777eaf8d1bd0f1ccf89",
+    "role": "primary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Scarborough_Fair_%28ballad%29&oldid=1383708689",
+    "page": "https://en.wikipedia.org/wiki/Scarborough_Fair_%28ballad%29",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1383708689,
+    "score_attrs": "sound raw",
+    "score_lang": "lilypond"
+   },
+   {
+    "path": "tools/src2/scarborough/score-3.ly",
+    "bytes": 1082,
+    "sha256": "435419dec5335c2f75f346ca76cda34ab7a6367c31e14f4a360fa0d90fde6c0f",
+    "role": "primary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Scarborough_Fair_%28ballad%29&oldid=1383708689",
+    "page": "https://en.wikipedia.org/wiki/Scarborough_Fair_%28ballad%29",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1383708689,
+    "score_attrs": "sound raw",
+    "score_lang": "lilypond"
+   },
+   {
+    "path": "tools/src2/scarborough/Scarborough_Fair_(ballad).mid",
+    "bytes": 4039,
+    "sha256": "1fdaf5630b6cbe568e53b6c219c055bb85c671812ff8567d445a9fe876860341",
+    "role": "secondary",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/a/a1/Scarborough_Fair_%28ballad%29.mid?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Scarborough_Fair_(ballad).mid",
+    "licence": "CC0（Creative Commons Zero, Public Domain Dedication）；作者：Melody: traditional; setting &amp; sound file: Rabanus Flavus (Peter Gerloff)；Credit：Own work"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "havanagila",
+  "曲名": "哈瓦納吉拉",
+  "編號": "393",
+  "files": [
+   {
+    "path": "tools/src2/havanagila/score-1.ly",
+    "bytes": 2595,
+    "sha256": "dfd03c233df706c0563a4902d67d4c3efad7301c684f99b344c01857205ea682",
+    "role": "primary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Hava_Nagila&oldid=1381602947",
+    "page": "https://en.wikipedia.org/wiki/Hava_Nagila",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1381602947,
+    "score_attrs": "sound raw",
+    "score_lang": "lilypond"
+   }
+  ],
+  "problem": null,
+  "secondary_note": "secondary(imslp-pdf https://imslp.org/wiki/Hava_Nagila_(Idelsohn,_Abraham_Zevi)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "marylamb",
+  "曲名": "瑪莉有隻小綿羊",
+  "編號": "396",
+  "files": [
+   {
+    "path": "tools/src2/marylamb/Mary's_Lamb_music.jpg",
+    "bytes": 1536386,
+    "sha256": "956780f51e9f88fbe2144b1c69f0aab4686ce866f48eef273034d6b126ba74ad",
+    "role": "primary",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/4/48/Mary%27s_Lamb_music.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:Mary%27s_Lamb_music.jpg",
+    "licence": "Public domain（Public domain）；作者：Sarah Josepha Hale (lyrics), Lowell Mason (music)；Credit：https://archive.org/details/juvenilelyreorhy00maso/page/60/mode/2up"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "swinglow",
+  "曲名": "搖擺吧甜蜜的馬車",
+  "編號": "398",
+  "files": [],
+  "problem": "primary 失敗：HTTP 403 https://hymnary.org/media/fetch/124227/hymnary/audio/CYBER/mid/s/w/i/swing_low_sweet_chariot.mid?dl=1",
+  "secondary_note": "secondary(imslp-pdf https://imslp.org/wiki/Swing_low,_sweet_chariot_(Burleigh,_Harry_Thacker)) 未取得：格式 imslp-pdf 不處理（需 PDF/其他網域）"
+ },
+ {
+  "key": "saints",
+  "曲名": "當聖徒進行時",
+  "編號": "399",
+  "files": [],
+  "problem": "primary 失敗：hymnary 頁面無 MusicXML/MIDI 連結: https://hymnary.org/tune/o_when_the_saints_go_march_traditional（連結數 0）"
+ },
+ {
+  "key": "adeste",
+  "曲名": "齊來崇拜",
+  "編號": "400",
+  "files": [
+   {
+    "path": "tools/src2/adeste/adeste_fideles.ly",
+    "bytes": 4630,
+    "sha256": "75e2152e43828a22e02632d57c5bf9a8325734a5b6132264c4021a51cc20a644",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/WadeJF/adeste_fideles/adeste_fideles.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1220",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/adeste/adeste_fideles.mid",
+    "bytes": 1987,
+    "sha256": "d6fe90acc41b3da16a932e636c75219d4accae3bf89105741581825b7a889976",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/WadeJF/adeste_fideles/adeste_fideles.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1220",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/adeste/O_Come_All_Ye_Faithful-Adeste_Fideles-Portugese_Hymn.abc",
+    "bytes": 7305,
+    "sha256": "5e0918a461ba7c4d1900c541885c4b6789c905ec2451a5b362660844566bc0fc",
+    "role": "secondary",
+    "url": "http://openhymnal.org/Abc/O_Come_All_Ye_Faithful-Adeste_Fideles-Portugese_Hymn.abc",
+    "page": "http://openhymnal.org/Abc/O_Come_All_Ye_Faithful-Adeste_Fideles-Portugese_Hymn.abc",
+    "licence": "檔內註記：% to make sure that no copyright mistakes make it into this database. / % 1) It must be in the public domain or freely distributable / C: copyright: public domain.  This score is a part of the Open Hymnal Project, 2007 Revision.；查證結果：Wade 卒於 1786，歸屬有爭議，無論歸屬誰皆為 18 世紀，公有領域。"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "joyworld",
+  "曲名": "普世歡騰",
+  "編號": "401",
+  "files": [
+   {
+    "path": "tools/src2/joyworld/antioch.ly",
+    "bytes": 4390,
+    "sha256": "ecd34e100586b875d39ef2989d62af7c8a4f1b89f39e52f44ddb3f2d28fc8761",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/HandelGF/antioch/antioch.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1223",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/joyworld/antioch.mid",
+    "bytes": 1736,
+    "sha256": "41152c8c7c18750cf2040f215e1db3c5b05ce6f79ffeae1a76a1c18cf7978844",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/HandelGF/antioch/antioch.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1223",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/joyworld/Joy_To_The_World-Antioch.abc",
+    "bytes": 6062,
+    "sha256": "7ff9d5aacf3923924af34cf5494caa66c1d207e1c8e0e95dcfa621e3b37f16b7",
+    "role": "secondary",
+    "url": "http://openhymnal.org/Abc/Joy_To_The_World-Antioch.abc",
+    "page": "http://openhymnal.org/Abc/Joy_To_The_World-Antioch.abc",
+    "licence": "檔內註記：% to make sure that no copyright mistakes make it into this database. / % 1) It must be in the public domain or freely distributable / C: copyright: public domain.  This score is a part of the Open Hymnal Project, 2005 Revision.；查證結果：旋律傳為取自《彌賽亞》但無實證；Mason 1836/1839 編曲，Handel 卒 1759、Mason 卒 1872，公有領域。en.wikipedia.org/wiki/Joy_to_the_World 條目也有 LilyPond（底本 Mason《The Modern Psalmist》1839），可作第三份比對。"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "harkherald",
+  "曲名": "聽啊，天使報佳音",
+  "編號": "402",
+  "files": [
+   {
+    "path": "tools/src2/harkherald/mendelssohn.ly",
+    "bytes": 5149,
+    "sha256": "98e4566aac8733138b97a6f96a35a2f873c47c933835bc48ff65898bd037dc7a",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/Mendelssohn-BartholdyF/mendelssohn/mendelssohn.ly",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1261",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/harkherald/mendelssohn.mid",
+    "bytes": 2647,
+    "sha256": "0e8cbffa0a338e1df93110256d8968b2fd807355151c5130733aa15b1365cc61",
+    "role": "primary",
+    "url": "https://www.mutopiaproject.org/ftp/Mendelssohn-BartholdyF/mendelssohn/mendelssohn.mid",
+    "page": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1261",
+    "licence": "CC: No rights reserved http://creativecommons.org/licenses/publicdomain/；頁面：Copyright:"
+   },
+   {
+    "path": "tools/src2/harkherald/Hark_The_Herald_Angels_Sing-Mendelssohn.abc",
+    "bytes": 7062,
+    "sha256": "0f3623f6f7656a596b60256b304333262ce3ef651f16b1a3ab8cd67698973f7e",
+    "role": "secondary",
+    "url": "http://openhymnal.org/Abc/Hark_The_Herald_Angels_Sing-Mendelssohn.abc",
+    "page": "http://openhymnal.org/Abc/Hark_The_Herald_Angels_Sing-Mendelssohn.abc",
+    "licence": "檔內註記：% to make sure that no copyright mistakes make it into this database. / % 1) It must be in the public domain or freely distributable / C: copyright: public domain.  This score is a part of the Open Hymnal Project, 2005 Revision.；查證結果：Mendelssohn 卒於 1847，Cummings 1857 改編（卒於 1915），皆公有領域。en.wikipedia.org/wiki/Hark!_The_Herald_Angels_Sing 條目另有 LilyPond（底本 IMSLP）。"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "angelshigh",
+  "曲名": "天使在高處歌唱",
+  "編號": "403",
+  "files": [
+   {
+    "path": "tools/src2/angelshigh/Angels_We_Have_Heard_On_High-Gloria.abc",
+    "bytes": 5753,
+    "sha256": "848c059c258f53d965d473d793f5f0afce74f008febc212579c4502f6d4cbdf8",
+    "role": "primary",
+    "url": "http://openhymnal.org/Abc/Angels_We_Have_Heard_On_High-Gloria.abc",
+    "page": "http://openhymnal.org/Abc/Angels_We_Have_Heard_On_High-Gloria.abc",
+    "licence": "檔內註記：% to make sure that no copyright mistakes make it into this database. / % 1) It must be in the public domain or freely distributable / C: copyright: public domain.  This score is a part of the Open Hymnal Project, 2005 Revision.；查證結果：法國傳統旋律〈Les anges dans nos campagnes〉18 世紀，公有領域；Barnes 編曲在維基標示 1937 年（Barnes 卒於 1958），與 Open Hymnal 檔頭寫的 before 1916 不一致，因此只取單旋律，不使用 Barnes 的和聲與編排。"
+   },
+   {
+    "path": "tools/src2/angelshigh/sec-score-1.ly",
+    "bytes": 2110,
+    "sha256": "fd43d9879a08260890017f7dc9d7e6a23a5220dfe851c139101c35191855a62c",
+    "role": "secondary",
+    "url": "https://en.wikipedia.org/w/index.php?title=Angels_We_Have_Heard_on_High&oldid=1367911574",
+    "page": "https://en.wikipedia.org/wiki/Angels_We_Have_Heard_on_High",
+    "licence": "CC BY-SA 4.0（Wikipedia 條目文字；score 為條目內嵌原始碼，作者見條目歷史）",
+    "revid": 1367911574,
+    "score_attrs": "raw sound",
+    "score_lang": "lilypond"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "wishmerry",
+  "曲名": "祝你聖誕快樂",
+  "編號": "404",
+  "files": [
+   {
+    "path": "tools/src2/wishmerry/We_Wish_You_A_Merry_Christmas.mid",
+    "bytes": 7234,
+    "sha256": "548b5e66d55c3b1a21ef006c87fc694c8e769e7eaa8d8754005410b2d5836e97",
+    "role": "primary",
+    "url": "https://upload.wikimedia.org/wikipedia/commons/9/9f/We_Wish_You_A_Merry_Christmas.mid?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+    "page": "https://commons.wikimedia.org/wiki/File:We_Wish_You_A_Merry_Christmas.mid",
+    "licence": "CC0（Creative Commons Zero, Public Domain Dedication）；作者：Melody: trad.; setting &amp; sound file: Rabanus Flavus (Peter Gerloff)；Credit：Own work"
+   }
+  ],
+  "problem": null
+ },
+ {
+  "key": "grace",
+  "曲名": "奇異恩典",
+  "files": [
+   {
+    "path": "tools/src2/grace/Amazing_grace_org.mid",
+    "bytes": 5039,
+    "sha256": "b53416cfa28163c0735caba4e7c94136b5fa4ed613e623cbac928d4dfeff63a8",
+    "role": "primary",
+    "url": "https://commons.wikimedia.org/wiki/File:Amazing_grace_(org).mid",
+    "licence": "CC0（Commons，Rabanus Flavus，2024-05-02 版）"
+   }
+  ]
+ }
+]

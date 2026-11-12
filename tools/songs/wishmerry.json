@@ -1,0 +1,25 @@
+{
+  "key": "wishmerry",
+  "name": "祝你聖誕快樂",
+  "composer": "英國傳統聖誕歌",
+  "year": "約1600年代",
+  "inst": {
+    "lead": "choir",
+    "bk": "organ"
+  },
+  "credit": {
+    "source": "Wikimedia Commons〈We Wish You A Merry Christmas.mid〉",
+    "url": "https://commons.wikimedia.org/wiki/File:We_Wish_You_A_Merry_Christmas.mid",
+    "licence": "CC0",
+    "by": "Rabanus Flavus（Peter Gerloff）"
+  },
+  "midi": {
+    "file": "tools/src2/wishmerry/We_Wish_You_A_Merry_Christmas.mid",
+    "mel": 1,
+    "crop": [
+      0.3,
+      50.5
+    ],
+    "speed": 0.87
+  }
+}

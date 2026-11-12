@@ -1,0 +1,25 @@
+{
+  "key": "stripesfor",
+  "name": "星條旗永不落",
+  "composer": "蘇沙",
+  "year": "1896",
+  "inst": {
+    "lead": "trumpet",
+    "bk": "piano"
+  },
+  "credit": {
+    "source": "Mutopia Project（John Philip Sousa, The Stars and Stripes Forever，鋼琴版）",
+    "url": "https://www.mutopiaproject.org/ftp/SousaJP/TheStarsAndStripesForever/TheStarsAndStripesForever.mid",
+    "licence": "Public Domain / No rights reserved"
+  },
+  "midi": {
+    "file": "tools/src2/stripesfor/TheStarsAndStripesForever.mid",
+    "mel": 1,
+    "crop": [
+      0,
+      67
+    ],
+    "speed": 0.87,
+    "minMel": 0.04
+  }
+}
