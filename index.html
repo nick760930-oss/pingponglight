@@ -184,12 +184,20 @@ button.warn{color:#ffb3c0;border-color:rgba(255,122,147,.45)}
 @media (max-width:700px){.sdet{width:240px;padding-left:12px}.frl{width:220px;padding-right:12px}.tabs{gap:12px}}
 #home{background:rgba(3,4,12,.5)}
 .home{max-width:560px;width:100%;text-align:center;padding:8px}
-.logo{font-size:clamp(34px,9vh,58px);font-weight:800;letter-spacing:.05em;background:linear-gradient(90deg,#7cf0ff,#b794ff,#ff8fd1);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1.1}
+.logo{font-size:clamp(34px,9vh,58px);font-weight:800;letter-spacing:.05em;background:linear-gradient(90deg,#7cf0ff,#b794ff,#ff8fd1);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1.1;padding-bottom:.14em;margin-bottom:-.14em}
 .tag{color:var(--dim);letter-spacing:.3em;font-size:13px;margin-top:6px}
-.hbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:18px 0 8px}
 button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
-#how{text-align:left;max-width:460px;margin:10px auto 0;background:rgba(20,24,56,.9);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:6px 16px}
-#how ul{margin:6px 0}
+/* home: one primary, two secondary, four light links */
+svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;vertical-align:-4px;pointer-events:none}
+.home .hpri{display:block;width:min(300px,100%);margin:18px auto 0;padding:13px 0;font-size:19px}
+.hm2{display:flex;gap:12px;justify-content:center;margin-top:12px}
+.hm2 button{width:144px;padding:11px 0;font-size:15px;min-height:44px}
+.hm3{display:flex;justify-content:center;flex-wrap:wrap;margin:10px 0 4px}
+.hm3 button{background:none;border-color:transparent;color:var(--dim);font-size:13px;padding:6px 12px;min-height:44px;border-radius:10px}
+.hm3 button+button{border-left-color:rgba(255,255,255,.13);border-radius:0}
+.hm3 button:hover,.hm3 button:focus-visible{color:#e8ecff}
+#howv .card{max-width:460px;outline:none}
+@media (max-height:480px){.sws{margin:0}.set h2{margin:0 0 4px}.home .hpri{margin-top:12px;padding:11px 0;font-size:17px}.hm2{margin-top:10px}.hm2 button{padding:9px 0;font-size:14px}.hm3{margin:6px 0 2px}}
 .foot{font-size:11px;color:#6f78a8;margin:12px 0 0}
 .res{max-width:660px}
 .resrow{display:flex;gap:22px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:6px}
@@ -215,9 +223,21 @@ button.big{font-size:18px;padding:12px 38px;letter-spacing:.1em}
 .srow label{flex:0 0 7.5em;color:#cfd5f5}
 .srow input[type=range]{flex:1 1 auto;accent-color:#7cf0ff}
 .srow .v{flex:0 0 3.2em;text-align:right;font-variant-numeric:tabular-nums;color:var(--dim)}
-.tog{min-width:4.2em}
+/* settings switches: 52x44 hit area, 46x26 track drawn inside */
+.sws{flex-wrap:wrap;gap:4px 22px}
+.sw{display:inline-flex;align-items:center;gap:8px;color:#cfd5f5}
+button.tog{position:relative;width:52px;height:44px;min-width:0;padding:0;background:none;border:0;border-radius:0;flex:0 0 auto}
+button.tog::before{content:"";position:absolute;left:3px;top:9px;width:46px;height:26px;border-radius:13px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);box-sizing:border-box;transition:background .15s}
+button.tog::after{content:"";position:absolute;left:6px;top:12px;width:20px;height:20px;border-radius:50%;background:#cfd5f5;transition:transform .15s}
+button.tog.on::before{background:linear-gradient(90deg,#3fd8ff,#8f6bff);border-color:transparent}
+button.tog.on::after{transform:translateX(20px);background:#fff}
+button.tog:focus-visible{outline:none}button.tog:focus-visible::before{outline:2px solid #7cf0ff;outline-offset:2px}button.tog:active{transform:none}
+.sw label{flex:none;cursor:pointer}
+.calAdj{align-items:center}
+.calAdj button{min-width:64px;min-height:44px;font-variant-numeric:tabular-nums}
+.calNow{min-width:7.5em;font-size:13px;color:var(--dim)}
+.calNow b{display:block;font-size:24px;color:#e8ecff;font-variant-numeric:tabular-nums;line-height:1.2}
 .mlv{display:inline-flex;gap:2px;vertical-align:-1px;margin-right:4px}.mlv i{width:4px;height:9px;border-radius:1px;background:#2c3257}.mlv i.on{background:var(--c)}
-.tog.on{background:linear-gradient(90deg,#3fd8ff,#8f6bff);color:#04060f;border-color:transparent;font-weight:700}
 #calPad{display:block;width:100%;height:110px;margin:10px 0;font-size:18px;border-radius:18px}
 #calPad.beat{background:rgba(124,240,255,.28)}
 .stars{color:#ffd36b;letter-spacing:-1px}
@@ -384,7 +404,7 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
 .skyHint[hidden]{display:none!important}
 .skyHint{display:block;margin:8px auto 0;padding:4px 12px;font-size:14px;color:#ffd36b;background:rgba(255,211,107,.08);border-color:rgba(255,211,107,.35)}
 @media (max-height:480px){.skyleg{font-size:11px;bottom:4px}.skytop{top:6px}.skycard{padding:10px 14px}.skycard table{margin:4px 0}.skycard td{padding:2px 6px}}
-@media (max-height:480px){#calPad{height:80px}.srow{margin:4px 0;font-size:13px}.hbtns{margin:12px 0 6px}button.big{font-size:16px;padding:10px 30px}.rright td{padding:1px 8px;font-size:13px}#rscore{font-size:22px}.chip{padding:5px 10px;font-size:12px}.chips{margin:4px 0 0}.kicker{font-size:11px}.card p{font-size:12px;margin:4px 0}.card{padding:8px 18px}.card h2{font-size:20px}.card ul{font-size:12px;line-height:1.5;margin:4px 0}.row{margin-top:8px}}
+@media (max-height:480px){#calPad{height:80px}.srow{margin:4px 0;font-size:13px}button.big{font-size:16px;padding:10px 30px}.rright td{padding:1px 8px;font-size:13px}#rscore{font-size:22px}.chip{padding:5px 10px;font-size:12px}.chips{margin:4px 0 0}.kicker{font-size:11px}.card p{font-size:12px;margin:4px 0}.card{padding:8px 18px}.card h2{font-size:20px}.card ul{font-size:12px;line-height:1.5;margin:4px 0}.row{margin-top:8px}}
 </style>
 </head>
 <body>
@@ -403,26 +423,18 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
 <div class="ov" id="home"><div class="home">
   <div class="logo">PingPongLight</div>
   <div class="tag">節奏彈球遊戲</div>
-  <div class="hbtns">
-    <button class="pri big" id="bStart">開始遊戲</button>
+  <button class="pri big hpri" id="bStart">開始遊戲</button>
+  <div class="hm2">
+    <button id="bDuel"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5M14.5 14.6c.5-.1 1-.1 1.5-.1 3.3 0 6 2.2 6 5.5"/></svg> 線上對戰</button>
+    <button id="bSky"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.5 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/></svg> 星空 <small id="skyN" style="color:#ffd36b"></small></button>
   </div>
-  <div class="hbtns" style="margin-top:0">
-    <button id="bSky">星空 <small id="skyN" style="color:#ffd36b"></small></button>
-    <button id="bDuel">線上對戰</button>
-    <button id="bFr">好友 <small id="frN" style="color:#8fe388"></small></button>
-    <button id="bTut">新手教學</button>
-    <button id="bHow">操作說明</button>
-    <button id="bSet">設定</button>
+  <div class="hm3">
+    <button id="bFr"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M18 8v6M15 11h6"/></svg> 好友 <small id="frN" style="color:#8fe388"></small></button>
+    <button id="bTut"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l5.5 3.5-5.5 3.5z"/></svg> 新手教學</button>
+    <button id="bHow"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.8M12 17.2v.1"/></svg> 操作說明</button>
+    <button id="bSet"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V21a2 2 0 1 1-4 0v-.1a1.6 1.6 0 0 0-2.7-1.1l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H3a2 2 0 1 1 0-4h.1a1.6 1.6 0 0 0 1.1-2.7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 2.7-1.1V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0 1.1 2.7H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1.3z"/></svg> 設定</button>
   </div>
   <p id="aud" style="font-size:12px;margin:0;color:#ffb86b"></p>
-  <div id="how" hidden>
-    <ul>
-      <li>光球抵達亮起的框線時，於節拍上觸碰光球。</li>
-      <li>觸碰位置決定反彈方向，力道越大轉向越大。節拍越準、球速越快，得分越高。</li>
-      <li>場中會出現障礙，碰撞僅改變行進方向。光球越過框線未被觸碰會扣生命值，生命值歸零即告失敗。</li>
-      <li>每通過一關，即開放下一關。</li>
-    </ul>
-  </div>
   <p class="foot">曲目來源：Mutopia Project 公共領域 MIDI · <a href="credits.html" style="color:#8a93c0">完整清單</a> · <a href="privacy.html" style="color:#8a93c0">隱私權政策</a></p>
   <p id="fsHint" style="display:none;font-size:12px;color:#8a93c0;margin:6px 0 0">iPhone 全螢幕：點選「分享」→「加入主畫面」，並由主畫面圖示開啟。</p>
 </div></div>
@@ -492,6 +504,18 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
   <p id="dMsg" style="color:#ffb86b;font-size:13px;min-height:1.2em"></p>
 </div></div>
 
+<div class="ov hidden" id="howv"><div class="card" role="dialog" aria-modal="true" aria-label="操作說明" tabindex="-1">
+  <button class="xbtn" id="howX" aria-label="關閉">✕</button>
+  <h2>操作說明</h2>
+  <ul>
+    <li>光球抵達亮起的框線時，於節拍上觸碰光球。</li>
+    <li>觸碰位置決定反彈方向，力道越大轉向越大。節拍越準、球速越快，得分越高。</li>
+    <li>場中會出現障礙，碰撞僅改變行進方向。光球越過框線未被觸碰會扣生命值，生命值歸零即告失敗。</li>
+    <li>每通過一關，即開放下一關。</li>
+  </ul>
+  <div class="row"><button class="pri" id="howOk">知道了</button></div>
+</div></div>
+
 <div class="ov hidden" id="pause"><div class="card" style="max-width:380px">
   <div class="kicker">遊戲暫停</div>
   <h2>已暫停</h2>
@@ -504,13 +528,15 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
   <div class="srow"><label>主旋律音量</label><input type="range" min="0" max="100" id="vMel"><span class="v" id="vMelV"></span></div>
   <div class="srow"><label>伴奏音量</label><input type="range" min="0" max="100" id="vBk"><span class="v" id="vBkV"></span></div>
   <div class="srow"><label>音效音量</label><input type="range" min="0" max="100" id="vFx"><span class="v" id="vFxV"></span></div>
-  <div class="srow"><label>減少特效</label><button class="tog" id="tFx"></button><label style="flex:0 0 auto;margin-left:14px">震動回饋</label><button class="tog" id="tVib"></button></div>
-  <div class="srow"><label>音樂隨連擊變化</label><button class="tog" id="tMl"></button></div>
+  <div class="srow sws">
+    <span class="sw"><label id="lFx" for="tFx">減少特效</label><button class="tog" id="tFx" role="switch" aria-labelledby="lFx"></button></span>
+    <span class="sw"><label id="lMl" for="tMl">音樂隨連擊變化</label><button class="tog" id="tMl" role="switch" aria-labelledby="lMl"></button></span>
+    <span class="sw"><label id="lVib" for="tVib">震動回饋</label><button class="tog" id="tVib" role="switch" aria-labelledby="lVib"></button></span>
+  </div>
   <div class="srow"><label>暱稱</label><span class="v" id="sNick" style="flex:1 1 auto;text-align:left;margin-left:6px"></span><button id="bNick">變更暱稱</button></div>
   <div class="srow"><label>延遲補償</label><button id="bCal">校準</button><span class="v" id="calV" style="flex:1 1 auto;text-align:left;margin-left:6px"></span></div>
-  <p id="aDiag" style="font-size:11px;color:#8a93c0;margin:4px 0 0;text-align:center"></p>
+  <p id="aDiag" hidden></p>
   <div class="row"><button class="warn" id="bWipe">刪除我的線上資料</button></div>
-  <div class="row"><button class="pri" id="bSetX">返回首頁</button></div>
 </div></div>
 
 <div class="ov hidden" id="cal"><div class="card" style="max-width:460px">
@@ -518,8 +544,8 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
   <div class="kicker">延遲校準</div>
   <p id="calMsg">按「開始」後會出現 8 拍節拍聲，請跟著聲音點擊下方區塊。</p>
   <button id="calPad">點擊</button>
-  <div class="row"><button id="calM">−10 ms</button><span id="calCur" style="align-self:center;min-width:5em;font-variant-numeric:tabular-nums"></span><button id="calP">+10 ms</button></div>
-  <div class="row"><button class="pri" id="calGo">開始</button><button id="calX">返回設定</button></div>
+  <div class="row calAdj"><button id="calM" aria-label="延遲減少 10 毫秒">− 10</button><span class="calNow">目前 <b id="calCur"></b></span><button id="calP" aria-label="延遲增加 10 毫秒">+ 10</button></div>
+  <div class="row"><button class="pri" id="calGo">開始</button></div>
 </div></div>
 
 <div id="err" style="display:none;position:fixed;left:12px;right:12px;bottom:10px;z-index:20;background:rgba(60,10,25,.95);border:1px solid #ff7a93;border-radius:12px;padding:8px 12px;font-size:12px;color:#ffd0d8;text-align:left"><span id="errT"></span> <button id="errR" style="margin-left:8px;padding:4px 12px;font-size:12px">重新載入</button></div>

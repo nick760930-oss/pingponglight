@@ -835,7 +835,7 @@ function win(){
   setTimeout(()=>{if(st==='done')showResult(true)},500);
 }
 function hudShow(v){$('#hud').style.visibility=v?'visible':'hidden';$('#bSkipH').style.display=v&&mode==='tut'?'':'none';$('#bPause').style.display=mode==='duel'?'none':'';$('#prog').classList.toggle('duel',v&&mode==='duel')}
-function showHome(){if(RSEL&&RSEL.on)mpSelOff();mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');$('#frv').classList.add('hidden');$('#home').classList.remove('hidden');skyBadge();audioStatus();frBadge();layout()}
+function showHome(){if(RSEL&&RSEL.on)mpSelOff();howClose();mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');$('#frv').classList.add('hidden');$('#home').classList.remove('hidden');skyBadge();audioStatus();frBadge();layout()}
 function showSelect(){mode='normal';setMedia(false);hudShow(false);st='menu';cutAll();balls=[];buildChips();$('#home').classList.add('hidden');$('#end').classList.add('hidden');$('#lbv').classList.add('hidden');$('#menu').classList.remove('hidden');selScroll()}
 
 /* ================= update ================= */
@@ -2140,13 +2140,13 @@ function audioDiag(){
 function syncSet(){
   audioDiag();$('#sNick').textContent=ME?ME.name:'（尚未設定暱稱）';$('#bNick').textContent=ME?'變更暱稱':'設定暱稱';
   for(const[k,id]of[['mel','vMel'],['bk','vBk'],['fx','vFx']]){$('#'+id).value=SET[k];$('#'+id+'V').textContent=SET[k]}
-  const tg2=(id,on)=>{const b=$('#'+id);b.textContent=on?'開啟':'關閉';b.classList.toggle('on',on)};tg2('tFx',SET.lowFx);tg2('tVib',SET.vib);tg2('tMl',SET.ml!==false);
-  const ms=Math.round(latS()*1000);$('#calV').textContent=(ms>=0?'+':'')+ms+' ms'+(SET.lat==null?'（自動）':'');$('#calCur').textContent=(ms>=0?'+':'')+ms+' ms';
+  const tg2=(id,on)=>{const b=$('#'+id);b.setAttribute('aria-checked',String(!!on));b.classList.toggle('on',on)};tg2('tFx',SET.lowFx);tg2('tVib',SET.vib);tg2('tMl',SET.ml!==false);
+  const ms=Math.round(latS()*1000);$('#calV').textContent=(ms>=0?'+':'')+ms+' ms'+(SET.lat==null?'（自動）':'');$('#calCur').textContent=(ms>=0?'+':'')+ms+' ms'+(SET.lat==null?'（自動）':'');
 }
 for(const[k,id]of[['mel','vMel'],['bk','vBk'],['fx','vFx']])$('#'+id).oninput=e=>{SET[k]=+e.target.value;applyVol();saveSet();syncSet()};
 $('#tFx').onclick=()=>{SET.lowFx=!SET.lowFx;saveSet();syncSet()};
 $('#tMl').onclick=()=>{SET.ml=SET.ml===false;saveSet();syncSet()};
-if(!navigator.vibrate){$('#tVib').style.display='none';$('#tVib').previousElementSibling.style.display='none'}   // iPhone browsers and apps have no vibration API
+if(!navigator.vibrate)$('#tVib').closest('.sw').style.display='none';   // iPhone browsers and apps have no vibration API
 $('#tVib').onclick=()=>{SET.vib=!SET.vib;saveSet();syncSet();vib(30)};
 $('#bNick').onclick=()=>nickOpen(ME?'rename':'set');
 let wipeT=-1e9;
@@ -2161,7 +2161,7 @@ $('#bWipe').onclick=async()=>{   // two taps: the first one only arms it
 };
 $('#bSet').onclick=()=>{initAudio();syncSet();$('#home').classList.add('hidden');$('#set').classList.remove('hidden')};
 function closeSet(){$('#set').classList.add('hidden');showHome()}
-$('#bSetX').onclick=closeSet;$('#bSetC').onclick=closeSet;
+$('#bSetC').onclick=closeSet;
 $('#set').addEventListener('click',e=>{if(e.target.id==='set')closeSet()});   // tap outside the panel closes it
 /* ---- latency calibration: clicks on the audio clock, player taps along; offset = median(tap - click) ---- */
 let calClicks=[],calTaps=[],calEnd=0;
@@ -2189,7 +2189,7 @@ function calDone(){
 $('#calM').onclick=()=>{SET.lat=Math.round(latS()*1000)-10;saveSet();syncSet()};
 $('#calP').onclick=()=>{SET.lat=Math.round(latS()*1000)+10;saveSet();syncSet()};
 function closeCal(){calClicks=[];$('#cal').classList.add('hidden');syncSet();$('#set').classList.remove('hidden')}
-$('#calX').onclick=closeCal;$('#calC').onclick=closeCal;
+$('#calC').onclick=closeCal;
 $('#cal').addEventListener('click',e=>{if(e.target.id==='cal')closeCal()});
 /* ---- share result image ---- */
 function shareImg(){
@@ -2219,7 +2219,13 @@ $('#bShare').onclick=()=>{
     const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='pingponglight.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000);
   },'image/png');
 };
-$('#bHow').onclick=()=>{const h=$('#how');h.hidden=!h.hidden};
+// How-to opens as a card over the home screen; ✕, 知道了, the dimmed backdrop or Esc closes it.
+function howOpen(){$('#howv').classList.remove('hidden');$('#home').inert=true;$('#howv .card').focus()}   // the card, not a button: buttons fade in and can't take focus yet
+function howClose(){const v=$('#howv');if(!v)return;if(v.classList.contains('hidden'))return;v.classList.add('hidden');$('#home').inert=false;$('#bHow').focus({preventScroll:true})}
+$('#bHow').onclick=howOpen;
+$('#howX').onclick=howClose;$('#howOk').onclick=howClose;
+$('#howv').addEventListener('click',e=>{if(e.target.id==='howv')howClose()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#howv').classList.contains('hidden'))howClose()});
 navTap('#bGo',()=>{if(RSEL&&RSEL.on){mpSelGo();return}if(!unlocked(si))return;initAudio();goFs();mode='normal';startRun(0)});
 $('#bNext').onclick=()=>{initAudio();if(mode==='tut'){mode='normal';si=0;startRun(0)}else if(si+1<SONGS.length&&unlocked(si+1)){si++;startRun(0)}};
 $('#bRetry').onclick=()=>{initAudio();startRun(0)};
@@ -2244,7 +2250,7 @@ function navTap(sel,fn){
   el.addEventListener('touchend',e=>{if(!down)return;down=false;const t=e.changedTouches[0],r=el.getBoundingClientRect();
     if(!t||t.clientX<r.left-8||t.clientX>r.right+8||t.clientY<r.top-8||t.clientY>r.bottom+8)return;e.preventDefault();fn()},{passive:false});
 }
-navTap('#frX',frClose);navTap('#lbX',lbClose);navTap('#bBack',()=>{if(RSEL&&RSEL.on)duelLeave();else showHome()});navTap('#bSetX',closeSet);navTap('#bSetC',closeSet);
+navTap('#frX',frClose);navTap('#lbX',lbClose);navTap('#bBack',()=>{if(RSEL&&RSEL.on)duelLeave();else showHome()});navTap('#bSetC',closeSet);
 navTap('#dX',()=>{if(DU.ws){duelLeave()}else{mpRestore();$('#duel').classList.add('hidden');showHome()}});
 addEventListener('resize',layout);
 if(window.visualViewport)visualViewport.addEventListener('resize',layout);
