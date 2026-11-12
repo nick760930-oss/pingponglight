@@ -501,7 +501,7 @@ function layout(){
   portrait=H>W*1.05;
   $('#rot').classList.toggle('hidden',!portrait);
   const sa=safeIns(),hb=$('#hud').getBoundingClientRect().bottom||0,top=Math.max(hb+6,Math.max(60,Math.min(70,H*.15))+sa.t*.5),bot=Math.max(12,H*.04)+sa.b;
-  const side=Math.max(24,W*.04)+Math.max(sa.l,sa.r),rp=mode==='duel'&&DU.n>2?Math.round(Math.min(200,Math.max(150,W*.2))):0;   // room on the right for the standings in a race
+  const side=Math.max(24,W*.04)+Math.max(sa.l,sa.r),rp=mode==='duel'?Math.round(Math.min(200,Math.max(150,W*.2))):0;   // room on the right for the standings in a race
   FR.w=Math.min(W-side*2-rp,900);FR.h=Math.min(H-top-bot,FR.w*.5);FR.w=Math.min(FR.w,FR.h*2.4);
   FR.x=Math.round((W-rp-FR.w)/2);FR.y=Math.round(top+(H-top-bot-FR.h)/2);
   BR0=Math.max(8,Math.min(FR.w,FR.h)*.032);V0=FR.w*.55;sizeFor();
@@ -512,7 +512,7 @@ function layout(){
 /* ================= run control ================= */
 function hud(){
   $('#score').textContent=score.toLocaleString();
-  if(mode==='duel'){const top=Math.max(score,...DU.board.map(b=>b.s)),o=DU.board[0],tot=score+(o?o.s:0);$('#pf').style.width=(DU.n<=2?(tot?score/tot*100:50):(top?score/top*100:100))+'%';duelSub()}   // 2 players: tug of war; more: share of the leader's score
+  if(mode==='duel'){const top=Math.max(score,...DU.board.map(b=>b.s)),o=DU.board[0],tot=score+(o?o.s:0);$('#pf').style.width=(top?score/top*100:100)+'%';duelSub()}   // 2 players: tug of war; more: share of the leader's score
   else $('#pf').style.width=(tg.length?resolved/tg.length*100:0)+'%';
   const lf=$('#life');lf.style.width=life+'%';lf.classList.toggle('low',life<35);
   $('#combo').innerHTML=(mlOn()&&st==='play'?'<span class="mlv" style="--c:hsl('+ML_HUE[mlv]+',90%,'+(mlv?68:62)+'%)">'+[0,1,2,3].map(i=>'<i'+(i<=mlv?' class="on"':'')+'></i>').join('')+'</span>'+ML_NAME[mlv]+' · ':'')+(combo>1?'連擊 '+combo+' · ':'')+resolved+' / '+tg.length+(rangeT>0?(rangeMul>1?' · 範圍放大':' · 範圍縮小'):'')+(starT>0?' · 分數×2':'')+(shield?' · 護盾':'');
@@ -1093,7 +1093,7 @@ function draw(){
   else if(st!=='menu'){drawField(ctx);drawTut(ctx);drawBumps(ctx);drawItems(ctx);drawBalls(ctx);drawFx(ctx)}
   ctx.restore();
   ctx.textAlign='center';ctx.textBaseline='alphabetic';
-  if(st==='ready'&&mode==='duel'){const left=Math.max(0,(DU.startAt-duelNow())/1000);ctx.fillStyle='#e8ecff';ctx.font='800 22px "Noto Sans TC",sans-serif';ctx.fillText((DU.n>2?DU.n+' 人對戰':'對手：'+((DU.board[0]||{}).name||'玩家'))+'　即將開始 '+Math.ceil(left),FR.x+FR.w/2,FR.y+FR.h/2+BR*6);
+  if(st==='ready'&&mode==='duel'){const left=Math.max(0,(DU.startAt-duelNow())/1000);ctx.fillStyle='#e8ecff';ctx.font='800 22px "Noto Sans TC",sans-serif';ctx.fillText(DU.n+' 人對戰'+'　即將開始 '+Math.ceil(left),FR.x+FR.w/2,FR.y+FR.h/2+BR*6);
     if(instLoad.busy){ctx.fillStyle='#8a93c0';ctx.font='400 13px "Noto Sans TC",sans-serif';ctx.fillText('載入樂器音色⋯ '+(instLoad.total?Math.round(instLoad.n/instLoad.total*100):0)+'%',W/2,FR.y+FR.h/2+BR*6+24)}}
   else if(st==='ready'&&instLoad.busy){ctx.fillStyle='#e8ecff';ctx.font='700 19px "Noto Sans TC",sans-serif';ctx.fillText('載入樂器音色⋯ '+(instLoad.total?Math.round(instLoad.n/instLoad.total*100):0)+'%',W/2,FR.y+FR.h/2+BR*6)}
   else if(st==='ready'){ctx.fillStyle='#e8ecff';ctx.font='700 19px "Noto Sans TC",sans-serif';ctx.fillText('點擊畫面開始（含 3 拍預備）',W/2,FR.y+FR.h/2+BR*6);ctx.fillStyle='#8a93c0';ctx.font='400 13px "Noto Sans TC",sans-serif';ctx.fillText('光球將於節拍抵達亮起的框線，請於節拍觸碰光球。',W/2,FR.y+FR.h/2+BR*6+24)}
@@ -1382,9 +1382,7 @@ function duelAttacked(k,from){
 }
 function duelSub(){
   const S=mpStand(),r=S.findIndex(x=>x.me),me=S[r];let t;
-  if(DU.n<=2){const o=DU.board[0]||{s:0,c:0,l:100,j:-1,jt:0},J=['完美','極佳','良好','尚可','失誤'],recent=performance.now()-o.jt<700&&o.j>=0;
-    t='對手 '+(o.name||'玩家')+'　'+o.s.toLocaleString()+(o.c>1?'　連擊 '+o.c:'')+'　生命 '+o.l+'%'+(recent?'　'+J[o.j]:'')}
-  else t='第 '+(r+1)+' 名 / '+S.length+(r>0?'　前一名差 '+(S[r-1].s-me.s).toLocaleString():S[1]?'　領先 '+(me.s-S[1].s).toLocaleString():'');
+  t='第 '+(r+1)+' 名 / '+S.length+(r>0?'　前一名差 '+(S[r-1].s-me.s).toLocaleString():S[1]?'　領先 '+(me.s-S[1].s).toLocaleString():'');
   $('#sub').textContent=t+(DU.shrinkT>0?'　［範圍縮小］':'');
 }
 /* ---- live standings (DOM, right of the field): energy bars with a sparkler tip, rank swaps, neighbour gaps ---- */
@@ -1393,7 +1391,7 @@ const LAD={rows:{},on:false,geo:null,pool:[],pk:0,fz:0};
 function mpLadInit(){
   const L=$('#mpLad');for(const k of Object.keys(LAD.rows))LAD.rows[k].el.remove();LAD.rows={};
   for(const e of L.querySelectorAll('.mpk,.mpsp'))e.remove();LAD.pool=[];
-  LAD.on=DU.n>2;L.hidden=!LAD.on;$('#mpBn').innerHTML='';
+  LAD.on=true;L.hidden=!LAD.on;$('#mpBn').innerHTML='';
   if(!LAD.on){clearInterval(LAD.fz);mpLadPlace();return}
   LAD.link=document.createElement('div');LAD.link.className='mpk';L.append(LAD.link);
   for(let k=0;k<64;k++){const s=document.createElement('i');s.className='mpsp';L.appendChild(s);LAD.pool.push(s)}
@@ -1479,8 +1477,6 @@ function drawDuel(x){
     x.fillStyle=g;x.fillRect(FR.x,FR.y,FR.w,FR.h);
   }
   if(DU.sprint&&st==='play'){x.save();x.strokeStyle=`hsla(48,100%,60%,${.35+.25*Math.sin(time*8)})`;x.lineWidth=3;rr(x,FR.x-4,FR.y-4,FR.w+8,FR.h+8,12);x.stroke();x.restore()}
-  const o=DU.board[0];
-  if(DU.n<=2&&o&&performance.now()-o.jt<700&&o.j>=0){const C=[48,185,125,225,350];x.textAlign='right';x.fillStyle=`hsl(${C[o.j]},100%,72%)`;x.font='800 14px "Noto Sans TC",sans-serif';x.fillText('對手 '+JN[o.j],FR.x+FR.w-12,FR.y+FR.h-12);x.textAlign='center'}
   mpLadFrame();
 }
 
@@ -1488,7 +1484,7 @@ function drawDuel(x){
 function duelFinish(ok,rank,acc){
   DU.myFin={s:score,ok,acc,rank:ok?rank:'—',mc:maxCombo};dsend({t:'fin',...DU.myFin});
   mpLadOff();
-  $('#deK').textContent=DU.n>2?DU.n+' 人對戰':'線上對戰';$('#deS').textContent='《'+song.name+'》· '+D.n;
+  $('#deK').textContent=DU.n+' 人對戰';$('#deS').textContent='《'+song.name+'》· '+D.n;
   $('#deMe').innerHTML='本局成績　完美<b>'+tierCount[0]+'</b>　極佳<b>'+tierCount[1]+'</b>　良好<b>'+tierCount[2]+'</b>　尚可<b>'+tierCount[3]+'</b>　失誤<b>'+missCount+'</b>　最高連擊<b>'+maxCombo+'</b>';
   duelResult();
 }
@@ -1508,15 +1504,14 @@ function duelResult(){
     mpEndBtns(false);
     // if the results never arrive, allow going back to the room after a while (the server accepts it after 20 s)
     clearTimeout(DU.waitT);if(!lost)DU.waitT=setTimeout(()=>{if(DU.myFin===me&&!DU.res&&DU.ws)mpEndBtns(true)},22000);return}
-  const pos=R.findIndex(x=>x.i===DU.you)+1,two=R.length<=2,op=R.find(x=>x.i!==DU.you),m=R.find(x=>x.i===DU.you)||{s:me.s,ok:me.ok,acc:me.acc,rank:me.rank};
+  const pos=R.findIndex(x=>x.i===DU.you)+1,m=R.find(x=>x.i===DU.you)||{s:me.s,ok:me.ok,acc:me.acc,rank:me.rank};
   let t;
-  if(two){if(!op)t='勝利';else t=m.ok!==op.ok?(m.ok?'勝利！':'落敗'):m.s>op.s?'勝利！':m.s<op.s?'落敗':'平手'}
-  else t=pos===1?'冠軍！':pos>0?'第 '+pos+' 名':'—';
+  t=pos===1?'冠軍！':pos>0?'第 '+pos+' 名':'—';
   const col=t.startsWith('勝')||t==='冠軍！'?'#ffd36b':t==='平手'?'#7cf0ff':pos===2||pos===3?'#cfe6ff':'#8fb2ff';
   res.className='dres';res.style.setProperty('--c',col);res.textContent=t;
   sc.innerHTML='<b>'+m.s.toLocaleString()+'</b>'+(m.ok?'評級 '+esc(m.rank)+' · 精準 '+pct(Math.round(m.acc*10000)):'出局');
   const top=[R[1],R[0],R[2]];
-  $('#dePod').innerHTML=two?'':top.map((x,k)=>x?'<div class="pc p'+[2,1,3][k]+'">'+mpNm(x)+'<div class="bk">'+[2,1,3][k]+'</div></div>':'<div class="pc"></div>').join('');
+  $('#dePod').innerHTML=top.map((x,k)=>x?'<div class="pc p'+[2,1,3][k]+'">'+mpNm(x)+'<div class="bk">'+[2,1,3][k]+'</div></div>':'<div class="pc"></div>').join('');
   const gone=new Set(DU.board.filter(b=>b.gone&&!b.fin).map(b=>b.i));
   $('#deT').innerHTML=hd+R.map((x,k)=>{const off=gone.has(x.i)&&!x.ok;return tr(k+1,x,(x.i===DU.you?' me':'')+(x.ok?'':' out'),off?'離線':x.ok?esc(x.rank):'出局',x.mc,x.i===DU.you?(x.ok?pct(Math.round(x.acc*10000)):''):x.ok?(x.s-m.s>0?'+':'')+(x.s-m.s).toLocaleString():'')}).join('');
   $('#deN').textContent='';mpEndNote();
