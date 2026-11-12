@@ -44,3 +44,30 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return config
     }
 }
+
+// The web view reported zero side safe areas (env(safe-area-inset-left/right) = 0) on a Dynamic Island iPhone,
+// so the page asks the native side for this phone's real insets: PPLSafe.get() -> { top, right, bottom, left } in points.
+@objc(PPLSafePlugin)
+public class PPLSafePlugin: CAPPlugin, CAPBridgedPlugin {
+    public let identifier = "PPLSafePlugin"
+    public let jsName = "PPLSafe"
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "get", returnType: CAPPluginReturnPromise)
+    ]
+
+    @objc func get(_ call: CAPPluginCall) {
+        DispatchQueue.main.async {
+            let view = self.bridge?.viewController?.view
+            let i = view?.window?.safeAreaInsets ?? view?.safeAreaInsets ?? .zero
+            call.resolve(["top": Double(i.top), "right": Double(i.right), "bottom": Double(i.bottom), "left": Double(i.left)])
+        }
+    }
+}
+
+// Main.storyboard uses this view controller so the plugin above is registered with the bridge.
+class PPLViewController: CAPBridgeViewController {
+    override func capacitorDidLoad() {
+        super.capacitorDidLoad()
+        bridge?.registerPluginInstance(PPLSafePlugin())
+    }
+}

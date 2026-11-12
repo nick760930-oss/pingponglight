@@ -45,13 +45,21 @@ function wavUri(){   // 0.25 s of silence as a data URI (keeps iOS audio session
 const APP=location.protocol==='capacitor:'||!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
 const SITE='https://pingponglight.vercel.app/';
 const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
-// the app's web view reported zero side safe areas on a Dynamic Island iPhone (menus and the HUD ran into the island): there,
-// a long landscape screen (notch / island models are about 2.16:1) keeps both sides clear by hand
+// the app's web view reported zero side safe areas on a Dynamic Island iPhone (menus and the HUD ran into the island).
+// When the web view gives none, the app asks the native side for this phone's real insets (PPLSafe in AppDelegate.swift);
+// until it answers, or if it cannot, a long landscape screen (notch / island models are about 2.16:1) keeps 50px clear.
+let nSafeTm=0;
 function appSafe(){
   if(!APP||!isIOS)return;const s=document.documentElement.style;s.removeProperty('--sl');s.removeProperty('--sr');
   const c=getComputedStyle(document.getElementById('safe')),side=(parseFloat(c.paddingLeft)||0)+(parseFloat(c.paddingRight)||0);
+  if(side)return;   // the web view knows the insets: CSS env() already has them
   const W=innerWidth,H=innerHeight;
-  if(!side&&W>H&&W/H>=1.95){s.setProperty('--sl','50px');s.setProperty('--sr','50px')}
+  if(W>H&&W/H>=1.95){s.setProperty('--sl','50px');s.setProperty('--sr','50px')}
+  const ask=()=>capCall('PPLSafe','get',{}).then(i=>{
+    if(!i||typeof i.left!=='number')return;
+    s.setProperty('--sl',Math.round(i.left)+'px');s.setProperty('--sr',Math.round(i.right)+'px');
+    if(typeof layout==='function')layout()}).catch(()=>{});
+  ask();clearTimeout(nSafeTm);nSafeTm=setTimeout(ask,400);   // again after a rotation has settled
 }
 appSafe();addEventListener('resize',appSafe);
 function stopSilent(){try{if(silentEl){silentEl.pause();silentEl.removeAttribute('src');silentEl.load();silentEl=null}}catch(e){}}
