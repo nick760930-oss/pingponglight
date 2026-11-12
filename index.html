@@ -27,8 +27,8 @@
 html,body{margin:0;position:fixed;inset:0;width:100%;height:100%;background:var(--bg);color:var(--fg);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;overflow:hidden;overscroll-behavior:none;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-text-size-adjust:100%}
 button{touch-action:manipulation}
 canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;-webkit-touch-callout:none}
-#safe{position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)}
-.hud{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0);padding:6px max(16px,env(safe-area-inset-right,0)) 0 max(16px,env(safe-area-inset-left,0));pointer-events:none;display:flex;align-items:center;gap:14px}
+#safe{position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;padding:env(safe-area-inset-top,0) var(--sr) env(safe-area-inset-bottom,0) var(--sl)}
+.hud{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0);padding:6px max(16px,var(--sr)) 0 max(16px,var(--sl));pointer-events:none;display:flex;align-items:center;gap:14px}
 .hl{flex:0 0 auto}
 h1{margin:0;font-size:17px;letter-spacing:.08em;font-weight:800;background:linear-gradient(90deg,#7cf0ff,#b794ff,#ff8fd1);-webkit-background-clip:text;background-clip:text;color:transparent}
 .sub{font-size:11px;color:var(--dim);letter-spacing:.05em;white-space:nowrap}
@@ -59,7 +59,7 @@ button.pri{background:linear-gradient(90deg,#3fd8ff,#8f6bff);border-color:transp
 .chip.sel{width:auto;height:auto;max-width:none;margin:0;display:inline-flex;background:linear-gradient(90deg,#3fd8ff,#8f6bff);color:#04060f;border-color:transparent;font-weight:700}
 .chip small{opacity:.75;margin-left:4px;font-weight:400}
 /* song select: one song per row, grouped by era; details and the leaderboard preview on the right */
-#menu{padding:max(8px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));align-items:stretch}
+#menu{padding:max(8px,env(safe-area-inset-top)) max(16px,calc(var(--sr) + 10px)) max(8px,env(safe-area-inset-bottom)) max(16px,calc(var(--sl) + 10px));align-items:stretch}
 .sel{width:100%;max-width:960px;height:100%;margin:0 auto;display:flex;flex-direction:column;gap:6px}
 .selTop{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .selTop h2{margin:0;font-size:17px;letter-spacing:.06em}
@@ -145,7 +145,7 @@ button.pri{background:linear-gradient(90deg,#3fd8ff,#8f6bff);border-color:transp
 .small{font-size:12px!important;color:#8a93c0!important}
 button.warn{color:#ffb3c0;border-color:rgba(255,122,147,.45)}
 /* friends */
-#frv{padding:max(8px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));align-items:stretch}
+#frv{padding:max(8px,env(safe-area-inset-top)) max(16px,calc(var(--sr) + 10px)) max(8px,env(safe-area-inset-bottom)) max(16px,calc(var(--sl) + 10px));align-items:stretch}
 .frw{width:100%;max-width:960px;height:100%;margin:0 auto;display:flex;flex-direction:column;gap:6px}
 .frw .selTop .on{font-size:12px;color:#8fe388}
 .frb{flex:1 1 auto;min-height:0;display:flex;gap:18px}
@@ -519,13 +519,12 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
     <li>場中會出現障礙，碰撞僅改變行進方向。光球越過框線未被觸碰會扣生命值，生命值歸零即告失敗。</li>
     <li>每通過一關，即開放下一關。</li>
   </ul>
-  <div class="row"><button class="pri" id="howOk">知道了</button></div>
 </div></div>
 
 <div class="ov hidden" id="pause"><div class="card" style="max-width:380px">
   <div class="kicker">遊戲暫停</div>
   <h2>已暫停</h2>
-  <div class="row"><button class="pri" id="bResume">繼續</button><button id="bRestart">重新開始</button><button id="bQuit">離開</button><button id="bSkip">跳過教學</button></div>
+  <div class="row"><button class="pri" id="bResume">繼續</button><button id="bRestart">重新開始</button><button id="bQuit">離開</button></div>
 </div></div>
 
 <div class="ov hidden" id="set"><div class="card set">

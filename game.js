@@ -45,6 +45,15 @@ function wavUri(){   // 0.25 s of silence as a data URI (keeps iOS audio session
 const APP=location.protocol==='capacitor:'||!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
 const SITE='https://pingponglight.vercel.app/';
 const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+// the app's web view reported zero side safe areas on a Dynamic Island iPhone (menus and the HUD ran into the island): there,
+// a long landscape screen (notch / island models are about 2.16:1) keeps both sides clear by hand
+function appSafe(){
+  if(!APP||!isIOS)return;const s=document.documentElement.style;s.removeProperty('--sl');s.removeProperty('--sr');
+  const c=getComputedStyle(document.getElementById('safe')),side=(parseFloat(c.paddingLeft)||0)+(parseFloat(c.paddingRight)||0);
+  const W=innerWidth,H=innerHeight;
+  if(!side&&W>H&&W/H>=1.95){s.setProperty('--sl','50px');s.setProperty('--sr','50px')}
+}
+appSafe();addEventListener('resize',appSafe);
 function stopSilent(){try{if(silentEl){silentEl.pause();silentEl.removeAttribute('src');silentEl.load();silentEl=null}}catch(e){}}
 function unlockAudio(){
   let ses=false;try{if(navigator.audioSession){navigator.audioSession.type='playback';ses=true}}catch(e){}
@@ -61,6 +70,8 @@ function audioStatus(){
   if(!AC){el.textContent='';return}
   el.textContent=AC&&AC.state==='running'?'聲音已啟用':'聲音未啟用：請點一下畫面，並確認裝置未開啟靜音。';
   el.style.color=AC&&AC.state==='running'?'#7cf0ff':'#ffb86b';
+  // instrument samples that failed to load: say so here too (the failure toast is held back during a run)
+  if(Object.keys(INSTOK).some(k=>!INSTOK[k])){el.textContent+='　樂器音色載入失敗：'+instErrText().slice(0,140);el.style.color='#ffb86b'}
 }
 let acStale=false,acWatch={t:-1,w:0};
 // iOS: after switching apps / an interruption the context can report "running" yet stay silent;
@@ -142,21 +153,38 @@ function trimLead(buf){   // MP3 decoders may leave encoder padding: start every
   if(i<32)return buf;
   const nb=AC.createBuffer(1,buf.length-i,buf.sampleRate);nb.getChannelData(0).set(d.subarray(i));return nb;
 }
-// sample bytes: fetch, then XHR (some app web views refuse fetch on the bundled files), then the website copy in the app
-let instErr='',instWarned=false;
+// sample bytes. Website: fetch, then XHR. Store app: the samples ship as one script per instrument (inst/<name>.js, base64,
+// made by app/build.mjs), because the app web view's file loading cannot be checked here; the website copy is the fallback.
+// Every step has a time limit, so a request that never answers moves on instead of leaving the piece on synth sound.
+let instWarned=false;const INSTOK={},INSTERR={};   // per instrument: loaded or not, and its first error
+function noteErr(name,e){if(!INSTERR[name])INSTERR[name]=String(e&&e.message||e)}
+const instErrText=()=>Object.keys(INSTERR).filter(k=>INSTOK[k]===false).map(k=>k+': '+INSTERR[k]).join('；');
+const tmo=(p,ms,lb,onTo)=>Promise.race([p,new Promise((_,rej)=>setTimeout(()=>{if(onTo)onTo();rej(lb+' timeout')},ms))]);
 function xhrAB(u){return new Promise((res,rej)=>{const x=new XMLHttpRequest();x.open('GET',u);x.responseType='arraybuffer';
-  x.onload=()=>(x.status===200||x.status===0)&&x.response&&x.response.byteLength?res(x.response):rej('xhr '+x.status);x.onerror=()=>rej('xhr error');x.send()})}
+  x.onload=()=>(x.status>=200&&x.status<300||x.status===0)&&x.response&&x.response.byteLength?res(x.response):rej('xhr '+x.status);x.onerror=()=>rej('xhr error');x.send()})}
+// generous limit (a whole piece's samples download together, slow mobile data must still make it); a stuck request is cancelled
+function fetchAB(u,lb){const ac=window.AbortController?new AbortController():null;
+  return tmo(fetch(u,ac?{signal:ac.signal}:{}).then(r=>r.ok?r.arrayBuffer():Promise.reject(lb+' '+r.status)).then(ab=>ab.byteLength?ab:Promise.reject(lb+' empty')),30000,lb,()=>ac&&ac.abort())}
 function getAB(u){
-  const f=fetch(u).then(r=>r.ok?r.arrayBuffer():Promise.reject('fetch '+r.status)).then(ab=>ab.byteLength?ab:Promise.reject('fetch empty'));
-  return f.catch(e1=>xhrAB(u).catch(e2=>APP?fetch(SITE+u).then(r=>r.ok?r.arrayBuffer():Promise.reject('site '+r.status)).catch(e3=>Promise.reject(e1+' / '+e2+' / '+e3)):Promise.reject(e1+' / '+e2)))}
-function instFail(){if(instWarned)return;instWarned=true;try{toast('樂器音色載入失敗，先用合成音播放（'+String(instErr).slice(0,80)+'）')}catch(e){}}
+  if(APP)return fetchAB(SITE+u,'site');
+  return fetchAB(u,'fetch').catch(e1=>tmo(xhrAB(u),30000,'xhr').catch(e2=>Promise.reject(e1+' / '+e2)))}
+const PPLI=window.PPLI=window.PPLI||{};
+function instScript(name){   // app only: inst/<name>.js sets PPLI[name] = {midi: base64 mp3}
+  if(PPLI[name])return Promise.resolve(PPLI[name]);
+  return tmo(new Promise((res,rej)=>{const s=document.createElement('script');s.src='inst/'+name+'.js';s.async=true;
+    s.onload=()=>PPLI[name]?res(PPLI[name]):rej('script empty');s.onerror=()=>rej('script error');document.head.appendChild(s)}),8000,'script');
+}
+function b64AB(b){const s=atob(b),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u.buffer}
+function instFail(){if(instWarned||busyNow())return;instWarned=true;   // during a run it waits: the home screen line shows it
+  try{toast('樂器音色載入失敗，先用合成音播放（'+instErrText().slice(0,80)+'）')}catch(e){}}
 function loadInst(name){
   if(SAMP[name])return SAMP[name].p;
   const I=INST[name],S=SAMP[name]={buf:{},n:0,total:0,ready:false};
   const ms=[];for(let m=I.lo-2;m<=I.hi+2;m++)if(m%3===0)ms.push(m);S.total=ms.length;
-  S.p=Promise.all(ms.map(m=>getAB('inst/'+name+'/'+m+'.mp3')
-      .then(ab=>AC?decodeAB(ab).catch(e=>Promise.reject('decode '+(e&&e.message||e))):Promise.reject('no audio')).then(b=>{S.buf[m]=trimLead(b);S.n++}).catch(e=>{S.n++;instErr=name+': '+e})))
-    .then(()=>{S.ready=Object.keys(S.buf).length>S.total*.8;if(!S.ready){delete SAMP[name];instFail()}});   // a failed load is retried next time
+  const pack=APP?instScript(name).catch(e=>{noteErr(name,e);return null}):Promise.resolve(null);
+  S.p=pack.then(pk=>Promise.all(ms.map(m=>(pk&&pk[m]?Promise.resolve().then(()=>b64AB(pk[m])).catch(()=>getAB('inst/'+name+'/'+m+'.mp3')):getAB('inst/'+name+'/'+m+'.mp3'))
+      .then(ab=>AC?tmo(decodeAB(ab),8000,'decode').catch(e=>Promise.reject('decode '+(e&&e.message||e))):Promise.reject('no audio')).then(b=>{S.buf[m]=trimLead(b);S.n++}).catch(e=>{S.n++;noteErr(name,e)}))))
+    .then(()=>{S.ready=Object.keys(S.buf).length>S.total*.8;INSTOK[name]=S.ready;if(!S.ready){delete SAMP[name];instFail()}});   // a failed load is retried next time
   return S.p;
 }
 const instMap=s=>s&&(INSTMAP[s.key]||s.inst);
@@ -255,6 +283,9 @@ function homeTick(){
   if(!AC)return;
   if(!HM.g||HM.g.context!==AC){HM.g=AC.createGain();HM.g.gain.value=0;HM.g.connect(busBk);HM.on=false}
   const want=homeWant(),now=AC.currentTime;
+  // first start: let the piano samples load and decode before the music begins (decoding them while it plays crackled
+  // on the iPhone, and the opening bars came out as synth); after 4 s it starts anyway
+  if(want&&!HM.on&&HM.ld!==2){if(!HM.ld){HM.ld=1;Promise.race([loadInst('piano'),new Promise(r=>setTimeout(r,4000))]).then(()=>{HM.ld=2})}return}
   if(want!==HM.on){HM.on=want;HM.g.gain.cancelScheduledValues(now);HM.g.gain.setTargetAtTime(want?.55:0,now,want?.9:.12);   // ~5 dB under gameplay music
     if(want){HM.next=now+.2;HM.step=0;HM.loop=0;loadInst('piano')}}
   if(!HM.on)return;
@@ -630,7 +661,7 @@ function pauseGame(){
   if(AC&&AC.state==='running'&&AC.suspend){try{const q=AC.suspend();if(q&&q.catch)q.catch(()=>{})}catch(e){}}
   showPauseMenu();
 }
-function showPauseMenu(){$('#bSkip').style.display=mode==='tut'?'':'none';$('#pause').classList.remove('hidden')}
+function showPauseMenu(){$('#pause').classList.remove('hidden')}
 function resumeGame(){   // audio resumes inside the tap (iOS needs a gesture); the game clock stays frozen during the count-in
   if(!paused||resumeCD)return;
   if(st!=='play'){paused=false;$('#pause').classList.add('hidden');return}
@@ -655,7 +686,8 @@ addEventListener('pagehide',hushAll);
 const DE=document.documentElement;
 const inFs=()=>document.fullscreenElement||document.webkitFullscreenElement;
 async function goFs(){
-  try{if(!inFs()){const r=DE.requestFullscreen||DE.webkitRequestFullscreen;if(r)await r.call(DE,{navigationUI:'hide'})}}catch(e){}
+  // the store app and an iPhone home-screen app are already full screen: asking again only adds iOS's close button and banner
+  try{if(!APP&&!(isIOS&&standalone)&&!inFs()){const r=DE.requestFullscreen||DE.webkitRequestFullscreen;if(r)await r.call(DE,{navigationUI:'hide'})}}catch(e){}
   try{if(screen.orientation&&screen.orientation.lock)await screen.orientation.lock('landscape')}catch(e){}
 }
 async function toggleFs(){
@@ -2180,7 +2212,7 @@ onPress($('#bPause'),()=>{if(paused&&!resumeCD)resumeGame();else pauseGame()});
 $('#bResume').onclick=resumeGame;
 $('#bRestart').onclick=()=>{$('#pause').classList.add('hidden');doResume();startRun(0)};
 function skipTut(){lsSet('ppl-tut','1');$('#pause').classList.add('hidden');doResume();showSelect()}
-$('#bSkip').onclick=skipTut;onPress($('#bSkipH'),skipTut);
+onPress($('#bSkipH'),skipTut);
 $('#bQuit').onclick=()=>{$('#pause').classList.add('hidden');doResume();if(mode==='normal')showSelect();else showHome()};
 /* ---- settings ---- */
 function audioDiag(){
@@ -2270,11 +2302,11 @@ $('#bShare').onclick=()=>{
     const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='pingponglight.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000);
   },'image/png');
 };
-// How-to opens as a card over the home screen; ✕, 知道了, the dimmed backdrop or Esc closes it.
+// How-to opens as a card over the home screen; ✕, the dimmed backdrop or Esc closes it.
 function howOpen(){$('#howv').classList.remove('hidden');$('#home').inert=true;$('#howv .card').focus()}   // the card, not a button: buttons fade in and can't take focus yet
 function howClose(){const v=$('#howv');if(!v)return;if(v.classList.contains('hidden'))return;v.classList.add('hidden');$('#home').inert=false;$('#bHow').focus({preventScroll:true})}
 $('#bHow').onclick=howOpen;
-$('#howX').onclick=howClose;$('#howOk').onclick=howClose;
+$('#howX').onclick=howClose;
 $('#howv').addEventListener('click',e=>{if(e.target.id==='howv')howClose()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#howv').classList.contains('hidden'))howClose()});
 navTap('#bGo',()=>{if(RSEL&&RSEL.on){mpSelGo();return}if(!unlocked(si))return;initAudio();goFs();mode='normal';startRun(0)});

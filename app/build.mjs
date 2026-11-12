@@ -1,12 +1,14 @@
 // Copies the game into app/www for the store app. Everything is bundled: the app never loads code from the network.
 // The website's security headers (vercel.json) do not apply inside the app, so the CSP is added as a meta tag here.
-import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync, existsSync } from 'node:fs';
+import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const APP = dirname(fileURLToPath(import.meta.url)), ROOT = join(APP, '..'), WWW = join(APP, 'www');
 const FILES = ['index.html', 'game.js', 'songs.js', 'credits.html', 'privacy.html', 'icon-192.png', 'icon-512.png', 'manifest.webmanifest'];
-const DIRS = ['inst'];
+// instrument samples go in as one script per instrument (inst/<name>.js: base64 mp3 by midi number), loaded with a
+// <script> tag: the app web view loads bundled scripts for sure, while fetching the bundled mp3 files left the app on synth sound
+const INST_DIR = join(ROOT, 'inst');
 const DUEL = 'https://pingponglight-duel.nick760930.workers.dev';
 const CSP = [
   "default-src 'self'", "script-src 'self'", "style-src 'self' 'unsafe-inline'", "img-src 'self' data: blob:",
@@ -17,7 +19,16 @@ const CSP = [
 rmSync(WWW, { recursive: true, force: true });
 mkdirSync(WWW, { recursive: true });
 for (const f of FILES) cpSync(join(ROOT, f), join(WWW, f));
-for (const d of DIRS) cpSync(join(ROOT, d), join(WWW, d), { recursive: true });
+
+mkdirSync(join(WWW, 'inst'));
+const insts = readdirSync(INST_DIR, { withFileTypes: true }).filter(e => e.isDirectory()).map(e => e.name);
+for (const name of insts) {
+  const pk = {};
+  for (const f of readdirSync(join(INST_DIR, name)).filter(f => /^\d+\.mp3$/.test(f)))
+    pk[f.slice(0, -4)] = readFileSync(join(INST_DIR, name, f)).toString('base64');
+  if (Object.keys(pk).length < 5) throw new Error('inst/' + name + ': too few samples');
+  writeFileSync(join(WWW, 'inst', name + '.js'), '(window.PPLI=window.PPLI||{})[' + JSON.stringify(name) + ']=' + JSON.stringify(pk) + ';\n');
+}
 
 for (const page of ['index.html', 'credits.html', 'privacy.html']) {
   const p = join(WWW, page);
@@ -27,4 +38,4 @@ for (const page of ['index.html', 'credits.html', 'privacy.html']) {
   writeFileSync(p, html);
 }
 if (existsSync(join(WWW, 'sw.js'))) throw new Error('the service worker must not ship in the app');
-console.log('www ready:', FILES.length, 'files +', DIRS.join(', '));
+console.log('www ready:', FILES.length, 'files +', insts.length, 'instrument scripts');
