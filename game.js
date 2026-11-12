@@ -142,13 +142,21 @@ function trimLead(buf){   // MP3 decoders may leave encoder padding: start every
   if(i<32)return buf;
   const nb=AC.createBuffer(1,buf.length-i,buf.sampleRate);nb.getChannelData(0).set(d.subarray(i));return nb;
 }
+// sample bytes: fetch, then XHR (some app web views refuse fetch on the bundled files), then the website copy in the app
+let instErr='',instWarned=false;
+function xhrAB(u){return new Promise((res,rej)=>{const x=new XMLHttpRequest();x.open('GET',u);x.responseType='arraybuffer';
+  x.onload=()=>(x.status===200||x.status===0)&&x.response&&x.response.byteLength?res(x.response):rej('xhr '+x.status);x.onerror=()=>rej('xhr error');x.send()})}
+function getAB(u){
+  const f=fetch(u).then(r=>r.ok?r.arrayBuffer():Promise.reject('fetch '+r.status)).then(ab=>ab.byteLength?ab:Promise.reject('fetch empty'));
+  return f.catch(e1=>xhrAB(u).catch(e2=>APP?fetch(SITE+u).then(r=>r.ok?r.arrayBuffer():Promise.reject('site '+r.status)).catch(e3=>Promise.reject(e1+' / '+e2+' / '+e3)):Promise.reject(e1+' / '+e2)))}
+function instFail(){if(instWarned)return;instWarned=true;try{toast('樂器音色載入失敗，先用合成音播放（'+String(instErr).slice(0,80)+'）')}catch(e){}}
 function loadInst(name){
   if(SAMP[name])return SAMP[name].p;
   const I=INST[name],S=SAMP[name]={buf:{},n:0,total:0,ready:false};
   const ms=[];for(let m=I.lo-2;m<=I.hi+2;m++)if(m%3===0)ms.push(m);S.total=ms.length;
-  S.p=Promise.all(ms.map(m=>fetch('inst/'+name+'/'+m+'.mp3').then(r=>r.ok?r.arrayBuffer():Promise.reject(r.status))
-      .then(ab=>AC?decodeAB(ab):Promise.reject('no audio')).then(b=>{S.buf[m]=trimLead(b);S.n++}).catch(()=>{S.n++})))
-    .then(()=>{S.ready=Object.keys(S.buf).length>S.total*.8;if(!S.ready)delete SAMP[name]});   // a failed load is retried next time
+  S.p=Promise.all(ms.map(m=>getAB('inst/'+name+'/'+m+'.mp3')
+      .then(ab=>AC?decodeAB(ab).catch(e=>Promise.reject('decode '+(e&&e.message||e))):Promise.reject('no audio')).then(b=>{S.buf[m]=trimLead(b);S.n++}).catch(e=>{S.n++;instErr=name+': '+e})))
+    .then(()=>{S.ready=Object.keys(S.buf).length>S.total*.8;if(!S.ready){delete SAMP[name];instFail()}});   // a failed load is retried next time
   return S.p;
 }
 const instMap=s=>s&&(INSTMAP[s.key]||s.inst);

@@ -10,7 +10,7 @@ const DIRS = ['inst'];
 const DUEL = 'https://pingponglight-duel.nick760930.workers.dev';
 const CSP = [
   "default-src 'self'", "script-src 'self'", "style-src 'self' 'unsafe-inline'", "img-src 'self' data: blob:",
-  "media-src 'self' data: blob:", "font-src 'self'", `connect-src 'self' ${DUEL} ${DUEL.replace('https:', 'wss:')}`,
+  "media-src 'self' data: blob:", "font-src 'self'", `connect-src 'self' ${DUEL} ${DUEL.replace('https:', 'wss:')} https://pingponglight.vercel.app`,
   "object-src 'none'", "base-uri 'none'", "form-action 'none'"
 ].join('; ');
 
