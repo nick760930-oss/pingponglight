@@ -13,7 +13,8 @@
 // - idle sockets (no ping for 75 s) are closed so dead or parked connections cannot hold a room.
 import { handleLb } from './lb.js';
 import { handleFr } from './friends.js';
-export { Hub } from './friends.js';             // presence Durable Object (friends)
+export { Hub } from './friends.js';   // presence Durable Object (friends)
+export { Arena, Lobby } from './arena.js';   // v2 multiplayer rooms (2..8) and lobby
 const ALPH = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';          // no 0/O/1/I/L
 // the website, plus the iOS store app (Capacitor serves its bundled files from capacitor://localhost)
 const PROD = /^(https:\/\/pingponglight\.vercel\.app|capacitor:\/\/localhost)$/, LOCAL = /^http:\/\/(localhost|127\.0\.0\.1)(:\d{1,5})?$/;
@@ -72,6 +73,41 @@ export default {
     if (url.pathname === '/' || url.pathname === '/health') return new Response('PingPongLight duel server', { headers: BASE_H });
     if (!okOrigin(origin, env)) return new Response('forbidden', { status: 403, headers: BASE_H });
     const who = clientKey(req);
+    if (url.pathname.startsWith('/m/')) {              // v2 multiplayer (see docs/multiplayer-protocol.md)
+      if (!env.ARENA || !env.LOBBY) return new Response('off', { status: 503, headers: BASE_H });
+      const H = cors(origin), P = url.searchParams, num = (k, d, lo, hi) => P.has(k) ? int(P.get(k), lo, hi) : d;
+      const claim = async (code, o) => (await (await env.ARENA.get(env.ARENA.idFromName(code)).fetch('https://arena/claim', { method: 'POST', body: JSON.stringify(o) })).json()).ok;
+      const lob = (path, init) => env.LOBBY.get(env.LOBBY.idFromName('lobby')).fetch('https://lobby' + path, init);
+      if (url.pathname === '/m/new') {
+        if (await limited(env, 'mnew:' + who)) return Response.json({ error: 'slow down' }, { status: 429, headers: { ...H, 'Retry-After': '60' } });
+        const o = { pub: P.get('pub') === '1', max: num('max', 6, 2, 8), di: num('di', 1, 0, 4), qm: false };
+        for (let i = 0; i < 4; i++) { const c = code4(); if (await claim(c, o)) return Response.json({ code: c }, { headers: H }); }
+        return Response.json({ error: 'busy' }, { status: 503, headers: H });
+      }
+      if (url.pathname === '/m/rooms') {
+        if (await limited(env, 'mrooms:' + who)) return Response.json({ error: 'slow down' }, { status: 429, headers: { ...H, 'Retry-After': '60' } });
+        const r = await lob('/list?di=' + num('di', -1, -1, 4) + (P.get('space') === '1' ? '&space=1' : ''));
+        return Response.json(await r.json(), { headers: H });
+      }
+      if (url.pathname === '/m/match') {
+        if (await limited(env, 'mnew:' + who)) return Response.json({ error: 'slow down' }, { status: 429, headers: { ...H, 'Retry-After': '60' } });
+        for (let i = 0; i < 3; i++) {
+          const r = await (await lob('/match?di=' + num('di', -1, -1, 4) + '&max=' + num('max', 4, 2, 8))).json();
+          if (!r.code) break;
+          if (!r.create) return Response.json({ code: r.code }, { headers: H });
+          if (await claim(r.code, { pub: true, max: r.max, di: r.di, qm: true })) return Response.json({ code: r.code }, { headers: H });
+          await lob('/remove', { method: 'POST', body: JSON.stringify({ code: r.code }) });
+        }
+        return Response.json({ error: 'busy' }, { status: 503, headers: H });
+      }
+      const mw = url.pathname.match(/^\/m\/ws\/([A-Z0-9]{4})$/);
+      if (mw) {
+        if (req.headers.get('Upgrade') !== 'websocket') return new Response('expected websocket', { status: 426, headers: BASE_H });
+        if (await limited(env, 'mws:' + who)) return new Response('slow down', { status: 429, headers: { ...BASE_H, 'Retry-After': '60' } });
+        return env.ARENA.get(env.ARENA.idFromName(mw[1])).fetch(req);
+      }
+      return new Response('not found', { status: 404, headers: BASE_H });
+    }
     if (url.pathname === '/new') {                    // pick a code whose room is empty and reserve it
       if (await limited(env, 'new:' + who)) return Response.json({ error: 'slow down' }, { status: 429, headers: { ...cors(origin), 'Retry-After': '60' } });
       for (let i = 0; i < 4; i++) {

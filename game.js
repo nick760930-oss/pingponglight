@@ -407,8 +407,10 @@ let FR={x:0,y:0,w:0,h:0},BR=9,BR0=9,V0=420,HR=50,portrait=false;
 function sizeFor(){BR=BR0*(D&&D.bm||1);HR=Math.max(46,BR0*5.5)*(D&&D.hm||1)}   // ball and touch size follow the difficulty
 const HRe=()=>HR*(rangeT>0?rangeMul:1)*(DU.shrinkT>0?.7:1);
 /* online duel state */
-const DU={ws:null,code:'',you:0,host:0,players:[],cfg:{song:0,di:1},phase:'lobby',off:0,pings:[],seed:1,startAt:0,
-  opp:{s:0,c:0,l:100,r:0,j:-1,jt:0},oppName:'',myFin:null,oppFin:null,left:false,pstreak:0,fogT:0,shrinkT:0,sprint:false,banner:null,prevDi:null,ready:false};
+const DU={ws:null,code:'',you:0,host:0,players:[],cfg:{song:'',di:1,pub:false,max:6,vote:false,qm:false},votes:{},auto:0,phase:'lobby',off:0,pings:[],seed:1,startAt:0,
+  board:[],names:{},n:1,rank:0,rankT:0,res:null,myFin:null,left:false,joined:false,pstreak:0,fogT:0,shrinkT:0,sprint:false,banner:null,prevDi:null,ready:false,
+  lob:{di:-1,max:4},matching:false,roomsIv:0,roomsTok:0,autoIv:0,pingIv:0,note:''};
+(()=>{const d=parseInt(lsGet('ppl-qdi')||'',10),m=parseInt(lsGet('ppl-qmax')||'',10);if(d>=-1&&d<5)DU.lob.di=d;if([4,6,8].includes(m))DU.lob.max=m})();
 let mode='normal',D=null,life=100,resumeCD=0,lastRes=null,freezeG=0;
 const TUTN=20,TUTD={n:'教學',nb:1,gap:1.25,spd:.9,dmg:0,bm:1.4,hm:1.4,wm:1.3,ob:.5,noSmall:1};
 let st='home',si=0,offset=0,nt=0,resolved=0,nb=1,bi=0,tickQ=[],endAt=0,paused=false,exitT=0;
@@ -499,17 +501,18 @@ function layout(){
   portrait=H>W*1.05;
   $('#rot').classList.toggle('hidden',!portrait);
   const sa=safeIns(),hb=$('#hud').getBoundingClientRect().bottom||0,top=Math.max(hb+6,Math.max(60,Math.min(70,H*.15))+sa.t*.5),bot=Math.max(12,H*.04)+sa.b;
-  const side=Math.max(24,W*.04)+Math.max(sa.l,sa.r);
-  FR.w=Math.min(W-side*2,900);FR.h=Math.min(H-top-bot,FR.w*.5);FR.w=Math.min(FR.w,FR.h*2.4);
-  FR.x=Math.round((W-FR.w)/2);FR.y=Math.round(top+(H-top-bot-FR.h)/2);
+  const side=Math.max(24,W*.04)+Math.max(sa.l,sa.r),rp=mode==='duel'&&DU.n>2?Math.round(Math.min(200,Math.max(150,W*.2))):0;   // room on the right for the standings in a race
+  FR.w=Math.min(W-side*2-rp,900);FR.h=Math.min(H-top-bot,FR.w*.5);FR.w=Math.min(FR.w,FR.h*2.4);
+  FR.x=Math.round((W-rp-FR.w)/2);FR.y=Math.round(top+(H-top-bot-FR.h)/2);
   BR0=Math.max(8,Math.min(FR.w,FR.h)*.032);V0=FR.w*.55;sizeFor();
   for(const b of balls){b.x=clamp(b.x,FR.x+BR,FR.x+FR.w-BR);b.y=clamp(b.y,FR.y+BR,FR.y+FR.h-BR)}
+  if(mode==='duel')mpLadPlace();
 }
 
 /* ================= run control ================= */
 function hud(){
   $('#score').textContent=score.toLocaleString();
-  if(mode==='duel'){const tot=score+DU.opp.s;$('#pf').style.width=(tot?score/tot*100:50)+'%';duelSub()}   // tug-of-war bar
+  if(mode==='duel'){const top=Math.max(score,...DU.board.map(b=>b.s)),o=DU.board[0],tot=score+(o?o.s:0);$('#pf').style.width=(DU.n<=2?(tot?score/tot*100:50):(top?score/top*100:100))+'%';duelSub()}   // 2 players: tug of war; more: share of the leader's score
   else $('#pf').style.width=(tg.length?resolved/tg.length*100:0)+'%';
   const lf=$('#life');lf.style.width=life+'%';lf.classList.toggle('low',life<35);
   $('#combo').innerHTML=(mlOn()&&st==='play'?'<span class="mlv" style="--c:hsl('+ML_HUE[mlv]+',90%,'+(mlv?68:62)+'%)">'+[0,1,2,3].map(i=>'<i'+(i<=mlv?' class="on"':'')+'></i>').join('')+'</span>'+ML_NAME[mlv]+' · ':'')+(combo>1?'連擊 '+combo+' · ':'')+resolved+' / '+tg.length+(rangeT>0?(rangeMul>1?' · 範圍放大':' · 範圍縮小'):'')+(starT>0?' · 分數×2':'')+(shield?' · 護盾':'');
@@ -523,7 +526,7 @@ function startRun(from){
   if(mode==='tut'){D=TUTD;si=SONGS.findIndex(s=>s.key==='twinkle');if(si<0)si=0}
   else D=DIFFS[di];
   RNG=mode==='duel'?mulberry32(DU.seed):Math.random;
-  DU.pstreak=0;DU.fogT=0;DU.shrinkT=0;DU.sprint=false;DU.banner=null;DU.myFin=null;DU.oppFin=null;DU.opp={s:0,c:0,l:100,r:0,j:-1,jt:0};
+  DU.pstreak=0;DU.fogT=0;DU.shrinkT=0;DU.sprint=false;DU.myFin=null;DU.lastS=0;
   sizeFor();song=SONGS[si];LEADTYPE=song.lead||'triangle';SPD=D.spd;nb=D.nb;prepare(song);
   from=Math.min(from,Math.max(0,tg.length-1));
   offset=from>0?tg[from].t-.02:0;
@@ -814,8 +817,8 @@ function showResult(ok,msg){
   $('#bNext').style.display=hasNext?'':'none';$('#bNext').textContent=mode==='tut'?'開始第 1 關':'下一關';
   $('#bShare').style.display=mode==='tut'||!ok||!shareOK()?'none':'';
   const cb=$('#bCont');if(!ok&&cp.ti>0){cb.style.display='';cb.textContent='從第 '+(cp.ti+1)+' 拍繼續'}else cb.style.display='none';
-  for(const id of['bAgain','bLeave'])$('#'+id).style.display=mode==='duel'?'':'none';
-  if(mode==='duel'){for(const id of['bNext','bCont','bRetry','bSel'])$('#'+id).style.display='none';duelFinish(ok,rank,acc)}
+  $('#end').classList.toggle('duel',mode==='duel');
+  if(mode==='duel')duelFinish(ok,rank,acc);
   else for(const id of['bRetry','bSel'])$('#'+id).style.display='';
   $('#end').classList.remove('hidden');
   const rl=$('#rlb');rl.hidden=true;
@@ -832,7 +835,7 @@ function win(){
   setTimeout(()=>{if(st==='done')showResult(true)},500);
 }
 function hudShow(v){$('#hud').style.visibility=v?'visible':'hidden';$('#bSkipH').style.display=v&&mode==='tut'?'':'none';$('#bPause').style.display=mode==='duel'?'none':'';$('#prog').classList.toggle('duel',v&&mode==='duel')}
-function showHome(){mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');$('#frv').classList.add('hidden');$('#home').classList.remove('hidden');skyBadge();audioStatus();frBadge()}
+function showHome(){if(RSEL&&RSEL.on)mpSelOff();mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');$('#frv').classList.add('hidden');$('#home').classList.remove('hidden');skyBadge();audioStatus();frBadge();layout()}
 function showSelect(){mode='normal';setMedia(false);hudShow(false);st='menu';cutAll();balls=[];buildChips();$('#home').classList.add('hidden');$('#end').classList.add('hidden');$('#lbv').classList.add('hidden');$('#menu').classList.remove('hidden');selScroll()}
 
 /* ================= update ================= */
@@ -923,8 +926,8 @@ function update(dt){
       else if(k===3){if(full||mlv>=2)cvoice(n[2],Math.max(0,w),n[1]/100/SPD,.12)}      // counter-melody from layer 2
       else voice(n[2],Math.max(0,w),n[1]/100/SPD,.16*bkV[bi-1]*(full||mlv>=1||n[2]<52?1:.45),0,false)}}   // layer 0: harmony soft, bass full
   if(rangeT>0){rangeT-=dt;if(rangeT<=0){rangeMul=1;hud()}}
-  if(mode==='duel'){if(DU.fogT>0)DU.fogT-=dt;if(DU.shrinkT>0){DU.shrinkT-=dt;if(DU.shrinkT<=0)hud()}if(DU.banner&&(DU.banner.t-=dt)<=0)DU.banner=null;
-    if(!DU.sprint&&tg.length&&resolved>=tg.length*.8){DU.sprint=true;DU.banner={text:'最後衝刺！分數 ×2',hue:48,t:2.2,max:2.2};flash.a=.25;flash.hue=48;hud()}}
+  if(mode==='duel'){if(DU.fogT>0)DU.fogT-=dt;if(DU.shrinkT>0){DU.shrinkT-=dt;if(DU.shrinkT<=0)hud()}
+    if(!DU.sprint&&tg.length&&resolved>=tg.length*.8){DU.sprint=true;mpBanner('info','最後衝刺','分數 ×2','#ffd36b',true);flash.a=.25;flash.hue=48;hud()}}
   if(starT>0){starT-=dt;if(starT<=0)hud()}
   const prog=tg.length?resolved/tg.length:0;
   const bm=D&&D.ob!=null?D.ob:1,tut=mode==='tut';
@@ -1090,7 +1093,7 @@ function draw(){
   else if(st!=='menu'){drawField(ctx);drawTut(ctx);drawBumps(ctx);drawItems(ctx);drawBalls(ctx);drawFx(ctx)}
   ctx.restore();
   ctx.textAlign='center';ctx.textBaseline='alphabetic';
-  if(st==='ready'&&mode==='duel'){const left=Math.max(0,(DU.startAt-duelNow())/1000);ctx.fillStyle='#e8ecff';ctx.font='800 22px "Noto Sans TC",sans-serif';ctx.fillText('對手：'+(DU.oppName||'玩家')+'　對戰即將開始 '+Math.ceil(left),W/2,FR.y+FR.h/2+BR*6);
+  if(st==='ready'&&mode==='duel'){const left=Math.max(0,(DU.startAt-duelNow())/1000);ctx.fillStyle='#e8ecff';ctx.font='800 22px "Noto Sans TC",sans-serif';ctx.fillText((DU.n>2?DU.n+' 人對戰':'對手：'+((DU.board[0]||{}).name||'玩家'))+'　即將開始 '+Math.ceil(left),FR.x+FR.w/2,FR.y+FR.h/2+BR*6);
     if(instLoad.busy){ctx.fillStyle='#8a93c0';ctx.font='400 13px "Noto Sans TC",sans-serif';ctx.fillText('載入樂器音色⋯ '+(instLoad.total?Math.round(instLoad.n/instLoad.total*100):0)+'%',W/2,FR.y+FR.h/2+BR*6+24)}}
   else if(st==='ready'&&instLoad.busy){ctx.fillStyle='#e8ecff';ctx.font='700 19px "Noto Sans TC",sans-serif';ctx.fillText('載入樂器音色⋯ '+(instLoad.total?Math.round(instLoad.n/instLoad.total*100):0)+'%',W/2,FR.y+FR.h/2+BR*6)}
   else if(st==='ready'){ctx.fillStyle='#e8ecff';ctx.font='700 19px "Noto Sans TC",sans-serif';ctx.fillText('點擊畫面開始（含 3 拍預備）',W/2,FR.y+FR.h/2+BR*6);ctx.fillStyle='#8a93c0';ctx.font='400 13px "Noto Sans TC",sans-serif';ctx.fillText('光球將於節拍抵達亮起的框線，請於節拍觸碰光球。',W/2,FR.y+FR.h/2+BR*6+24)}
@@ -1131,7 +1134,9 @@ function frame(now){
   requestAnimationFrame(frame);
 }
 
-/* ================= online duel ================= */
+/* ================= online multiplayer (2-8 players) ================= */
+// v2 rooms: server/src/arena.js, protocol in docs/multiplayer-protocol.md. Everyone plays the same song with the same seed
+// from the same server-timed start; only scores travel, so network delay never touches the feel of a hit.
 // The server address is fixed. A ?duel= override is honoured only on a local dev page and only for a local server,
 // so a shared link can never point players at someone else's server.
 const DUEL_URL=(()=>{if(location.protocol!=='http:'||!/^(localhost|127\.0\.0\.1)$/.test(location.hostname))return 'https://pingponglight-duel.nick760930.workers.dev';
@@ -1141,100 +1146,331 @@ const DUEL_URL=(()=>{if(location.protocol!=='http:'||!/^(localhost|127\.0\.0\.1)
 const esc=s=>String(s==null?'':s).replace(/[&<>"'`]/g,c=>'&#'+c.charCodeAt(0)+';');
 const dInt=(v,lo,hi)=>{v=Math.floor(Number(v));return Number.isFinite(v)?Math.max(lo,Math.min(hi,v)):lo};
 const dName=v=>String(v==null?'':v).replace(/[\u0000-\u001f\u007f-\u009f<>&"'`\\]/g,'').trim().slice(0,12);
-const DRANKS=['S','A','B','C','D','—'],DATK=['bump','shrink','fog'];
-// Inbound budget for the high-rate messages only (live state / attacks): a flooding peer cannot stall the game loop.
-// Control messages (room, start, fin, left, pong) always pass, so a burst after the page was frozen never loses them.
+const dKey=v=>typeof v==='string'&&/^[a-z0-9]{2,16}$/.test(v)?v:'';
+const dCode=v=>String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);
+const songIdx=k=>k?SONGS.findIndex(s=>s.key===k):-1;
+const DRANKS=['S','A','B','C','D','—'],DATK=['bump','shrink','fog'],MP_MAX=8;
+// Inbound budget for the high-rate messages only (scoreboard / attacks): a flooding peer cannot stall the game loop.
+// Control messages (room, start, res, left, pong) always pass, so a burst after the page was frozen never loses them.
 const DIN={tok:60,t:0};
-function dAllow(t){if(t!=='st'&&t!=='atk')return true;const now=performance.now();DIN.tok=Math.min(60,DIN.tok+(now-DIN.t)/1000*30);DIN.t=now;if(DIN.tok>=1){DIN.tok--;return true}return false}
+function dAllow(t){if(t!=='board'&&t!=='atk')return true;const now=performance.now();DIN.tok=Math.min(60,DIN.tok+(now-DIN.t)/1000*30);DIN.t=now;if(DIN.tok>=1){DIN.tok--;return true}return false}
 const duelNow=()=>Date.now()+DU.off;
 function dsend(o){try{if(DU.ws&&DU.ws.readyState===1)DU.ws.send(JSON.stringify(o))}catch(e){}}
-function dmsg(t){$('#dMsg').textContent=t||''}
-function duelOpen(){if(!ME){nickOpen('duel');return}initAudio();$('#home').classList.add('hidden');$('#duel').classList.remove('hidden');$('#dName').value=ME.name;$('#dName').parentNode.hidden=true;duelView()}
-function duelView(){const inRoom=!!(DU.ws&&DU.code);$('#dJoin').hidden=inRoom;$('#dRoom').hidden=!inRoom}
+function dmsg(t){$('#dMsg').textContent=t||'';$('#rnote').textContent=t||''}
+const mpHost=()=>DU.you===DU.host&&!DU.cfg.qm;
+const mpName=i=>{const p=DU.players.find(q=>q.i===i);return p?p.name:(DU.names&&DU.names[i])||'玩家'};
+async function mget(path){
+  const c=new AbortController(),t=setTimeout(()=>c.abort(),8000);let r;try{r=await fetch(DUEL_URL+path,{signal:c.signal})}finally{clearTimeout(t)}if(r.status===429)throw new Error('slow');if(!r.ok)throw new Error('http');
+  const j=await r.json();if(!j||typeof j!=='object')throw new Error('bad');return j;
+}
+const mpErr=e=>dmsg(e&&e.message==='slow'?'操作太頻繁，請稍等 1 分鐘後再次嘗試。':'無法連線到對戰伺服器，請稍後再試。');
+
+/* ---- lobby: quick match + public rooms ---- */
+function duelOpen(){if(!ME){nickOpen('duel');return}initAudio();$('#home').classList.add('hidden');$('#duel').classList.remove('hidden');$('#dName').value=ME.name;duelView()}
+function duelView(){
+  clearInterval(DU.roomsIv);
+  if(DU.ws&&DU.code&&DU.joined){mpSelOpen();return}
+  mpLobbyUI();mpRooms();DU.roomsIv=setInterval(()=>{if(!$('#duel').classList.contains('hidden')&&!DU.ws&&!document.hidden)mpRooms()},10000);
+}
+const Q_MAX=[[4,'最多 4 人'],[6,'最多 6 人'],[8,'最多 8 人']];
+function mpLobbyUI(){
+  const L=DU.lob;
+  $('#qDi').innerHTML=[-1,...DORD].map(d=>'<button class="chip'+(d===L.di?' sel':'')+'" data-d="'+d+'">'+(d<0?'不限':DIFFS[d].n)+'</button>').join('');
+  $('#qMax').innerHTML=Q_MAX.map(([m,t])=>'<button class="chip'+(m===L.max?' sel':'')+'" data-m="'+m+'">'+t+'</button>').join('');
+  $('#qGo').textContent=DU.matching?'配對中⋯':'開始配對';$('#qGo').disabled=!!DU.matching;
+}
+async function mpRooms(){
+  const box=$('#dRooms'),t=++DU.roomsTok;
+  try{
+    const j=await mget('/m/rooms?space=1&di='+DU.lob.di);if(t!==DU.roomsTok)return;
+    const R=(Array.isArray(j.rooms)?j.rooms:[]).slice(0,30).filter(r=>r&&typeof r==='object').map(r=>({code:dCode(r.code),host:dName(r.host)||'玩家',song:songIdx(dKey(r.song)),
+      di:dInt(r.di,0,DIFFS.length-1),n:dInt(r.n,0,MP_MAX),max:dInt(r.max,2,MP_MAX),play:r.phase==='play',qm:r.qm===true})).filter(r=>r.code.length===4);
+    box.innerHTML=R.length?R.map(r=>'<button class="rm'+(r.play||r.n>=r.max?' off':'')+'" data-code="'+r.code+'"><span class="nm">'+esc(r.qm?'快速配對房':r.host+' 的房間')+'</span>'
+      +'<span class="mt">'+(r.play?'比賽中':r.song>=0?'《'+esc(SONGS[r.song].name)+'》':'選曲中')+'</span><b style="color:'+SKY_C[LVL[r.di]]+'">'+DIFFS[r.di].n+'</b><span class="n">'+r.n+'/'+r.max+'</span></button>').join('')
+      :'<div class="lbmsg">目前沒有符合條件的公開房間。可以按「開始配對」，或自己建立房間。</div>';
+  }catch(e){if(t===DU.roomsTok&&!(e&&e.message==='slow'&&box.querySelector('.rm')))box.innerHTML='<div class="lbmsg">'+(e&&e.message==='slow'?'查詢太頻繁，稍後會自動更新。':'目前無法連線至對戰伺服器。')+'</div>'}
+}
+async function mpMatch(){
+  initAudio();if(DU.matching)return;DU.matching=true;mpLobbyUI();dmsg('尋找房間中⋯');
+  try{const j=await mget('/m/match?di='+DU.lob.di+'&max='+DU.lob.max);const c=dCode(j.code);if(c.length!==4)throw new Error('bad');duelJoin(c)}
+  catch(e){mpErr(e)}
+  DU.matching=false;mpLobbyUI();
+}
 async function duelCreate(){
-  initAudio();dmsg('建立房間中⋯');
-  try{const r=await fetch(DUEL_URL+'/new');if(r.status===429){dmsg('操作太頻繁，請稍等 1 分鐘後再次嘗試。');return}
-    const j=await r.json();if(typeof j.code!=='string')throw 0;duelJoin(j.code)}
-  catch(e){dmsg('無法連線到對戰伺服器，請稍後再試。')}
+  initAudio();if(DU.creating)return;DU.creating=true;dmsg('建立房間中⋯');   // one request at a time: a double tap would make two rooms
+  try{const j=await mget('/m/new?pub=1&max=6&di='+di);const c=dCode(j.code);if(c.length!==4)throw new Error('bad');duelJoin(c)}
+  catch(e){mpErr(e)}
+  DU.creating=false;
 }
 function duelJoin(code,onOpen){
-  initAudio();code=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);
+  initAudio();code=dCode(code);
   if(code.length!==4){dmsg('請輸入 4 碼房號。');return}
-  const nm=($('#dName').value||'').trim().slice(0,12);if(nm)lsSet('ppl-name',nm);
   duelClose(true);dmsg('連線中⋯');
-  let ws;try{ws=new WebSocket(DUEL_URL.replace(/^http/,'ws')+'/ws/'+code)}catch(e){dmsg('無法連線到對戰伺服器。');return}
-  DU.ws=ws;DU.code=code;DU.left=false;DU.pings=[];
-  ws.onopen=()=>{dmsg('');dsend({t:'hello',name:nm||''});for(let k=0;k<6;k++)setTimeout(()=>dsend({t:'ping',c:Date.now()}),k*250);duelView();if(onOpen)onOpen()};
-  ws.onmessage=e=>{if(DU.ws!==ws||typeof e.data!=='string'||e.data.length>4096)return;
+  let ws;try{ws=new WebSocket(DUEL_URL.replace(/^http/,'ws')+'/m/ws/'+code)}catch(e){dmsg('無法連線到對戰伺服器。');return}
+  DU.ws=ws;DU.code=code;DU.left=false;DU.pings=[];DU.joined=false;
+  ws.onopen=()=>{dmsg('');dsend({t:'hello',name:ME?ME.name:''});for(let k=0;k<6;k++)setTimeout(()=>dsend({t:'ping',c:Date.now()}),k*250);if(onOpen)onOpen()};
+  ws.onmessage=e=>{if(DU.ws!==ws||typeof e.data!=='string'||e.data.length>8192)return;
     let d;try{d=JSON.parse(e.data)}catch(_){return}if(!d||typeof d!=='object'||Array.isArray(d)||typeof d.t!=='string'||!dAllow(d.t))return;
     try{duelOn(d)}catch(err){}};
   ws.onclose=ev=>{if(DU.ws!==ws)return;DU.ws=null;ddClose();
-    if(mode==='duel'&&st==='play'){DU.left=true;DU.banner={text:'與伺服器的連線中斷',hue:350,t:3,max:3}}
-    else{DU.code='';duelView();dmsg(ev.code===1006&&!DU.players.length?'無法加入：房間不存在、已滿，或操作太頻繁。':'連線已中斷。')}};
+    if(mode==='duel'&&st==='play'){DU.left=true;clearInterval(DU.pingIv);clearInterval(DU.autoIv);mpBanner('info','與伺服器的連線中斷','','#ff6f95',true);return}
+    const was=DU.joined;DU.code='';DU.players=[];DU.joined=false;clearInterval(DU.pingIv);clearInterval(DU.autoIv);
+    const m=!was?'無法加入：房間不存在、已滿、比賽進行中，或操作太頻繁。':'與房間的連線已中斷。';
+    if(RSEL.on){mpSelBack(m);return}
+    if(!$('#end').classList.contains('hidden')){if(mode==='duel'){duelResult();mpEndNote()}return}
+    if(!$('#duel').classList.contains('hidden'))duelView();
+    dmsg(m)};
   clearInterval(DU.pingIv);DU.pingIv=setInterval(()=>dsend({t:'ping',c:Date.now()}),5000);
 }
-function duelClose(silent){ddClose();DU.note='';
-  clearInterval(DU.pingIv);const w=DU.ws;DU.ws=null;DU.code='';DU.players=[];DU.phase='lobby';
+function duelClose(silent){ddClose();DU.note='';DU.wantReady=false;clearInterval(DU.autoIv);clearTimeout(DU.cfgT);
+  clearInterval(DU.pingIv);const w=DU.ws;DU.ws=null;DU.code='';DU.players=[];DU.phase='lobby';DU.joined=false;
   try{if(w)w.close()}catch(e){}if(!silent)duelView();
 }
-function duelLeave(){ddClose();duelClose();if(DU.prevDi!=null){di=DU.prevDi;DU.prevDi=null}mode='normal';$('#duel').classList.add('hidden');showHome()}
+function duelLeave(){ddClose();mpLadOff();$('#end').classList.remove('duel');if(RSEL.on)mpSelOff();duelClose(true);clearInterval(DU.roomsIv);mpRestore();mode='normal';layout();$('#duel').classList.add('hidden');showHome()}
+
+/* ---- messages ---- */
 function duelOn(d){
-  if(d.t==='pong'){const now=Date.now(),c=+d.c,sv=+d.s,rtt=now-c;if(!Number.isFinite(c)||!Number.isFinite(sv)||rtt<0||rtt>10000)return;d={c,s:sv};DU.pings.push({rtt,off:d.s-(d.c+rtt/2)});DU.pings.sort((a,b)=>a.rtt-b.rtt);DU.pings=DU.pings.slice(0,8);
+  if(d.t==='pong'){const now=Date.now(),c=+d.c,sv=+d.s,rtt=now-c;if(!Number.isFinite(c)||!Number.isFinite(sv)||rtt<0||rtt>10000)return;DU.pings.push({rtt,off:sv-(c+rtt/2)});DU.pings.sort((a,b)=>a.rtt-b.rtt);DU.pings=DU.pings.slice(0,8);
     const best=DU.pings.slice(0,3);DU.off=best.reduce((a,p)=>a+p.off,0)/best.length;return}   // clock offset from the fastest round trips
-  if(d.t==='room'){if(!Array.isArray(d.players))return;
-    d.you=dInt(d.you,0,1);d.host=dInt(d.host,0,1);d.players=d.players.slice(0,2).filter(p=>p&&typeof p==='object').map(p=>({i:dInt(p.i,0,1),name:dName(p.name)||'玩家',ready:p.ready===true}));
-    const cf=d.cfg&&typeof d.cfg==='object'?d.cfg:{};d.cfg={song:dInt(cf.song,0,SONGS.length-1),di:dInt(cf.di,0,DIFFS.length-1)};d.phase=d.phase==='play'?'play':'lobby';
-    DU.you=d.you;DU.host=d.host;DU.players=d.players;DU.cfg=d.cfg;DU.phase=d.phase;
-    const me=d.players.find(p=>p.i===d.you),op=d.players.find(p=>p.i!==d.you);DU.oppName=op?op.name:'';DU.ready=!!(me&&me.ready);
-    duelRoomUI();if(SONGS[d.cfg.song])preloadSong(SONGS[d.cfg.song]);return}
+  if(d.t==='room'){if(!Array.isArray(d.players))return;DU.joined=true;
+    DU.you=dInt(d.you,0,MP_MAX-1);DU.host=dInt(d.host,0,MP_MAX-1);
+    const seen=new Set();DU.players=d.players.slice(0,MP_MAX).filter(p=>p&&typeof p==='object').map(p=>({i:dInt(p.i,0,MP_MAX-1),name:dName(p.name)||'玩家',ready:p.ready===true,back:p.back===true,vote:dKey(p.vote)}))
+      .filter(p=>!seen.has(p.i)&&seen.add(p.i)).sort((a,b)=>a.i-b.i);
+    const cf=d.cfg&&typeof d.cfg==='object'?d.cfg:{};
+    DU.cfg={song:dKey(cf.song),di:dInt(cf.di,0,DIFFS.length-1),pub:cf.pub===true,max:dInt(cf.max,2,MP_MAX),vote:cf.vote===true,qm:cf.qm===true};
+    DU.votes={};if(d.votes&&typeof d.votes==='object'&&!Array.isArray(d.votes))for(const k of Object.keys(d.votes).slice(0,60))if(dKey(k)&&songIdx(k)>=0)DU.votes[k]=dInt(d.votes[k],0,MP_MAX);
+    const at=d.auto&&typeof d.auto==='object'?+d.auto.at:NaN;DU.auto=Number.isFinite(at)?at:0;
+    DU.phase=d.phase==='play'?'play':'lobby';
+    const me=DU.players.find(p=>p.i===DU.you);DU.ready=!!(me&&me.ready);
+    clearInterval(DU.autoIv);if(DU.auto)DU.autoIv=setInterval(()=>{if(!DU.auto||!DU.ws)clearInterval(DU.autoIv);else{mpRoomMsg();mpEndNote()}},500);
+    if(DU.wantReady&&DU.phase==='lobby'){DU.wantReady=false;if(!DU.ready&&!DU.cfg.qm)dsend({t:'ready',v:true})}
+    if(RSEL.on)mpRoomUI();else if(!$('#duel').classList.contains('hidden'))duelView();
+    mpEndNote();return}
   if(d.t==='start'){if(mode==='duel'&&(st==='play'||st==='ready'))return;
-    const at=+d.at,now=duelNow();duelStart({at:Number.isFinite(at)&&Math.abs(at-now)<15000?at:now+4500,seed:dInt(d.seed,0,4294967295),song:dInt(d.song,0,SONGS.length-1),di:dInt(d.di,0,DIFFS.length-1)});return}
-  if(d.t==='st'){if(mode!=='duel')return;const o=DU.opp,was=o.c;o.s=dInt(d.s,0,1e8);o.c=dInt(d.c,0,1e5);o.l=dInt(d.l,0,100);o.r=dInt(d.r,0,1e5);o.j=dInt(d.j,-1,4);o.jt=performance.now();
-    if(was>=10&&o.c===0&&mode==='duel'&&st==='play')DU.banner={text:'對手連線中斷',hue:185,t:1.4,max:1.4};
-    hud();return}
-  if(d.t==='atk'){const now=performance.now();if(!DATK.includes(d.k)||now-(DU.atkT||0)<1500)return;DU.atkT=now;duelAttacked(d.k);return}
-  if(d.t==='fin'){if(mode!=='duel'||DU.oppFin)return;d={s:dInt(d.s,0,1e8),ok:d.ok===true,rank:DRANKS.includes(d.rank)?d.rank:'—',mc:dInt(d.mc,0,1e5)};DU.oppFin=d;if(DU.myFin)duelResult();else if(mode==='duel'&&st==='play')DU.banner={text:'對手已'+(d.ok?'完成':'出局'),hue:d.ok?48:350,t:2,max:2};return}
-  if(d.t==='left'){DU.left=true;DU.oppName=DU.oppName||'對手';
-    if(mode==='duel'&&st==='play')DU.banner={text:'對手已離線',hue:350,t:2.5,max:2.5};
-    else if(!$('#end').classList.contains('hidden'))duelResult();
-    dmsg('對手已離開房間。');return}
+    const at=+d.at,now=duelNow(),k=songIdx(dKey(d.song));
+    if(k<0){dsend({t:'fin',s:0,ok:false,acc:0,rank:'—',mc:0});dmsg('房間選的曲目不在您目前的版本中，請更新遊戲後再加入。');return}
+    duelStart({at:Number.isFinite(at)&&Math.abs(at-now)<15000?at:now+4500,seed:dInt(d.seed,0,4294967295),song:k,di:dInt(d.di,0,DIFFS.length-1)});return}
+  if(d.t==='board'){if(mode!=='duel'||!Array.isArray(d.p))return;
+    for(const r of d.p.slice(0,MP_MAX)){if(!Array.isArray(r))continue;const i=dInt(r[0],0,MP_MAX-1);if(i===DU.you)continue;
+      let b=DU.board.find(x=>x.i===i);if(!b){b={i,name:mpName(i),s:0,c:0,l:100,j:-1,jt:0,fin:0,gone:false};DU.board.push(b)}
+      const s0=b.s;b.s=dInt(r[1],0,1e8);b.c=dInt(r[2],0,1e5);b.l=dInt(r[3],0,100);const j=dInt(r[4],-1,4);if(j>=0&&(j!==b.j||r[1]!==b.ls)){b.j=j;b.jt=performance.now();mpLadHit(i,j,b.s-s0)}b.ls=r[1];b.fin=r[5]?1:0;
+      b.out=b.l<=0||(b.fin&&r.length>6&&!r[6])}
+    mpRankCheck();hud();if(DU.myFin&&!DU.res)duelResult();return}
+  if(d.t==='atk'){const now=performance.now();if(!DATK.includes(d.k)||now-(DU.atkT||0)<1500)return;DU.atkT=now;duelAttacked(d.k,mpName(dInt(d.from,0,MP_MAX-1)));return}
+  if(d.t==='res'){if(!Array.isArray(d.r))return;
+    const seen=new Set();DU.res=d.r.slice(0,MP_MAX).filter(x=>x&&typeof x==='object').map(x=>({i:dInt(x.i,0,MP_MAX-1),name:dName(x.name)||'玩家',s:dInt(x.s,0,1e8),ok:x.ok===true,
+      acc:Math.max(0,Math.min(100,+x.acc||0)),rank:DRANKS.includes(x.rank)?x.rank:'—',mc:dInt(x.mc,0,1e5)})).filter(x=>!seen.has(x.i)&&seen.add(x.i));
+    if(DU.myFin){duelResult();mpEndNote()}return}
+  if(d.t==='left'){const i=dInt(d.i,0,MP_MAX-1),b=DU.board.find(x=>x.i===i);if(b)b.gone=true;
+    if(mode==='duel'&&st==='play'){mpBanner('info',mpName(i)+' 已離線','','#9aa3c7');mpLad()}if(DU.myFin&&!DU.res)duelResult();return}
 }
-function duelRoomUI(){
-  $('#dCodeT').textContent='房號 '+DU.code;
-  $('#dPl').innerHTML=[0,1].map(i=>{const p=DU.players.find(q=>q.i===i);return p?'<span class="'+(p.ready?'ok':'')+'">'+(p.i===DU.you?'您：':'')+esc(p.name)+(p.ready?' ✓ 準備':'')+'</span>':'<span style="opacity:.5">等待對手加入⋯</span>'}).join('');
-  const host=DU.you===DU.host,rk=i=>{const r=lsGet(KEY_RK(i,DU.cfg.di));return RANKS.includes(r)?r:''};
-  DSONG.set(SONGS.map((x,i)=>({v:i,text:(i+1)+'. '+x.name,note:rk(i)})),DU.cfg.song);
-  DDI.set(DORD.map(i=>({v:i,text:DIFFS[i].n})),DU.cfg.di);
-  DSONG.setDisabled(!host);DDI.setDisabled(!host);
-  const b=$('#dReady');b.textContent=DU.ready?'取消準備':'準備';b.classList.toggle('pri',!DU.ready);
-  if(!$('#duel').classList.contains('hidden'))dmsg(DU.players.length<2?(DU.note||'請將房號提供給好友，或按「邀請朋友」分享連結。'):(host?'由您選擇曲目與難度，雙方按下「準備」後開始。':'房主選曲中，雙方按下「準備」後開始。'));
+
+/* ---- room: the single-player song page in "room mode" ---- */
+// Same list, details, preview and difficulty buttons as single play. The room code and the host's settings sit on top,
+// the seats and the ready button on the right. Tapping a song sets the room's song (host), casts a vote, or just previews.
+var RSEL={on:false,song:''};   // var: read by showHome and the song page before this section has run
+function mpLeadInfo(){   // the song the room would start with now, and whether that is a tie the server will draw from
+  const C=DU.cfg;if(!C.vote)return{k:C.song,n:0,tie:[]};let n=0;
+  for(const v of Object.values(DU.votes))n=Math.max(n,v);
+  const top=n?Object.keys(DU.votes).filter(k=>DU.votes[k]===n):[];
+  return{k:top[0]||C.song,n,tie:top.length>1?top:[]};
 }
+const mpLead=()=>mpLeadInfo().k;
+function mpSelOpen(){
+  if(RSEL.on){mpRoomUI();return}
+  const C=DU.cfg,mine=(DU.players.find(p=>p.i===DU.you)||{}).vote,k=songIdx(C.vote&&mine?mine:mpLead());
+  RSEL.on=true;RSEL.song=C.song;if(DU.prevDi==null){DU.prevDi=di;DU.prevSi=si}di=C.di;if(k>=0)si=k;
+  $('#duel').classList.add('hidden');clearInterval(DU.roomsIv);$('#menu').classList.add('room');
+  $('#bBack').textContent='‹ 離開房間';showSelect();mpRoomUI();
+}
+function mpRoomUI(){
+  if(!RSEL.on)return;const C=DU.cfg,n=DU.players.length,host=mpHost();
+  if(di!==C.di){di=C.di}
+  if(!C.vote&&C.song!==RSEL.song){const k=songIdx(C.song);if(k>=0)si=k}   // the host picked a song: everyone's page follows
+  RSEL.song=C.song;
+  $('#selT').textContent=C.qm?'快速配對':C.vote?'投票選曲':host?'選擇房間曲目':'房間曲目';
+  $('#rhd').innerHTML='房號<b>'+esc(DU.code)+'</b>'+(C.qm?'快速配對':C.pub?'公開':'私人')+' · '+n+' / '+C.max+' 人';
+  for(const id of['dMax','dPub','dVote'])$('#'+id).hidden=!host;
+  if(host){DMAX.set([2,3,4,5,6,7,8].filter(m=>m>=Math.max(2,n)).map(m=>({v:m,text:'上限 '+m+' 人'})),C.max);
+    $('#dPub').textContent='公開';$('#dPub').classList.toggle('on',C.pub);$('#dVote').textContent='投票選曲';$('#dVote').classList.toggle('on',C.vote)}
+  let h='';for(let k=0;k<C.max;k++){const p=DU.players[k];
+    h+=p?'<div class="seat'+(p.i===DU.you?' me':'')+(p.ready&&!C.qm?' ok':'')+'"><span class="nm">'+esc(p.name)+'</span>'+(p.i===DU.host&&!C.qm?'<i>房主</i>':'')+'</div>'
+      :'<div class="seat empty">空位</div>'}
+  $('#rseats').innerHTML=h;
+  const b=$('#bGo');b.hidden=C.qm;b.disabled=false;b.textContent=DU.ready?'取消準備':'準備';b.classList.toggle('pri',!DU.ready);
+  buildChips();mpRoomMsg();
+  const k=songIdx(C.song);if(k>=0)preloadSong(SONGS[k]);
+}
+function mpDetail(){   // extra line on the song details: what the room is going to play
+  const C=DU.cfg,L=mpLeadInfo(),k=songIdx(L.k),nm=k>=0?'《'+esc(SONGS[k].name)+'》':'尚未選曲',me=(DU.players.find(p=>p.i===DU.you)||{}).vote;
+  let t;
+  if(C.vote)t=L.tie.length?'目前同票：'+L.tie.map(x=>esc(SONGS[songIdx(x)].name)).join('、')+'（開始時抽選）':L.n?'目前領先：'+nm+'（'+L.n+' 票）':'尚無人投票，未投票時以房主的曲目開始：'+nm;
+  else t=SONGS[si]&&SONGS[si].key===C.song?'這是房間曲目':'房間曲目：'+nm;
+  $('#sK').textContent+=C.vote&&SONGS[si]&&SONGS[si].key===me?' · 您投的曲目':'';
+  $('#sM').insertAdjacentHTML('beforeend','<br><span style="color:#ffd36b">'+t+'</span>');
+}
+function mpTag(k){const v=DU.votes[k]||0,L=mpLeadInfo();
+  return(k===DU.cfg.song&&!DU.cfg.vote?'<em class="rt">房間曲目</em>':'')+(DU.cfg.vote&&v?'<em class="rt">'+v+' 票'+(k===L.k&&!L.tie.length?' · 領先':L.tie.includes(k)?' · 同票':'')+'</em>':'')}
+function mpVoters(k){if(!DU.cfg.vote)return'';const v=DU.players.filter(p=>p.vote===k).map(p=>esc(p.name));return v.length?'<span class="vt">'+v.join('、')+'</span>':''}
+function mpPick(i){   // a tap on a song row in a room
+  const C=DU.cfg,key=SONGS[i].key;
+  if(C.qm)return;
+  if(C.vote)dsend({t:'vote',song:key});else if(mpHost()&&key!==C.song)mpCfg({song:key});
+}
+function mpRoomMsg(){
+  if(!RSEL.on)return;const C=DU.cfg,n=DU.players.length;
+  if(DU.phase==='play'){dmsg('比賽進行中，等其他玩家完成後一起開始下一局。');return}
+  if(C.qm){const s=DU.auto?Math.max(0,Math.ceil((DU.auto-duelNow())/1000)):0,nb=DU.players.filter(p=>p.back).length;dmsg(DU.auto?(nb>=C.max?'人數到齊，':'已有 '+nb+' 人，')+s+' 秒後開始':n>nb?'等待其他玩家回到房間（'+nb+' / '+n+'）⋯':'快速配對中，等待其他玩家加入⋯');return}
+  const notReady=DU.players.filter(p=>!p.ready).length;
+  dmsg(n<2?(DU.note||'等待其他玩家加入⋯ 可以按「邀請朋友」，或讓別人從公開房間加入。')
+    :notReady?'還有 '+notReady+' 人未準備 · '+(C.vote?'全員準備後以最高票曲目開始':mpHost()?'點左側曲目即可更換':'房主選曲中')
+    :'全員準備，即將開始⋯');
+}
+function mpCfg(o,again){const C=DU.cfg,m={t:'cfg',song:C.song,di:C.di,pub:C.pub,max:C.max,vote:C.vote,...o};dsend(m);
+  // the server drops settings sent too fast; if the room has not changed a moment later, send once more
+  clearTimeout(DU.cfgT);if(!again)DU.cfgT=setTimeout(()=>{if(DU.ws&&Object.keys(o).some(k=>DU.cfg[k]!==o[k]))mpCfg(o,true)},1500)}
+$('#dPub').onclick=()=>mpCfg({pub:!DU.cfg.pub});
+$('#dVote').onclick=()=>mpCfg({vote:!DU.cfg.vote});
+function mpSelOff(){RSEL.on=false;$('#menu').classList.remove('room');$('#bGo').hidden=false;$('#bGo').classList.add('pri');$('#bGo').textContent='開始';$('#selT').textContent='選擇曲目';$('#bBack').textContent='‹ 返回';$('#rnote').textContent='';pvEnd()}
+function mpRestore(){if(DU.prevDi!=null){di=DU.prevDi;DU.prevDi=null}if(DU.prevSi!=null){si=DU.prevSi;DU.prevSi=null}}
+function mpSelBack(msg){   // room closed under us: back to the lobby
+  mpSelOff();$('#menu').classList.add('hidden');mpRestore();
+  $('#duel').classList.remove('hidden');duelView();if(msg)dmsg(msg)}
+function mpSelGo(){initAudio();if(!DU.cfg.qm)dsend({t:'ready',v:!DU.ready})}
+
+/* ---- the race ---- */
 function duelStart(d){
-  ddClose();DU.seed=d.seed>>>0||1;DU.startAt=d.at;if(DU.prevDi==null)DU.prevDi=di;
+  ddClose();DU.seed=d.seed>>>0||1;DU.startAt=d.at;if(DU.prevDi==null){DU.prevDi=di;DU.prevSi=si}
+  if(RSEL.on)mpSelOff();
+  DU.names={};for(const p of DU.players)DU.names[p.i]=p.name;
+  DU.board=DU.players.filter(p=>p.i!==DU.you).map(p=>({i:p.i,name:p.name,s:0,c:0,l:100,j:-1,jt:0,fin:0,gone:false,out:false}));
+  DU.n=DU.board.length+1;DU.res=null;DU.rank=0;DU.rankT=0;
   si=Math.max(0,Math.min(SONGS.length-1,d.song|0));di=d.di|0;mode='duel';
-  $('#duel').classList.add('hidden');$('#end').classList.add('hidden');
-  startRun(0);
+  for(const o of['#duel','#end','#menu'])$(o).classList.add('hidden');clearInterval(DU.roomsIv);
+  layout();startRun(0);mpLadInit();
   const wait=()=>{if(mode!=='duel'||st!=='ready')return;const left=DU.startAt-duelNow();if(left<=12){launch();return}setTimeout(wait,Math.min(250,Math.max(1,left-10)))};
   wait();
 }
-function duelHit(j){   // j: 0-3 tier, 4 miss
-  dsend({t:'st',s:score,c:combo,l:life,r:resolved,j});
-  if(j===0){if(++DU.pstreak>=10){DU.pstreak=0;const k=['bump','shrink','fog'][Math.floor(Math.random()*3)];dsend({t:'atk',k});
-    DU.banner={text:'發動攻擊：'+({bump:'障礙',shrink:'縮小範圍',fog:'迷霧'})[k],hue:185,t:1.3,max:1.3}}}
-  else DU.pstreak=0;
-  hud();
+// standings: everyone sorted by score, me included; players who are out drop to the bottom
+function mpStand(){const me={i:DU.you,name:mpName(DU.you),s:score,c:combo,l:life,fin:DU.myFin?1:0,me:true,out:st==='over'||!!(DU.myFin&&!DU.myFin.ok)};
+  return[me,...DU.board].sort((a,b)=>((a.out||a.gone)?1:0)-((b.out||b.gone)?1:0)||b.s-a.s||(a.me?-1:b.me?1:0))}
+function mpRankCheck(){
+  if(mode!=='duel')return;const S=mpStand(),r=S.findIndex(x=>x.me)+1;
+  if(DU.rank&&r!==DU.rank&&st==='play'&&G()>LEADIN+2&&performance.now()-DU.rankT>1200){DU.rankT=performance.now();
+    if(r<DU.rank){mpBanner('up','第 '+r+' 名','','#ffd36b');mpBurst();vib(15)}else mpBanner('down','第 '+r+' 名','','#8fb2ff')}
+  DU.rank=r;mpLad();
 }
-function duelAttacked(k){
+const ATKN={bump:'障礙',shrink:'觸碰範圍縮小',fog:'迷霧'},ATKS={bump:' · 4 秒',shrink:' · 5 秒',fog:' · 3 秒'};
+function duelHit(j){   // j: 0-3 tier, 4 miss
+  const d=score-(DU.lastS||0);DU.lastS=score;
+  dsend({t:'st',s:score,c:combo,l:life,r:resolved,j});
+  mpLadHit(DU.you,j,d);
+  if(j===0){if(++DU.pstreak>=10){DU.pstreak=0;const k=['bump','shrink','fog'][Math.floor(Math.random()*3)];dsend({t:'atk',k});
+    const S=mpStand().filter(x=>x.me||!x.fin&&!x.gone),r=S.findIndex(x=>x.me),tg2=r>0?S[r-1]:S[1];   // the server sends it to the player just ahead (or 2nd when leading)
+    mpBanner('atk',tg2?'牽制 '+(tg2.name||'玩家'):'牽制',ATKN[k],'#7cf0ff')}}
+  else DU.pstreak=0;
+  mpRankCheck();hud();
+}
+function duelAttacked(k,from){
   if(mode!=='duel'||st!=='play')return;
-  if(shield>0){shield--;hud();DU.banner={text:'護盾擋下攻擊',hue:190,t:1.4,max:1.4};return}
+  if(shield>0){shield--;hud();mpBanner('info','護盾擋下牽制',from?'來自 '+from:'','#7cf0ff');return}
   vib([30,40,30]);flash.a=.2;flash.hue=320;
   if(k==='bump'){for(let t=0;t<12;t++){const x=FR.x+FR.w*rand(.3,.7),y=FR.y+FR.h*rand(.2,.8);if(balls.every(b=>Math.hypot(b.x-x,b.y-y)>FR.h*.3)){bumps.push({x,y,Rm:Math.min(FR.w,FR.h)*.11,age:0,life:4});break}}}
   else if(k==='shrink')DU.shrinkT=5;else DU.fogT=3.5;
-  DU.banner={text:'受到攻擊：'+({bump:'障礙',shrink:'觸碰範圍縮小',fog:'迷霧'})[k]||'',hue:320,t:1.6,max:1.6};hud();
+  mpBanner('atk',from?'來自 '+from+' 的牽制':'受到牽制',ATKN[k]+ATKS[k],'#ff5fa2');
+  const f=$('#mpFr');if(f.animate)f.animate([{opacity:1},{opacity:0}],{duration:600,easing:'ease-out'});hud();
 }
 function duelSub(){
-  const o=DU.opp,J=['完美','極佳','良好','尚可','失誤'],recent=performance.now()-o.jt<700&&o.j>=0;
-  $('#sub').textContent='對手 '+(DU.oppName||'玩家')+'　'+o.s.toLocaleString()+(o.c>1?'　連擊 '+o.c:'')+'　生命 '+o.l+'%'+(recent?'　'+J[o.j]:'')+(DU.shrinkT>0?'　［範圍縮小］':'');
+  const S=mpStand(),r=S.findIndex(x=>x.me),me=S[r];let t;
+  if(DU.n<=2){const o=DU.board[0]||{s:0,c:0,l:100,j:-1,jt:0},J=['完美','極佳','良好','尚可','失誤'],recent=performance.now()-o.jt<700&&o.j>=0;
+    t='對手 '+(o.name||'玩家')+'　'+o.s.toLocaleString()+(o.c>1?'　連擊 '+o.c:'')+'　生命 '+o.l+'%'+(recent?'　'+J[o.j]:'')}
+  else t='第 '+(r+1)+' 名 / '+S.length+(r>0?'　前一名差 '+(S[r-1].s-me.s).toLocaleString():S[1]?'　領先 '+(me.s-S[1].s).toLocaleString():'');
+  $('#sub').textContent=t+(DU.shrinkT>0?'　［範圍縮小］':'');
+}
+/* ---- live standings (DOM, right of the field): energy bars with a sparkler tip, rank swaps, neighbour gaps ---- */
+const MPC=['#ff9ad1','#8fb2ff','#7cffaa','#c58bff','#ffa86b','#7cf0ff','#ff6f95','#e6ecff'],RMO=matchMedia('(prefers-reduced-motion: reduce)');
+const LAD={rows:{},on:false,geo:null,pool:[],pk:0,fz:0};
+function mpLadInit(){
+  const L=$('#mpLad');for(const k of Object.keys(LAD.rows))LAD.rows[k].el.remove();LAD.rows={};
+  for(const e of L.querySelectorAll('.mpk,.mpsp'))e.remove();LAD.pool=[];
+  LAD.on=DU.n>2;L.hidden=!LAD.on;$('#mpBn').innerHTML='';
+  if(!LAD.on){clearInterval(LAD.fz);mpLadPlace();return}
+  LAD.link=document.createElement('div');LAD.link.className='mpk';L.append(LAD.link);
+  for(let k=0;k<64;k++){const s=document.createElement('i');s.className='mpsp';L.appendChild(s);LAD.pool.push(s)}
+  for(const p of[{i:DU.you,me:true},...DU.board])mpRow(p.i,!!p.me);
+  mpLadPlace();mpLad();clearInterval(LAD.fz);if(!RMO.matches)LAD.fz=setInterval(mpFizz,80);
+}
+function mpRow(i,me){
+  const r=document.createElement('div'),c=me?'#ffd36b':MPC[i%MPC.length];r.className='lrw'+(me?' me':'');r.style.setProperty('--c',c);r.style.setProperty('--pc',c);
+  r.innerHTML='<span class="flash"></span><span class="rk"></span><span class="nm"></span><span class="ss">0</span><span class="jd"></span><span class="cb"></span>'+(me?'<span class="gp"></span>':'')+'<span class="bar"><i></i></span><span class="tip"></span>';
+  r.querySelector('.nm').textContent=mpName(i);$('#mpLad').appendChild(r);
+  return LAD.rows[i]={el:r,ss:r.querySelector('.ss'),c,prev:-1,pct:0,v:0,s:0,cb:-1,y:0};
+}
+function mpLadOff(){LAD.on=false;clearInterval(LAD.fz);$('#mpLad').hidden=true;$('#mpBn').innerHTML=''}
+function mpLadPlace(){   // follows the field: called from layout()
+  const sa=safeIns(),bn=$('#mpBn'),fr=$('#mpFr');
+  Object.assign(bn.style,{left:FR.x+'px',width:FR.w+'px',top:(FR.y+8)+'px',height:'60px'});
+  Object.assign(fr.style,{left:FR.x+'px',width:FR.w+'px',top:FR.y+'px',height:FR.h+'px'});
+  if(!LAD.on)return;
+  const x0=FR.x+FR.w+12,w=Math.min(170,W-x0-Math.max(8,sa.r+4)),hb=$('#hud').getBoundingClientRect().bottom||0,top=Math.max(sa.t+4,FR.y-18,hb+2),avail=H-top-Math.max(8,sa.b+4)-18,n=Object.keys(LAD.rows).length||1;
+  const RH=Math.max(30,Math.min(50,Math.floor(avail/n))),rh=RH-6;
+  LAD.geo={RH,rh,w,BW:w-38};
+  const L=$('#mpLad');Object.assign(L.style,{left:x0+'px',top:top+'px',width:w+'px',height:(H-top)+'px'});L.classList.toggle('cmp',rh<40);
+  for(const o of Object.values(LAD.rows)){o.el.style.width=w+'px';o.el.style.height=rh+'px'}
+  mpLad();
+}
+function mpLad(){
+  if(!LAD.on||!LAD.geo)return;const {RH,rh,BW}=LAD.geo,Y0=18,S=mpStand();
+  const live=S.filter(e=>!e.out&&!e.gone),top=live.length?Math.max(...live.map(e=>e.s)):0,lo=live.length?Math.min(...live.map(e=>e.s))*.8:0;
+  const mi=S.findIndex(e=>e.me);
+  S.forEach((e,k)=>{const o=LAD.rows[e.i]||mpRow(e.i,!!e.me),r=o.el,out=!!(e.out||e.gone);
+    o.y=Y0+k*RH;r.style.top=o.y+'px';r.querySelector('.rk').textContent=k+1;o.s=e.s;
+    o.pct=out?0:top>lo?Math.max(4,(e.s-lo)/(top-lo)*100):4;
+    r.querySelector('.bar i').style.width=o.pct+'%';r.querySelector('.tip').style.left=(30+BW*o.pct/100)+'px';
+    r.classList.toggle('out',out);r.classList.toggle('fire',e.c>=20&&!out);
+    const cb=e.c>=10&&!out?e.c:0;if(cb!==o.cb){o.cb=cb;r.querySelector('.cb').textContent=cb?'連擊 '+cb:''}
+    if(out)r.querySelector('.ss').textContent=e.gone?'離線':'出局';
+    if(o.prev>=0&&k!==o.prev&&r.animate&&!RMO.matches){const up=k<o.prev;
+      r.animate([{boxShadow:up?'inset 0 0 0 2px #fff,0 0 22px 4px #ffcc4d':'inset 0 0 0 2px #ff4d7a,0 0 18px 3px #ff4d7a'},{boxShadow:'none'}],{duration:800,easing:'ease-out'});
+      if(up)mpSparks(o,10)}
+    o.prev=k});
+  const me=S[mi],a=S[mi-1],b=S[mi+1]&&!S[mi+1].out&&!S[mi+1].gone?S[mi+1]:null,near=!!b&&!me.out&&me.s-b.s<800;
+  const gp=LAD.rows[DU.you]&&LAD.rows[DU.you].el.querySelector('.gp');
+  if(gp)gp.innerHTML=me.out?'':(a?'<span class="cool">差 '+(a.s-me.s).toLocaleString()+'</span>':'')+(b?'<span class="'+(near?'hot':'cool')+'">'+(near?'逼近 ':'後 ')+(me.s-b.s).toLocaleString()+'</span>':'');
+  LAD.link.classList.toggle('on',near);if(near){LAD.link.style.top=(Y0+mi*RH+rh/2)+'px';LAD.link.style.height=RH+'px'}
+  $('#mpHot').textContent=near?'· 纏鬥中':'';
+}
+function mpLadFrame(){   // rolling numbers, every frame while racing
+  if(!LAD.on)return;
+  for(const o of Object.values(LAD.rows)){if(o.el.classList.contains('out')||o.v===o.s)continue;
+    o.v+=(o.s-o.v)*.25;if(Math.abs(o.s-o.v)<1)o.v=o.s;o.ss.textContent=Math.round(o.v).toLocaleString()}
+}
+const JN=['完美','極佳','良好','尚可','失誤'],JC=['#ffd36b','#7cf0ff','#7cffaa','#9aa3c7','#ff6f95'];
+function mpLadHit(i,j,d){
+  const o=LAD.rows[i];if(!LAD.on||!o||j<0||j>4||!o.el.animate)return;
+  const jd=o.el.querySelector('.jd');jd.textContent=j<4&&d>0?'+'+d.toLocaleString()+' '+JN[j]:JN[j];jd.style.color=JC[j];
+  jd.animate([{opacity:1,transform:'translateY(4px)'},{opacity:0,transform:'translateY(-6px)'}],{duration:600,easing:'ease-out'});
+  const f=o.el.querySelector('.flash');f.style.background=JC[j];f.animate([{opacity:.2},{opacity:0}],{duration:350,easing:'ease-out'});
+}
+function mpSpark(x,y,dx,dy,c,ms,big){
+  const s=LAD.pool[LAD.pk++%LAD.pool.length];if(!s||!s.animate)return;s.className='mpsp'+(big?' big':'');s.style.setProperty('--pc',c);s.style.left=x+'px';s.style.top=y+'px';
+  s.animate([{opacity:1,transform:'translate(0,0)'},{opacity:0,transform:'translate('+dx+'px,'+dy+'px)'}],{duration:ms,easing:'ease-out'});
+}
+function mpFizz(){   // the sparkler: a few tiny sparks keep flying off every bar's tip
+  if(!LAD.on||document.hidden||!LAD.geo||st!=='play')return;const {rh,BW}=LAD.geo;
+  for(const o of Object.values(LAD.rows)){if(o.el.classList.contains('out'))continue;const x=30+BW*o.pct/100,y=o.y+rh-7;
+    const a=-Math.PI*(.15+Math.random()*.7),d=6+Math.random()*14;mpSpark(x,y,Math.cos(a)*d-Math.random()*6,Math.sin(a)*d,o.c,250+Math.random()*300)}
+}
+function mpSparks(o,n){if(!LAD.geo)return;for(let k=0;k<n;k++){const a=Math.random()*6.28;mpSpark(20+Math.random()*(LAD.geo.w-40),o.y+LAD.geo.rh/2,Math.cos(a)*40,Math.sin(a)*26,o.c,600,true)}}
+function mpBurst(){const o=LAD.rows[DU.you];if(!LAD.on||!o||!o.el.animate||RMO.matches)return;
+  const b=document.createElement('i');b.className='mpsp big';b.style.cssText='left:16px;top:'+(o.y+LAD.geo.rh/2)+'px;width:10px;height:10px;margin:-5px 0 0 -5px;background:none;border:2px solid #ffd36b;box-shadow:none';
+  $('#mpLad').appendChild(b);b.animate([{opacity:1,transform:'scale(1)'},{opacity:0,transform:'scale(14)'}],{duration:600,easing:'ease-out'}).onfinish=()=>b.remove()}
+// neon banner on the field's top edge: rank up (gold, rises), rank down (blue, sinks), being slowed down / slowing someone
+function mpBanner(kind,t,sub,c,long){
+  const w=$('#mpBn');w.classList.toggle('long',!!long);
+  w.innerHTML='<div class="'+kind+'" style="--c:'+c+'"><span class="line"></span><span class="t">'+esc(t)+'</span>'+(sub?'<span class="s">'+esc(sub)+'</span>':'')+'</div>';
+  clearTimeout(DU.bnT);DU.bnT=setTimeout(()=>{w.innerHTML=''},long?2300:1500);
+  if(w.animate&&!RMO.matches)w.animate([{transform:'translate(-3px,1px)'},{transform:'translate(3px,-1px)'},{transform:'translate(-1px,1px)'},{transform:'none'}],{duration:300});
 }
 function drawDuel(x){
   if(DU.fogT>0){   // fog covers the middle of the field; both lines stay visible
@@ -1243,34 +1479,71 @@ function drawDuel(x){
     x.fillStyle=g;x.fillRect(FR.x,FR.y,FR.w,FR.h);
   }
   if(DU.sprint&&st==='play'){x.save();x.strokeStyle=`hsla(48,100%,60%,${.35+.25*Math.sin(time*8)})`;x.lineWidth=3;rr(x,FR.x-4,FR.y-4,FR.w+8,FR.h+8,12);x.stroke();x.restore()}
-  if(performance.now()-DU.opp.jt<700&&DU.opp.j>=0){const J=['完美','極佳','良好','尚可','失誤'],C=[48,185,125,225,350];x.textAlign='right';x.fillStyle=`hsl(${C[DU.opp.j]},100%,72%)`;x.font='800 14px "Noto Sans TC",sans-serif';x.fillText('對手 '+J[DU.opp.j],FR.x+FR.w-12,FR.y+FR.h-12);x.textAlign='center'}
-  if(DU.banner){const b=DU.banner,k=b.t/b.max;x.globalAlpha=Math.min(1,k*2.5);x.fillStyle=`hsl(${b.hue},100%,72%)`;x.font='800 '+Math.round(Math.min(34,FR.h*.11))+'px "Noto Sans TC",sans-serif';x.fillText(b.text,W/2,FR.y+FR.h*.3-(1-k)*14);x.globalAlpha=1}
+  const o=DU.board[0];
+  if(DU.n<=2&&o&&performance.now()-o.jt<700&&o.j>=0){const C=[48,185,125,225,350];x.textAlign='right';x.fillStyle=`hsl(${C[o.j]},100%,72%)`;x.font='800 14px "Noto Sans TC",sans-serif';x.fillText('對手 '+JN[o.j],FR.x+FR.w-12,FR.y+FR.h-12);x.textAlign='center'}
+  mpLadFrame();
 }
+
+/* ---- results: one screen. Left: my place, score, podium. Right: everyone, my judgments, buttons ---- */
 function duelFinish(ok,rank,acc){
   DU.myFin={s:score,ok,acc,rank:ok?rank:'—',mc:maxCombo};dsend({t:'fin',...DU.myFin});
-  $('#rk').textContent='線上對戰';$('#bAgain').disabled=true;
+  mpLadOff();
+  $('#deK').textContent=DU.n>2?DU.n+' 人對戰':'線上對戰';$('#deS').textContent='《'+song.name+'》· '+D.n;
+  $('#deMe').innerHTML='本局成績　完美<b>'+tierCount[0]+'</b>　極佳<b>'+tierCount[1]+'</b>　良好<b>'+tierCount[2]+'</b>　尚可<b>'+tierCount[3]+'</b>　失誤<b>'+missCount+'</b>　最高連擊<b>'+maxCombo+'</b>';
   duelResult();
 }
+const mpNm=x=>esc(x.name);
+function mpEndBtns(on){$('#bAgain').disabled=!on;$('#bRoom').disabled=!on}
 function duelResult(){
-  const me=DU.myFin;if(!me)return;const op=DU.oppFin,el=$('#rnew');
-  if(!op&&!DU.left){el.innerHTML='<div class="sub">等待對手完成⋯</div>';
-    // if the opponent's result never arrives, allow a rematch after a while (the server accepts it after 20 s)
-    clearTimeout(DU.waitT);DU.waitT=setTimeout(()=>{if(DU.myFin===me&&!DU.oppFin&&DU.ws)$('#bAgain').disabled=false},22000);return}
-  let res;if(!op)res='勝利（對手離線）';else if(me.ok!==op.ok)res=me.ok?'勝利！':'落敗';else res=me.s>op.s?'勝利！':me.s<op.s?'落敗':'平手';
-  const col=res.startsWith('勝')?'#ffd36b':res==='平手'?'#7cf0ff':'#ff7a93';
-  el.innerHTML='<div class="dres" style="color:'+col+'">'+res+'</div>'+(op?'<div class="sub">對手 '+esc(DU.oppName||'玩家')+'：'+dInt(op.s,0,1e8).toLocaleString()+' 分 · '+(op.ok?'評級 '+esc(op.rank):'出局')+' · 最高連擊 '+dInt(op.mc,0,1e5)+'</div>':'');
-  $('#bAgain').disabled=!DU.ws;
-  if(res.startsWith('勝'))vib([20,40,20,40,60]);
+  const me=DU.myFin;if(!me)return;const R=DU.res,res=$('#deR'),sc=$('#deSc');
+  const tr=(k,x,cls,c4,c5,c6)=>'<div class="dtr'+cls+'"><b>'+k+'</b><span>'+mpNm(x)+'</span><span class="r">'+x.s.toLocaleString()+'</span><span class="c">'+c4+'</span><span class="r">'+c5+'</span><span class="x">'+c6+'</span></div>';
+  const hd='<div class="dtr hd"><span></span><span>玩家</span><span class="r">分數</span><span class="c">評級</span><span class="r">最高連擊</span><span class="x">差距</span></div>';
+  if(!R){
+    const lost=DU.left||!DU.ws,done=1+DU.board.filter(b=>b.fin||b.gone).length;
+    res.className='dres sm';res.style.setProperty('--c',lost?'#ff6f95':'#7cf0ff');res.textContent=lost?'連線中斷':'等待其他玩家';
+    sc.innerHTML='<b>'+me.s.toLocaleString()+'</b>'+(me.ok?'評級 '+esc(me.rank):'出局');$('#dePod').innerHTML='';
+    const S=mpStand();
+    $('#deT').innerHTML=hd+S.map((x,k)=>tr(k+1,x,(x.me?' me':'')+(x.gone||x.out?' out':''),x.me?(me.ok?esc(me.rank):'出局'):x.gone?'離線':x.fin?(x.out?'出局':'完成'):'比賽中',x.me?me.mc:x.fin?'':'—','')).join('');
+    $('#deN').textContent=lost?'與伺服器的連線中斷，無法取得最終名次。':'其他玩家完成後顯示最終名次（'+done+' / '+DU.n+'）';
+    mpEndBtns(false);
+    // if the results never arrive, allow going back to the room after a while (the server accepts it after 20 s)
+    clearTimeout(DU.waitT);if(!lost)DU.waitT=setTimeout(()=>{if(DU.myFin===me&&!DU.res&&DU.ws)mpEndBtns(true)},22000);return}
+  const pos=R.findIndex(x=>x.i===DU.you)+1,two=R.length<=2,op=R.find(x=>x.i!==DU.you),m=R.find(x=>x.i===DU.you)||{s:me.s,ok:me.ok,acc:me.acc,rank:me.rank};
+  let t;
+  if(two){if(!op)t='勝利';else t=m.ok!==op.ok?(m.ok?'勝利！':'落敗'):m.s>op.s?'勝利！':m.s<op.s?'落敗':'平手'}
+  else t=pos===1?'冠軍！':pos>0?'第 '+pos+' 名':'—';
+  const col=t.startsWith('勝')||t==='冠軍！'?'#ffd36b':t==='平手'?'#7cf0ff':pos===2||pos===3?'#cfe6ff':'#8fb2ff';
+  res.className='dres';res.style.setProperty('--c',col);res.textContent=t;
+  sc.innerHTML='<b>'+m.s.toLocaleString()+'</b>'+(m.ok?'評級 '+esc(m.rank)+' · 精準 '+pct(Math.round(m.acc*10000)):'出局');
+  const top=[R[1],R[0],R[2]];
+  $('#dePod').innerHTML=two?'':top.map((x,k)=>x?'<div class="pc p'+[2,1,3][k]+'">'+mpNm(x)+'<div class="bk">'+[2,1,3][k]+'</div></div>':'<div class="pc"></div>').join('');
+  const gone=new Set(DU.board.filter(b=>b.gone&&!b.fin).map(b=>b.i));
+  $('#deT').innerHTML=hd+R.map((x,k)=>{const off=gone.has(x.i)&&!x.ok;return tr(k+1,x,(x.i===DU.you?' me':'')+(x.ok?'':' out'),off?'離線':x.ok?esc(x.rank):'出局',x.mc,x.i===DU.you?(x.ok?pct(Math.round(x.acc*10000)):''):x.ok?(x.s-m.s>0?'+':'')+(x.s-m.s).toLocaleString():'')}).join('');
+  $('#deN').textContent='';mpEndNote();
+  mpEndBtns(!!DU.ws);
+  if(pos===1)vib([20,40,20,40,60]);
 }
-function duelAgain(){$('#end').classList.add('hidden');hudShow(false);st='menu';balls=[];mode='normal';dsend({t:'again'});$('#duel').classList.remove('hidden');duelView();duelRoomUI()}
+function mpEndNote(){   // on the result screen: who already went back for another round (quick match counts down once 2 are back)
+  if($('#end').classList.contains('hidden')||mode!=='duel'||!DU.res)return;
+  const C=DU.cfg,back=C.qm?DU.players.filter(p=>p.back&&p.i!==DU.you):[];   // only quick match tracks who is back
+  if(!DU.ws){$('#deN').textContent='連線已中斷。';return}
+  const s=DU.auto?Math.max(0,Math.ceil((DU.auto-duelNow())/1000)):0;
+  $('#deN').textContent=back.length?back.map(p=>p.name).slice(0,3).join('、')+(back.length>3?' 等 '+back.length+' 人':'')+' 想再來一局'+(C.qm&&DU.auto?' · '+s+' 秒後開始':''):'';
+}
+function duelAgain(ready){
+  $('#end').classList.add('hidden');$('#end').classList.remove('duel');hudShow(false);st='menu';balls=[];mode='normal';layout();mpLadOff();
+  DU.wantReady=!!ready&&!DU.cfg.qm;dsend({t:'again'});
+  if(DU.ws&&DU.code)mpSelOpen();else{mpRestore();$('#duel').classList.remove('hidden');duelView()}
+}
 $('#bDuel').onclick=()=>duelOpen();
-if(/WORKERS_SUBDOMAIN/.test(DUEL_URL))$('#bDuel').style.display='none';   // hidden until the duel server is deployed
-$('#dX').onclick=()=>{if(DU.ws){duelLeave()}else{$('#duel').classList.add('hidden');showHome()}};
-$('#dNew').onclick=duelCreate;
-$('#dGo').onclick=()=>duelJoin($('#dCode').value);
+navTap('#dNew',duelCreate);
+navTap('#dGo',()=>duelJoin($('#dCode').value));
 $('#dCode').addEventListener('keydown',e=>{if(e.key==='Enter')duelJoin($('#dCode').value)});
-$('#dLeave').onclick=duelLeave;
-$('#dReady').onclick=()=>{initAudio();dsend({t:'ready',v:!DU.ready})};
+navTap('#qGo',mpMatch);
+$('#qDi').onclick=e=>{const b=e.target.closest('button[data-d]');if(!b)return;DU.lob.di=+b.dataset.d;lsSet('ppl-qdi',String(DU.lob.di));mpLobbyUI();mpRooms()};
+$('#qMax').onclick=e=>{const b=e.target.closest('button[data-m]');if(!b)return;DU.lob.max=+b.dataset.m;lsSet('ppl-qmax',String(DU.lob.max));mpLobbyUI()};
+navTap('#rRef',()=>mpRooms());
+$('#dRooms').onclick=e=>{const b=e.target.closest('button.rm');if(!b||b.classList.contains('off'))return;duelJoin(b.dataset.code)};
 /* ---- game-styled dropdown: pill button + dark option panel (replaces the OS-drawn <select> list) ---- */
 let DDopen=null;
 function makeDD(host,label){
@@ -1315,12 +1588,10 @@ function ddKey(e){
 document.addEventListener('pointerdown',e=>{if(DDopen&&!DDopen.p.contains(e.target)&&!DDopen.D.btn.contains(e.target))ddClose()},true);
 addEventListener('resize',ddClose);
 document.addEventListener('scroll',e=>{if(DDopen&&!DDopen.p.contains(e.target))ddClose()},true);   // the card scrolled: the panel would drift off its button
-const DSONG=makeDD($('#dSong'),'曲目'),DDI=makeDD($('#dDi'),'難度');
-DSONG.onchange=v=>dsend({t:'cfg',song:v,di:DDI.value});
-DDI.onchange=v=>dsend({t:'cfg',song:DSONG.value,di:v});   // the server's room update then refreshes the rank notes
-$('#dShare').onclick=()=>{const u=(APP?SITE:location.origin+location.pathname)+'?room='+DU.code;shareText('邀請您在 PingPongLight 線上對戰，房號 '+DU.code,u,dmsg)};
-$('#bAgain').onclick=duelAgain;
-$('#bLeave').onclick=duelLeave;
+const DMAX=makeDD($('#dMax'),'人數上限');   // in the song page's top bar while in a room
+DMAX.onchange=v=>mpCfg({max:v});
+navTap('#dShare',()=>{const u=(APP?SITE:location.origin+location.pathname)+'?room='+DU.code;shareText('邀請您在 PingPongLight 線上對戰，房號 '+DU.code,u,dmsg)});
+navTap('#bAgain',()=>duelAgain(true));navTap('#bRoom',()=>duelAgain(false));navTap('#bLeave',duelLeave);
 (function(){try{const r=new URLSearchParams(location.search).get('room');if(r){lsSet('ppl-tut','1');DU.pend=r.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);setTimeout(()=>{duelOpen();if(ME){$('#dCode').value=DU.pend;DU.pend=''}},50)}}catch(e){}})();
 
 /* ================= menu ================= */
@@ -1331,7 +1602,7 @@ const mmss=t=>{t=Math.round(t);return Math.floor(t/60)+':'+String(t%60).padStart
 const NET=DUEL_URL,PF=APP?((window.Capacitor&&Capacitor.getPlatform&&Capacitor.getPlatform())==='android'?'android':'ios'):'web';
 function pkey(){let k=lsGet('ppl-pk');if(!/^[0-9a-f]{32}$/.test(k||'')){const a=new Uint8Array(16);crypto.getRandomValues(a);k=Array.from(a,b=>b.toString(16).padStart(2,'0')).join('');lsSet('ppl-pk',k)}return k}
 let ME=(()=>{try{const m=JSON.parse(lsGet('ppl-me')||'null');return m&&Number.isInteger(m.id)&&typeof m.name==='string'&&m.name?{id:m.id,name:dName(m.name)}:null}catch(e){return null}})();
-function setMe(m){ME=m;if(m)lsSet('ppl-me',JSON.stringify(m));else{try{localStorage.removeItem('ppl-me')}catch(e){}}}
+function setMe(m){ME=m;if(m)lsSet('ppl-me',JSON.stringify(m));else{try{localStorage.removeItem('ppl-me');localStorage.removeItem('ppl-fc')}catch(e){}}}
 let RUN=null;   // this run's beat log: [timing error ms, base points] per beat, null = missed
 async function api(path,body,ms){
   const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||8000);
@@ -1458,13 +1729,13 @@ function buildChips(){
   document.querySelectorAll('#sTabs button').forEach((b,k)=>{b.classList.toggle('on',k===selF);b.setAttribute('aria-selected',String(k===selF));b.querySelector('b').textContent=cnt[k]});
   let h='';
   for(const C of CONS){
-    const ii=C.ii.filter(i=>!selF||(selF===2)===done[i]);if(!ii.length)continue;
+    const ii=C.ii.filter(i=>!selF||(RSEL&&RSEL.on)||(selF===2)===done[i]);if(!ii.length)continue;
     h+='<div class="era">'+esc(C.name)+'<small>'+C.ii.filter(i=>done[i]).length+' / '+C.ii.length+'</small><span class="eh"><span class="ehd">難度</span>評級</span></div>';
     for(const i of ii){const s=SONGS[i];
     const ul=unlocked(i),rk=rkOf(i,di);
-    h+='<button class="sr'+(i===si?' on':'')+(ul?'':' lock')+'" data-i="'+i+'"><span class="no">'+(CON_OF[i][1]+1)+'</span>'
-      +'<span class="tx"><span class="nm">'+esc(s.name)+'</span><span class="mt">'+esc(s.year+' · '+s.composer)+'<i>'+starTxt(STARS[i])+'</i></span></span>'
-      +'<span class="pips" aria-label="已通關難度">'+DORD.map(d=>'<i class="'+(rkOf(i,d)?'l'+LVL[d]:'')+'"></i>').join('')+'</span>'
+    h+='<button class="sr'+(i===si?' on':'')+(ul||(RSEL&&RSEL.on)?'':' lock')+'" data-i="'+i+'"><span class="no">'+(CON_OF[i][1]+1)+'</span>'
+      +'<span class="tx"><span class="nm">'+esc(s.name)+'</span><span class="mt">'+esc(s.year+' · '+s.composer)+'<i>'+starTxt(STARS[i])+'</i>'+(RSEL&&RSEL.on?mpTag(s.key):'')+'</span></span>'
+      +(RSEL&&RSEL.on?mpVoters(s.key):'')+'<span class="pips" aria-label="已通關難度">'+DORD.map(d=>'<i class="'+(rkOf(i,d)?'l'+LVL[d]:'')+'"></i>').join('')+'</span>'
       +'<span class="rk"'+(rk?' style="color:'+RANK_COL[rk]+'"':'')+'>'+(rk||'—')+'</span></button>';
   }}
   $('#chips').innerHTML=h||'<div class="sempty">'+(selF===1?'此難度的曲目皆已通關，可改選其他難度挑戰。':'此難度尚無已通關的曲目。')+'</div>';
@@ -1479,6 +1750,7 @@ function selDetail(){
   const rk=rkOf(i,di),sc=parseInt(lsGet(KEY_SC(i,di))||'0',10)||0,ac=parseInt(lsGet(KEY_AC(i,di))||'0',10)||0;
   $('#sB').innerHTML=rk?'<span class="bk" style="color:'+RANK_COL[rk]+'">'+rk+'</span><span>'+(ac?'精準度 <b>'+pct(ac)+'</b> · ':'')+'最高分 <b>'+sc.toLocaleString()+'</b><br><span id="sRank"></span></span>'
     :'<span class="bk" style="color:#3c4370">—</span><span>此難度尚未通關<br><span id="sRank"></span></span>';
+  if(RSEL&&RSEL.on){mpDetail();return}   // a room plays any song: no lock, no personal leaderboard here
   $('#bGo').disabled=!unlocked(i);
   const t=++selTok,mini=$('#sMini');mini.innerHTML='<p>排行榜載入中⋯</p>';
   clearTimeout(selTm);selTm=setTimeout(async()=>{   // wait for the player to settle on a song
@@ -1489,14 +1761,15 @@ function selDetail(){
     if(r)r.innerHTML=v.me&&!v.me.hidden?'排行榜 <b style="color:#ffd36b">第 '+v.me.r+' 名</b>／共 '+v.total+' 人':'';
   },250);
 }
-$('#chips').onclick=e=>{const b=e.target.closest('.sr');if(!b)return;const i=+b.dataset.i;if(!unlocked(i))return;
-  si=i;document.querySelectorAll('#chips .sr.on').forEach(x=>x.classList.remove('on'));b.classList.add('on');initAudio();preloadSong(SONGS[i]);selDetail();pvPlay(SONGS[i])};
+$('#chips').onclick=e=>{const b=e.target.closest('.sr');if(!b)return;const i=+b.dataset.i,room=RSEL&&RSEL.on;if(!room&&!unlocked(i))return;
+  if(room)mpPick(i);si=i;document.querySelectorAll('#chips .sr.on').forEach(x=>x.classList.remove('on'));b.classList.add('on');initAudio();preloadSong(SONGS[i]);selDetail();pvPlay(SONGS[i])};
 $('#sTabs').onclick=e=>{const b=e.target.closest('button[data-f]');if(!b)return;selF=+b.dataset.f;buildChips();$('#chips').scrollTop=0};
-$('#diffs').onclick=e=>{const b=e.target.closest('button[data-d]');if(!b)return;di=+b.dataset.d;lsSet('pmb6-di',String(di));buildChips()};
+$('#diffs').onclick=e=>{const b=e.target.closest('button[data-d]');if(!b||(RSEL&&RSEL.on&&!mpHost()))return;   // guests in a room see the room's level
+  if(RSEL&&RSEL.on){if(+b.dataset.d!==DU.cfg.di)mpCfg({di:+b.dataset.d});return}di=+b.dataset.d;lsSet('pmb6-di',String(di));buildChips()};
 $('#bLb').onclick=()=>lbOpen(si,di);
 
 /* ---- friends: presence socket, list, invites ---- */
-const FD={ws:null,iv:0,back:0,retry:0,last:'',list:null,poll:0,inv:null,code:'',open:-1,bt:-1e9,pend:''};
+const FD={code:/^[A-Z0-9]{8}$/.test(lsGet('ppl-fc')||'')?lsGet('ppl-fc'):'',ws:null,iv:0,back:0,retry:0,last:'',list:null,poll:0,inv:null,open:-1,bt:-1e9,pend:''};
 try{const u=new URL(location.href),c=(u.searchParams.get('fc')||'').toUpperCase().replace(/[^A-Z0-9]/g,'');if(c.length===8){FD.pend=c;lsSet('ppl-tut','1')}
   if(u.searchParams.has('fc')){u.searchParams.delete('fc');history.replaceState(null,'',u.pathname+u.search+u.hash)}}catch(e){}
 const IOS=/iP(hone|ad|od)/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
@@ -1524,7 +1797,7 @@ setInterval(()=>{frStatus();if(FD.inv)invShow();else if($('#invT').dataset.k==='
 function frOn(d){
   if(d.t==='hi'){FD.back=0;frStatus(true);return}
   const who=f=>dName(f&&typeof f==='object'?f.name:'')||'好友';
-  if(d.t==='inv'){const room=String(d.room||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);if(room.length!==4)return;
+  if(d.t==='inv'){if(d.v!==2){const f=d.from&&typeof d.from==='object'?d.from:{};toast(who(f)+' 邀請您對戰，但對方的遊戲版本較舊，請對方更新後再邀請');return}const room=String(d.room||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);if(room.length!==4)return;
     const f=d.from&&typeof d.from==='object'?d.from:{};
     FD.inv={id:dInt(f.id,0,1e12),name:who(f),room,song:SONGS.findIndex(x=>x.key===d.song),d:dInt(d.d,0,DIFFS.length-1),exp:Date.now()+55000};invShow();return}
   if(d.t==='invno'){toast(who(d.from)+' 目前無法接受邀請');return}
@@ -1557,7 +1830,7 @@ function frOpen(){
   if(!ME){nickOpen('friends');return}
   initAudio();$('#home').classList.add('hidden');$('#frv').classList.remove('hidden');$('#frMsg').textContent='';FD.open=-1;
   $('#frCode').textContent=FD.code?fcode(FD.code):'⋯';
-  api('/fr/me',{pk:pkey()}).then(j=>{if(typeof j.code==='string'&&/^[A-Z0-9]{8}$/.test(j.code)){FD.code=j.code;$('#frCode').textContent=fcode(j.code)}else if(!FD.code)$('#frCode').textContent=j.error==='noname'?'請先設定暱稱':'離線中'});
+  api('/fr/me',{pk:pkey()}).then(j=>{if(typeof j.code==='string'&&/^[A-Z0-9]{8}$/.test(j.code)){FD.code=j.code;lsSet('ppl-fc',j.code);$('#frCode').textContent=fcode(j.code)}else if(!FD.code)$('#frCode').textContent=j.error==='noname'?'請先設定暱稱':'離線中'});
   if(FD.pend){$('#frIn').value=fcode(FD.pend);FD.pend='';$('#frMsg').textContent='已帶入好友碼，請按「送出」。'}
   frLoad();clearInterval(FD.poll);FD.poll=setInterval(()=>{if(frIsOpen()&&!document.hidden)frLoad()},15000);
 }
@@ -1607,25 +1880,27 @@ $('#frAdd').onclick=async()=>{
   if(j.ok){$('#frIn').value='';frLoad()}
 };
 $('#frIn').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('#frAdd').click()}});
-$('#frCopy').onclick=async()=>{if(!FD.code)return;const t=fcode(FD.code);try{await navigator.clipboard.writeText(t);$('#frMsg').textContent='已複製好友碼。'}catch(e){$('#frMsg').textContent='無法複製，請直接提供給朋友：'+t}};
-$('#frSend').onclick=()=>{if(FD.code)shareText('邀請您在 PingPongLight 加我為好友，好友碼：'+fcode(FD.code),SITE+'?fc='+FD.code,t=>{$('#frMsg').textContent=t})};
+// feedback on the button itself, at once: the message line below can be off screen, and the share sheet takes a moment to open
+function btnSay(b,t){b=$(b);clearTimeout(b._sayT);if(b._txt==null)b._txt=b.textContent;b.textContent=t;b._sayT=setTimeout(()=>{b.textContent=b._txt},1600)}
+navTap('#frCopy',async()=>{if(!FD.code){btnSay('#frCopy','載入中⋯');return}const t=fcode(FD.code);btnSay('#frCopy','複製中⋯');try{await navigator.clipboard.writeText(t);btnSay('#frCopy','已複製 ✓');$('#frMsg').textContent='已複製好友碼。'}catch(e){btnSay('#frCopy','無法複製');$('#frMsg').textContent='無法複製，請直接提供給朋友：'+t}});
+navTap('#frSend',()=>{if(!FD.code){btnSay('#frSend','載入中⋯');return}btnSay('#frSend','開啟分享⋯');shareText('邀請您在 PingPongLight 加我為好友，好友碼：'+fcode(FD.code),SITE+'?fc='+FD.code,t=>{$('#frMsg').textContent=t})});
 $('#frPaste').hidden=!(navigator.clipboard&&navigator.clipboard.readText);
 $('#frPaste').onclick=async()=>{const m=$('#frMsg');let t='';try{t=await navigator.clipboard.readText()}catch(e){m.textContent='無法讀取剪貼簿，請手動輸入好友碼。';return}
   const c=(String(t).toUpperCase().match(/\b([A-Z0-9]{4})-?([A-Z0-9]{4})\b/)||[]);if(!c[0]){m.textContent='剪貼簿中沒有好友碼。';return}
   $('#frIn').value=c[1]+'-'+c[2];m.textContent='已貼上好友碼，請按「送出」。'};
-$('#fcCopy').onclick=async()=>{const t=fcode(FD.pend||'');try{await navigator.clipboard.writeText(t);$('#fcM').textContent='已複製。請從主畫面開啟遊戲，至「好友」頁按「貼上」。'}catch(e){$('#fcM').textContent='無法複製，請記下好友碼：'+t}};
+navTap('#fcCopy',async()=>{const t=fcode(FD.pend||'');try{await navigator.clipboard.writeText(t);$('#fcM').textContent='已複製。請從主畫面開啟遊戲，至「好友」頁按「貼上」。'}catch(e){$('#fcM').textContent='無法複製，請記下好友碼：'+t}});
 $('#fcWeb').onclick=()=>{$('#fcv').classList.add('hidden');if(ME)frOpen();else nickOpen('friends')};
 $('#frX').onclick=frClose;
 $('#bFr').onclick=frOpen;
 async function frInvite(id,b){
   const f=FD.list&&FD.list.friends.find(x=>x.id===id),name=f?f.name:'好友';b.disabled=true;b.textContent='建立房間⋯';
-  let code=null;try{const r=await fetch(DUEL_URL+'/new');if(r.ok){const j=await r.json();if(typeof j.code==='string')code=j.code}}catch(e){}
+  let code=null;try{const j=await mget('/m/new?pub=0&max=6&di='+di);code=dCode(j.code);if(code.length!==4)code=null}catch(e){}
   if(!code){b.disabled=false;b.textContent='邀請對戰';$('#frMsg').textContent='無法建立房間，請稍後再試。';return}
   clearInterval(FD.poll);$('#frv').classList.add('hidden');duelOpen();
-  duelJoin(code,()=>{dsend({t:'cfg',song:si,di});DU.note='邀請送出中⋯';duelRoomUI();
-    api('/fr/invite',{pk:pkey(),id,room:code,song:SONGS[si].key,d:di}).then(j=>{
+  duelJoin(code,()=>{dsend({t:'cfg',song:SONGS[si].key,di,pub:false,max:6,vote:false});DU.note='邀請送出中⋯';
+    api('/fr/invite',{pk:pkey(),id,room:code,song:SONGS[si].key,d:di,v:2}).then(j=>{
       DU.note=j.ok?(j.delivered?'已邀請 '+name+'，等待對方加入⋯':name+' 目前離線，請將房號提供給對方。'):j.error==='notfriend'?'雙方已不是好友。':'邀請未送出，請將房號提供給對方。';
-      if(DU.ws)duelRoomUI()})});
+      if(DU.ws)duelView()})});
 }
 /* ================= star map ================= */
 // A night sky with no lines. Each constellation copies the bright-star pattern of a real one ([RA hours, Dec degrees,
@@ -1882,7 +2157,7 @@ $('#bWipe').onclick=async()=>{   // two taps: the first one only arms it
   const j=await api('/lb/delete',{pk:pkey()});b.disabled=false;
   if(!j.ok){b.textContent='刪除失敗，請連線後再次嘗試';setTimeout(()=>{b.textContent=idle},3000);return}
   frDisconnect();try{for(const k of Object.keys(localStorage))if(/^ppl-(pk|me|hide|lr-)/.test(k))localStorage.removeItem(k)}catch(e){}
-  HIDE.clear();setMe(null);LBC.clear();FD.list=null;FD.code='';$('#frN').textContent='';b.textContent='已刪除。單人模式的進度仍保留於此裝置';setTimeout(()=>{b.textContent=idle},4000);syncSet();
+  HIDE.clear();setMe(null);LBC.clear();FD.list=null;FD.code='';lsSet('ppl-fc','');$('#frN').textContent='';b.textContent='已刪除。單人模式的進度仍保留於此裝置';setTimeout(()=>{b.textContent=idle},4000);syncSet();
 };
 $('#bSet').onclick=()=>{initAudio();syncSet();$('#home').classList.add('hidden');$('#set').classList.remove('hidden')};
 function closeSet(){$('#set').classList.add('hidden');showHome()}
@@ -1945,8 +2220,7 @@ $('#bShare').onclick=()=>{
   },'image/png');
 };
 $('#bHow').onclick=()=>{const h=$('#how');h.hidden=!h.hidden};
-$('#bGo').onclick=()=>{if(!unlocked(si))return;initAudio();goFs();mode='normal';startRun(0)};
-$('#bBack').onclick=showHome;
+navTap('#bGo',()=>{if(RSEL&&RSEL.on){mpSelGo();return}if(!unlocked(si))return;initAudio();goFs();mode='normal';startRun(0)});
 $('#bNext').onclick=()=>{initAudio();if(mode==='tut'){mode='normal';si=0;startRun(0)}else if(si+1<SONGS.length&&unlocked(si+1)){si++;startRun(0)}};
 $('#bRetry').onclick=()=>{initAudio();startRun(0)};
 $('#bCont').onclick=()=>{initAudio();startRun(cp.ti)};
@@ -1961,8 +2235,8 @@ function navTap(sel,fn){
   el.addEventListener('touchend',e=>{if(!down)return;down=false;const t=e.changedTouches[0],r=el.getBoundingClientRect();
     if(!t||t.clientX<r.left-8||t.clientX>r.right+8||t.clientY<r.top-8||t.clientY>r.bottom+8)return;e.preventDefault();fn()},{passive:false});
 }
-navTap('#frX',frClose);navTap('#lbX',lbClose);navTap('#bBack',showHome);navTap('#bSetX',closeSet);navTap('#bSetC',closeSet);
-navTap('#dX',()=>{if(DU.ws){duelLeave()}else{$('#duel').classList.add('hidden');showHome()}});
+navTap('#frX',frClose);navTap('#lbX',lbClose);navTap('#bBack',()=>{if(RSEL&&RSEL.on)duelLeave();else showHome()});navTap('#bSetX',closeSet);navTap('#bSetC',closeSet);
+navTap('#dX',()=>{if(DU.ws){duelLeave()}else{mpRestore();$('#duel').classList.add('hidden');showHome()}});
 addEventListener('resize',layout);
 if(window.visualViewport)visualViewport.addEventListener('resize',layout);
 document.addEventListener('fullscreenchange',()=>setTimeout(layout,100));

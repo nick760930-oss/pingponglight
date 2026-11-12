@@ -140,10 +140,11 @@ export async function handleFr(req, env, path, who, origin, H, limited) {
   }
 
   if (path === '/fr/invite') {
-    const { id, room, song, d } = body;
+    const { id, room, song, d, v } = body;
+    if (v !== undefined && v !== 2) return bad();     // optional protocol version; only 2 (multiplayer rooms) exists
     if (!isId(id) || typeof room !== 'string' || !ROOM.test(room) || typeof song !== 'string' || !SONG.test(song) || !Number.isInteger(d) || d < 0 || d > 4) return bad();
     if (!(await areFriends(db, me.id, id))) return json({ error: 'notfriend' });
-    const r = await hub(env, '/i/invite', { from: mine, to: id, room, song, d });
+    const r = await hub(env, '/i/invite', { from: mine, to: id, room, song, d, v });
     if (!r) return json({ error: 'busy' }, 503);
     if (r.limited) return json({ error: 'slow' }, 429, { 'Retry-After': '5' });
     return json({ ok: true, delivered: !!r.delivered });
@@ -206,7 +207,7 @@ export class Hub {
       if (now - (this.pairs.get(pk) || 0) < INV_PAIR_MS || mins.length >= INV_MIN) return Response.json({ limited: true });
       mins.push(now); this.sent.set(b.from.id, mins); this.pairs.set(pk, now);
       if (this.pairs.size > 2000) for (const [k, t] of this.pairs) if (now - t > INV_PAIR_MS) this.pairs.delete(k);   // keep the memory bounded
-      const n = this.push(b.to, { t: 'inv', from: b.from, room: b.room, song: b.song, d: b.d, exp: now + INV_TTL });
+      const n = this.push(b.to, { t: 'inv', from: b.from, room: b.room, song: b.song, d: b.d, ...(b.v === 2 ? { v: 2 } : {}), exp: now + INV_TTL });
       return Response.json({ delivered: n > 0 });
     }
     return new Response('not found', { status: 404 });
