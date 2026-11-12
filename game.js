@@ -854,7 +854,7 @@ function updateBall(b,dt){
   if(tT(b.ti)-GB()>.05||b.v<1)b.v=ballWant(b);   // in the last 50 ms keep the (already exact) speed instead of creeping toward the line
   b.x+=b.dx*b.v*dt;b.y+=b.dy*b.v*dt;
   const last=b.trail[b.trail.length-1];
-  if(!last||Math.hypot(b.x-last.x,b.y-last.y)>BR*.45){b.trail.push({x:b.x,y:b.y});if(b.trail.length>16)b.trail.shift()}
+  if(!last||Math.hypot(b.x-last.x,b.y-last.y)>BR*.45){b.trail.push({x:b.x,y:b.y});if(b.trail.length>20)b.trail.shift()}
   else if(b.trail.length>4)b.trail.shift();
   // top / bottom walls and the far side line are plain walls (silent)
   if(b.y<FR.y+BR){b.y=FR.y+BR;b.dy=Math.abs(b.dy);wallFx(b,0)}
@@ -1021,20 +1021,64 @@ function drawItems(x){
     x.restore();
   }
 }
+/* ---- ball look: colour by combo tier (white, green, blue, purple, orange, red, rainbow), gold while score x2 is active ---- */
+const BFX={TIERS:[{c:0,h:210,s:0},{c:10,h:135,s:100},{c:20,h:205,s:100},{c:35,h:272,s:100},{c:50,h:24,s:100},{c:75,h:356,s:100},{c:100,h:-1,s:100}],GH:46,glow:new Map(),star:null};
+BFX.tier=c=>{let k=0;for(let i=0;i<BFX.TIERS.length;i++)if(c>=BFX.TIERS[i].c)k=i;return k};
+// gold blinks back to the tier colour in its last 1.5 s; the phase uses the remaining time only (about 1.3 Hz speeding up to 3.7 Hz); no blinking with reduced effects
+BFX.target=(combo,starT,time,low)=>{const k=BFX.tier(combo),T=BFX.TIERS[k],rb=T.h<0;let g=0,bl=false;
+  if(starT>0){if(starT>1.5||low)g=1;else{const u=1.5-starT;g=Math.sin(u*(8+u*5))>0?1:0;bl=true}}
+  return{h:rb?(time*90)%360:T.h,k,g,rb,bl,sat:T.s}};
+BFX.mix=(a,b,t)=>{let d=((b-a+540)%360)-180;return(a+d*t+360)%360};
+BFX.rgb=(h,s,l)=>{h=(h%360+360)%360;s/=100;l/=100;const a=s*Math.min(l,1-l),f=n=>{const k=(n+h/30)%12;return 255*(l-a*Math.max(-1,Math.min(k-3,9-k,1)))};return[f(0),f(8),f(4)]};
+// tier colour to gold by way of warm white, so the blend never passes through another tier's hue
+BFX.col=(h,sat,lit,g)=>{const c=BFX.rgb(h,sat,lit);if(g<=0)return c;const W=[255,248,236],G=g<.5?W:BFX.rgb(BFX.GH,100,Math.min(90,lit+4)),A=g<.5?c:W,t=g<.5?g*2:g*2-1;return[A[0]+(G[0]-A[0])*t,A[1]+(G[1]-A[1])*t,A[2]+(G[2]-A[2])*t]};
+BFX.css=(c,a)=>'rgba('+(c[0]|0)+','+(c[1]|0)+','+(c[2]|0)+','+(a<.001?0:a.toFixed(3))+')';
+BFX.state=()=>({h:210,g:0,sp:[],ph:0,sat:0,t:0});
+// glow body as a cached sprite per (quantised) colour; the gold glint is one cached sprite rotated
+BFX.glowOf=c=>{const q=v=>Math.round(v/24)*24,k=q(c[0])+','+q(c[1])+','+q(c[2]);let e=BFX.glow.get(k);if(e)return e;
+  if(BFX.glow.size>240)BFX.glow.clear();e=document.createElement('canvas');e.width=e.height=128;const x=e.getContext('2d'),C=[q(c[0]),q(c[1]),q(c[2])];
+  const g=x.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(255,255,255,.95)');g.addColorStop(.22,BFX.css(C,.75));g.addColorStop(.55,BFX.css(C,.18));g.addColorStop(1,'rgba(0,0,0,0)');
+  x.fillStyle=g;x.fillRect(0,0,128,128);BFX.glow.set(k,e);return e};
+BFX.starOf=()=>{if(BFX.star)return BFX.star;const e=document.createElement('canvas');e.width=e.height=256;const x=e.getContext('2d');x.translate(128,128);
+  for(let i=0;i<4;i++){x.rotate(Math.PI/2);const gr=x.createLinearGradient(0,0,128,0);gr.addColorStop(0,'rgba(255,236,170,.6)');gr.addColorStop(1,'rgba(255,236,170,0)');x.fillStyle=gr;x.beginPath();x.moveTo(0,-7);x.lineTo(128,0);x.lineTo(0,7);x.fill()}
+  return BFX.star=e};
+// one frame for one ball: s = its fx state, b = {x,y,trail}, r = radius, o = {combo,starT}, boost = music layer 3 (brighter, wider trail)
+BFX.draw=(x,s,b,r,o,dt,time,low,boost)=>{
+  const T=BFX.target(o.combo,o.starT,time,low);s.h=BFX.mix(s.h,T.h,Math.min(1,dt*6));s.sat+=(T.sat-s.sat)*Math.min(1,dt*6);s.g+=(T.g-s.g)*Math.min(1,dt*(T.bl?30:10));
+  const g=s.g,lvl=Math.min(6,Math.round(T.k*.67)+(g>.5?1:0)),L=60+18*(1-s.sat/100),span=T.rb?-330*(1-g)-18*g:-18;
+  const tr=b.trail,n=tr.length;x.save();x.globalCompositeOperation='lighter';x.lineCap='round';x.lineJoin='round';
+  // ribbon trail: tapered passes along a smoothed path (soft halo, colour body, hot core)
+  const pass=(wm,al,lit)=>{for(let i=1;i<n;i++){const f=i/n,e=Math.pow(f,1.35);x.strokeStyle=BFX.css(BFX.col(s.h+(1-f)*span,s.sat,lit,g),al*e);x.lineWidth=r*wm*e;
+      const p=tr[i-1],q=tr[i],m=tr[i+1]||b;x.beginPath();x.moveTo((p.x+q.x)/2,(p.y+q.y)/2);x.quadraticCurveTo(q.x,q.y,(q.x+m.x)/2,(q.y+m.y)/2);x.stroke()}};
+  const bw=boost?1.25:1,ba=boost?1.3:1;
+  if(!low)pass((3.2+lvl*.35)*bw,.16*ba,L);pass(1.6*bw,Math.min(1,.55*ba),L+6);pass(.55*bw,.9,90);
+  // sparks shed behind the ball: more at higher tiers, glints in gold (none with reduced effects)
+  if(!low){s.ph+=[5,8,11,15,20,26,32][lvl]*(1+g*.6)*dt;
+    while(s.ph>=1){s.ph--;const a=Math.random()*6.283,v=r*(.6+Math.random()*1.8),rh=T.rb&&Math.random()>g;
+      s.sp.push({x:b.x+Math.cos(a)*r*.6,y:b.y+Math.sin(a)*r*.6,vx:Math.cos(a)*v,vy:Math.sin(a)*v-r*.3,l:0,m:.45+Math.random()*.5,c:BFX.col(rh?Math.random()*360:s.h+(Math.random()-.5)*30,rh?100:s.sat,80,rh?0:g),st:g>.5&&Math.random()<.45})}}
+  let w=0;for(const p of s.sp){p.l+=dt;if(p.l>=p.m)continue;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.96;p.vy=p.vy*.96+r*.9*dt;s.sp[w++]=p}
+  s.sp.length=Math.min(w,160);
+  for(const p of s.sp){const a=1-p.l/p.m,tw=.6+.4*Math.sin(time*30+p.x);x.fillStyle=BFX.css(p.c,a*tw);
+    if(p.st){const z=r*.55*a;x.beginPath();x.moveTo(p.x,p.y-z);x.lineTo(p.x+z*.22,p.y-z*.22);x.lineTo(p.x+z,p.y);x.lineTo(p.x+z*.22,p.y+z*.22);x.lineTo(p.x,p.y+z);x.lineTo(p.x-z*.22,p.y+z*.22);x.lineTo(p.x-z,p.y);x.lineTo(p.x-z*.22,p.y-z*.22);x.fill()}
+    else{x.beginPath();x.arc(p.x,p.y,r*(.1+.16*a),0,6.283);x.fill()}}
+  const c=BFX.col(s.h,s.sat,L+6,g);x.drawImage(BFX.glowOf(c),b.x-r*3.8,b.y-r*3.8,r*7.6,r*7.6);
+  // orbiting motes from purple (three from red), a breathing ring from orange
+  if(T.k>=3&&!low){const k=T.k>=5?3:2,mc=BFX.css(BFX.col(s.h+40,s.sat,82,g),.9);x.fillStyle=mc;for(let i=0;i<k;i++){const a=time*4.2+i*6.283/k,R=r*(1.75+.15*Math.sin(time*3+i));
+      x.beginPath();x.arc(b.x+Math.cos(a)*R,b.y+Math.sin(a)*R*.85,r*.22,0,6.283);x.fill()}}
+  if(T.k>=4){x.strokeStyle=BFX.css(BFX.col(s.h,s.sat,78,g),low?.4:.38+.14*Math.sin(time*6));x.lineWidth=1.6;x.beginPath();x.arc(b.x,b.y,r*(low?2.3:2.3+.12*Math.sin(time*5)),0,6.283);x.stroke()}
+  // gold: four-ray glint behind the ball (still with reduced effects)
+  if(g>.05){x.save();x.globalAlpha=g;x.translate(b.x,b.y);if(!low)x.rotate(time*.8);x.drawImage(BFX.starOf(),-r*4.2,-r*4.2,r*8.4,r*8.4);x.restore()}
+  x.restore();
+};
 function drawBalls(x){
-  const h=hueNow();
   for(const b of balls){
-    const sc=b.pop<1?(1-Math.pow(1-b.pop,3)):1,r=BR*sc,col=starT>0?50:h;
-    x.save();x.globalCompositeOperation='lighter';x.lineCap='round';x.lineJoin='round';
-    const glow=!mlFull()&&mlv>=3;   // layer 3: brighter, wider trail
-    for(let i=1;i<b.trail.length;i++){
-      const f=i/b.trail.length;x.strokeStyle=`hsla(${col},100%,${glow?72:65}%,${f*f*(glow?.9:.6)})`;x.lineWidth=BR*(glow?2.2:1.7)*f;
-      x.beginPath();x.moveTo(b.trail[i-1].x,b.trail[i-1].y);x.lineTo(b.trail[i].x,b.trail[i].y);x.stroke();
-    }
-    x.drawImage(sprite(col),b.x-r*3.6,b.y-r*3.6,r*7.2,r*7.2);x.restore();
+    const sc=b.pop<1?(1-Math.pow(1-b.pop,3)):1,r=BR*sc;
+    if(!b.fx){b.fx=BFX.state();const q=BFX.target(combo,starT,time,SET.lowFx);b.fx.h=q.h;b.fx.sat=q.sat;b.fx.g=q.g;b.fx.t=time}
+    const dt=paused?0:clamp(time-b.fx.t,0,.1);b.fx.t=time;
+    BFX.draw(x,b.fx,b,r,{combo,starT},dt,time,SET.lowFx,!mlFull()&&mlv>=3);
     x.save();x.translate(b.x,b.y);
     if(b.sq>0){const horiz=b.sqn===1||b.sqn===3,s=b.sq*.35;x.scale(horiz?1-s:1+s*.6,horiz?1+s*.6:1-s)}
-    x.fillStyle='#fff';x.beginPath();x.arc(0,0,r*.7,0,6.283);x.fill();x.restore();
+    x.fillStyle=b.fx.g>.5?'#fff8e0':'#fff';x.beginPath();x.arc(0,0,r*.7,0,6.283);x.fill();x.restore();
     if(shield>0){x.strokeStyle=`hsla(165,100%,70%,${.5+.3*Math.sin(time*8)})`;x.lineWidth=2;x.beginPath();x.arc(b.x,b.y,BR*1.9,0,6.283);x.stroke()}
     if(b.ti>=0&&(st==='play'||st==='ready')){
       const tau=tT(b.ti)-G();
