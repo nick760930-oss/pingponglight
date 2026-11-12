@@ -42,7 +42,8 @@ button{font:inherit;font-size:14px;color:var(--fg);background:rgba(255,255,255,.
 button:hover{background:rgba(255,255,255,.14)}
 button:active{transform:scale(.96)}
 button.pri{background:linear-gradient(90deg,#3fd8ff,#8f6bff);border-color:transparent;color:#04060f;font-weight:700}
-.ov{position:fixed;inset:0;height:100%;height:100dvh;display:flex;align-items:center;justify-content:center;background:rgba(3,4,12,.88);padding:12px;transition:opacity .4s;z-index:5}
+:root{--sl:env(safe-area-inset-left,0px);--sr:env(safe-area-inset-right,0px)}
+.ov{position:fixed;inset:0;height:100%;height:100dvh;display:flex;align-items:center;justify-content:center;background:rgba(3,4,12,.88);padding:12px max(12px,var(--sr)) 12px max(12px,var(--sl));transition:opacity .4s;z-index:5}
 #lbv,#frv{z-index:6}#nick,#fcv{z-index:8}
 [hidden]{display:none!important}
 .ov.hidden{opacity:0;pointer-events:none;visibility:hidden;transition:opacity .4s,visibility 0s .4s}
@@ -54,8 +55,8 @@ button.pri{background:linear-gradient(90deg,#3fd8ff,#8f6bff);border-color:transp
 .kicker{font-size:12px;letter-spacing:.2em;color:var(--accent)}
 .row{display:flex;gap:10px;justify-content:center;margin-top:12px;flex-wrap:wrap}
 .chips{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin:8px 0 2px}
-.chip{padding:7px 12px;font-size:13px}
-.chip.sel{width:auto;height:auto;max-width:none;margin:0;display:inline-block;background:linear-gradient(90deg,#3fd8ff,#8f6bff);color:#04060f;border-color:transparent;font-weight:700}
+.chip{padding:7px 12px;font-size:13px;display:inline-flex;align-items:center;justify-content:center;line-height:1.2}
+.chip.sel{width:auto;height:auto;max-width:none;margin:0;display:inline-flex;background:linear-gradient(90deg,#3fd8ff,#8f6bff);color:#04060f;border-color:transparent;font-weight:700}
 .chip small{opacity:.75;margin-left:4px;font-weight:400}
 /* song select: one song per row, grouped by era; details and the leaderboard preview on the right */
 #menu{padding:max(8px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));align-items:stretch}
