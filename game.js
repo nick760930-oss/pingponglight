@@ -841,11 +841,14 @@ function showSelect(){mode='normal';setMedia(false);hudShow(false);st='menu';cut
 /* ================= update ================= */
 function wallFx(b,e){rings.push({x:b.x,y:b.y,r0:BR*.5,life:.3,max:.3,hue:hueNow()+80,w:1.5});edgeGlow[e]=Math.max(edgeGlow[e],.18);edgeHue[e]=hueNow()}
 function stepFree(b,dt){b.x+=b.dx*b.v*dt;b.y+=b.dy*b.v*dt}
+function trailStep(b){const last=b.trail[b.trail.length-1];
+  if(!last||Math.hypot(b.x-last.x,b.y-last.y)>BR*.45){b.trail.push({x:b.x,y:b.y});if(b.trail.length>20)b.trail.shift()}
+  else if(b.trail.length>4)b.trail.shift()}
 function updateBall(b,dt){
   if(b.pop<1)b.pop=Math.min(1,b.pop+dt*3);
   if(b.sq>0)b.sq=Math.max(0,b.sq-dt*6);
   if(b.ti<0){                                     // no more targets: drift and fade
-    b.v=Math.max(b.v,V0*.5);stepFree(b,dt);
+    b.v=Math.max(b.v,V0*.5);stepFree(b,dt);trailStep(b);
     if(b.y<FR.y+BR){b.y=FR.y+BR;b.dy=Math.abs(b.dy)}else if(b.y>FR.y+FR.h-BR){b.y=FR.y+FR.h-BR;b.dy=-Math.abs(b.dy)}
     if(b.x<FR.x+BR){b.x=FR.x+BR;b.dx=Math.abs(b.dx)}else if(b.x>FR.x+FR.w-BR){b.x=FR.x+FR.w-BR;b.dx=-Math.abs(b.dx)}
     return;
@@ -853,9 +856,7 @@ function updateBall(b,dt){
   // speed is recomputed every step from the path still to travel and the time left: it lands exactly on the beat
   if(tT(b.ti)-GB()>.05||b.v<1)b.v=ballWant(b);   // in the last 50 ms keep the (already exact) speed instead of creeping toward the line
   b.x+=b.dx*b.v*dt;b.y+=b.dy*b.v*dt;
-  const last=b.trail[b.trail.length-1];
-  if(!last||Math.hypot(b.x-last.x,b.y-last.y)>BR*.45){b.trail.push({x:b.x,y:b.y});if(b.trail.length>20)b.trail.shift()}
-  else if(b.trail.length>4)b.trail.shift();
+  trailStep(b);
   // top / bottom walls and the far side line are plain walls (silent)
   if(b.y<FR.y+BR){b.y=FR.y+BR;b.dy=Math.abs(b.dy);wallFx(b,0)}
   else if(b.y>FR.y+FR.h-BR){b.y=FR.y+FR.h-BR;b.dy=-Math.abs(b.dy);wallFx(b,2)}
@@ -1075,6 +1076,8 @@ function drawBalls(x){
     const sc=b.pop<1?(1-Math.pow(1-b.pop,3)):1,r=BR*sc;
     if(!b.fx){b.fx=BFX.state();const q=BFX.target(combo,starT,time,SET.lowFx);b.fx.h=q.h;b.fx.sat=q.sat;b.fx.g=q.g;b.fx.t=time}
     const dt=paused?0:clamp(time-b.fx.t,0,.1);b.fx.t=time;
+    {const now=performance.now(),mv=b.fx.lx!==b.x||b.fx.ly!==b.y;b.fx.lx=b.x;b.fx.ly=b.y;   // a ball that stopped (song over) lets its trail shrink away instead of freezing into a line
+      if(mv||paused)b.fx.st=now;else if(now-b.fx.st>40&&b.trail.length){b.trail.shift();b.fx.st=now}}
     BFX.draw(x,b.fx,b,r,{combo,starT},dt,time,SET.lowFx,!mlFull()&&mlv>=3);
     x.save();x.translate(b.x,b.y);
     if(b.sq>0){const horiz=b.sqn===1||b.sqn===3,s=b.sq*.35;x.scale(horiz?1-s:1+s*.6,horiz?1+s*.6:1-s)}
