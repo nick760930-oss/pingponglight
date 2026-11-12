@@ -25,6 +25,7 @@
 :root{--bg:#05060f;--fg:#e8ecff;--dim:#8a93c0;--accent:#7cf0ff}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;position:fixed;inset:0;width:100%;height:100%;background:var(--bg);color:var(--fg);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;overflow:hidden;overscroll-behavior:none;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-text-size-adjust:100%}
+button{touch-action:manipulation}
 canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;-webkit-touch-callout:none}
 #safe{position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;padding:env(safe-area-inset-top,0) env(safe-area-inset-right,0) env(safe-area-inset-bottom,0) env(safe-area-inset-left,0)}
 .hud{position:fixed;left:0;right:0;top:env(safe-area-inset-top,0);padding:6px max(16px,env(safe-area-inset-right,0)) 0 max(16px,env(safe-area-inset-left,0));pointer-events:none;display:flex;align-items:center;gap:14px}
@@ -509,7 +510,7 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
   <div class="srow"><label>延遲補償</label><button id="bCal">校準</button><span class="v" id="calV" style="flex:1 1 auto;text-align:left;margin-left:6px"></span></div>
   <p id="aDiag" style="font-size:11px;color:#8a93c0;margin:4px 0 0;text-align:center"></p>
   <div class="row"><button class="warn" id="bWipe">刪除我的線上資料</button></div>
-  <div class="row"><button id="bTest">測試聲音</button><button class="pri" id="bSetX">返回首頁</button></div>
+  <div class="row"><button class="pri" id="bSetX">返回首頁</button></div>
 </div></div>
 
 <div class="ov hidden" id="cal"><div class="card" style="max-width:460px">

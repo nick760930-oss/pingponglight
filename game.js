@@ -59,7 +59,7 @@ function unlockAudio(){
 function audioStatus(){
   const el=$('#aud');if(!el)return;
   if(!AC){el.textContent='';return}
-  el.textContent=AC&&AC.state==='running'?'聲音已啟用':'聲音未啟用：請按「測試聲音」，並確認裝置未開啟靜音。';
+  el.textContent=AC&&AC.state==='running'?'聲音已啟用':'聲音未啟用：請點一下畫面，並確認裝置未開啟靜音。';
   el.style.color=AC&&AC.state==='running'?'#7cf0ff':'#ffb86b';
 }
 let acStale=false,acWatch={t:-1,w:0};
@@ -2225,8 +2225,17 @@ $('#bNext').onclick=()=>{initAudio();if(mode==='tut'){mode='normal';si=0;startRu
 $('#bRetry').onclick=()=>{initAudio();startRun(0)};
 $('#bCont').onclick=()=>{initAudio();startRun(cp.ti)};
 $('#bSel').onclick=showSelect;
-$('#bTest').onclick=()=>{initAudio(true);[60,64,67,72].forEach((p,i)=>voice(p,i*.14,.6,.3,0,true));voice(48,0,1.2,.17,0,false);setTimeout(()=>{audioStatus();audioDiag()},250);setTimeout(()=>{audioStatus();audioDiag()},900)};
 $('#bFs').onclick=toggleFs;
+// Every button fires on touchend, not on the delayed synthetic click (a quick second tap was being eaten).
+// Bound in the bubble phase so navTap's own touchend runs first; a drag of more than 10px is a scroll, not a tap.
+(function(){let T=null;
+  document.addEventListener('touchstart',e=>{const b=e.touches.length===1&&e.target.closest&&e.target.closest('button');T=b?{b,x:e.touches[0].clientX,y:e.touches[0].clientY}:null},{passive:true,capture:true});
+  document.addEventListener('touchmove',e=>{const t=e.touches[0];if(T&&t&&(Math.abs(t.clientX-T.x)>10||Math.abs(t.clientY-T.y)>10))T=null},{passive:true,capture:true});
+  document.addEventListener('touchcancel',()=>{T=null},{capture:true});
+  document.addEventListener('touchend',e=>{const c=T;T=null;if(!c||e.defaultPrevented||c.b.disabled||!c.b.isConnected)return;
+    const t=e.changedTouches[0],r=c.b.getBoundingClientRect();if(!t||t.clientX<r.left-8||t.clientX>r.right+8||t.clientY<r.top-8||t.clientY>r.bottom+8)return;
+    e.preventDefault();c.b.click()},{passive:false});
+})();
 function navTap(sel,fn){
   const el=$(sel);if(!el)return;let down=false;
   el.onclick=()=>fn();
