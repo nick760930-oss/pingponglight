@@ -3,9 +3,14 @@ main = "src/index.js"
 compatibility_date = "2025-01-01"
 workers_dev = true
 
-# Daily clean-up of expired friend messages and old reports (friends.js friendSweep).
+# Hourly: clean-up of expired friend messages and old reports (friends.js friendSweep), and AI review of chat
+# reports still waiting (moderate.js).
 [triggers]
-crons = ["17 19 * * *"]
+crons = ["17 * * * *"]
+
+# Workers AI judges chat reports (moderate.js). Without the binding, reports simply wait for a person.
+[ai]
+binding = "AI"
 
 [[durable_objects.bindings]]
 name = "ROOMS"

@@ -13,6 +13,7 @@
 // - idle sockets (no ping for 75 s) are closed so dead or parked connections cannot hold a room.
 import { handleLb } from './lb.js';
 import { handleFr, friendSweep } from './friends.js';
+import { moderate } from './moderate.js';
 export { Hub } from './friends.js';   // presence Durable Object (friends)
 export { Arena, Lobby } from './arena.js';   // v2 multiplayer rooms (2..8) and lobby
 const ALPH = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';          // no 0/O/1/I/L
@@ -47,8 +48,8 @@ async function limited(env, key) {    // true when this key is over its limit
 }
 
 export default {
-  async scheduled(ev, env, ctx) { ctx.waitUntil(friendSweep(env)); },   // wrangler.toml [triggers]
-  async fetch(req, env) {
+  async scheduled(ev, env, ctx) { ctx.waitUntil(Promise.all([friendSweep(env), moderate(env, 20)])); },   // hourly (wrangler.toml [triggers])
+  async fetch(req, env, ctx) {
     const url = new URL(req.url), origin = req.headers.get('Origin');
     if (url.pathname.startsWith('/lb/')) {           // leaderboard (POST); moderation (/lb/admin) is token-only, no page
       const admin = url.pathname === '/lb/admin';
@@ -68,7 +69,7 @@ export default {
       }
       const H = cors(origin);
       if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: { ...H, 'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Max-Age': '86400' } });
-      return handleFr(req, env, url.pathname, who, origin, H, limited);
+      return handleFr(req, env, url.pathname, who, origin, H, limited, ctx);
     }
     if (req.method !== 'GET') return new Response('method not allowed', { status: 405, headers: BASE_H });
     if (url.pathname === '/' || url.pathname === '/health') return new Response('PingPongLight duel server', { headers: BASE_H });

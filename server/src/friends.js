@@ -7,11 +7,13 @@
 // Players are the ones /lb/name registered; the phone's secret key pk is hashed and looked up like in lb.js.
 // Responses never contain pk or ph.
 import { cleanMsg, msgProblem } from './names.js';
+import { moderate, mutedUntil } from './moderate.js';
 
-export async function friendSweep(env) {    // daily (cron): expired messages; reports older than a year
+export async function friendSweep(env) {    // hourly (cron): expired messages; reports older than a year; strikes 180 days old
   if (!env.LB) return;
-  const now = Date.now();
-  await env.LB.batch([env.LB.prepare('DELETE FROM fmsgs WHERE ts < ?1').bind(now - FMSG_KEEP), env.LB.prepare('DELETE FROM freports WHERE ts < ?1').bind(now - 365 * 86400e3)]);
+  const now = Date.now(), old = now - 180 * 86400e3;
+  await env.LB.batch([env.LB.prepare('DELETE FROM fmsgs WHERE ts < ?1').bind(now - FMSG_KEEP), env.LB.prepare('DELETE FROM freports WHERE ts < ?1').bind(now - 365 * 86400e3),
+    env.LB.prepare('DELETE FROM fmutes WHERE until < ?1 AND ts < ?1').bind(old)]);
 }
 
 export const friendWipe = (db, id) => [        // every friends row about a player, in both directions (see lb.js wipe)
@@ -21,6 +23,7 @@ export const friendWipe = (db, id) => [        // every friends row about a play
   db.prepare('DELETE FROM fblocks WHERE pid = ?1').bind(id), db.prepare('DELETE FROM fblocks WHERE target = ?1').bind(id),
   db.prepare('DELETE FROM fmsgs WHERE frm = ?1').bind(id), db.prepare('DELETE FROM fmsgs WHERE "to" = ?1').bind(id),
   db.prepare('DELETE FROM freports WHERE rp = ?1').bind(id), db.prepare('DELETE FROM freports WHERE target = ?1').bind(id),
+  db.prepare('DELETE FROM fmutes WHERE pid = ?1').bind(id),
 ];
 
 const ALPH = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';          // no 0/O/1/I/L (same as duel room codes)
@@ -96,7 +99,7 @@ export const blockedBy = async (db, x, ids) => {     // which of ids have blocke
   return new Set((await db.prepare(`SELECT pid FROM fblocks WHERE target = ?1 AND pid IN (${q})`).bind(x, ...ids).all()).results.map(r => r.pid));
 };
 
-export async function handleFr(req, env, path, who, origin, H, limited) {
+export async function handleFr(req, env, path, who, origin, H, limited, ctx) {
   const json = (o, s = 200, extra) => Response.json(o, { status: s, headers: { ...H, ...extra } });
   if (!env.LB || !env.HUB) return json({ error: 'off' }, 503);
   if (req.method !== 'POST') return json({ error: 'method' }, 405);
@@ -150,6 +153,8 @@ export async function handleFr(req, env, path, who, origin, H, limited) {
     const t = cleanMsg(text);
     if (!t) return bad();
     if (!(await areFriends(db, me.id, id))) return json({ error: 'notfriend' });
+    const mu = await mutedUntil(db, me.id, now);
+    if (mu) return json({ error: 'muted', until: mu });     // a report against this player was upheld (moderate.js)
     const r = await hub(env, '/i/rate', { from: me.id, to: id });
     if (!r) return json({ error: 'busy' }, 503);
     if (r.limited) return json({ error: 'slow' }, 429, { 'Retry-After': '2' });
@@ -174,19 +179,29 @@ export async function handleFr(req, env, path, who, origin, H, limited) {
   if (path === '/fr/report') {                        // report a player, optionally one message they sent me (a copy is kept for review)
     const { id } = body, mid = body.mid === undefined ? 0 : body.mid;
     if (!isId(id) || id === me.id || !Number.isInteger(mid) || mid < 0) return bad();
-    let copy = null;
+    let copy = null, fts = 0, mts = 0;                 // fts..mts: times of the oldest and newest reported message
     if (mid) {
-      const x = await db.prepare('SELECT body FROM fmsgs WHERE id = ?1 AND frm = ?2 AND "to" = ?3').bind(mid, id, me.id).first();
+      const x = await db.prepare('SELECT body, ts FROM fmsgs WHERE id = ?1 AND frm = ?2 AND "to" = ?3').bind(mid, id, me.id).first();
       if (!x) return json({ error: 'nomsg' });
-      copy = x.body;
+      copy = x.body; fts = mts = x.ts;
     } else {
-      const rows = (await db.prepare('SELECT body FROM fmsgs WHERE frm = ?1 AND "to" = ?2 AND ts > ?3 ORDER BY id DESC LIMIT 20').bind(id, me.id, now - FMSG_KEEP).all()).results;
+      const rows = (await db.prepare('SELECT body, ts FROM fmsgs WHERE frm = ?1 AND "to" = ?2 AND ts > ?3 ORDER BY id DESC LIMIT 20').bind(id, me.id, now - FMSG_KEEP).all()).results;
       if (!rows.length && !(await areFriends(db, me.id, id))) return json({ error: 'nomsg' });   // only someone who is (or recently wrote to) me
-      copy = rows.length ? rows.reverse().map(x => x.body).join('\n') : null;
+      if (rows.length) { mts = rows[0].ts; fts = rows[rows.length - 1].ts; copy = rows.reverse().map(x => x.body).join('\n'); }
+    }
+    // a repeat report makes a new row only when it covers messages newer than the last one (judged rows are never rewritten);
+    // a mid=0 report still waiting for its turn is just extended
+    const last = await db.prepare('SELECT id, status, mts FROM freports WHERE rp = ?1 AND target = ?2 AND mid = ?3 ORDER BY id DESC LIMIT 1').bind(me.id, id, mid).first();
+    if (last && last.mts >= mts) return json({ ok: true });
+    if (last && last.status === 'new' && !mid) {
+      const u = await db.prepare(`UPDATE freports SET body = ?2, fts = ?3, mts = ?4 WHERE id = ?1 AND status = 'new'`).bind(last.id, copy, fts, mts).run();
+      if (u.meta && u.meta.changes) return json({ ok: true });   // (claimed meanwhile: a new row below)
     }
     const n = await db.prepare('SELECT COUNT(*) AS n FROM freports WHERE rp = ?1 AND ts > ?2').bind(me.id, now - 86400e3).first();
-    if (n.n < FREP_DAY) await db.prepare(`INSERT INTO freports (rp, target, mid, body, ts) VALUES (?1, ?2, ?3, ?4, ?5)
-      ON CONFLICT (rp, target, mid) DO UPDATE SET body = excluded.body, ts = excluded.ts`).bind(me.id, id, mid, copy, now).run();   // a repeat player report refreshes the copy
+    if (n.n < FREP_DAY) {
+      await db.prepare('INSERT INTO freports (rp, target, mid, body, fts, mts, ts) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)').bind(me.id, id, mid, copy, fts, mts, now).run();
+      if (ctx && env.AI) ctx.waitUntil(moderate(env, 3));   // judged right away; the hourly cron picks up anything left
+    }
     return json({ ok: true });
   }
 

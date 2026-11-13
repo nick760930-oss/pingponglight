@@ -167,11 +167,19 @@ export async function handleLb(req, env, path, who, origin, H, limited) {
     if (body.op === 'run') { if (!Number.isInteger(id)) return json({ error: 'bad' }, 400); const x = await db.prepare('SELECT acc, err, combo, score, pf, ts, log FROM scores WHERE board = ?1 AND pid = ?2').bind(String(body.board), id).first(); return json({ run: x }); }
     if (body.op === 'reports') return json({ rows: (await db.prepare(`SELECT p.id, p.name, p.hidden, COUNT(r.by) AS n, MAX(r.ts) AS last
       FROM reports r JOIN players p ON p.id = r.pid GROUP BY p.id ORDER BY n DESC LIMIT 200`).all()).results });
-    if (body.op === 'dmreports') return json({ rows: (await db.prepare(`SELECT r.id, r.rp, a.name AS rpname, r.target, p.name, r.mid, r.body, r.ts
-      FROM freports r LEFT JOIN players p ON p.id = r.target LEFT JOIN players a ON a.id = r.rp ORDER BY r.ts DESC LIMIT 200`).all()).results });
+    if (body.op === 'dmreports') return json({ rows: (await db.prepare(`SELECT r.id, r.rp, a.name AS rpname, r.target, p.name, r.mid, r.body, r.ts, r.status, r.verdict,
+      m.strikes, m.until FROM freports r LEFT JOIN players p ON p.id = r.target LEFT JOIN players a ON a.id = r.rp LEFT JOIN fmutes m ON m.pid = r.target
+      ${body.status ? 'WHERE r.status = ?1' : ''} ORDER BY r.ts DESC LIMIT 200`).bind(...(body.status ? [String(body.status)] : [])).all()).results });
     if (!Number.isInteger(id)) return json({ error: 'bad' }, 400);
     if (body.op === 'hide' || body.op === 'unhide') { await setHidden(db, id, body.op === 'hide' ? 1 : 0); if (body.op === 'unhide') await db.prepare('DELETE FROM reports WHERE pid = ?1').bind(id).run(); return json({ ok: true }); }
     if (body.op === 'delete') { await wipe(db, id); return json({ ok: true }); }
+    if (body.op === 'unmute') { await db.prepare('UPDATE fmutes SET until = 0, strikes = MAX(strikes - pts, 0) WHERE pid = ?1').bind(id).run(); return json({ ok: true }); }   // id = player: overrule the AI's last decision (ts is kept, so more reports about the same messages do not mute again)
+    if (body.op === 'mute') { const d = Number.isInteger(body.days) && body.days > 0 && body.days <= 3650 ? body.days : 7, now = Date.now();
+      await db.prepare('INSERT INTO fmutes (pid, strikes, until, ts, pts) VALUES (?1, 1, ?2, ?3, 1) ON CONFLICT (pid) DO UPDATE SET strikes = strikes + 1, until = ?2, ts = ?3, pts = 1').bind(id, now + d * 86400e3, now).run(); return json({ ok: true }); }
+    // report: relabel one report (id = report). 'new' sends it to the AI again; 'upheld'/'clear' only record a decision
+    // (to act by hand use 'mute' / 'unmute'; the reported messages are kept in the report body)
+    if (body.op === 'report') { const st =['clear', 'upheld', 'review', 'new'].includes(body.status) ? body.status : null; if (!st) return json({ error: 'bad' }, 400);   // id = report
+      await db.prepare('UPDATE freports SET status = ?2, tries = 0, verdict = CASE WHEN verdict LIKE \'%(人工)\' THEN verdict ELSE COALESCE(verdict, \'\') || \' (人工)\' END WHERE id = ?1').bind(id, st).run(); return json({ ok: true }); }
     return json({ error: 'op' }, 400);
   }
   return json({ error: 'not found' }, 404);

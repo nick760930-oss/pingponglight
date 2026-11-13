@@ -25,6 +25,7 @@
 | 10 | 供應鏈（套件被植入） | 網頁端零第三方套件；伺服器只依賴 wrangler，且有 lock 檔 | 低 | 部署前 `npm audit` |
 | 11 | 靜態網站被灌流量、方案違規 | Vercel 內建 DDoS 防護 | Hobby 方案超量會暫停服務（不收費）；Hobby **禁止商業用途**，收費、放廣告、用網站推廣付費 App 都算 | 有任何營利前升級 Pro |
 | 12 | 對戰雙方版本不同 | 網頁採網路優先快取，重新開啟即更新 | 低：舊版玩家和新版對戰時拍數不同，衝刺門檻不一致 | 之後在 hello 訊息加版本檢查 |
+| 13 | 好友私訊騷擾、詐騙、不當內容 | 只限好友；送出前過濾不當用語、連結與聯絡方式（含全形、零寬字元變體）；每對每秒 1 則、每分鐘 20 則；首次聊天須同意社群規範；可檢舉、封鎖；檢舉由 AI 審查，違規即刪訊息並暫停傳送 1／7／30 天，無法判定的交人工 | 中：AI 可能誤判；人工審查目前沒有通知，要定期用 `dmreports {status:'review'}` 查看 | 考慮 review 時寄信通知 |
 
 ## 待辦（依優先順序）
 
@@ -57,7 +58,7 @@
 - 只接受真的 App、真的裝置送來的成績；網頁版成績另列或降權。需要原生外掛與伺服器端驗證。
 
 **B2. 排行榜管理**
-- 管理指令：`POST /lb/admin {token, op}`，op 有 `reports`、`dmreports`（好友訊息檢舉，含訊息副本）、`flagged`、`run`（看逐拍紀錄）、`hide`、`unhide`、`delete`。好友訊息需要 D1 migration `0005_dm.sql`，部署 Worker 前先 `npx wrangler d1 migrations apply LB --remote`。token 為 `LB_ADMIN`。
+- 管理指令：`POST /lb/admin {token, op}`，op 有 `reports`、`dmreports`（好友訊息檢舉，含訊息副本）、`flagged`、`run`（看逐拍紀錄）、`hide`、`unhide`、`delete`、`mute`、`unmute`、`report`。好友訊息與 AI 審查需要 D1 migration `0005_dm.sql`、`0006_moderation.sql`，部署 Worker 前先 `npx wrangler d1 migrations apply LB --remote`。token 為 `LB_ADMIN`。
 - 資料庫可隨時搬：`npx wrangler d1 export pingponglight-lb --remote --output lb.sql` 匯出成 SQL，任何 SQLite 都能匯入。
 
 **A5. 監控與應變**（要你本人操作，我可以一步步帶）
