@@ -669,7 +669,7 @@ function pauseGame(){
   if(AC&&AC.state==='running'&&AC.suspend){try{const q=AC.suspend();if(q&&q.catch)q.catch(()=>{})}catch(e){}}
   showPauseMenu();
 }
-function showPauseMenu(){$('#pause').classList.remove('hidden')}
+function showPauseMenu(){$('#bQuit').textContent=mode==='tut'?'離開教學':'離開';$('#pause').classList.remove('hidden')}
 function resumeGame(){   // audio resumes inside the tap (iOS needs a gesture); the game clock stays frozen during the count-in
   if(!paused||resumeCD)return;
   if(st!=='play'){paused=false;$('#pause').classList.add('hidden');return}
@@ -689,6 +689,16 @@ document.addEventListener('visibilitychange',()=>{
   else{try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}if(isIOS)acStale=true}
 });
 addEventListener('pagehide',hushAll);
+// links to the other pages (credits, privacy): fade the sound out first; cutting it off mid-note as the page goes crackled
+document.addEventListener('click',e=>{
+  if(e.defaultPrevented||e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
+  const a=e.target.closest&&e.target.closest('a[href]');if(!a||a.target==='_blank'||!/\.html(\?|#|$)/.test(a.getAttribute('href')))return;
+  if(!AC||AC.state!=='running'||!master)return;
+  e.preventDefault();const now=AC.currentTime;
+  try{master.gain.cancelScheduledValues(now);master.gain.setValueAtTime(master.gain.value,now);master.gain.setTargetAtTime(0,now,.04)}catch(err){}
+  setTimeout(()=>{location.href=a.href},220);
+});
+addEventListener('pageshow',()=>{if(AC&&master){try{master.gain.cancelScheduledValues(0);master.gain.setValueAtTime(.55,AC.currentTime)}catch(e){}}});   // back from that page (page cache)
 
 /* ---- fullscreen + no scroll / zoom / long-press ---- */
 const DE=document.documentElement;
@@ -882,7 +892,7 @@ function win(){
   setMedia(false);st='done';
   setTimeout(()=>{if(st==='done')showResult(true)},500);
 }
-function hudShow(v){$('#hud').style.visibility=v?'visible':'hidden';$('#bSkipH').style.display=v&&mode==='tut'?'':'none';$('#bPause').style.display=mode==='duel'?'none':'';$('#prog').classList.toggle('duel',v&&mode==='duel')}
+function hudShow(v){$('#hud').style.visibility=v?'visible':'hidden';$('#bPause').style.display=mode==='duel'?'none':'';$('#prog').classList.toggle('duel',v&&mode==='duel')}
 function showHome(){if(RSEL&&RSEL.on)mpSelOff();howClose();mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');$('#frv').classList.add('hidden');$('#home').classList.remove('hidden');skyBadge();audioStatus();frBadge();layout()}
 function showSelect(){mode='normal';setMedia(false);hudShow(false);st='menu';cutAll();balls=[];buildChips();$('#home').classList.add('hidden');$('#end').classList.add('hidden');$('#lbv').classList.add('hidden');$('#menu').classList.remove('hidden');selScroll()}
 
@@ -2047,13 +2057,15 @@ function skyBuild(){
     return{k,name:c.name,P,x:(b0+b1)/2,y:(t0+t1)/2,top:t0,bw:b1-b0,bh:t1-t0,R};
   });
   // background: a milky-way band, faint nebulae and field stars, batched by colour, brightness and twinkle phase
-  const fb=new Map(),cnt=Math.round(2600*W*H/(3200*1500));
-  for(let i=0;i<cnt;i++){const band=rnd()<.55,x=rnd()*W,y=band?H*(.78-.5*x/W)+(rnd()+rnd()+rnd()-1.5)*170:rnd()*H,m=Math.pow(rnd(),3.2);
+  // the field reaches MX / MY beyond the constellations on every side, so the sky can be dragged past its edge
+  const MX=Math.round(W*.45),MY=Math.round(H*.45),FW=W+2*MX,FH=H+2*MY;
+  const fb=new Map(),cnt=Math.round(2600*FW*FH/(3200*1500));
+  for(let i=0;i<cnt;i++){const band=rnd()<.55,x=rnd()*FW-MX,y=band?H*(.78-.5*x/W)+(rnd()+rnd()+rnd()-1.5)*170:rnd()*FH-MY,m=Math.pow(rnd(),3.2);
     const h=rnd()<.15?'#ffd9b0':rnd()<.25?'#b9ccff':'#ffffff',a=Math.min(2,Math.floor(m*3.5)),g=Math.floor(rnd()*4),key=h+a+g;
     if(!fb.has(key))fb.set(key,{h,a:[.22,.42,.7][a],g,p:[]});fb.get(key).p.push([x,y,.3+m*1.0])}
-  const neb=[];for(let i=0;i<Math.round(70*W/3200);i++){const x=rnd()*W;neb.push({x,y:H*(.78-.5*x/W)+(rnd()-.5)*260,r:120+rnd()*260,c:rnd()<.5?'90,110,200':'150,90,170',a:.025+rnd()*.035})}
+  const neb=[];for(let i=0;i<Math.round(70*FW/3200);i++){const x=rnd()*FW-MX;neb.push({x,y:H*(.78-.5*x/W)+(rnd()-.5)*260,r:120+rnd()*260,c:rnd()<.5?'90,110,200':'150,90,170',a:.025+rnd()*.035})}
   const cv=$('#skyCv');
-  SKY={W,H,C,fb:[...fb.values()],neb,cv,cx:cv.getContext('2d'),vw:0,vh:0,dpr:1,s:1,ox:0,oy:0,minS:1,anim:null,raf:0,dirty:true,focus:-2,cache:new Map(),lt:0};
+  SKY={W,H,MX,MY,C,fb:[...fb.values()],neb,cv,cx:cv.getContext('2d'),vw:0,vh:0,dpr:1,s:1,ox:0,oy:0,minS:1,anim:null,raf:0,dirty:true,focus:-2,cache:new Map(),lt:0};
   skyA11y();
 }
 function skyFit(){
@@ -2064,9 +2076,10 @@ function skyFit(){
 }
 function skyClampV(){
   const S=SKY;S.s=clamp(S.s,S.minS,S.minS*10);
-  const ww=S.W*S.s,hh=S.H*S.s;
-  S.ox=ww<S.vw?(S.vw-ww)/2:clamp(S.ox,S.vw-ww-40,40);
-  S.oy=hh<S.vh-86?44+(S.vh-86-hh)/2:clamp(S.oy,S.vh-hh-50,60);
+  // the view may wander MX / MY past the constellations (into the open field) before it stops
+  const mx=S.MX*S.s,my=S.MY*S.s,ww=S.W*S.s+2*mx,hh=S.H*S.s+2*my;
+  S.ox=ww<S.vw?(S.vw-ww)/2+mx:clamp(S.ox,S.vw-ww+mx,mx);
+  S.oy=hh<S.vh-86?44+(S.vh-86-hh)/2+my:clamp(S.oy,S.vh-50-hh+my,44+my);
 }
 function skyZoomAt(f,px,py){const S=SKY,ns=clamp(S.s*f,S.minS,S.minS*10);S.ox=px-(px-S.ox)*ns/S.s;S.oy=py-(py-S.oy)*ns/S.s;S.s=ns;S.anim=null;skyClampV();S.dirty=true}
 const skyZoomFor=C=>Math.min(SKY.minS*10,SKY.vw*.8/(C.bw+60),(SKY.vh-120)/(C.bh+70));
@@ -2220,8 +2233,9 @@ onPress($('#bPause'),()=>{if(paused&&!resumeCD)resumeGame();else pauseGame()});
 $('#bResume').onclick=resumeGame;
 $('#bRestart').onclick=()=>{$('#pause').classList.add('hidden');doResume();startRun(0)};
 function skipTut(){lsSet('ppl-tut','1');$('#pause').classList.add('hidden');doResume();showSelect()}
-onPress($('#bSkipH'),skipTut);
-$('#bQuit').onclick=()=>{$('#pause').classList.add('hidden');doResume();if(mode==='normal')showSelect();else showHome()};
+
+// in the tutorial, 離開 is the way out of it (marked done, on to the songs); the HUD has no separate skip button
+$('#bQuit').onclick=()=>{if(mode==='tut'){skipTut();return}$('#pause').classList.add('hidden');doResume();if(mode==='normal')showSelect();else showHome()};
 /* ---- settings ---- */
 function audioDiag(){
   const el=$('#aDiag');if(!el)return;

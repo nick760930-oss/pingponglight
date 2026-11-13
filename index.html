@@ -215,8 +215,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 #lifeW{width:96px;height:6px;border-radius:3px;background:#1b2148;overflow:hidden;margin:3px 0 0 auto}
 #life{height:100%;width:100%;background:linear-gradient(90deg,#5dffb0,#7cf0ff);transition:width .2s,background .2s}
 #life.low{background:linear-gradient(90deg,#ff5d7a,#ffb86b)}
-#bPause,#bFs,#bSkipH{min-height:44px;min-width:52px;padding:6px 14px;font-size:16px;line-height:1;margin-bottom:2px;touch-action:manipulation}
-#bSkipH{font-size:14px}
+#bPause,#bFs{min-height:44px;min-width:52px;padding:6px 14px;font-size:16px;line-height:1;margin-bottom:2px;touch-action:manipulation}
 .set{max-width:520px;text-align:left}
 .set h2{text-align:center;line-height:44px}
 .xbtn{position:absolute;top:8px;right:10px;min-width:44px;min-height:44px;padding:0 12px;display:inline-flex;align-items:center;justify-content:center;font-size:18px;line-height:1}
@@ -299,7 +298,20 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
 .rbar{display:none}
 .mt em.rt{font-style:normal;margin-left:6px;padding:0 6px;border-radius:6px;background:rgba(255,211,107,.15);color:#ffd36b;font-size:11px}
 #menu.room .sdet .act{position:sticky;bottom:0;background:#070917;padding-top:4px}   /* the ready button never scrolls away */
-@media (max-height:400px){#menu.room #sK{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+/* the title and the piece's facts share one line; outside a room the facts sit above the title as before */
+.ttl{display:contents}#sK{order:-1}
+/* room: everything fits one page (no scrolling): a one-line top bar, the facts beside the title, 4 seats per row */
+#menu.room .selTop{flex-wrap:nowrap;gap:10px}
+#menu.room .selTop h2{font-size:15px;white-space:nowrap}#menu.room #bBack{white-space:nowrap}
+#menu.room .rhd{font-size:11.5px}#menu.room .rhd b{font-size:15px;letter-spacing:.12em}
+#menu.room .rset{flex-wrap:nowrap;gap:5px}
+#menu.room .rset button,#menu.room .rset .ddb{min-height:34px;padding:3px 10px;font-size:12.5px;white-space:nowrap}
+#menu.room .ttl{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px;min-width:0}
+#menu.room .ttl h3{flex:0 1 auto;min-width:0;font-size:17px}
+#menu.room #sK{order:0;flex:0 1 auto;min-width:0;font-size:11px;letter-spacing:.08em}   /* the blue facts line beside the title; a long title pushes it below */
+#menu.room #rseats{grid-template-columns:repeat(4,minmax(0,1fr))}
+#menu.room .seat{height:28px;padding-right:15px}#menu.room .seat i{position:absolute;top:-7px;left:6px;font-size:8.5px;line-height:12px;padding:0 3px;background:#070917}   /* host tag on the border: the name keeps the room */
+@media (max-width:640px){#menu.room .selTop,#menu.room .rset{flex-wrap:wrap}}   /* very small phones: the top bar may take two lines again (the panel then scrolls) */
 @media (max-height:400px){.seat{height:26px}#menu.room #rseats{gap:4px}}
 
 /* ---- race: live standings on the right, neon banners on the field's top edge ---- */
@@ -420,7 +432,7 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
 <div class="hud" id="hud">
   <div class="hl"><h1>PingPongLight</h1><div class="sub" id="sub">節奏彈球遊戲</div></div>
   <div id="prog"><div id="pf"></div></div>
-  <div class="hr"><div style="display:flex;gap:10px;align-items:center;justify-content:flex-end"><div id="score">0</div><button id="bSkipH" style="display:none">跳過教學</button><button id="bPause" aria-label="暫停">❚❚</button><button id="bFs" aria-label="全螢幕">⛶</button></div><div id="lifeW"><div id="life"></div></div><div class="sub" id="combo">&nbsp;</div></div>
+  <div class="hr"><div style="display:flex;gap:10px;align-items:center;justify-content:flex-end"><div id="score">0</div><button id="bPause" aria-label="暫停">❚❚</button><button id="bFs" aria-label="全螢幕">⛶</button></div><div id="lifeW"><div id="life"></div></div><div class="sub" id="combo">&nbsp;</div></div>
 </div>
 
 <div class="mplad" id="mpLad" hidden><div class="lt">即時名次<b id="mpHot"></b></div></div>
@@ -453,8 +465,7 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
   <div class="selBody">
     <div class="slist" id="chips"></div>
     <div class="sdet">
-      <div class="kicker" id="sK"></div>
-      <h3 id="sN"></h3>
+      <div class="ttl"><h3 id="sN"></h3><div class="kicker" id="sK"></div></div>
       <div class="mt" id="sM"></div>
       <div class="seg" id="diffs"></div>
       <div class="seats" id="rseats"></div>
