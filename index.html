@@ -299,6 +299,24 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
 .sr .vt{flex:0 1 auto;max-width:34%;font-size:11px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rbar{display:none}
 .mt em.rt{font-style:normal;margin-left:6px;padding:0 6px;border-radius:6px;background:rgba(255,211,107,.15);color:#ffd36b;font-size:11px}
+.fr .dm{flex:0 0 auto;min-width:44px;min-height:40px;padding:0 10px;font-size:17px}
+.fr .last{display:block;font-size:11.5px;color:#ffd36b;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.frpop.fin{left:50%;top:calc(env(safe-area-inset-top) + 12px);transform:translateX(-50%);width:min(340px,calc(100vw - 24px))}
+.frpop.fin .say{font-size:15px;margin:2px 0 8px}
+#bSay{display:none}#menu.room #bSay{display:block;flex:0 0 52px;padding:0;font-size:20px}
+.seat.tap{cursor:pointer}
+.seat .ft{position:absolute;top:-8px;right:6px;font-size:9.5px;line-height:13px;border-radius:6px;padding:0 4px;background:#0b0f2e}
+.seat .ft.f{color:#7cf0ff;border:1px solid #7cf0ff}.seat .ft.p{color:#9aa3d6;border:1px dashed #9aa3d6}.seat .ft.i{color:#ffd36b;border:1px dashed #ffd36b}
+.seat .bub{position:absolute;left:0;right:0;bottom:calc(100% + 6px);width:max-content;max-width:100%;margin:0 auto;white-space:normal;word-break:break-all;text-align:center;line-height:1.25;padding:2px 6px;border-radius:9px;background:#e8ecff;color:#0b0f2e;font-size:11.5px;font-weight:700;z-index:5;pointer-events:none;animation:bubIn .18s ease-out}
+.seat .bub:after{content:'';position:absolute;left:50%;margin-left:-5px;top:100%;border:5px solid transparent;border-top-color:#e8ecff}
+@keyframes bubIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.frpop{position:fixed;z-index:60;min-width:190px;max-width:calc(100vw - 16px);padding:10px 12px;border-radius:12px;background:#151a46;border:1px solid rgba(124,240,255,.55);box-shadow:0 8px 28px rgba(0,0,0,.6);font-size:13px;color:#e8ecff}
+.frpop b{display:block;font-size:14px;margin-bottom:6px}.frpop .r{display:flex;gap:6px}.frpop .r button{flex:1;min-height:36px;padding:4px 10px;font-size:13px;border-radius:10px}
+.frpop .hint{margin-top:6px;font-size:11px;color:#8a93c0}
+.qp{position:fixed;z-index:60;width:min(330px,calc(100vw - 16px));max-height:min(62vh,320px);overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;display:grid;grid-template-columns:repeat(2,1fr);gap:6px;padding:10px;border-radius:14px;background:#151a46;border:1px solid rgba(124,240,255,.55);box-shadow:0 8px 28px rgba(0,0,0,.6)}
+.qp .qh{grid-column:1/-1;font-size:11px;color:#7cf0ff;letter-spacing:.1em;margin-top:4px}.qp .qh:first-child{margin-top:0}
+.qp button{min-height:36px;padding:4px 8px;font-size:13px;border-radius:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (prefers-reduced-motion:reduce){.seat .bub{animation:none}}
 #menu.room .sdet .act{position:sticky;bottom:0;background:#070917;padding-top:4px}   /* the ready button never scrolls away */
 /* the title and the piece's facts share one line; outside a room the facts sit above the title as before */
 .ttl{display:contents}#sK{order:-1}
@@ -476,7 +494,7 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
       <div class="best" id="sB"></div>
       <div class="mini" id="sMini"></div>
       <div class="grow"></div>
-      <div class="act"><button id="bLb">排行榜</button><button class="pri" id="bGo">開始</button></div>
+      <div class="act"><button id="bSay" aria-label="快速發言" aria-haspopup="menu">💬</button><button id="bLb">排行榜</button><button class="pri" id="bGo">開始</button></div>
     </div>
   </div>
 </div></div>

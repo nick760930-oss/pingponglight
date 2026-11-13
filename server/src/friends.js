@@ -18,6 +18,7 @@ const MAX_BODY = 2048, MAX_FRIENDS = 100, MAX_OUT = 50, MAX_BLOCKS = 200, LIST_C
 const ST = ['home', 'menu', 'play', 'duel'];
 const SONG = /^[a-z0-9]{1,24}$/, ROOM = /^[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{4}$/;
 const INV_PAIR_MS = 5000, INV_MIN = 20, INV_TTL = 60000;
+const FSAY_N = 64, SAY_PAIR_MS = 3000, SAY_MIN = 20;    // friend phrases: highest index accepted (the client's append-only list holds the text), per-pair gap, per-minute cap
 const enc = new TextEncoder();
 const sha = async s => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(s))), b => b.toString(16).padStart(2, '0')).join('');
 const isPk = v => typeof v === 'string' && /^[0-9a-f]{32}$/.test(v);
@@ -38,6 +39,49 @@ const unlink = (db, x, y) => [          // friendship and requests, both directi
   db.prepare('DELETE FROM fships WHERE a = ?1 AND b = ?2').bind(Math.min(x, y), Math.max(x, y)),
   db.prepare('DELETE FROM freqs WHERE (frm = ?1 AND "to" = ?2) OR (frm = ?2 AND "to" = ?1)').bind(x, y),
 ];
+
+// Ask y to be x's friend (x = { id, name }). Shared by /fr/add (friend code) and the room's seat menu (Arena 'fadd').
+// The caller has already checked blocks; answers { ok, pending } / { ok, friends } / { error: 'already' | 'full' }.
+export async function friendRequest(db, env, x, y, now) {
+  if (await areFriends(db, x.id, y)) return { error: 'already' };
+  if (await db.prepare('SELECT 1 FROM freqs WHERE frm = ?1 AND "to" = ?2').bind(x.id, y).first()) return { ok: true, pending: true };   // asked before: nothing new
+  const mutual = await db.prepare('SELECT 1 FROM freqs WHERE frm = ?1 AND "to" = ?2').bind(y, x.id).first();
+  if (mutual) {                                      // they already asked me: adding them accepts
+    if ((await friendCount(db, x.id)) >= MAX_FRIENDS || (await friendCount(db, y)) >= MAX_FRIENDS) return { error: 'full' };
+    await db.batch(becomeFriends(db, x.id, y, now));
+    await hub(env, '/i/push', { to: y, msg: { t: 'friend', id: x.id, name: x.name } });
+    return { ok: true, friends: true };
+  }
+  const out = await db.prepare('SELECT COUNT(*) AS n FROM freqs WHERE frm = ?1').bind(x.id).first();
+  if ((await friendCount(db, x.id)) >= MAX_FRIENDS || out.n >= MAX_OUT) return { error: 'full' };
+  await db.prepare('INSERT OR IGNORE INTO freqs (frm, "to", ts) VALUES (?1, ?2, ?3)').bind(x.id, y, now).run();
+  await hub(env, '/i/push', { to: y, msg: { t: 'req', from: x } });
+  return { ok: true, pending: true };
+}
+// How x relates to each of ids, for the room's seat tags: 'f' friend, 'o' x asked them, 'i' they asked x, 'b' x blocked them.
+// A block by THEM is never revealed (that player just looks like anyone else).
+export async function relations(db, x, ids) {
+  const r = {}; if (!ids.length) return r;
+  const q = ids.map((_, k) => '?' + (k + 2)).join(',');
+  const [fa, fb, o, i, b] = await db.batch([
+    db.prepare(`SELECT b AS id FROM fships WHERE a = ?1 AND b IN (${q})`).bind(x, ...ids),
+    db.prepare(`SELECT a AS id FROM fships WHERE b = ?1 AND a IN (${q})`).bind(x, ...ids),
+    db.prepare(`SELECT "to" AS id FROM freqs WHERE frm = ?1 AND "to" IN (${q})`).bind(x, ...ids),
+    db.prepare(`SELECT frm AS id FROM freqs WHERE "to" = ?1 AND frm IN (${q})`).bind(x, ...ids),
+    db.prepare(`SELECT target AS id FROM fblocks WHERE pid = ?1 AND target IN (${q})`).bind(x, ...ids),
+  ]);
+  for (const row of i.results) r[row.id] = 'i';
+  for (const row of o.results) r[row.id] = 'o';
+  for (const row of [...fa.results, ...fb.results]) r[row.id] = 'f';
+  for (const row of b.results) r[row.id] = 'b';
+  return r;
+}
+export const pidOf = async (db, pk) => isPk(pk) ? await db.prepare('SELECT id, name FROM players WHERE ph = ?1').bind(await sha(pk)).first() : null;
+export const blockedBy = async (db, x, ids) => {     // which of ids have blocked x (their screens should not show x's phrases)
+  if (!ids.length) return new Set();
+  const q = ids.map((_, k) => '?' + (k + 2)).join(',');
+  return new Set((await db.prepare(`SELECT pid FROM fblocks WHERE target = ?1 AND pid IN (${q})`).bind(x, ...ids).all()).results.map(r => r.pid));
+};
 
 export async function handleFr(req, env, path, who, origin, H, limited) {
   const json = (o, s = 200, extra) => Response.json(o, { status: s, headers: { ...H, ...extra } });
@@ -74,20 +118,17 @@ export async function handleFr(req, env, path, who, origin, H, limited) {
     if (hit.id === me.id) return json({ error: 'self' });
     // a block in either direction looks exactly like an unknown code
     if (await db.prepare('SELECT 1 FROM fblocks WHERE (pid = ?1 AND target = ?2) OR (pid = ?2 AND target = ?1)').bind(me.id, hit.id).first()) return json({ error: 'nocode' });
-    if (await areFriends(db, me.id, hit.id)) return json({ error: 'already' });
-    if (await db.prepare('SELECT 1 FROM freqs WHERE frm = ?1 AND "to" = ?2').bind(me.id, hit.id).first()) return json({ ok: true, pending: true });   // asked before: nothing new
-    const mutual = await db.prepare('SELECT 1 FROM freqs WHERE frm = ?1 AND "to" = ?2').bind(hit.id, me.id).first();
-    if (mutual) {                                      // they already asked me: adding them accepts
-      if ((await friendCount(db, me.id)) >= MAX_FRIENDS || (await friendCount(db, hit.id)) >= MAX_FRIENDS) return json({ error: 'full' });
-      await db.batch(becomeFriends(db, me.id, hit.id, now));
-      await hub(env, '/i/push', { to: hit.id, msg: { t: 'friend', id: me.id, name: me.name } });
-      return json({ ok: true, friends: true });
-    }
-    const out = await db.prepare('SELECT COUNT(*) AS n FROM freqs WHERE frm = ?1').bind(me.id).first();
-    if ((await friendCount(db, me.id)) >= MAX_FRIENDS || out.n >= MAX_OUT) return json({ error: 'full' });
-    await db.prepare('INSERT OR IGNORE INTO freqs (frm, "to", ts) VALUES (?1, ?2, ?3)').bind(me.id, hit.id, now).run();
-    await hub(env, '/i/push', { to: hit.id, msg: { t: 'req', from: mine } });
-    return json({ ok: true, pending: true });
+    return json(await friendRequest(db, env, mine, hit.id, now));
+  }
+
+  if (path === '/fr/say') {                           // a preset phrase to a friend (never free text); not stored
+    const { id, k } = body;
+    if (!isId(id) || !Number.isInteger(k) || k < 0 || k >= FSAY_N) return bad();
+    if (!(await areFriends(db, me.id, id))) return json({ error: 'notfriend' });
+    const r = await hub(env, '/i/say', { from: mine, to: id, k });
+    if (!r) return json({ error: 'busy' }, 503);
+    if (r.limited) return json({ error: 'slow' }, 429, { 'Retry-After': '3' });
+    return json({ ok: true, delivered: !!r.delivered });
   }
 
   if (path === '/fr/respond') {
@@ -166,7 +207,7 @@ const BUCKET = 10, REFILL = 2, MAX_DROPS = 30;
 const AUTH_MS = 10000, IDLE_MS = 75000, SWEEP_MS = 30000, MAX_SOCKS = 5;
 
 export class Hub {
-  constructor(ctx, env) { this.ctx = ctx; this.env = env; this.rate = new Map(); this.pairs = new Map(); this.sent = new Map(); }
+  constructor(ctx, env) { this.ctx = ctx; this.env = env; this.rate = new Map(); this.pairs = new Map(); this.sent = new Map(); this.said = new Map(); }
   socks() { return this.ctx.getWebSockets().filter(w => w.readyState === 1); }
   info(w) { try { return w.deserializeAttachment() || {}; } catch (e) { return {}; } }
   send(w, o) { try { w.send(JSON.stringify(o)); } catch (e) {} }
@@ -201,12 +242,22 @@ export class Hub {
       return Response.json({ on });
     }
     if (url.pathname === '/i/push') return Response.json({ n: this.push(b.to, b.msg) });
+    if (url.pathname === '/i/say') {                        // a friend's preset phrase: same limits style as invites
+      const now = Date.now(), pk = 's' + b.from.id + ':' + b.to;
+      const mins = (this.said.get(b.from.id) || []).filter(t => now - t < 60000);
+      if (now - (this.pairs.get(pk) || 0) < SAY_PAIR_MS || mins.length >= SAY_MIN) return Response.json({ limited: true });
+      mins.push(now); this.said.set(b.from.id, mins); this.pairs.set(pk, now);
+      if (this.said.size > 2000) for (const [k, v] of this.said) if (!v.some(t => now - t < 60000)) this.said.delete(k);
+      if (this.pairs.size > 2000) for (const [k, t] of this.pairs) if (now - t > Math.max(INV_PAIR_MS, SAY_PAIR_MS)) this.pairs.delete(k);   // keep the memory bounded
+      const n = this.push(b.to, { t: 'fsay', from: b.from, k: b.k, ts: now });
+      return Response.json({ delivered: n > 0 });
+    }
     if (url.pathname === '/i/invite') {
       const now = Date.now(), pk = b.from.id + ':' + b.to;
       const mins = (this.sent.get(b.from.id) || []).filter(t => now - t < 60000);
       if (now - (this.pairs.get(pk) || 0) < INV_PAIR_MS || mins.length >= INV_MIN) return Response.json({ limited: true });
       mins.push(now); this.sent.set(b.from.id, mins); this.pairs.set(pk, now);
-      if (this.pairs.size > 2000) for (const [k, t] of this.pairs) if (now - t > INV_PAIR_MS) this.pairs.delete(k);   // keep the memory bounded
+      if (this.pairs.size > 2000) for (const [k, t] of this.pairs) if (now - t > Math.max(INV_PAIR_MS, SAY_PAIR_MS)) this.pairs.delete(k);   // keep the memory bounded
       const n = this.push(b.to, { t: 'inv', from: b.from, room: b.room, song: b.song, d: b.d, ...(b.v === 2 ? { v: 2 } : {}), exp: now + INV_TTL });
       return Response.json({ delivered: n > 0 });
     }

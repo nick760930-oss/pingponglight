@@ -3,6 +3,7 @@
 // per-socket token bucket, 512-byte messages, idle sweep, reserved codes, everything rebuilt from clamped fields.
 import { CHARTS } from './charts.js';
 import { cleanName, nameProblem } from './names.js';
+import { friendRequest, relations, pidOf, blockedBy } from './friends.js';
 
 const SONGS = Object.keys(CHARTS);
 const MAX_MSG = 512;
@@ -16,6 +17,7 @@ const MAX_SCORE_STEP = 30000;
 const LOBBY_TTL = 120000, LIST_MAX = 30, LOBBY_CAP = 500;
 const PH_TTL = 15000, PEND_TTL = 10000, PH_CAP = 1000, UPSERT_GAP = 1000;   // placeholder life, pending-join life, placeholder cap, rename upsert throttle
 const RANKS = ['S', 'A', 'B', 'C', 'D', '—'];
+const SAY_N = 64, SAY_GAP = 2200, REL_GAP = 800, FADD_GAP = 600;   // room phrases: highest index accepted (the client's append-only list holds the text); per-socket gaps
 const int = (v, lo, hi) => { v = Math.floor(Number(v)); return Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : lo; };
 const rndSong = () => SONGS[crypto.getRandomValues(new Uint32Array(1))[0] % SONGS.length];
 const isSong = v => typeof v === 'string' && Object.prototype.hasOwnProperty.call(CHARTS, v);
@@ -64,6 +66,16 @@ export class Arena {
   }
 
   // ---- state broadcast helpers ----
+  // this socket's relation to every other signed-in seat: { seat: 'f' | 'o' | 'i' | 'b' | 'n' }; guests are left out (no menu)
+  async rels(ws) {
+    const a = this.info(ws), r = {};
+    if (a.pid && this.env.LB) {
+      const others = this.socks().map(w => this.info(w)).filter(x => x.pid && x.i !== a.i && x.pid !== a.pid);
+      let m = {}; try { m = await relations(this.env.LB, a.pid, [...new Set(others.map(x => x.pid))]); } catch (e) { return; }
+      for (const x of others) r[x.i] = m[x.pid] || 'n';
+    }
+    this.send(ws, { t: 'rel', r });
+  }
   async room(only) {
     const s = this.socks(); if (!s.length) return;
     const cfg = await this.get('cfg'), phase = await this.get('phase', 'lobby'), auto = await this.get('auto', null);
@@ -194,6 +206,41 @@ export class Arena {
         const n = cleanName(d.name); if (!n || n === a.name || nameProblem(n)) return;
         a.name = n; ws.serializeAttachment(a); await this.room();
         if (a.i === this.hostOf(this.socks())) await this.upsertSoon(now);   // only the host's name is in the lobby summary
+        return;
+      }
+      // ---- friends from a room: the account id stays on the server (never in any message to other players) ----
+      case 'auth': {                                  // { pk }: which account this seat is, once per socket
+        if (a.pid || (a.authN || 0) >= 3 || !this.env.LB) return;
+        a.authN = (a.authN || 0) + 1; ws.serializeAttachment(a);
+        let pl = null; try { pl = await pidOf(this.env.LB, d.pk); } catch (e) {}
+        if (!pl) return;
+        const b2 = this.info(ws); b2.pid = pl.id; b2.acct = pl.name; ws.serializeAttachment(b2);
+        for (const w of this.socks()) if (w === ws || this.info(w).pid) await this.rels(w);   // everyone signed in gets this seat's relation
+        return;
+      }
+      case 'rel': { if (now - (b.rel || 0) < REL_GAP) return; b.rel = now; await this.rels(ws); return; }
+      case 'fadd': {                                  // { i }: ask the player in seat i to be friends
+        if (!a.pid || !this.env.LB || now - (b.fadd || 0) < FADD_GAP) return; b.fadd = now;
+        if (!Number.isInteger(d.i) || d.i < 0 || d.i > 7) return;
+        const t = this.socks().map(w => this.info(w)).find(x => x.i === d.i && x.pid && x.pid !== a.pid);
+        if (!t) return;
+        let r = { error: 'busy' };
+        try {
+          const db = this.env.LB;
+          if (await db.prepare('SELECT 1 FROM fblocks WHERE (pid = ?1 AND target = ?2) OR (pid = ?2 AND target = ?1)').bind(a.pid, t.pid).first()) r = { error: 'blocked' };
+          else r = await friendRequest(db, this.env, { id: a.pid, name: a.acct || a.name }, t.pid, now);
+        } catch (e) {}
+        this.send(ws, { t: 'fadd', i: t.i, r: r.friends ? 'f' : r.pending ? 'o' : r.error === 'already' ? 'f' : 'x' });
+        return;
+      }
+      case 'say': {                                   // { k }: a preset phrase (never free text), shown over the seat
+        if (phase !== 'lobby' || now - (b.say || 0) < SAY_GAP) return;
+        const k = Number.isInteger(d.k) && d.k >= 0 && d.k < SAY_N ? d.k : -1; if (k < 0) return;
+        b.say = now;
+        const s = this.socks();
+        let hide = new Set();
+        if (a.pid && this.env.LB) { const others = s.map(w => this.info(w).pid).filter(x => x && x !== a.pid); try { hide = await blockedBy(this.env.LB, a.pid, others); } catch (e) {} }
+        for (const w of s) { const x = this.info(w); if (!x.pid || !hide.has(x.pid)) this.send(w, { t: 'say', i: a.i, k }); }
         return;
       }
       case 'cfg': {
