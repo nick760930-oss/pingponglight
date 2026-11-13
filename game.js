@@ -1395,7 +1395,7 @@ function mpRoomUI(){
   if(di!==C.di){di=C.di}
   if(!C.vote&&C.song!==RSEL.song){const k=songIdx(C.song);if(k>=0)si=k}   // the host picked a song: everyone's page follows
   RSEL.song=C.song;
-  $('#selT').textContent=C.qm?'快速配對':C.vote?'投票選曲':host?'選擇房間曲目':'房間曲目';
+  $('#selT').textContent=C.qm?'快速配對':C.vote?'投票選曲':host?'選擇遊玩曲目':'遊玩曲目';
   $('#rhd').innerHTML='房號<b>'+esc(DU.code)+'</b>'+(C.qm?'快速配對':C.pub?'公開':'私人')+' · '+n+' / '+C.max+' 人';
   for(const id of['dMax','dPub','dVote'])$('#'+id).hidden=!host;
   if(host){DMAX.set([2,3,4,5,6,7,8].filter(m=>m>=Math.max(2,n)).map(m=>({v:m,text:'上限 '+m+' 人'})),C.max);
@@ -1412,12 +1412,12 @@ function mpDetail(){   // extra line on the song details: what the room is going
   const C=DU.cfg,L=mpLeadInfo(),k=songIdx(L.k),nm=k>=0?'《'+esc(SONGS[k].name)+'》':'尚未選曲',me=(DU.players.find(p=>p.i===DU.you)||{}).vote;
   let t;
   if(C.vote)t=L.tie.length?'目前同票：'+L.tie.map(x=>esc(SONGS[songIdx(x)].name)).join('、')+'（開始時抽選）':L.n?'目前領先：'+nm+'（'+L.n+' 票）':'尚無人投票，未投票時以房主的曲目開始：'+nm;
-  else t=SONGS[si]&&SONGS[si].key===C.song?'這是房間曲目':'房間曲目：'+nm;
+  else t=SONGS[si]&&SONGS[si].key===C.song?'':'遊玩曲目：'+nm;   // on the song itself the list tag already says so
   $('#sK').textContent+=C.vote&&SONGS[si]&&SONGS[si].key===me?' · 您投的曲目':'';
-  $('#sM').insertAdjacentHTML('beforeend','<br><span style="color:#ffd36b">'+t+'</span>');
+  if(t)$('#sM').insertAdjacentHTML('beforeend','<br><span style="color:#ffd36b">'+t+'</span>');
 }
 function mpTag(k){const v=DU.votes[k]||0,L=mpLeadInfo();
-  return(k===DU.cfg.song&&!DU.cfg.vote?'<em class="rt">房間曲目</em>':'')+(DU.cfg.vote&&v?'<em class="rt">'+v+' 票'+(k===L.k&&!L.tie.length?' · 領先':L.tie.includes(k)?' · 同票':'')+'</em>':'')}
+  return(k===DU.cfg.song&&!DU.cfg.vote?'<em class="rt">遊玩曲目</em>':'')+(DU.cfg.vote&&v?'<em class="rt">'+v+' 票'+(k===L.k&&!L.tie.length?' · 領先':L.tie.includes(k)?' · 同票':'')+'</em>':'')}
 function mpVoters(k){if(!DU.cfg.vote)return'';const v=DU.players.filter(p=>p.vote===k).map(p=>esc(p.name));return v.length?'<span class="vt">'+v.join('、')+'</span>':''}
 function mpPick(i){   // a tap on a song row in a room
   const C=DU.cfg,key=SONGS[i].key;
