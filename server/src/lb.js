@@ -167,6 +167,8 @@ export async function handleLb(req, env, path, who, origin, H, limited) {
     if (body.op === 'run') { if (!Number.isInteger(id)) return json({ error: 'bad' }, 400); const x = await db.prepare('SELECT acc, err, combo, score, pf, ts, log FROM scores WHERE board = ?1 AND pid = ?2').bind(String(body.board), id).first(); return json({ run: x }); }
     if (body.op === 'reports') return json({ rows: (await db.prepare(`SELECT p.id, p.name, p.hidden, COUNT(r.by) AS n, MAX(r.ts) AS last
       FROM reports r JOIN players p ON p.id = r.pid GROUP BY p.id ORDER BY n DESC LIMIT 200`).all()).results });
+    if (body.op === 'dmreports') return json({ rows: (await db.prepare(`SELECT r.id, r.rp, a.name AS rpname, r.target, p.name, r.mid, r.body, r.ts
+      FROM freports r LEFT JOIN players p ON p.id = r.target LEFT JOIN players a ON a.id = r.rp ORDER BY r.ts DESC LIMIT 200`).all()).results });
     if (!Number.isInteger(id)) return json({ error: 'bad' }, 400);
     if (body.op === 'hide' || body.op === 'unhide') { await setHidden(db, id, body.op === 'hide' ? 1 : 0); if (body.op === 'unhide') await db.prepare('DELETE FROM reports WHERE pid = ?1').bind(id).run(); return json({ ok: true }); }
     if (body.op === 'delete') { await wipe(db, id); return json({ ok: true }); }

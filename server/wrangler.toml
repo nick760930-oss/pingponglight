@@ -3,6 +3,10 @@ main = "src/index.js"
 compatibility_date = "2025-01-01"
 workers_dev = true
 
+# Daily clean-up of expired friend messages and old reports (friends.js friendSweep).
+[triggers]
+crons = ["17 19 * * *"]
+
 [[durable_objects.bindings]]
 name = "ROOMS"
 class_name = "Room"

@@ -57,7 +57,7 @@
 - 只接受真的 App、真的裝置送來的成績；網頁版成績另列或降權。需要原生外掛與伺服器端驗證。
 
 **B2. 排行榜管理**
-- 管理指令：`POST /lb/admin {token, op}`，op 有 `reports`、`flagged`、`run`（看逐拍紀錄）、`hide`、`unhide`、`delete`。token 為 `LB_ADMIN`。
+- 管理指令：`POST /lb/admin {token, op}`，op 有 `reports`、`dmreports`（好友訊息檢舉，含訊息副本）、`flagged`、`run`（看逐拍紀錄）、`hide`、`unhide`、`delete`。好友訊息需要 D1 migration `0005_dm.sql`，部署 Worker 前先 `npx wrangler d1 migrations apply LB --remote`。token 為 `LB_ADMIN`。
 - 資料庫可隨時搬：`npx wrangler d1 export pingponglight-lb --remote --output lb.sql` 匯出成 SQL，任何 SQLite 都能匯入。
 
 **A5. 監控與應變**（要你本人操作，我可以一步步帶）

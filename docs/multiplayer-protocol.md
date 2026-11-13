@@ -61,4 +61,12 @@
 - 比賽中有人要進房：WebSocket 升級回 423。
 
 ## 好友短語（friends.js，不經房間）
-`POST /fr/say {pk, id, k}`：只限好友、`k` 為 0..63，經 Hub 推送 `fsay {from:{id,name}, k, ts}` 給對方所有在線裝置；不儲存，對方不在線就收不到（回 `delivered:false`）；同一對 3 秒一次、每人每分鐘 20 則。
+（舊版 App 使用；新版改用 /fr/msg，仍接收 fsay）`POST /fr/say {pk, id, k}`：只限好友、`k` 為 0..63，經 Hub 推送 `fsay {from:{id,name}, k, ts}` 給對方所有在線裝置；不儲存，對方不在線就收不到（回 `delivered:false`）；同一對 3 秒一次、每人每分鐘 20 則。
+
+`POST /fr/msg {pk, id, text, k?}`：自由文字，只限好友。順序：好友關係 → 頻率（Hub `/i/rate`，同一對 1 秒一次、每人每分鐘 20 則）→ 清理（NFC、換行變空白、去控制字元但保留 ZWJ、最多 60 字）→ 過濾（`names.js msgProblem`：比對前先去掉隱形字元與變音符號；中文詞任意位置、英文逐字並合併「f.u.c.k」；網址、電子郵件、IG/LINE/Discord/微信等帳號寫法、9 位以上數字）。被擋回 `{error:'filtered', why:'words'|'link'}`，不儲存。通過後存入 `fmsgs`（保存 7 天），經 Hub `/i/dm` 推送：auth 帶 `v:2` 的新版收 `fmsg {from:{id,name}, m:{id,text,ts}}`；舊版若訊息帶 `k`（快速短語索引）改收 `fsay`，否則不算送達。回 `{ok, m, delivered}`。
+
+`POST /fr/msgs {pk, id}`：與某位好友最近 50 則訊息，只含 7 天內且在「這次成為好友之後」的訊息，`[{id, me, text, ts}]` 由舊到新。`/fr/list` 的每位好友多一個 `lm {id, me, text, ts}`（同樣範圍的最後一則）。
+
+`POST /fr/report {pk, id, mid?}`：有 `mid` 時該則必須是對方傳給自己的訊息，內容副本存入 `freports`；沒有 `mid` 時（檢舉玩家）必須是好友或對方 7 天內傳過訊息給自己，副本為對方最近 20 則訊息。每人每天最多 30 筆；同一對象的玩家檢舉會更新副本。管理：`/lb/admin {op:'dmreports'}`。
+
+刪除好友或封鎖時訊息不刪除（雙方都讀不到，只供檢舉），到期由每日 cron（`friendSweep`）刪除；檢舉保存 1 年。刪除線上資料時，雙方訊息與相關檢舉立即刪除。

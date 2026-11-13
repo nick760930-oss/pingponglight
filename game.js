@@ -1356,10 +1356,10 @@ function duelOn(d){
     mpEndNote();return}
   if(d.t==='rel'){const r=d.r&&typeof d.r==='object'&&!Array.isArray(d.r)?d.r:{};DU.rel={};for(const k of Object.keys(r).slice(0,MP_MAX))if(['f','o','i','b','n'].includes(r[k]))DU.rel[dInt(k,0,MP_MAX-1)]=r[k];mpSeats();return}
   if(d.t==='fadd'){clearTimeout(DU.faddT);const i=dInt(d.i,0,MP_MAX-1),p=DU.players.find(x=>x.i===i);
-    if(d.r==='f'||d.r==='o'){DU.rel[i]=d.r;toast(d.r==='f'?'已與 '+(p?p.name:'對方')+' 成為好友':'已送出好友邀請')}else toast('目前無法送出好友邀請');mpSeats();return}
+    if(d.r==='f'||d.r==='o'){DU.rel[i]=d.r;toast(d.r==='f'?'您已和 '+(p?p.name:'對方')+' 成為好友':'已送出好友邀請')}else toast('目前無法送出好友邀請，請稍後再試');mpSeats();return}
   if(d.t==='say'){if(!Number.isInteger(d.k)||d.k<0||d.k>=SAY.length)return;const i=dInt(d.i,0,MP_MAX-1);
     DU.says[i]={k:d.k,until:Date.now()+3200};mpSeats();saysTick();return}
-  if(d.t==='start'){popClose();if(mode==='duel'&&(st==='play'||st==='ready'))return;
+  if(d.t==='start'){dmClose();if(mode==='duel'&&(st==='play'||st==='ready'))return;
     const at=+d.at,now=duelNow(),k=songIdx(dKey(d.song));
     if(k<0){dsend({t:'fin',s:0,ok:false,acc:0,rank:'—',mc:0});dmsg('房間選的曲目不在您目前的版本中，請更新遊戲後再加入。');return}
     duelStart({at:Number.isFinite(at)&&Math.abs(at-now)<15000?at:now+4500,seed:dInt(d.seed,0,4294967295),song:k,di:dInt(d.di,0,DIFFS.length-1)});return}
@@ -1431,7 +1431,7 @@ const SAY=['大家好 👋','哈囉哈囉','新手報到 🙋','好久不見！'
   'GG 👏','再一局！','你最頂 👍','下次一定贏','謝謝邀請','加個好友吧','先閃了 👋',
   '就這？😏','看我的 😎','不服來戰','這把我帶飛','是在緊張什麼','輸的請喝飲料 🧋','手速跟上好嗎','別眨眼 👀'];
 const SAY_G=[['打招呼',[0,1,2,3]],['選曲',[4,5,6,7,8,9]],['準備',[10,11,12,13]],['反應',[14,15,16,17,18,19,20,21,22,23,24]],['小嗆一下',[32,33,34,35,36,37,38,39]],['結束',[25,26,27,28,29,30,31]]];
-const REL_TAG={f:['f','好友'],o:['p','已邀請'],i:['i','想加你']};
+const REL_TAG={f:['f','好友'],o:['p','已邀請'],i:['i','邀請您']};
 function mpSeats(){
   if(!RSEL.on)return;const C=DU.cfg,now=Date.now();let h='';
   for(let k=0;k<C.max;k++){const p=DU.players[k];
@@ -1458,9 +1458,9 @@ $('#rseats').onclick=e=>{
   const i=+s.dataset.i,rl=DU.rel[i],p=DU.players.find(x=>x.i===i);if(i===DU.you||!rl||!p||rl==='b')return;
   const m=document.createElement('div');m.className='frpop';
   const nm='<b>'+esc(p.name)+'</b>';
-  if(rl==='f')m.innerHTML=nm+'<div class="hint">你們已經是好友</div>';
-  else if(rl==='o')m.innerHTML=nm+'<div class="hint">已送出好友邀請，等待對方接受</div>';
-  else{m.innerHTML=nm+'<div class="r"><button class="pri" data-a="add">'+(rl==='i'?'接受好友':'＋ 加好友')+'</button><button data-a="no">取消</button></div><div class="hint">'+(rl==='i'?'對方想加你為好友':'對方接受後就會出現在好友名單')+'</div>';
+  if(rl==='f')m.innerHTML=nm+'<div class="hint">您與對方已是好友</div>';
+  else if(rl==='o')m.innerHTML=nm+'<div class="hint">已送出好友邀請，請等候對方確認</div>';
+  else{m.innerHTML=nm+'<div class="r"><button class="pri" data-a="add">'+(rl==='i'?'接受邀請':'加為好友')+'</button><button data-a="no">取消</button></div><div class="hint">'+(rl==='i'?'對方已向您送出好友邀請':'對方接受後，將加入您的好友名單')+'</div>';
     m.querySelector('[data-a="add"]').onclick=()=>{dsend({t:'fadd',i});popClose();clearTimeout(DU.faddT);DU.faddT=setTimeout(()=>toast('沒有收到回應，請再試一次'),4000)};m.querySelector('[data-a="no"]').onclick=popClose}
   popAt(m,s,true);
 };
@@ -1468,7 +1468,7 @@ function sayOpen(){
   const q=document.createElement('div');q.className='qp';q.setAttribute('role','menu');q.setAttribute('aria-label','快速發言');
   q.innerHTML=SAY_G.map(([g,ks])=>'<div class="qh">'+g+'</div>'+ks.map(k=>'<button data-k="'+k+'" role="menuitem">'+esc(SAY[k])+'</button>').join('')).join('');
   q.onclick=e=>{const b=e.target.closest('button[data-k]');if(!b)return;const k=+b.dataset.k,now=Date.now();popClose();
-    if(now-(DU.saidAt||0)<2700){toast('請稍等一下再發言');return}DU.saidAt=now;dsend({t:'say',k})};
+    if(now-(DU.saidAt||0)<2700){toast('發言過於頻繁，請稍候再試');return}DU.saidAt=now;dsend({t:'say',k})};
   popAt(q,$('#bSay'),true);
 }
 $('#bSay').onclick=e=>{e.stopPropagation();if(document.querySelector('.qp'))popClose();else sayOpen()};
@@ -1484,7 +1484,7 @@ function mpRoomMsg(){
   if(C.qm){const s=DU.auto?Math.max(0,Math.ceil((DU.auto-duelNow())/1000)):0,nb=DU.players.filter(p=>p.back).length;dmsg(DU.auto?(nb>=C.max?'人數到齊，':'已有 '+nb+' 人，')+s+' 秒後開始':n>nb?'等待其他玩家回到房間（'+nb+' / '+n+'）⋯':'快速配對中，等待其他玩家加入⋯');return}
   const notReady=DU.players.filter(p=>!p.ready).length;
   dmsg(n<2?(DU.note||'等待其他玩家加入⋯ 可以按「邀請朋友」，或讓別人從公開房間加入。')
-    :notReady?'還有 '+notReady+' 人未準備'+(DU.ready?' · 已準備，點其他曲目只會試聽':C.vote?' · 按下準備以投票':mpHost()?' · 點左側曲目即可更換':'')
+    :notReady?'還有 '+notReady+' 人未準備'+(DU.ready?' · 已準備，點選其他曲目僅供試聽':C.vote?' · 按下準備以投票':mpHost()?' · 點左側曲目即可更換':'')
     :'全員準備，即將開始⋯');
 }
 function mpCfg(o,again){const C=DU.cfg,m={t:'cfg',song:C.song,di:C.di,pub:C.pub,max:C.max,vote:C.vote,...o};dsend(m);
@@ -1937,7 +1937,7 @@ function frConnect(){
   if(!ME||FD.ws||document.hidden)return;clearTimeout(FD.retry);
   let ws;try{ws=new WebSocket(NET.replace(/^http/,'ws')+'/fr/ws')}catch(e){return}
   FD.ws=ws;FD.last='';
-  ws.onopen=()=>{try{ws.send(JSON.stringify({t:'auth',pk:pkey()}))}catch(e){}};
+  ws.onopen=()=>{try{ws.send(JSON.stringify({t:'auth',pk:pkey(),v:2}))}catch(e){}};   // v2: understands 'fmsg'
   ws.onmessage=e=>{if(FD.ws!==ws||typeof e.data!=='string'||e.data.length>2048)return;let d;try{d=JSON.parse(e.data)}catch(_){return}
     if(!d||typeof d!=='object'||Array.isArray(d)||typeof d.t!=='string')return;try{frOn(d)}catch(err){}};
   ws.onclose=e=>{if(FD.ws!==ws)return;FD.ws=null;if(!ME||document.hidden||e.code===1008)return;   /* 1008: unknown key, replaced by another device, or flooding */FD.back=Math.min(60000,(FD.back||2000)*2);FD.retry=setTimeout(frConnect,FD.back)};
@@ -1960,8 +1960,9 @@ function frOn(d){
     FD.inv={id:dInt(f.id,0,1e12),name:who(f),room,song:SONGS.findIndex(x=>x.key===d.song),d:dInt(d.d,0,DIFFS.length-1),exp:Date.now()+55000};invShow();return}
   if(d.t==='invno'){toast(who(d.from)+' 目前無法接受邀請');return}
   if(d.t==='req'){toast(who(d.from)+' 想加您為好友');frBadge(true);if(frIsOpen())frLoad();if(RSEL&&RSEL.on)mpRelAsk();return}
+  if(d.t==='fmsg'){dmGot(d);return}
   if(d.t==='fsay'){fsayGot(d);return}
-  if(d.t==='friend'){toast('已與 '+dName(d.name)+' 成為好友');frBadge(true);if(frIsOpen())frLoad();if(RSEL&&RSEL.on)mpRelAsk();return}
+  if(d.t==='friend'){toast('您已和 '+dName(d.name)+' 成為好友');frBadge(true);if(frIsOpen())frLoad();if(RSEL&&RSEL.on)mpRelAsk();return}
 }
 let toastTm=0;
 function toast(text){
@@ -1993,43 +1994,135 @@ function frOpen(){
   if(FD.pend){$('#frIn').value=fcode(FD.pend);FD.pend='';$('#frMsg').textContent='已帶入好友碼，請按「送出」。'}
   frLoad();clearInterval(FD.poll);FD.poll=setInterval(()=>{if(frIsOpen()&&!document.hidden)frLoad()},15000);
 }
-function frClose(){clearInterval(FD.poll);showHome()}
+function frClose(){clearInterval(FD.poll);dmClose();showHome()}
 async function frLoad(){
   const j=await api('/fr/list',{pk:pkey()});
   if(j.error){if(frIsOpen()&&!FD.list)$('#frList').innerHTML='<div class="lbmsg">'+(j.error==='noname'?'請先設定暱稱。':'目前無法連線至伺服器，請稍後再試。')+'</div>';return}
   const P=a=>Array.isArray(a)?a.slice(0,300).filter(x=>x&&typeof x==='object').map(x=>({id:dInt(x.id,0,1e12),name:dName(x.name)||'玩家',on:x.on===1||x.on===true,
-    st:['home','menu','play','duel'].includes(x.st)?x.st:null,song:typeof x.song==='string'?x.song:null,seen:Number.isFinite(+x.seen)?+x.seen:0})):[];
+    st:['home','menu','play','duel'].includes(x.st)?x.st:null,song:typeof x.song==='string'?x.song:null,seen:Number.isFinite(+x.seen)?+x.seen:0,lm:dmMsg(x.lm)})):[];
+  for(const f of P(j.friends))if(f.lm&&(!FD.dm[f.id]||FD.dm[f.id].id<=f.lm.id))FD.dm[f.id]=f.lm;
   FD.list={friends:P(j.friends),incoming:P(j.incoming),outgoing:P(j.outgoing),blocked:P(j.blocked)};frBadgeSet();if(frIsOpen())frRender();
 }
 function frBadge(force){if(!ME)return;if(!force&&performance.now()-FD.bt<30000)return;FD.bt=performance.now();frLoad()}
-function frBadgeSet(){const L=FD.list;if(!L)return;const on=L.friends.filter(f=>f.on).length,inc=L.incoming.length;$('#frN').textContent=(on?String(on):'')+(inc?(on?' · ':'')+inc+' 個邀請':'')}
-// ---- preset phrases between friends: only to friends online, never stored ----
-FD.dm={};   // last phrase with each friend: {id:{k, me, ts}}
+function frBadgeSet(){const L=FD.list;if(!L)return;const on=L.friends.filter(f=>f.on).length,inc=L.incoming.length,nw=L.friends.filter(f=>dmUnread(f.id)).length;
+  $('#frN').textContent=[on?String(on):'',inc?inc+' 個邀請':'',nw?nw+' 則新訊息':''].filter(Boolean).join(' · ')}
+// ---- friend chat: free text, friends only, filtered and kept 7 days by the server; reports keep a copy for review ----
+// FSAY: the old preset phrases. Older app versions still send them (as 'fsay' with an index), so the list stays append-only;
+// here they are the quick chips above the input.
 const FSAY=['要一起玩嗎？','現在有空嗎？','開房等你 🎮','好啊來！','等我 5 分鐘 ⏳','今天不行 🙏','再一局？','晚點再約','剛剛那把好強 👍','先下線囉 👋'];
-function fsayOpen(id,name,anchor){
-  if(document.querySelector('.qp.fq')){popClose();return}
-  const q=document.createElement('div');q.className='qp fq';q.setAttribute('role','menu');q.setAttribute('aria-label','傳給 '+name);
-  q.innerHTML='<div class="qh">傳給 '+esc(name)+'</div>'+FSAY.map((t,k)=>'<button data-k="'+k+'" role="menuitem">'+esc(t)+'</button>').join('');
-  q.onclick=e=>{const b=e.target.closest('button[data-k]');if(!b)return;popClose();fsaySend(id,name,+b.dataset.k)};
-  popAt(q,anchor,false);
+const DM_MAX=60;
+FD.dm={};   // last message with each friend: {id:{id, me, text, ts}}
+function dmMsg(x){if(!x||typeof x!=='object'||typeof x.text!=='string')return null;
+  return {id:dInt(x.id,0,1e15),me:x.me===1||x.me===true?1:0,text:Array.from(x.text).slice(0,DM_MAX).join(''),ts:Number.isFinite(+x.ts)?+x.ts:Date.now()}}
+function dmReadMap(){try{const o=JSON.parse(lsGet('ppl-dmr')||'{}');return o&&typeof o==='object'?o:{}}catch(e){return {}}}
+function dmMarkRead(fid){const l=FD.dm[fid];if(!l||!l.id)return;const o=dmReadMap();if((o[fid]||0)>=l.id)return;o[fid]=l.id;
+  const k=Object.keys(o);if(k.length>200)delete o[k.reduce((a,b)=>o[a]<=o[b]?a:b)];lsSet('ppl-dmr',JSON.stringify(o));frBadgeSet()}
+function dmUnread(fid){const l=FD.dm[fid];return !!(l&&!l.me&&l.id&&l.id>(+dmReadMap()[fid]||0))}
+function dmFriend(id){return FD.list&&FD.list.friends.find(x=>x.id===id)}
+function dmSub(f){if(!f)return '';if(!f.on)return '離線';return f.st==='play'?'遊戲中':f.st==='duel'?'對戰中':f.st==='menu'?'選曲中':'在線上'}
+const hm=t=>{const d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
+function dmDay(t){const d=new Date(t),n=new Date(),z=x=>new Date(x.getFullYear(),x.getMonth(),x.getDate()).getTime(),k=Math.round((z(n)-z(d))/864e5);
+  return k===0?'今天':k===1?'昨天':(d.getMonth()+1)+' 月 '+d.getDate()+' 日'}
+function dmClose(){const w=document.querySelector('.dmw');if(w)w.remove();FD.chat=null;popClose()}
+function dmNote(t,id){const C=FD.chat;if(C&&(id===undefined||C.id===id)){C.msgs.push({sys:t});dmDraw()}else toast(t)}   // inside the chat: a line in the chat (a toast would be under it)
+function dmOpen(id,name){
+  dmClose();popClose();const f=dmFriend(id);
+  const w=document.createElement('div');w.className='dmw';
+  w.innerHTML='<div class="dmv" role="dialog" tabindex="-1" aria-modal="true" aria-label="與 '+esc(name)+' 的訊息"><div class="dh"><button class="bk" aria-label="返回">‹</button><span class="dot'+(f&&f.on?' on':'')+'"></span><b>'+esc(name)+'</b><small>'+esc(dmSub(f))+'</small><button class="mo" aria-label="檢舉或封鎖" aria-haspopup="menu">⋯</button></div>'
+    +'<div class="dl"><div class="dd">載入中⋯</div></div><div class="sr" aria-live="polite"></div>'
+    +'<div class="qs">'+FSAY.map((t,k)=>'<button data-q="'+k+'">'+esc(t)+'</button>').join('')+'</div>'
+    +'<div class="di"><input placeholder="輸入訊息" enterkeyhint="send" autocomplete="off" aria-label="輸入訊息"><span class="cn">0/'+DM_MAX+'</span><button class="pri">送出</button></div>'
+    +'<div class="dn">僅限好友傳送 · 訊息保存 7 天 · 系統將過濾不當用語 · 點選 ⚑ 可檢舉訊息</div></div>';
+  document.body.appendChild(w);
+  const C=FD.chat={id,name,msgs:[],w,warned:0},inp=w.querySelector('input'),cn=w.querySelector('.cn');
+  w.addEventListener('click',e=>{if(e.target===w)dmClose()});
+  w.querySelector('.bk').onclick=dmClose;
+  w.querySelector('.mo').onclick=e=>{e.stopPropagation();dmMenu(e.currentTarget)};
+  w.querySelector('.qs').onclick=e=>{const b=e.target.closest('button[data-q]');if(b)dmSend(id,name,FSAY[+b.dataset.q],+b.dataset.q)};
+  const go=()=>{const t=inp.value.trim();if(!t)return;dmSend(id,name,t).then(ok=>{if(ok&&inp.value.trim()===t){inp.value='';cn.textContent='0/'+DM_MAX}})};   // keep what was typed meanwhile
+  w.querySelector('.di button').onclick=go;
+  inp.addEventListener('input',()=>{const a=Array.from(inp.value);if(a.length>DM_MAX)inp.value=a.slice(0,DM_MAX).join('');cn.textContent=Math.min(a.length,DM_MAX)+'/'+DM_MAX});
+  let compEnd=0;inp.addEventListener('compositionend',()=>{compEnd=performance.now()});
+  // Enter that picks a candidate in an IME (Zhuyin etc.) must not send: WebKit fires compositionend before that keydown
+  inp.addEventListener('keydown',e=>{if(e.key!=='Enter')return;if(e.isComposing||e.keyCode===229||performance.now()-compEnd<80)return;e.preventDefault();go()});
+  w.querySelector('.dmv').focus({preventScroll:true});
+  w.querySelector('.dl').onclick=e=>{const b=e.target.closest('button[data-rp]');if(b){e.stopPropagation();dmReportAsk(b,+b.dataset.rp)}};
+  w.addEventListener('keydown',e=>{if(e.key==='Escape')dmClose()});
+  api('/fr/msgs',{pk:pkey(),id}).then(j=>{if(FD.chat!==C)return;
+    if(j.error==='notfriend'){dmClose();toast('您與對方已非好友，無法傳送');return}
+    const got=Array.isArray(j.msgs)?j.msgs.map(dmMsg).filter(Boolean):[],live=C.msgs;if(j.error)C.err=1;
+    C.msgs=got.concat(live.filter(m=>m.sys||!m.id||!got.some(x=>x.id===m.id)));   // pushes that arrived while loading
+    const ids=C.msgs.filter(m=>m.id);if(ids.length){const l=ids[ids.length-1];if(!FD.dm[id]||FD.dm[id].id<=l.id)FD.dm[id]=l}
+    dmDraw();if(!j.error)dmMarkRead(id);if(frIsOpen())frRender()});
 }
-async function fsaySend(id,name,k){
-  const j=await api('/fr/say',{pk:pkey(),id,k});
-  if(j.ok){FD.dm[id]={k,me:1,ts:Date.now()};if(frIsOpen())frRender();toast(j.delivered?'已傳給 '+name:name+' 目前不在線上，沒有收到')}
-  else toast(j.error==='slow'?'請稍等一下再傳':j.error==='notfriend'?'你們已不是好友':'目前無法傳送，請稍後再試');
+function dmDraw(){
+  const C=FD.chat;if(!C)return;const L=C.w.querySelector('.dl');let h='',day='';
+  if(C.err&&!C.msgs.length)h='<div class="dd">目前無法載入訊息，請稍後再試</div>';
+  else if(!C.msgs.length)h='<div class="dd">還沒有訊息，打聲招呼吧</div>';
+  for(const m of C.msgs){
+    if(m.sys){h+='<div class="sys">'+esc(m.sys)+'</div>';continue}
+    const dy=dmDay(m.ts);if(dy!==day){day=dy;h+='<div class="dd">'+dy+'</div>'}
+    h+='<div class="m '+(m.me?'me':'o')+'"><span>'+esc(m.text)+'</span>'+(!m.me&&m.id?'<button class="rp" data-rp="'+m.id+'" aria-label="檢舉這則訊息">⚑</button>':'')+'<time>'+hm(m.ts)+'</time></div>';
+  }
+  L.innerHTML=h;L.scrollTop=L.scrollHeight;
 }
-function fsayGot(d){
+function dmMenu(anchor){
+  const C=FD.chat;if(!C)return;if(document.querySelector('.frpop.dmm')){popClose();return}
+  const m=document.createElement('div');m.className='frpop dmm';m.setAttribute('role','menu');
+  const main=()=>{m.innerHTML='<button class="ln" data-a="rp" role="menuitem">⚑ 檢舉 '+esc(C.name)+'</button><button class="ln warn" data-a="bl" role="menuitem">⛔ 封鎖 '+esc(C.name)+'</button><div class="hint">封鎖後，對方將無法傳送訊息或對戰邀請給您</div>'};
+  main();
+  m.onclick=e=>{const b=e.target.closest('button[data-a]');if(!b)return;const a=b.dataset.a;
+    if(a==='rp'){popClose();dmReport(C.id,0);return}
+    if(a==='bl'){m.innerHTML='<b>確定封鎖 '+esc(C.name)+'？</b><div class="r"><button class="pri" data-a="bly">封鎖</button><button data-a="no">取消</button></div><div class="hint">好友關係將移除，聊天紀錄將無法再查看；可在好友頁面解除封鎖</div>';return}
+    if(a==='no'){popClose();return}
+    if(a==='bly'){popClose();const id=C.id;api('/fr/block',{pk:pkey(),id}).then(j=>{if(j.ok){dmClose();delete FD.dm[id];toast('已封鎖');frLoad()}else toast('目前無法封鎖，請稍後再試')})}};
+  popAt(m,anchor,false);m.style.left=Math.max(8,anchor.getBoundingClientRect().right-m.offsetWidth)+'px';
+}
+function dmReportAsk(anchor,mid){
+  const C=FD.chat;if(!C)return;const m=document.createElement('div');m.className='frpop';
+  m.innerHTML='<b>檢舉這則訊息？</b><div class="r"><button class="pri" data-a="y">檢舉</button><button data-a="n">取消</button></div><div class="hint">訊息內容將提供給管理人員審查</div>';
+  m.querySelector('[data-a="y"]').onclick=()=>{popClose();dmReport(C.id,mid)};m.querySelector('[data-a="n"]').onclick=popClose;
+  popAt(m,anchor,true);
+}
+async function dmReport(id,mid){
+  let j=await api('/fr/report',mid?{pk:pkey(),id,mid}:{pk:pkey(),id});
+  if(j.error==='nomsg'&&mid)j=await api('/fr/report',{pk:pkey(),id});   // that message has expired: report the player instead
+  dmNote(j.ok?'已收到您的檢舉，我們將盡快處理':j.error==='nomsg'?'沒有可檢舉的內容':'目前無法送出檢舉，請稍後再試',id);
+}
+async function dmSend(id,name,text,k){
+  const C=FD.chat&&FD.chat.id===id?FD.chat:null;
+  if(Array.from(text).length>DM_MAX){dmNote('訊息最多 '+DM_MAX+' 個字',id);return false}
+  if(FD.sending)return false;FD.sending=1;let j;try{j=await api('/fr/msg',k===undefined?{pk:pkey(),id,text}:{pk:pkey(),id,text,k})}finally{FD.sending=0}
+  if(j.ok){const m=dmMsg(j.m)||{id:0,me:1,text,ts:Date.now()};m.me=1;FD.dm[id]=m;
+    if(C){if(!C.msgs.some(x=>x.id&&x.id===m.id))C.msgs.push(m);if(!j.delivered&&!C.warned){C.warned=1;C.msgs.push({sys:name+' 目前離線，將於上線後收到'})}dmDraw()}
+    else toast(j.delivered?'訊息已送達 '+name:name+' 目前離線，將於上線後收到');
+    if(frIsOpen())frRender();return true}
+  if(j.error==='filtered'){dmNote(j.why==='link'?'訊息不可包含連結或聯絡方式':'訊息含有不當用語',id);return false}
+  if(j.error==='notfriend'){if(C)dmClose();delete FD.dm[id];toast('您與對方已非好友，無法傳送');frLoad();return false}
+  dmNote(j.error==='slow'?'傳送過於頻繁，請稍候再試':'目前無法傳送，請稍後再試',id);return false;
+}
+function dmGot(d){   // a message pushed by the server
+  const f=d.from&&typeof d.from==='object'?d.from:{},id=dInt(f.id,0,1e12),name=dName(f.name)||'好友',m=dmMsg(d.m);
+  if(!id||!m||!m.text)return;m.me=0;dmShow(id,name,m);
+}
+function fsayGot(d){   // a preset phrase from an older app version (not stored, nothing to report by message)
   const f=d.from&&typeof d.from==='object'?d.from:{},id=dInt(f.id,0,1e12),name=dName(f.name)||'好友';
   if(!Number.isInteger(d.k)||d.k<0||d.k>=FSAY.length||!id)return;
-  FD.dm[id]={k:d.k,me:0,ts:Date.now()};if(frIsOpen())frRender();
-  if(st==='play'||st==='ready'||st==='starting'){toast(name+'：'+FSAY[d.k]);return}   // during a run: a plain toast, no buttons
-  const m=document.createElement('div');m.className='frpop fin';m.setAttribute('role','alert');
-  m.innerHTML='<b>'+esc(name)+'</b><div class="say">'+esc(FSAY[d.k])+'</div><div class="r"><button class="pri" data-a="ok">'+esc(FSAY[3])+'</button><button data-a="re">回覆⋯</button><button data-a="x">關閉</button></div>';
-  m.querySelector('[data-a="ok"]').onclick=()=>{popClose();fsaySend(id,name,3)};
-  m.querySelector('[data-a="re"]').onclick=e=>{e.stopPropagation();const a=document.createElement('div');a.style.cssText='position:fixed;left:50%;top:14px';document.body.appendChild(a);fsayOpen(id,name,m);a.remove()};
-  m.querySelector('[data-a="x"]').onclick=popClose;
-  popClose();m.addEventListener('click',e=>e.stopPropagation());document.body.appendChild(m);
-  clearTimeout(FD.finT);FD.finT=setTimeout(()=>{if(m.isConnected)m.remove()},12000);
+  dmShow(id,name,{id:0,me:0,text:FSAY[d.k],ts:Date.now()});
+}
+function dmShow(id,name,m){
+  if(!FD.dm[id]||!m.id||FD.dm[id].id<=m.id)FD.dm[id]=m;   // an old app's phrase has no id: still the last thing said
+  const C=FD.chat;
+  if(C&&C.id===id){if(!m.id||!C.msgs.some(x=>x.id===m.id)){C.msgs.push(m);dmDraw();const sr=C.w.querySelector('.sr');if(sr)sr.textContent=name+'：'+m.text}dmMarkRead(id);return}
+  frBadgeSet();if(frIsOpen())frRender();
+  if(st==='play'||st==='ready'||st==='starting'){toast(name+'：'+m.text);return}   // during a run: a plain toast, no buttons
+  const p=document.createElement('div');p.className='frpop fin';p.setAttribute('role','alert');
+  p.innerHTML='<b><span class="dot on"></span>'+esc(name)+'</b><div class="say">'+esc(m.text)+'</div><div class="r"><button class="pri" data-a="re">回覆</button><button data-a="ok">'+esc(FSAY[3])+'</button><button data-a="x">關閉</button></div>';
+  p.querySelector('[data-a="re"]').onclick=()=>{popClose();dmOpen(id,name)};
+  p.querySelector('[data-a="ok"]').onclick=()=>{popClose();dmSend(id,name,FSAY[3],3)};
+  p.querySelector('[data-a="x"]').onclick=popClose;
+  popClose();p.addEventListener('click',e=>e.stopPropagation());document.body.appendChild(p);
+  clearTimeout(FD.finT);FD.finT=setTimeout(()=>{if(p.isConnected)p.remove()},12000);
 }
 function frRender(){
   const L=FD.list;if(!L)return;const busy=f=>f.st==='play'||f.st==='duel';
@@ -2039,10 +2132,10 @@ function frRender(){
   for(const f of fs){
     const sn=f.song?SONGS.find(x=>x.key===f.song):null,cls=!f.on?'':busy(f)?'busy':'on';
     const sub=!f.on?'離線'+(f.seen?' · '+ago(f.seen):''):f.st==='duel'?'對戰中 · 結束後即可邀請':f.st==='play'?'遊戲中'+(sn?' · 《'+sn.name+'》':'')+' · 結束後即可邀請':f.st==='menu'?'在線上 · 選曲中':'在線上';
-    const ls=FD.dm[f.id],lt=ls&&Date.now()-ls.ts<6*3600e3?'<span class="last">'+(ls.me?'你':esc(f.name))+'：'+esc(FSAY[ls.k])+' · '+esc(ago(ls.ts))+'</span>':'';
+    const ls=FD.dm[f.id],nw=dmUnread(f.id),lt=ls&&Date.now()-ls.ts<7*864e5?'<span class="last'+(nw?' nw':'')+'">'+(ls.me?'您':esc(f.name))+'：'+esc(ls.text)+' · '+esc(ago(ls.ts))+'</span>':'';
     h+='<div class="fr"><span class="dot '+cls+'"></span><span class="tx"><span class="nm">'+esc(f.name)+'</span><span class="mt '+cls+'">'+esc(sub)+'</span>'+lt+'</span>'
       +(f.on&&!busy(f)?'<button class="pri inv" data-inv="'+f.id+'">邀請對戰</button>':'')
-      +(f.on?'<button class="dm" data-dm="'+f.id+'" aria-label="傳訊息給 '+esc(f.name)+'" aria-haspopup="menu">💬</button>':'')
+      +'<button class="dm'+(nw?' nw':'')+'" data-dm="'+f.id+'" aria-label="'+(nw?'有新訊息，':'')+'傳訊息給 '+esc(f.name)+'">💬</button>'
       +'<button class="more" data-more="'+f.id+'" aria-label="'+esc(f.name)+' 的更多選項">⋯</button></div>';
     if(FD.open===f.id)h+='<div class="fopt"><button data-rm="'+f.id+'">刪除好友</button><button class="warn" data-bl="'+f.id+'">封鎖</button><button data-x="1">取消</button></div>';
   }
@@ -2054,7 +2147,7 @@ function frRender(){
 }
 async function frAct(path,body){const j=await api(path,Object.assign({pk:pkey()},body));$('#frMsg').textContent=j.error?(j.error==='net'?'目前無法連線至伺服器。':'操作失敗，請稍後再試。'):'';FD.open=-1;await frLoad()}
 $('#frList').onclick=e=>{const b=e.target.closest('button');if(!b)return;const D=b.dataset;
-  if(D.dm){e.stopPropagation();const f=FD.list&&FD.list.friends.find(x=>x.id===+D.dm);if(f)fsayOpen(f.id,f.name,b);return}
+  if(D.dm){e.stopPropagation();const f=FD.list&&FD.list.friends.find(x=>x.id===+D.dm);if(f)dmOpen(f.id,f.name);return}
   if(D.more){const id=+D.more;FD.open=FD.open===id?-1:id;frRender();return}
   if(D.x){FD.open=-1;frRender();return}
   if(D.rm){frAct('/fr/remove',{id:+D.rm});return}
@@ -2350,7 +2443,7 @@ $('#bWipe').onclick=async()=>{   // two taps: the first one only arms it
   const j=await api('/lb/delete',{pk:pkey()});b.disabled=false;
   if(!j.ok){b.textContent='刪除失敗，請連線後再次嘗試';setTimeout(()=>{b.textContent=idle},3000);return}
   frDisconnect();try{for(const k of Object.keys(localStorage))if(/^ppl-(pk|me|hide|lr-)/.test(k))localStorage.removeItem(k)}catch(e){}
-  HIDE.clear();setMe(null);LBC.clear();FD.list=null;FD.code='';lsSet('ppl-fc','');$('#frN').textContent='';b.textContent='已刪除。單人模式的進度仍保留於此裝置';setTimeout(()=>{b.textContent=idle},4000);syncSet();
+  HIDE.clear();setMe(null);LBC.clear();FD.list=null;FD.code='';lsSet('ppl-fc','');dmClose();FD.dm={};try{localStorage.removeItem('ppl-dmr')}catch(e){}$('#frN').textContent='';b.textContent='已刪除。單人模式的進度仍保留於此裝置';setTimeout(()=>{b.textContent=idle},4000);syncSet();
 };
 $('#bSet').onclick=()=>{initAudio();syncSet();$('#home').classList.add('hidden');$('#set').classList.remove('hidden')};
 function closeSet(){$('#set').classList.add('hidden');showHome()}

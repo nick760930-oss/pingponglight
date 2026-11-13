@@ -12,7 +12,7 @@
 // - config changes are throttled (they are the only lobby message that writes storage);
 // - idle sockets (no ping for 75 s) are closed so dead or parked connections cannot hold a room.
 import { handleLb } from './lb.js';
-import { handleFr } from './friends.js';
+import { handleFr, friendSweep } from './friends.js';
 export { Hub } from './friends.js';   // presence Durable Object (friends)
 export { Arena, Lobby } from './arena.js';   // v2 multiplayer rooms (2..8) and lobby
 const ALPH = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';          // no 0/O/1/I/L
@@ -47,6 +47,7 @@ async function limited(env, key) {    // true when this key is over its limit
 }
 
 export default {
+  async scheduled(ev, env, ctx) { ctx.waitUntil(friendSweep(env)); },   // wrangler.toml [triggers]
   async fetch(req, env) {
     const url = new URL(req.url), origin = req.headers.get('Origin');
     if (url.pathname.startsWith('/lb/')) {           // leaderboard (POST); moderation (/lb/admin) is token-only, no page

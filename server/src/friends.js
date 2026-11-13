@@ -6,11 +6,21 @@
 //
 // Players are the ones /lb/name registered; the phone's secret key pk is hashed and looked up like in lb.js.
 // Responses never contain pk or ph.
+import { cleanMsg, msgProblem } from './names.js';
+
+export async function friendSweep(env) {    // daily (cron): expired messages; reports older than a year
+  if (!env.LB) return;
+  const now = Date.now();
+  await env.LB.batch([env.LB.prepare('DELETE FROM fmsgs WHERE ts < ?1').bind(now - FMSG_KEEP), env.LB.prepare('DELETE FROM freports WHERE ts < ?1').bind(now - 365 * 86400e3)]);
+}
+
 export const friendWipe = (db, id) => [        // every friends row about a player, in both directions (see lb.js wipe)
   db.prepare('DELETE FROM fcodes WHERE pid = ?1').bind(id),
   db.prepare('DELETE FROM fships WHERE a = ?1').bind(id), db.prepare('DELETE FROM fships WHERE b = ?1').bind(id),
   db.prepare('DELETE FROM freqs WHERE frm = ?1').bind(id), db.prepare('DELETE FROM freqs WHERE "to" = ?1').bind(id),
   db.prepare('DELETE FROM fblocks WHERE pid = ?1').bind(id), db.prepare('DELETE FROM fblocks WHERE target = ?1').bind(id),
+  db.prepare('DELETE FROM fmsgs WHERE frm = ?1').bind(id), db.prepare('DELETE FROM fmsgs WHERE "to" = ?1').bind(id),
+  db.prepare('DELETE FROM freports WHERE rp = ?1').bind(id), db.prepare('DELETE FROM freports WHERE target = ?1').bind(id),
 ];
 
 const ALPH = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';          // no 0/O/1/I/L (same as duel room codes)
@@ -18,6 +28,7 @@ const MAX_BODY = 2048, MAX_FRIENDS = 100, MAX_OUT = 50, MAX_BLOCKS = 200, LIST_C
 const ST = ['home', 'menu', 'play', 'duel'];
 const SONG = /^[a-z0-9]{1,24}$/, ROOM = /^[ABCDEFGHJKMNPQRSTUVWXYZ23456789]{4}$/;
 const INV_PAIR_MS = 5000, INV_MIN = 20, INV_TTL = 60000;
+const FMSG_KEEP = 7 * 86400e3, FMSG_PAGE = 50, FMSG_RAW = 400, FREP_DAY = 30;   // friend messages: kept 7 days, last 50 shown; reports per reporter per day
 const FSAY_N = 64, SAY_PAIR_MS = 3000, SAY_MIN = 20;    // friend phrases: highest index accepted (the client's append-only list holds the text), per-pair gap, per-minute cap
 const enc = new TextEncoder();
 const sha = async s => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', enc.encode(s))), b => b.toString(16).padStart(2, '0')).join('');
@@ -39,6 +50,8 @@ const unlink = (db, x, y) => [          // friendship and requests, both directi
   db.prepare('DELETE FROM fships WHERE a = ?1 AND b = ?2').bind(Math.min(x, y), Math.max(x, y)),
   db.prepare('DELETE FROM freqs WHERE (frm = ?1 AND "to" = ?2) OR (frm = ?2 AND "to" = ?1)').bind(x, y),
 ];
+// Messages are NOT removed with the friendship: /fr/msgs needs a friendship, so neither side can read them any more,
+// but a message stays reportable (and is copied into a report) until it expires after FMSG_KEEP.
 
 // Ask y to be x's friend (x = { id, name }). Shared by /fr/add (friend code) and the room's seat menu (Arena 'fadd').
 // The caller has already checked blocks; answers { ok, pending } / { ok, friends } / { error: 'already' | 'full' }.
@@ -131,6 +144,52 @@ export async function handleFr(req, env, path, who, origin, H, limited) {
     return json({ ok: true, delivered: !!r.delivered });
   }
 
+  if (path === '/fr/msg') {                           // free text to a friend: filtered, rate-limited, kept FMSG_KEEP
+    const { id, text } = body, k = body.k;
+    if (!isId(id) || typeof text !== 'string' || text.length > FMSG_RAW || (k !== undefined && (!Number.isInteger(k) || k < 0 || k >= FSAY_N))) return bad();
+    const t = cleanMsg(text);
+    if (!t) return bad();
+    if (!(await areFriends(db, me.id, id))) return json({ error: 'notfriend' });
+    const r = await hub(env, '/i/rate', { from: me.id, to: id });
+    if (!r) return json({ error: 'busy' }, 503);
+    if (r.limited) return json({ error: 'slow' }, 429, { 'Retry-After': '2' });
+    const why = msgProblem(t);
+    if (why) return json({ error: 'filtered', why: why === 'link' ? 'link' : 'words' });
+    const row = await db.prepare('INSERT INTO fmsgs (frm, "to", body, ts) VALUES (?1, ?2, ?3, ?4) RETURNING id').bind(me.id, id, t, now).first();
+    const m = { id: row.id, text: t, ts: now };
+    const p = await hub(env, '/i/dm', { to: id, msg: { t: 'fmsg', from: mine, m }, alt: k === undefined ? null : { t: 'fsay', from: mine, k, ts: now } });
+    return json({ ok: true, m, delivered: !!(p && p.n) });
+  }
+
+  if (path === '/fr/msgs') {                          // the last FMSG_PAGE messages with one friend, oldest first
+    if (!isId(body.id)) return bad();
+    if (!(await areFriends(db, me.id, body.id))) return json({ error: 'notfriend' });
+    const fs = await db.prepare('SELECT ts FROM fships WHERE a = ?1 AND b = ?2').bind(Math.min(me.id, body.id), Math.max(me.id, body.id)).first();
+    const since = Math.max(now - FMSG_KEEP, (fs && fs.ts) || now);   // only since this friendship began: an old chat is not shown again after re-adding
+    const r = await db.prepare(`SELECT id, frm, body, ts FROM fmsgs WHERE ((frm = ?1 AND "to" = ?2) OR (frm = ?2 AND "to" = ?1)) AND ts >= ?3
+      ORDER BY id DESC LIMIT ${FMSG_PAGE}`).bind(me.id, body.id, since).all();
+    return json({ msgs: r.results.reverse().map(x => ({ id: x.id, me: x.frm === me.id ? 1 : 0, text: x.body, ts: x.ts })) });
+  }
+
+  if (path === '/fr/report') {                        // report a player, optionally one message they sent me (a copy is kept for review)
+    const { id } = body, mid = body.mid === undefined ? 0 : body.mid;
+    if (!isId(id) || id === me.id || !Number.isInteger(mid) || mid < 0) return bad();
+    let copy = null;
+    if (mid) {
+      const x = await db.prepare('SELECT body FROM fmsgs WHERE id = ?1 AND frm = ?2 AND "to" = ?3').bind(mid, id, me.id).first();
+      if (!x) return json({ error: 'nomsg' });
+      copy = x.body;
+    } else {
+      const rows = (await db.prepare('SELECT body FROM fmsgs WHERE frm = ?1 AND "to" = ?2 AND ts > ?3 ORDER BY id DESC LIMIT 20').bind(id, me.id, now - FMSG_KEEP).all()).results;
+      if (!rows.length && !(await areFriends(db, me.id, id))) return json({ error: 'nomsg' });   // only someone who is (or recently wrote to) me
+      copy = rows.length ? rows.reverse().map(x => x.body).join('\n') : null;
+    }
+    const n = await db.prepare('SELECT COUNT(*) AS n FROM freports WHERE rp = ?1 AND ts > ?2').bind(me.id, now - 86400e3).first();
+    if (n.n < FREP_DAY) await db.prepare(`INSERT INTO freports (rp, target, mid, body, ts) VALUES (?1, ?2, ?3, ?4, ?5)
+      ON CONFLICT (rp, target, mid) DO UPDATE SET body = excluded.body, ts = excluded.ts`).bind(me.id, id, mid, copy, now).run();   // a repeat player report refreshes the copy
+    return json({ ok: true });
+  }
+
   if (path === '/fr/respond') {
     if (!isId(body.id) || typeof body.accept !== 'boolean') return bad();
     const q = await db.prepare('SELECT 1 FROM freqs WHERE frm = ?1 AND "to" = ?2').bind(body.id, me.id).first();
@@ -165,17 +224,24 @@ export async function handleFr(req, env, path, who, origin, H, limited) {
 
   if (path === '/fr/list') {
     const L = `LIMIT ${LIST_CAP}`;
-    const [fr, inc, out, blk] = await db.batch([
+    const [fr, inc, out, blk, lm] = await db.batch([
       db.prepare(`SELECT p.id, p.name, p.seen FROM fships f JOIN players p ON p.id = f.b WHERE f.a = ?1
         UNION ALL SELECT p.id, p.name, p.seen FROM fships f JOIN players p ON p.id = f.a WHERE f.b = ?1 ${L}`).bind(me.id),
       db.prepare(`SELECT p.id, p.name FROM freqs r JOIN players p ON p.id = r.frm WHERE r."to" = ?1 ORDER BY r.ts DESC ${L}`).bind(me.id),
       db.prepare(`SELECT p.id, p.name FROM freqs r JOIN players p ON p.id = r."to" WHERE r.frm = ?1 ORDER BY r.ts DESC ${L}`).bind(me.id),
       db.prepare(`SELECT p.id, p.name FROM fblocks b JOIN players p ON p.id = b.target WHERE b.pid = ?1 ORDER BY b.ts DESC LIMIT ${MAX_BLOCKS}`).bind(me.id),
+      db.prepare(`SELECT m.id, m.frm, m."to", m.body, m.ts FROM fmsgs m JOIN (SELECT MAX(id) AS id FROM fmsgs WHERE (frm = ?1 OR "to" = ?1) AND ts > ?2
+        AND ts >= COALESCE((SELECT f.ts FROM fships f WHERE f.a = MIN(frm, "to") AND f.b = MAX(frm, "to")), 9e15)
+        GROUP BY CASE WHEN frm = ?1 THEN "to" ELSE frm END) x ON x.id = m.id`).bind(me.id, now - FMSG_KEEP),   // last message with each friend, this friendship only
     ]);
+    const last = {};
+    for (const x of lm.results) last[x.frm === me.id ? x.to : x.frm] = { id: x.id, me: x.frm === me.id ? 1 : 0, text: x.body, ts: x.ts };
     const pres = fr.results.length ? ((await hub(env, '/i/status', { ids: fr.results.map(x => x.id) })) || {}).on || {} : {};
     const friends = fr.results.map(x => {
       const p = pres[x.id];
-      return p ? { id: x.id, name: x.name, on: 1, st: p.st, song: p.song, seen: x.seen || 0 } : { id: x.id, name: x.name, on: 0, st: 'home', song: null, seen: x.seen || 0 };
+      const f = p ? { id: x.id, name: x.name, on: 1, st: p.st, song: p.song, seen: x.seen || 0 } : { id: x.id, name: x.name, on: 0, st: 'home', song: null, seen: x.seen || 0 };
+      if (last[x.id]) f.lm = last[x.id];
+      return f;
     }).sort((x, y) => y.on - x.on || x.name.localeCompare(y.name));
     return json({ friends, incoming: inc.results, outgoing: out.results, blocked: blk.results });
   }
@@ -204,10 +270,11 @@ export async function handleFr(req, env, path, who, origin, H, limited) {
 // Attachment: { pid: 0 until authenticated, st, song, sa (when st last changed), seen (last message, or accept time before auth) }.
 const MAX_MSG = 256;                    // legitimate messages are < 100 bytes
 const BUCKET = 10, REFILL = 2, MAX_DROPS = 30;
+const MSG_PAIR_MS = 1000, MSG_MIN = 20;
 const AUTH_MS = 10000, IDLE_MS = 75000, SWEEP_MS = 30000, MAX_SOCKS = 5;
 
 export class Hub {
-  constructor(ctx, env) { this.ctx = ctx; this.env = env; this.rate = new Map(); this.pairs = new Map(); this.sent = new Map(); this.said = new Map(); }
+  constructor(ctx, env) { this.ctx = ctx; this.env = env; this.rate = new Map(); this.pairs = new Map(); this.sent = new Map(); this.said = new Map(); this.msgd = new Map(); }
   socks() { return this.ctx.getWebSockets().filter(w => w.readyState === 1); }
   info(w) { try { return w.deserializeAttachment() || {}; } catch (e) { return {}; } }
   send(w, o) { try { w.send(JSON.stringify(o)); } catch (e) {} }
@@ -242,6 +309,11 @@ export class Hub {
       return Response.json({ on });
     }
     if (url.pathname === '/i/push') return Response.json({ n: this.push(b.to, b.msg) });
+    if (url.pathname === '/i/dm') {                         // a friend message: new apps get the text, old ones (v1) the preset phrase if there is one
+      let n = 0;
+      for (const w of this.of(b.to)) { if ((this.info(w).v || 1) >= 2) { this.send(w, b.msg); n++; } else if (b.alt) { this.send(w, b.alt); n++; } }
+      return Response.json({ n });
+    }
     if (url.pathname === '/i/say') {                        // a friend's preset phrase: same limits style as invites
       const now = Date.now(), pk = 's' + b.from.id + ':' + b.to;
       const mins = (this.said.get(b.from.id) || []).filter(t => now - t < 60000);
@@ -251,6 +323,15 @@ export class Hub {
       if (this.pairs.size > 2000) for (const [k, t] of this.pairs) if (now - t > Math.max(INV_PAIR_MS, SAY_PAIR_MS)) this.pairs.delete(k);   // keep the memory bounded
       const n = this.push(b.to, { t: 'fsay', from: b.from, k: b.k, ts: now });
       return Response.json({ delivered: n > 0 });
+    }
+    if (url.pathname === '/i/rate') {                       // friend messages: per-pair gap and a per-minute cap (the Worker stores and pushes)
+      const now = Date.now(), pk = 'm' + b.from + ':' + b.to;
+      const mins = (this.msgd.get(b.from) || []).filter(t => now - t < 60000);
+      if (now - (this.pairs.get(pk) || 0) < MSG_PAIR_MS || mins.length >= MSG_MIN) return Response.json({ limited: true });
+      mins.push(now); this.msgd.set(b.from, mins); this.pairs.set(pk, now);
+      if (this.msgd.size > 2000) for (const [k, v] of this.msgd) if (!v.some(t => now - t < 60000)) this.msgd.delete(k);
+      if (this.pairs.size > 2000) for (const [k, t] of this.pairs) if (now - t > Math.max(INV_PAIR_MS, SAY_PAIR_MS)) this.pairs.delete(k);
+      return Response.json({ ok: true });
     }
     if (url.pathname === '/i/invite') {
       const now = Date.now(), pk = b.from.id + ':' + b.to;
@@ -286,7 +367,7 @@ export class Hub {
       if (!pl) { this.kick(ws, 'auth'); return; }
       const mine = this.of(pl.id).filter(w => w !== ws);    // cap devices per player: the least recently active one goes
       if (mine.length >= MAX_SOCKS) { mine.sort((x, y) => (this.info(x).seen || 0) - (this.info(y).seen || 0)); this.kick(mine[0], 'replaced'); }
-      ws.serializeAttachment({ pid: pl.id, st: 'home', song: null, sa: now, seen: now });
+      ws.serializeAttachment({ pid: pl.id, st: 'home', song: null, sa: now, seen: now, v: d.v === 2 ? 2 : 1 });   // v2 = knows 'fmsg' (free text)
       this.send(ws, { t: 'hi', id: pl.id, name: pl.name });
       return;
     }
