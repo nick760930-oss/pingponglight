@@ -230,8 +230,18 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .bugr .pri{flex:0 0 auto}
 @media (max-height:480px){.sws{margin:0}.set h2{margin:0 0 4px}.home .hpri{margin-top:12px;padding:11px 0;font-size:17px}.hm2{margin-top:10px}.hm2 button{padding:9px 0;font-size:14px}.hm3{margin:6px 0 2px}}
 .foot{font-size:11px;color:#6f78a8;margin:12px 0 0}
-.pgv{position:fixed;inset:0;z-index:90;background:#0b0d1c;padding:env(safe-area-inset-top,0) var(--sr) 0 var(--sl)}.pgv[hidden]{display:none}
-.pgv iframe{width:100%;height:100%;border:0;display:block;background:#0b0d1c}.pgv .xbtn{top:max(8px,env(safe-area-inset-top));right:max(10px,calc(var(--sr) + 6px));z-index:2}
+#docv .card{max-width:760px;text-align:left;outline:none;scrollbar-width:thin;scrollbar-color:rgba(124,240,255,.4) transparent}
+#docv .card::-webkit-scrollbar{width:6px}#docv .card::-webkit-scrollbar-thumb{background:rgba(124,240,255,.4);border-radius:3px}
+#docv h2{text-align:center;line-height:44px;margin:0 0 6px}
+.doc{font-size:13.5px;line-height:1.7;color:#cfd5f5;user-select:text;-webkit-user-select:text}
+#docv .doc p,#docv .doc li{font-size:13.5px;color:#cfd5f5;text-align:left;margin:6px 0}#docv .doc ul{font-size:13.5px}
+.doc tbody tr:nth-child(even) td{background:rgba(255,255,255,.025)}
+#docv .doc h2{font-size:15px;line-height:1.5;text-align:left;color:#7cf0ff;margin:1.2em 0 .4em;font-weight:600}
+.doc a{color:#7cf0ff}.doc .dim,.doc .muted{color:#8a93c0}.doc .dim{font-size:12.5px}
+.doc .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:rgba(0,0,0,.22);margin:6px 0 10px}
+.doc table{border-collapse:collapse;width:100%;min-width:560px;font-size:13px}
+.doc th,.doc td{padding:.5em .75em;text-align:left;border-bottom:1px solid rgba(255,255,255,.1);white-space:nowrap}
+.doc th{color:#7cf0ff;font-weight:600;background:#151a3e}.doc td.no{color:#8a93c0;text-align:right}.doc tr:last-child td{border-bottom:none}
 .res{max-width:660px}
 .resrow{display:flex;gap:22px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:6px}
 .rleft{min-width:150px}
@@ -251,6 +261,10 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .set{max-width:520px;text-align:left}
 .set h2{text-align:center;line-height:44px}
 .xbtn{position:absolute;top:8px;right:10px;min-width:44px;min-height:44px;padding:0 12px;display:inline-flex;align-items:center;justify-content:center;font-size:18px;line-height:1}
+/* one look for leaving a whole screen: the '‹ 返回' pill at top left; cards close with the ✕ at top right */
+.back{min-height:44px;padding:0 16px;font-size:14px;white-space:nowrap;display:inline-flex;align-items:center}
+.skycard>.sub:first-child,.skycard>h3{padding:0 40px}.skycard .xbtn{top:6px;right:6px}
+.frpop.fin .xbtn{top:4px;right:4px}.frpop.fin>b{padding-right:36px;min-height:36px}
 .srow{display:flex;align-items:center;gap:10px;margin:7px 0;font-size:14px}
 .srow label{flex:0 0 7.5em;color:#cfd5f5}
 .srow input[type=range]{flex:1 1 auto;accent-color:#7cf0ff}
@@ -506,9 +520,9 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
 #skyCv{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}
 
 .srl{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-.skytop{position:absolute;left:16px;right:52px;top:18px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--dim);z-index:1;pointer-events:none}
+.skytop{position:absolute;left:16px;right:16px;top:18px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--dim);z-index:1;pointer-events:none}
 .skytop b{font-size:16px;letter-spacing:.08em;color:var(--fg)}.skytop em{font-style:normal;color:#ffd36b;font-weight:700}
-.skytop .xbtn,.skytop button{pointer-events:auto}.skytop .xbtn{top:calc(50% - 22px)}#skyBk{padding:4px 12px;font-size:13px}
+.skytop button{pointer-events:auto;flex:0 0 auto}
 .skyleg{position:absolute;left:0;right:0;bottom:8px;display:flex;flex-wrap:wrap;justify-content:center;gap:4px 16px;font-size:12px;color:var(--dim);pointer-events:none}
 .skyleg span{display:inline-flex;align-items:center;gap:5px}.skyleg i{width:8px;height:8px;border-radius:50%;display:inline-block}
 .skycard{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:320px;width:calc(100% - 32px);z-index:2;padding:14px 18px}
@@ -554,7 +568,7 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
 </div></div>
 
 <div class="ov hidden" id="menu"><div class="sel">
-  <div class="selTop"><button id="bBack">‹ 返回</button><h2 id="selT">選擇曲目</h2><div class="rhd" id="rhd"></div>
+  <div class="selTop"><button id="bBack" class="back">‹ 返回</button><h2 id="selT">選擇曲目</h2><div class="rhd" id="rhd"></div>
     <div class="rset" id="rset"><span class="dd" id="dMax"></span><button class="sm tg" id="dPub"></button><button class="sm tg" id="dVote"></button><button class="sm" id="dShare" aria-haspopup="menu">邀請好友</button></div>
     <div class="tabs" id="sTabs" role="tablist"><button data-f="0">全部<b></b></button><button data-f="1">未通關<b></b></button><button data-f="2">已通關<b></b></button></div></div>
   <div class="rbar" id="rbar"></div>
@@ -593,7 +607,7 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
 </div></div>
 
 <div class="ov hidden" id="sky"><div class="skyw">
-  <div class="skytop"><button id="skyBk" hidden>‹ 全景</button><b id="skyT">星空</b><span id="skyStat"></span><button class="xbtn" id="skyX" aria-label="關閉">✕</button></div>
+  <div class="skytop"><button id="skyBk" class="back">‹ 返回</button><b id="skyT">星空</b><span id="skyStat"></span></div>
   <canvas id="skyCv" aria-hidden="true"></canvas><div class="srl" id="skyList" role="group" aria-label="星空曲目"></div>
   <div class="skyleg"><span><i style="background:#7ee89a"></i>入門</span><span><i style="background:#5fa8ff"></i>簡單</span><span><i style="background:#b07cff"></i>普通</span><span><i style="background:#ff8a3d"></i>困難</span><span><i style="background:#ff4d5e"></i>專家</span><span><i style="background:#ffe36b;box-shadow:0 0 6px #ffe36b"></i>專家 S</span><span>顏色＝最高通關難度　大小＝最佳評級　白星＝未通關</span></div>
   <div class="card skycard" id="skyCard" role="dialog" aria-label="曲目資訊" hidden></div>
@@ -616,6 +630,12 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
     </div>
   </div>
   <p id="dMsg" style="color:#ffb86b;font-size:13px;min-height:1.2em"></p>
+</div></div>
+
+<div class="ov hidden" id="docv"><div class="card" role="dialog" aria-modal="true" aria-labelledby="docT" tabindex="-1">
+  <button class="xbtn" id="docX" aria-label="關閉">✕</button>
+  <h2 id="docT"></h2>
+  <div class="doc" id="docB"></div>
 </div></div>
 
 <div class="ov hidden" id="howv"><div class="card" role="dialog" aria-modal="true" aria-label="操作說明" tabindex="-1">
@@ -706,7 +726,7 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
 </div></div>
 
 <div class="ov hidden" id="frv"><div class="frw">
-  <div class="selTop"><button id="frX">‹ 返回</button><h2>好友</h2><span class="on" id="frOn"></span></div>
+  <div class="selTop"><button id="frX" class="back">‹ 返回</button><h2>好友</h2><span class="on" id="frOn"></span></div>
   <div class="frb">
     <div class="frl">
       <div><div class="kicker">您的好友碼</div><div class="fcode" id="frCode">⋯</div>
