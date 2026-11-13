@@ -1421,7 +1421,7 @@ function mpTag(k){const v=DU.votes[k]||0,L=mpLeadInfo();
 function mpVoters(k){if(!DU.cfg.vote)return'';const v=DU.players.filter(p=>p.vote===k).map(p=>esc(p.name));return v.length?'<span class="vt">'+v.join('、')+'</span>':''}
 function mpPick(i){   // a tap on a song row in a room
   const C=DU.cfg,key=SONGS[i].key;
-  if(C.qm)return;
+  if(C.qm||DU.ready)return;   // once ready, the pick (or vote) is fixed: a tap only previews the song
   if(C.vote)dsend({t:'vote',song:key});else if(mpHost()&&key!==C.song)mpCfg({song:key});
 }
 function mpRoomMsg(){
@@ -1430,7 +1430,7 @@ function mpRoomMsg(){
   if(C.qm){const s=DU.auto?Math.max(0,Math.ceil((DU.auto-duelNow())/1000)):0,nb=DU.players.filter(p=>p.back).length;dmsg(DU.auto?(nb>=C.max?'人數到齊，':'已有 '+nb+' 人，')+s+' 秒後開始':n>nb?'等待其他玩家回到房間（'+nb+' / '+n+'）⋯':'快速配對中，等待其他玩家加入⋯');return}
   const notReady=DU.players.filter(p=>!p.ready).length;
   dmsg(n<2?(DU.note||'等待其他玩家加入⋯ 可以按「邀請朋友」，或讓別人從公開房間加入。')
-    :notReady?'還有 '+notReady+' 人未準備 · '+(C.vote?'全員準備後以最高票曲目開始':mpHost()?'點左側曲目即可更換':'房主選曲中')
+    :notReady?'還有 '+notReady+' 人未準備 · '+(DU.ready?'已準備，點其他曲目只會試聽':C.vote?'全員準備後以最高票曲目開始':mpHost()?'點左側曲目即可更換':'房主選曲中')
     :'全員準備，即將開始⋯');
 }
 function mpCfg(o,again){const C=DU.cfg,m={t:'cfg',song:C.song,di:C.di,pub:C.pub,max:C.max,vote:C.vote,...o};dsend(m);
