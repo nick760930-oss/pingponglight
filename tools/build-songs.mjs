@@ -59,6 +59,9 @@ for (const [name, keys] of CONS) for (const k of keys) {
 }
 for (const k of Object.keys(DATA)) if (!seen.has(k)) problems.push('song "' + k + '" is in no constellation');
 const ORDER = CONS.flatMap(c => c[1]).filter(k => DATA[k]);
+// one-line facts shown on the song page (tools/trivia.json, checked against sources); every piece needs one
+const TRIV = existsSync(join(TOOLS, 'trivia.json')) ? JSON.parse(readFileSync(join(TOOLS, 'trivia.json'), 'utf8')) : {};
+for (const k of ORDER) { if (TRIV[k]) DATA[k].tip = TRIV[k]; else problems.push('tools/trivia.json: no entry for "' + k + '"') }
 
 if (stats.length) console.table(stats);
 console.log(ORDER.length + ' songs in ' + CONS.length + ' constellations');

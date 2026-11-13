@@ -93,6 +93,8 @@ button.pri{background:linear-gradient(90deg,#3fd8ff,#8f6bff);border-color:transp
 .sdet h3{margin:0;font-size:20px;line-height:1.25}
 .sdet .mt{font-size:12px;color:#b9c1ea}
 .sdet .mt i{font-style:normal;color:#c9a95a;margin-left:4px}
+.sdet .tip{margin:0;flex-shrink:0;font-size:12px;line-height:1.5;color:#9aa3d6;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}   /* one fact about the piece */
+#menu.room .sdet .tip{display:none}
 .seg{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border:1px solid rgba(255,255,255,.18);border-radius:10px;overflow:hidden}
 .seg button{border:0;border-radius:0;background:none;padding:5px 1px;font-size:13px;white-space:nowrap;line-height:1.25;display:flex;flex-direction:column;align-items:center;min-height:42px;justify-content:center}
 .seg button+button{border-left:1px solid rgba(255,255,255,.14)}
@@ -467,6 +469,7 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
     <div class="sdet">
       <div class="ttl"><h3 id="sN"></h3><div class="kicker" id="sK"></div></div>
       <div class="mt" id="sM"></div>
+      <p class="tip" id="sT"></p>
       <div class="seg" id="diffs"></div>
       <div class="seats" id="rseats"></div>
       <div class="rnote" id="rnote"></div>

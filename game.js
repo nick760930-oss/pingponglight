@@ -1847,6 +1847,7 @@ function selDetail(){
   const i=si,s=SONGS[i];if(!s)return;
   $('#sK').textContent=CONS[CON_OF[i][0]].name+' · 第 '+(CON_OF[i][1]+1)+' 首 · '+s.year;$('#sN').textContent=s.name;
   $('#sM').innerHTML=esc(s.composer+' · '+durTxt(s))+'<i>'+starTxt(STARS[i])+'</i>';
+  $('#sT').textContent=s.tip||'';$('#sT').hidden=!s.tip;
   $('#diffs').innerHTML=DORD.map(k=>{const df=DIFFS[k];return'<button data-d="'+k+'" class="'+(k===di?'on':'')+'">'+df.n+'<small>'+BALLS[df.nb]+(df.spd>1?'·快':df.spd<1?'·慢':'')+'</small></button>'}).join('');
   const rk=rkOf(i,di),sc=parseInt(lsGet(KEY_SC(i,di))||'0',10)||0,ac=parseInt(lsGet(KEY_AC(i,di))||'0',10)||0;
   $('#sB').innerHTML=rk?'<span class="bk" style="color:'+RANK_COL[rk]+'">'+rk+'</span><span>'+(ac?'精準度 <b>'+pct(ac)+'</b> · ':'')+'最高分 <b>'+sc.toLocaleString()+'</b><br><span id="sRank"></span></span>'
