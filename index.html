@@ -86,7 +86,7 @@ button.pri{background:linear-gradient(90deg,#3fd8ff,#8f6bff);border-color:transp
 .sr .mt i{font-style:normal;color:#c9a95a;letter-spacing:-.05em;margin-left:6px}
 .pips{display:flex;gap:4px;flex:0 0 auto}
 .pips i{width:8px;height:8px;border-radius:50%;box-sizing:border-box;border:1.5px solid #39406b}
-.pips i.l0{background:#9df0b8;border-color:#9df0b8}.pips i.l1{background:#cfe6ff;border-color:#cfe6ff}.pips i.l2{background:#7cf0ff;border-color:#7cf0ff}.pips i.l3{background:#ffd36b;border-color:#ffd36b}.pips i.l4{background:#ff8fd8;border-color:#ff8fd8}
+.pips i.l0{background:#7ee89a;border-color:#7ee89a}.pips i.l1{background:#5fa8ff;border-color:#5fa8ff}.pips i.l2{background:#b07cff;border-color:#b07cff}.pips i.l3{background:#ff8a3d;border-color:#ff8a3d}.pips i.l4{background:#ff4d5e;border-color:#ff4d5e}
 .sr .rk{width:20px;flex:0 0 auto;text-align:right;font-size:15px;font-weight:800;color:#3c4370}
 .sempty{padding:24px 10px;color:var(--dim);font-size:13px;text-align:center}
 .sdet{width:296px;flex:0 0 auto;display:flex;flex-direction:column;gap:8px;padding-left:18px;border-left:1px solid rgba(255,255,255,.12);overflow-y:auto;touch-action:pan-y}
@@ -411,7 +411,7 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
 #prog.duel #pf{background:linear-gradient(90deg,#3fd8ff,#7cf0ff);box-shadow:none;transition:width .3s}
 .skyw{position:relative;width:100%;height:100%;max-width:1100px;border-radius:18px;overflow:hidden;background:radial-gradient(ellipse at 30% 20%,#1b2250 0%,#0a0c22 55%,#05060f 100%);border:1px solid rgba(255,255,255,.1)}
 #skyCv{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}
-.skyz{position:absolute;right:12px;bottom:36px;display:flex;flex-direction:column;gap:8px;z-index:1}.skyz button{width:40px;height:40px;padding:0;font-size:20px;line-height:1;border-radius:50%}
+
 .srl{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .skytop{position:absolute;left:16px;right:52px;top:18px;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--dim);z-index:1;pointer-events:none}
 .skytop b{font-size:16px;letter-spacing:.08em;color:var(--fg)}.skytop em{font-style:normal;color:#ffd36b;font-weight:700}
@@ -500,8 +500,8 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
 
 <div class="ov hidden" id="sky"><div class="skyw">
   <div class="skytop"><button id="skyBk" hidden>‹ 全景</button><b id="skyT">星空</b><span id="skyStat"></span><button class="xbtn" id="skyX" aria-label="關閉">✕</button></div>
-  <canvas id="skyCv" aria-hidden="true"></canvas><div class="skyz"><button id="skyZi" aria-label="放大">＋</button><button id="skyZo" aria-label="縮小">－</button></div><div class="srl" id="skyList" role="group" aria-label="星空曲目"></div>
-  <div class="skyleg"><span><i style="background:#9df0b8"></i>入門</span><span><i style="background:#cfe6ff"></i>簡單</span><span><i style="background:#7cf0ff"></i>普通</span><span><i style="background:#ffd36b"></i>困難</span><span><i style="background:#ff8fd8"></i>專家</span><span>顏色＝最高通關難度　大小＝最佳評級　白星＝未通關</span></div>
+  <canvas id="skyCv" aria-hidden="true"></canvas><div class="srl" id="skyList" role="group" aria-label="星空曲目"></div>
+  <div class="skyleg"><span><i style="background:#7ee89a"></i>入門</span><span><i style="background:#5fa8ff"></i>簡單</span><span><i style="background:#b07cff"></i>普通</span><span><i style="background:#ff8a3d"></i>困難</span><span><i style="background:#ff4d5e"></i>專家</span><span><i style="background:#ffe36b;box-shadow:0 0 6px #ffe36b"></i>專家 S</span><span>顏色＝最高通關難度　大小＝最佳評級　白星＝未通關</span></div>
   <div class="card skycard" id="skyCard" role="dialog" aria-label="曲目資訊" hidden></div>
 </div></div>
 <div class="ov hidden" id="duel"><div class="card mpc">

@@ -76,10 +76,9 @@ function unlockAudio(){
 function audioStatus(){
   const el=$('#aud');if(!el)return;
   if(!AC){el.textContent='';return}
-  el.textContent=AC&&AC.state==='running'?'聲音已啟用':'聲音未啟用：請點一下畫面，並確認裝置未開啟靜音。';
-  el.style.color=AC&&AC.state==='running'?'#7cf0ff':'#ffb86b';
+  el.textContent='';
   // instrument samples that failed to load: say so here too (the failure toast is held back during a run)
-  if(Object.keys(INSTOK).some(k=>!INSTOK[k])){el.textContent+='　樂器音色載入失敗：'+instErrText().slice(0,140);el.style.color='#ffb86b'}
+  if(Object.keys(INSTOK).some(k=>!INSTOK[k])){el.textContent='樂器音色載入失敗：'+instErrText().slice(0,140);el.style.color='#ffb86b'}
 }
 let acStale=false,acWatch={t:-1,w:0};
 // iOS: after switching apps / an interruption the context can report "running" yet stay silent;
@@ -681,12 +680,15 @@ function hushAll(){
   if(mode==='duel'&&st==='play'){over('離開遊戲');}
   if(st==='play'){if(!paused||resumeCD)holdMusic();paused=true;resumeCD=0;showPauseMenu()}
   cutAll();stopSilent();
-  if(AC&&AC.state==='running'&&AC.suspend){try{AC.suspend()}catch(e){}}
+  if(AC&&AC.state==='running'&&master){const now=AC.currentTime;try{master.gain.cancelScheduledValues(now);master.gain.setValueAtTime(master.gain.value,now);master.gain.setTargetAtTime(0,now,.02)}catch(e){}}
+  const ac=AC;setTimeout(()=>{if(ac&&ac===AC&&document.hidden&&ac.state==='running'&&ac.suspend){try{ac.suspend()}catch(e){}}},120);
   try{if(navigator.mediaSession){navigator.mediaSession.playbackState='none';navigator.mediaSession.metadata=null}}catch(e){}
 }
+function gainBack(){if(AC&&master){try{const now=AC.currentTime;master.gain.cancelScheduledValues(now);master.gain.setValueAtTime(master.gain.value,now);master.gain.setTargetAtTime(.55,now,.03)}catch(e){}}}
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden)hushAll();
-  else{try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}if(isIOS)acStale=true}
+  else{try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}gainBack();if(isIOS)acStale=true;
+    if(APP&&(st==='home'||st==='menu')&&$('#cal').classList.contains('hidden'))setTimeout(()=>{if(!document.hidden&&(st==='home'||st==='menu')&&$('#cal').classList.contains('hidden'))initAudio()},300)}   // the app may play without a tap: menu music comes back by itself
 });
 addEventListener('pagehide',hushAll);
 // links to the other pages (credits, privacy): fade the sound out first; cutting it off mid-note as the page goes crackled
@@ -698,7 +700,7 @@ document.addEventListener('click',e=>{
   try{master.gain.cancelScheduledValues(now);master.gain.setValueAtTime(master.gain.value,now);master.gain.setTargetAtTime(0,now,.04)}catch(err){}
   setTimeout(()=>{location.href=a.href},220);
 });
-addEventListener('pageshow',()=>{if(AC&&master){try{master.gain.cancelScheduledValues(0);master.gain.setValueAtTime(.55,AC.currentTime)}catch(e){}}});   // back from that page (page cache)
+addEventListener('pageshow',gainBack);   // back from that page (page cache)
 
 /* ---- fullscreen + no scroll / zoom / long-press ---- */
 const DE=document.documentElement;
@@ -2010,7 +2012,7 @@ async function frInvite(id,b){
 // brightness alone and players see it themselves. Drag to pan, pinch or wheel to zoom, tap a constellation to fly in,
 // tap a star for its song. Star sizes are in screen pixels and grow only a little when zooming, like a real sky.
 const SKY_SHORT={auld:'驪歌',k545:'K.545',nocturne:'夜曲'};
-const SKY_C=['#9df0b8','#cfe6ff','#7cf0ff','#ffd36b','#ff8fd8'];   // by difficulty rank (LVL): 入門 簡單 普通 困難 專家
+const SKY_C=['#7ee89a','#5fa8ff','#b07cff','#ff8a3d','#ff4d5e'],SKY_GOLD='#ffe36b';   // by difficulty rank (LVL): 入門 簡單 普通 困難 專家 (green blue purple orange red); gold: 專家 cleared with an S
 const SKY_SHAPE={
   lyra:[[18.62,38.78,0],[18.98,32.69,3.2],[18.83,33.36,3.5],[18.91,36.9,4.3],[18.75,37.6,4.4],[18.74,39.67,4.7]],
   orion:[[5.24,-8.2,.1],[5.92,7.4,.5],[5.42,6.35,1.6],[5.6,-1.2,1.7],[5.68,-1.94,1.8],[5.8,-9.67,2.1],[5.53,-.3,2.2],[5.59,-5.9,2.8],[4.83,6.96,3.2],[5.59,9.93,3.4],[4.85,5.6,3.7],[6.04,9.65,4.1]],
@@ -2062,7 +2064,7 @@ function skyBuild(){
   const MX=Math.round(W*.45),MY=Math.round(H*.45),FW=W+2*MX,FH=H+2*MY;
   const fb=new Map(),cnt=Math.round(2600*FW*FH/(3200*1500));
   for(let i=0;i<cnt;i++){const band=rnd()<.55,x=rnd()*FW-MX,y=band?H*(.78-.5*x/W)+(rnd()+rnd()+rnd()-1.5)*170:rnd()*FH-MY,m=Math.pow(rnd(),3.2);
-    const h=rnd()<.15?'#ffd9b0':rnd()<.25?'#b9ccff':'#ffffff',a=Math.min(2,Math.floor(m*3.5)),g=Math.floor(rnd()*4),key=h+a+g;
+    const h=rnd()<.15?'#ffd9b0':rnd()<.25?'#b9ccff':'#ffffff',a=Math.min(2,Math.floor(m*3.5)),g=Math.floor(rnd()*8),key=h+a+g;
     if(!fb.has(key))fb.set(key,{h,a:[.22,.42,.7][a],g,p:[]});fb.get(key).p.push([x,y,.3+m*1.0])}
   const neb=[];for(let i=0;i<Math.round(70*FW/3200);i++){const x=rnd()*FW-MX;neb.push({x,y:H*(.78-.5*x/W)+(rnd()-.5)*260,r:120+rnd()*260,c:rnd()<.5?'90,110,200':'150,90,170',a:.025+rnd()*.035})}
   const cv=$('#skyCv');
@@ -2118,7 +2120,8 @@ function skyPaint(t){
   const X0=-S.ox/s-40,Y0=-S.oy/s-40,X1=(S.vw-S.ox)/s+40,Y1=(S.vh-S.oy)/s+40,vis=(x,y,r)=>x+r>X0&&x-r<X1&&y+r>Y0&&y-r<Y1;
   for(const n of S.neb){if(!vis(n.x,n.y,n.r))continue;const rg=g.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r);rg.addColorStop(0,'rgba('+n.c+','+n.a+')');rg.addColorStop(1,'rgba('+n.c+',0)');g.fillStyle=rg;g.fillRect(n.x-n.r,n.y-n.r,n.r*2,n.r*2)}
   const fr=.9*Math.pow(zl,.2)/s;   // field stars: screen-pixel sizes, dimmer than any constellation star
-  for(const b of S.fb){g.globalAlpha=b.a*(motion?.78+.22*Math.sin(t/900+b.g*1.6):1);g.fillStyle=b.h;g.beginPath();
+  for(const b of S.fb){g.globalAlpha=b.a*(motion?.8+.2*Math.sin(t/(1300+b.g*230)+b.g*2.1):1);   // a faint, slow breathing, each group at its own pace
+    g.fillStyle=b.h;g.beginPath();
     for(const p of b.p){if(p[0]<X0||p[0]>X1||p[1]<Y0||p[1]>Y1)continue;const r=p[2]*fr;g.moveTo(p[0]+r,p[1]);g.arc(p[0],p[1],r,0,6.28)}g.fill()}
   g.globalAlpha=1;
   const k=Math.pow(zl,.3)/s;
@@ -2126,13 +2129,13 @@ function skyPaint(t){
     if(!vis(C.x,C.y,C.R*1.6))continue;
     const c=CONS[C.k];let lit=0;
     for(const p of C.P){
-      const tw=motion?.9+.1*Math.sin(t/700+p.x):1;
-      if(p.i<0){const r=(.35+p.mag*.6)*k*tw;g.fillStyle='rgba(220,228,255,.5)';g.beginPath();g.arc(p.x,p.y,r*.75,0,6.28);g.fill();continue}   // part of the shape, no song
+      const br=motion?.5+.5*Math.sin(t/(820+(p.i<0?0:p.i%5)*90)+p.x*.37+p.y*.21):.5,tw=.86+.28*br,ba=motion?.62+.38*br:1;   // breathing: size and brightness
+      if(p.i<0){const r=(.35+p.mag*.6)*k*tw;g.globalAlpha=ba;g.fillStyle='rgba(220,228,255,.5)';g.beginPath();g.arc(p.x,p.y,r*.75,0,6.28);g.fill();g.globalAlpha=1;continue}   // part of the shape, no song
       const {v,ul}=skyStar(p.i);
-      if(v.lit){lit++;const r=(.9+p.mag*1.2+v.r*.3)*k*tw,col=SKY_C[v.d],rg=g.createRadialGradient(p.x,p.y,0,p.x,p.y,r*4.5);rg.addColorStop(0,col);rg.addColorStop(.22,col+'99');rg.addColorStop(1,col+'00');
+      if(v.lit){lit++;g.globalAlpha=ba;const r=(.9+p.mag*1.2+v.r*.3)*k*tw,col=v.per.some((q,k)=>q&&LVL[k]===4&&q.r===RANKS[4])?SKY_GOLD:SKY_C[v.d],rg=g.createRadialGradient(p.x,p.y,0,p.x,p.y,r*4.5);rg.addColorStop(0,col);rg.addColorStop(.22,col+'99');rg.addColorStop(1,col+'00');
         g.fillStyle=rg;g.beginPath();g.arc(p.x,p.y,r*4.5,0,6.28);g.fill();g.fillStyle='#fff';g.beginPath();g.arc(p.x,p.y,r*.5,0,6.28);g.fill();
-        if(v.r===4){g.strokeStyle=col+'aa';g.lineWidth=.8/s;g.beginPath();g.moveTo(p.x-r*4,p.y);g.lineTo(p.x+r*4,p.y);g.moveTo(p.x,p.y-r*4);g.lineTo(p.x,p.y+r*4);g.stroke()}}   // S rank: a four-point sparkle
-      else{const r=(.45+p.mag*.95)*k*tw,rg=g.createRadialGradient(p.x,p.y,0,p.x,p.y,r*3.2);g.globalAlpha=ul?1:.45;   // not cleared: plain white, still brighter than the background
+        if(v.r===4){g.strokeStyle=col+'aa';g.lineWidth=.8/s;g.beginPath();g.moveTo(p.x-r*4,p.y);g.lineTo(p.x+r*4,p.y);g.moveTo(p.x,p.y-r*4);g.lineTo(p.x,p.y+r*4);g.stroke()}g.globalAlpha=1}   // S rank: a four-point sparkle
+      else{const r=(.45+p.mag*.95)*k*tw,rg=g.createRadialGradient(p.x,p.y,0,p.x,p.y,r*3.2);g.globalAlpha=(ul?1:.45)*ba;   // not cleared: plain white, still brighter than the background
         rg.addColorStop(0,'rgba(225,232,255,.35)');rg.addColorStop(1,'rgba(200,215,255,0)');g.fillStyle=rg;g.beginPath();g.arc(p.x,p.y,r*3.2,0,6.28);g.fill();
         g.fillStyle='rgba(248,250,255,.95)';g.beginPath();g.arc(p.x,p.y,r*.75,0,6.28);g.fill();g.globalAlpha=1}
       const la=clamp((p.nn*s-40)/12,0,1)*clamp((zl-1.5)/.5,0,1);   // a song's name appears once its star has room around it on screen
@@ -2175,8 +2178,6 @@ function skyA11y(){
     else if(C&&S.s<skyZoomFor(C)*.7){e.stopPropagation();$('#skyCard').hidden=true;skyFlyTo(C)}
     else if(best){e.stopPropagation();skyCardShow(best[0].i,best[1].name)}});
   cv.addEventListener('wheel',e=>{if(!SKY)return;e.preventDefault();const r=cv.getBoundingClientRect();skyZoomAt(Math.exp(-e.deltaY*.0015),e.clientX-r.left,e.clientY-r.top)},{passive:false});
-  $('#skyZi').onclick=e=>{e.stopPropagation();skyZoomAt(1.6,SKY.vw/2,SKY.vh/2)};
-  $('#skyZo').onclick=e=>{e.stopPropagation();skyZoomAt(1/1.6,SKY.vw/2,SKY.vh/2)};
   addEventListener('resize',()=>{if(SKY&&skyOn())skyFit()});
 })();
 // one star: best rank and score per difficulty, highest difficulty cleared, best rank overall
@@ -2368,7 +2369,8 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout
 for(const t of[300,1000,2500])setTimeout(()=>{vpCheck();layout()},t);   // a turn during launch can land after the first layout
 if(!unlocked(si))si=0;
 for(const f of[layout,buildChips,hud,audioStatus]){try{f()}catch(e){showErr(e)}}   // one failing step must not stop start-up
-if(APP)$('#bFs').style.display='none';
+if(APP){$('#bFs').style.display='none';
+  setTimeout(()=>{if(!document.hidden&&st==='home'){try{initAudio()}catch(e){}}},400)}   // the app web view may play without a tap: menu music starts on its own
 else if('serviceWorker' in navigator&&location.protocol==='https:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));hudShow(false);$('#fsHint').style.display=(!(DE.requestFullscreen||DE.webkitRequestFullscreen)&&!standalone)?'block':'none';
 requestAnimationFrame(frame);
 try{netBoot()}catch(e){}
