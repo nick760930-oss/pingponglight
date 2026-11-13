@@ -215,10 +215,23 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .bugi .add{width:96px;height:56px;border-radius:8px;border:1.5px dashed rgba(255,255,255,.3);background:none;color:var(--dim);font-size:12px;line-height:1.3;padding:0}
 .bugm{font-size:11.5px;color:var(--dim);background:rgba(0,0,0,.2);border-radius:8px;padding:6px 10px;margin:6px 0;line-height:1.6}
 .bugm b{color:#cfd5f5;font-weight:500}
+.bugm summary{cursor:pointer;color:#aab3e0;min-height:36px;line-height:36px}.bugm[open] summary{margin-bottom:2px}
+/* phones on their side: two columns, so the whole form fits on one screen without scrolling */
+@media (max-height:480px) and (orientation:landscape){
+  #bugv .card{max-width:820px;width:100%;display:grid;grid-template-columns:1.1fr 1fr;column-gap:18px;padding:10px 18px 12px;overflow:auto;max-height:calc(100dvh - 24px)}
+  #bugv h2{grid-column:1/-1;line-height:34px;font-size:19px;margin:0 0 2px}
+  #bugv .bugk{gap:5px;margin-bottom:6px}#bugv .bugk button{padding:4px 10px;min-height:34px}
+  #bugv #bugT{height:calc(100dvh - 222px);min-height:70px;max-height:170px}
+  #bugv .bugR{display:flex;flex-direction:column;min-height:0}
+  #bugv .bugi{margin:0 0 6px}#bugv .bugm{margin:0 0 6px;max-height:96px;overflow:auto}
+  #bugv .bugr{margin-top:auto;flex-wrap:wrap}
+}
 .bugr{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px;font-size:12px;color:var(--dim)}
 .bugr .pri{flex:0 0 auto}
 @media (max-height:480px){.sws{margin:0}.set h2{margin:0 0 4px}.home .hpri{margin-top:12px;padding:11px 0;font-size:17px}.hm2{margin-top:10px}.hm2 button{padding:9px 0;font-size:14px}.hm3{margin:6px 0 2px}}
 .foot{font-size:11px;color:#6f78a8;margin:12px 0 0}
+.pgv{position:fixed;inset:0;z-index:90;background:#0b0d1c;padding:env(safe-area-inset-top,0) var(--sr) 0 var(--sl)}.pgv[hidden]{display:none}
+.pgv iframe{width:100%;height:100%;border:0;display:block;background:#0b0d1c}.pgv .xbtn{top:max(8px,env(safe-area-inset-top));right:max(10px,calc(var(--sr) + 6px));z-index:2}
 .res{max-width:660px}
 .resrow{display:flex;gap:22px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:6px}
 .rleft{min-width:150px}
@@ -626,13 +639,16 @@ button.sm{padding:4px 10px;font-size:12px}button.tg.on{border-color:#7cf0ff;colo
 <div class="ov hidden" id="bugv"><div class="card" role="dialog" aria-modal="true" aria-label="回報問題" tabindex="-1">
   <button class="xbtn" id="bugX" aria-label="關閉">✕</button>
   <h2>回報問題</h2>
+  <div class="bugL">
   <div class="bugk" id="bugK" role="radiogroup" aria-label="問題類型"></div>
   <textarea id="bugT" maxlength="1000" placeholder="發生了什麼事？在哪個畫面、做了什麼操作？（可不填）"></textarea>
   <div class="bugc" id="bugC">0 / 1000</div>
+  </div><div class="bugR">
   <div class="bugi" id="bugI"></div>
   <input type="file" id="bugF" accept="image/*" multiple hidden>
-  <div class="bugm" id="bugM"></div>
+  <details class="bugm"><summary>一併送出的裝置資訊（點開查看）</summary><div id="bugM"></div></details>
   <div class="bugr"><span id="bugS">我們會看每一則回報，但不會逐一回覆</span><button class="pri" id="bugGo">送出回報</button></div>
+  </div>
 </div></div>
 
 <div class="ov hidden" id="set"><div class="card set">

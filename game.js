@@ -93,7 +93,7 @@ function initAudio(force){
   if(AC){unlockAudio();return}
   try{
     AC=new(window.AudioContext||window.webkitAudioContext)();
-    master=AC.createGain();master.gain.value=.55;
+    master=AC.createGain();master.gain.value=bugOn()?0:.55;   // stays quiet while the report form is open
     const comp=AC.createDynamicsCompressor();
     comp.threshold.value=-16;comp.knee.value=10;comp.ratio.value=3.5;comp.attack.value=.004;comp.release.value=.25;
     const lim=AC.createDynamicsCompressor();lim.threshold.value=-3;lim.knee.value=0;lim.ratio.value=20;lim.attack.value=.001;lim.release.value=.08;
@@ -686,23 +686,44 @@ function hushAll(){
   const ac=AC;setTimeout(()=>{if(ac&&ac===AC&&document.hidden&&ac.state==='running'&&ac.suspend){try{ac.suspend()}catch(e){}}},120);
   try{if(navigator.mediaSession){navigator.mediaSession.playbackState='none';navigator.mediaSession.metadata=null}}catch(e){}
 }
-function gainBack(){if(AC&&master){try{const now=AC.currentTime;master.gain.cancelScheduledValues(now);master.gain.setValueAtTime(master.gain.value,now);master.gain.setTargetAtTime(.55,now,.03)}catch(e){}}}
+function gainBack(){if(bugOn())return;if(AC&&master){try{const now=AC.currentTime;master.gain.cancelScheduledValues(now);master.gain.setValueAtTime(master.gain.value,now);master.gain.setTargetAtTime(.55,now,.03)}catch(e){}}}
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden)hushAll();
   else{try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}gainBack();if(isIOS)acStale=true;
-    if(APP&&(st==='home'||st==='menu')&&$('#cal').classList.contains('hidden'))setTimeout(()=>{if(!document.hidden&&(st==='home'||st==='menu')&&$('#cal').classList.contains('hidden'))initAudio()},300)}   // the app may play without a tap: menu music comes back by itself
+    if(APP&&(st==='home'||st==='menu')&&$('#cal').classList.contains('hidden')&&!bugOn())setTimeout(()=>{if(!document.hidden&&(st==='home'||st==='menu')&&$('#cal').classList.contains('hidden')&&!bugOn())initAudio()},300)}   // the app may play without a tap: menu music comes back by itself
 });
 addEventListener('pagehide',hushAll);
 // links to the other pages (credits, privacy): fade the sound out first; cutting it off mid-note as the page goes crackled
 document.addEventListener('click',e=>{
   if(e.defaultPrevented||e.button||e.metaKey||e.ctrlKey||e.shiftKey||e.altKey)return;
   const a=e.target.closest&&e.target.closest('a[href]');if(!a||a.target==='_blank'||!/\.html(\?|#|$)/.test(a.getAttribute('href')))return;
+  if(APP){e.preventDefault();pageOpen(a.href,a);return}   // the app shows them over the game: reloading the game page there changed its layout
   if(!AC||AC.state!=='running'||!master)return;
   e.preventDefault();const now=AC.currentTime;
   try{master.gain.cancelScheduledValues(now);master.gain.setValueAtTime(master.gain.value,now);master.gain.setTargetAtTime(0,now,.04)}catch(err){}
   setTimeout(()=>{location.href=a.href},220);
 });
 addEventListener('pageshow',gainBack);   // back from that page (page cache)
+let pgFrom=null;
+function pageOpen(href,from){
+  let w=$('#pgv');
+  if(!w){w=document.createElement('div');w.id='pgv';w.className='pgv';w.hidden=true;w.setAttribute('role','dialog');w.setAttribute('aria-modal','true');
+    w.innerHTML='<iframe></iframe><button class="xbtn" aria-label="關閉">✕</button>';document.body.appendChild(w);w.querySelector('button').onclick=pageClose;
+    const f=w.querySelector('iframe');
+    f.addEventListener('load',()=>{try{
+      const d=f.contentDocument,p=d.location.pathname;if(w.hidden||!/\.html$/.test(p)||/index\.html$/.test(p)){if(!w.hidden)pageClose();return}   // the game itself loaded in the layer: close it
+      d.documentElement.classList.add('inapp');   // room for the close button at the top right
+      ['gesturestart','gesturechange','gestureend'].forEach(t=>d.addEventListener(t,e=>e.preventDefault()));
+      d.addEventListener('keydown',e=>{if(e.key==='Escape')pageClose()});
+      d.addEventListener('click',e=>{   // its "back to the game" link closes the layer
+      const a=e.target.closest&&e.target.closest('a[href]');if(!a||a.target==='_blank')return;const h=a.getAttribute('href');
+      if(/^(\.\/|\/|index\.html)?(\?[^#]*)?(#.*)?$/.test(h)){e.preventDefault();pageClose()}})}catch(err){}})}
+  const f=w.querySelector('iframe'),t=from&&from.textContent.trim()||'說明';pgFrom=from||null;
+  w.setAttribute('aria-label',t);f.title=t;f.src=href;w.hidden=false;$('#home').inert=true;w.querySelector('button').focus({preventScroll:true});
+}
+function pageClose(){const w=$('#pgv');if(!w||w.hidden)return;w.hidden=true;w.querySelector('iframe').src='about:blank';$('#home').inert=false;layout();
+  if(pgFrom&&pgFrom.isConnected)pgFrom.focus({preventScroll:true});pgFrom=null}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){const w=$('#pgv');if(w&&!w.hidden)pageClose()}});
 
 /* ---- fullscreen + no scroll / zoom / long-press ---- */
 const DE=document.documentElement;
@@ -2253,6 +2274,7 @@ const SKY_SHAPE={
   del:[[20.63,14.6,3.6],[20.66,15.91,3.8],[20.78,16.12,3.9],[20.55,11.3,4],[20.73,15.07,4.4]]};
 // which real pattern each constellation borrows; a name not listed takes the smallest free pattern that fits its songs
 const SKY_PICK={'古老旋律座':'lyra','巴洛克座':'orion','古典座':'uma','浪漫座':'sco','晚浪漫與印象座':'leo','鋼琴詩人座':'leo','歌劇座':'gem','芭蕾座':'cyg','管弦樂座':'sgr','進行曲座':'cma','圓舞曲座':'cas','聖誕座':'tau','聖詩座':'cyg','歌劇與名歌座':'cas','童謠座':'boo','童謠民謠座':'boo','世界民謠座':'peg','亞洲座':'aql','霓虹座':'del'};
+const SKY_OUT=3;   // how many times farther than the overview the player may pull back
 let SKY=null,skyBack='home';
 function skyBuild(){
   let sd=11;const rnd=()=>(sd=(sd*16807)%2147483647)/2147483647;
@@ -2282,31 +2304,36 @@ function skyBuild(){
   });
   // background: a milky-way band, faint nebulae and field stars, batched by colour, brightness and twinkle phase
   // the field reaches MX / MY beyond the constellations on every side, so the sky can be dragged past its edge
-  const MX=Math.round(W*.45),MY=Math.round(H*.45),FW=W+2*MX,FH=H+2*MY;
-  const fb=new Map(),cnt=Math.round(2600*FW*FH/(3200*1500));
-  for(let i=0;i<cnt;i++){const band=rnd()<.55,x=rnd()*FW-MX,y=band?H*(.78-.5*x/W)+(rnd()+rnd()+rnd()-1.5)*170:rnd()*FH-MY,m=Math.pow(rnd(),3.2);
+  // the field is SKY_OUT times wider than the constellations' own view, so the player can pull far back and see them as
+  // small groups in a large sky; the view never shows the field's edge (skyFit / skyClampV)
+  const FW=Math.round(SKY_OUT*1.1*Math.max(W,H*2.4)),FH=Math.round(SKY_OUT*Math.max(H*1.35,W*.6)),MX=Math.round((FW-W)/2),MY=Math.round((FH-H)/2);
+  // the same density as the overview had before (band stars per length of the band, field stars per area)
+  const fb=new Map(),nb=Math.round(.55*2600*1.9*H/4.8e6*FW),nf=Math.round(.45*2600*FW*FH/4.8e6),cnt=nb+nf,cx0=W/2;
+  for(let i=0;i<cnt;i++){const band=rnd()<nb/cnt,   // mixed at random, so any first part of a batch is an even sample
+    x=rnd()*FW-MX,wide=1+Math.abs(x-cx0)/W*.6,y=band?H*(.78-.5*x/W)+(rnd()+rnd()+rnd()-1.5)*170*wide:rnd()*FH-MY,m=Math.pow(rnd(),3.2);
     const h=rnd()<.15?'#ffd9b0':rnd()<.25?'#b9ccff':'#ffffff',a=Math.min(2,Math.floor(m*3.5)),g=Math.floor(rnd()*8),key=h+a+g;
     if(!fb.has(key))fb.set(key,{h,a:[.22,.42,.7][a],g,p:[]});fb.get(key).p.push([x,y,.3+m*1.0])}
   const neb=[];for(let i=0;i<Math.round(70*FW/3200);i++){const x=rnd()*FW-MX;neb.push({x,y:H*(.78-.5*x/W)+(rnd()-.5)*260,r:120+rnd()*260,c:rnd()<.5?'90,110,200':'150,90,170',a:.025+rnd()*.035})}
   const cv=$('#skyCv');
-  SKY={W,H,MX,MY,C,fb:[...fb.values()],neb,cv,cx:cv.getContext('2d'),vw:0,vh:0,dpr:1,s:1,ox:0,oy:0,minS:1,anim:null,raf:0,dirty:true,focus:-2,cache:new Map(),lt:0};
+  SKY={W,H,MX,MY,FW,FH,C,fb:[...fb.values()],neb,cv,cx:cv.getContext('2d'),vw:0,vh:0,dpr:1,s:1,ox:0,oy:0,minS:1,fitS:1,anim:null,raf:0,dirty:true,focus:-2,cache:new Map(),lt:0};
   skyA11y();
 }
 function skyFit(){
   const S=SKY,r=S.cv.getBoundingClientRect(),w=Math.max(1,r.width),h=Math.max(1,r.height),first=!S.vw;
   S.dpr=Math.min(2,window.devicePixelRatio||1);S.cv.width=Math.round(w*S.dpr);S.cv.height=Math.round(h*S.dpr);
-  const z=first?1:S.s/S.minS,cxw=first?S.W/2:(S.vw/2-S.ox)/S.s,cyw=first?S.H/2:(S.vh/2-S.oy)/S.s;   // keep the same spot centred on resize
-  S.vw=w;S.vh=h;S.minS=Math.max(.02,Math.min(w/S.W,(h-86)/S.H));S.s=S.minS*z;S.ox=w/2-cxw*S.s;S.oy=h/2+(first?20:0)-cyw*S.s;skyClampV();S.dirty=true;
+  const z=first?1:S.s/S.fitS,cxw=first?S.W/2:(S.vw/2-S.ox)/S.s,cyw=first?S.H/2:(S.vh/2-S.oy)/S.s;   // keep the same spot centred on resize
+  // fitS: every constellation in view (the overview); minS: as far out as the player may pinch, the field still covering the screen
+  S.vw=w;S.vh=h;S.fitS=Math.max(.005,Math.min(w/S.W,(h-86)/S.H));S.minS=Math.max(S.fitS/SKY_OUT,w/S.FW,h/S.FH);if(S.minS>S.fitS)S.fitS=S.minS;S.s=S.fitS*z;S.ox=w/2-cxw*S.s;S.oy=h/2+(first?20:0)-cyw*S.s;skyClampV();S.dirty=true;
 }
 function skyClampV(){
-  const S=SKY;S.s=clamp(S.s,S.minS,S.minS*10);
-  // the view may wander MX / MY past the constellations (into the open field) before it stops
-  const mx=S.MX*S.s,my=S.MY*S.s,ww=S.W*S.s+2*mx,hh=S.H*S.s+2*my;
+  const S=SKY;S.s=clamp(S.s,S.minS,S.fitS*10);
+  // the view may wander into the open field around the constellations, but never past its edge
+  const mx=S.MX*S.s,my=S.MY*S.s,ww=S.FW*S.s,hh=S.FH*S.s;
   S.ox=ww<S.vw?(S.vw-ww)/2+mx:clamp(S.ox,S.vw-ww+mx,mx);
-  S.oy=hh<S.vh-86?44+(S.vh-86-hh)/2+my:clamp(S.oy,S.vh-50-hh+my,44+my);
+  S.oy=hh<S.vh?(S.vh-hh)/2+my:clamp(S.oy,S.vh-hh+my,my);
 }
-function skyZoomAt(f,px,py){const S=SKY,ns=clamp(S.s*f,S.minS,S.minS*10);S.ox=px-(px-S.ox)*ns/S.s;S.oy=py-(py-S.oy)*ns/S.s;S.s=ns;S.anim=null;skyClampV();S.dirty=true}
-const skyZoomFor=C=>Math.min(SKY.minS*10,SKY.vw*.8/(C.bw+60),(SKY.vh-120)/(C.bh+70));
+function skyZoomAt(f,px,py){const S=SKY,ns=clamp(S.s*f,S.minS,S.fitS*10);S.ox=px-(px-S.ox)*ns/S.s;S.oy=py-(py-S.oy)*ns/S.s;S.s=ns;S.anim=null;skyClampV();S.dirty=true}
+const skyZoomFor=C=>Math.min(SKY.fitS*10,SKY.vw*.8/(C.bw+60),(SKY.vh-120)/(C.bh+70));
 function skyFly(x,y,ns,instant){
   const S=SKY,s0=S.s,ox0=S.ox,oy0=S.oy;
   const end=()=>{S.s=ns;S.ox=S.vw/2-x*ns;S.oy=(S.vh+10)/2-y*ns;skyClampV()};
@@ -2315,7 +2342,7 @@ function skyFly(x,y,ns,instant){
   S.anim=t=>{const k=Math.min(1,(t-t0)/450),e=1-Math.pow(1-k,3);S.s=s0+(ns-s0)*e;S.ox=ox0+(ox1-ox0)*e;S.oy=oy0+(oy1-oy0)*e;if(k>=1)S.anim=null};
 }
 const skyFlyTo=(C,instant)=>{const ns=skyZoomFor(C);skyFly(C.x,C.y-14/ns,ns,instant)};
-const skyOverview=instant=>skyFly(SKY.W/2,SKY.H/2-20/SKY.minS,SKY.minS,instant);
+const skyOverview=instant=>skyFly(SKY.W/2,SKY.H/2-20/SKY.fitS,SKY.fitS,instant);
 const skyDone=c=>c.ii.every(i=>starOf(i).lit);
 function skyCount(){
   let lit=0,s=0;for(let i=0;i<SONGS.length;i++){const v=starOf(i);if(v.lit)lit++;if(v.r===4)s++}
@@ -2324,28 +2351,31 @@ function skyCount(){
 function skyBadge(){$('#skyN').textContent=skyCount().lit+'/'+SONGS.length}
 // top bar: the whole sky, or the constellation the view is zoomed into
 function skyHead(){
-  const S=SKY,zl=S.s/S.minS;let f=-1;
+  const S=SKY,zl=S.s/S.fitS;let f=-1;
   if(zl>=2){const wx=(S.vw/2-S.ox)/S.s,wy=(S.vh/2-S.oy)/S.s;let bd=1e9;for(const C of S.C){const d=Math.hypot(C.x-wx,C.y-wy);if(d<C.R*1.4&&d<bd){bd=d;f=C.k}}}
-  $('#skyBk').hidden=zl<1.15;
+  $('#skyBk').hidden=Math.abs(zl-1)<=.15;   // zoomed in or pulled back: a way back to the overview
   if(f===S.focus)return;S.focus=f;
   if(f<0){const n=skyCount();$('#skyT').textContent='星空';$('#skyStat').innerHTML='點亮 <em>'+n.lit+'</em> / '+SONGS.length+' · 完整星座 <em>'+n.full+'</em> / '+CONS.length+' · S 評級 <em>'+n.s+'</em>'}
   else{const c=CONS[f],lit=c.ii.filter(i=>starOf(i).lit).length;$('#skyT').textContent=c.name;$('#skyStat').innerHTML='點亮 <em>'+lit+'</em> / '+c.ii.length+(lit===c.ii.length?' · <em>星座完成</em>':'')}
 }
 const skyStar=i=>{const c=SKY.cache;if(!c.has(i))c.set(i,{v:starOf(i),ul:unlocked(i)});return c.get(i)};   // nothing changes while the sky is open
-function skyNameHit(c,wx,wy){const s=SKY.s,fs=Math.max(15/s,Math.min(30,26/Math.sqrt(s/SKY.minS)));return Math.abs(c.x-wx)<fs*c.name.length*.7+12/s&&wy>c.top-fs*2.4&&wy<c.top+4/s}   // same size and place as the drawn name
+const skyNameFs=(s,zl)=>Math.max((zl<1?11+4*clamp((zl-.6)/.4,0,1):15)/s,Math.min(30,26/Math.sqrt(zl)));
+function skyNameHit(c,wx,wy){const s=SKY.s,zl=s/SKY.fitS;if(zl<.4)return false;const fs=skyNameFs(s,zl);return Math.abs(c.x-wx)<fs*c.name.length*.7+12/s&&wy>c.top-fs*2.4&&wy<c.top+4/s}   // same size and place as the drawn name
 function skyPaint(t){
-  const S=SKY,g=S.cx,s=S.s,zl=s/S.minS,motion=!SET.lowFx&&!RM;
+  const S=SKY,g=S.cx,s=S.s,zl=s/S.fitS,motion=!SET.lowFx&&!RM;
   g.setTransform(S.dpr,0,0,S.dpr,0,0);
   const bg=g.createLinearGradient(0,0,0,S.vh);bg.addColorStop(0,'#070a1f');bg.addColorStop(.6,'#04061a');bg.addColorStop(1,'#020309');g.fillStyle=bg;g.fillRect(0,0,S.vw,S.vh);
   g.save();g.translate(S.ox,S.oy);g.scale(s,s);
   const X0=-S.ox/s-40,Y0=-S.oy/s-40,X1=(S.vw-S.ox)/s+40,Y1=(S.vh-S.oy)/s+40,vis=(x,y,r)=>x+r>X0&&x-r<X1&&y+r>Y0&&y-r<Y1;
-  for(const n of S.neb){if(!vis(n.x,n.y,n.r))continue;const rg=g.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r);rg.addColorStop(0,'rgba('+n.c+','+n.a+')');rg.addColorStop(1,'rgba('+n.c+',0)');g.fillStyle=rg;g.fillRect(n.x-n.r,n.y-n.r,n.r*2,n.r*2)}
-  const fr=.9*Math.pow(zl,.2)/s;   // field stars: screen-pixel sizes, dimmer than any constellation star
+  for(const n of S.neb){if(n.r*s<5||!vis(n.x,n.y,n.r))continue;const rg=g.createRadialGradient(n.x,n.y,0,n.x,n.y,n.r);rg.addColorStop(0,'rgba('+n.c+','+n.a+')');rg.addColorStop(1,'rgba('+n.c+',0)');g.fillStyle=rg;g.fillRect(n.x-n.r,n.y-n.r,n.r*2,n.r*2)}
+  const fr=.9*Math.pow(Math.min(zl,10),.2)/s;   // field stars: screen-pixel sizes, dimmer than any constellation star
+  const part=Math.min(1,zl);   // pulled back: a share of them, so the screen fills with more stars (as in a dark sky) without drawing all of them
+  // (field stars are spread at random, so the first part of each batch is an even sample)
   for(const b of S.fb){g.globalAlpha=b.a*(motion?.8+.2*Math.sin(t/(1300+b.g*230)+b.g*2.1):1);   // a faint, slow breathing, each group at its own pace
     g.fillStyle=b.h;g.beginPath();
-    for(const p of b.p){if(p[0]<X0||p[0]>X1||p[1]<Y0||p[1]>Y1)continue;const r=p[2]*fr;g.moveTo(p[0]+r,p[1]);g.arc(p[0],p[1],r,0,6.28)}g.fill()}
+    const pn=Math.ceil(b.p.length*part);for(let j=0;j<pn;j++){const p=b.p[j];if(p[0]<X0||p[0]>X1||p[1]<Y0||p[1]>Y1)continue;const r=p[2]*fr;g.moveTo(p[0]+r,p[1]);g.arc(p[0],p[1],r,0,6.28)}g.fill()}
   g.globalAlpha=1;
-  const k=Math.pow(zl,.3)/s;
+  const k=Math.pow(Math.max(zl,.6),.3)/s;   // pulled back, constellation stars keep their size so they stand out from the field
   for(const C of S.C){
     if(!vis(C.x,C.y,C.R*1.6))continue;
     const c=CONS[C.k];let lit=0;
@@ -2363,9 +2393,12 @@ function skyPaint(t){
       if(la>0){let lab=SKY_SHORT[SONGS[p.i].key]||SONGS[p.i].name;if(Array.from(lab).length>8)lab=Array.from(lab).slice(0,7).join('')+'…';
         g.globalAlpha=la*(ul?1:.6);g.font=(11/s)+'px system-ui';g.textAlign='center';g.fillStyle=v.lit?'rgba(220,228,255,.92)':'rgba(160,170,215,.85)';g.fillText(lab,p.x,p.y+18/s);g.globalAlpha=1}
     }
-    const done=lit===c.ii.length,fs=Math.max(15/s,Math.min(30,26/Math.sqrt(zl)));g.font='600 '+fs+'px system-ui';g.textAlign='center';
-    g.fillStyle=done?'rgba(255,211,107,.95)':'rgba(200,208,245,'+(zl>2.2?.55:.9)+')';g.fillText(C.name.split('').join(' '),C.x,C.top-fs*1.1);
-    if(zl<=2.2){g.font=(fs*.62)+'px system-ui';g.fillStyle='rgba(140,150,200,.8)';g.fillText(lit+' / '+c.ii.length,C.x,C.top-fs*.25)}
+    // pulled back past the overview the names shrink, then fade out, so the groups of stars read as tiny in a wide sky
+    const na=clamp((zl-.4)/.35,0,1);if(na<=0)continue;
+    const done=lit===c.ii.length,fs=skyNameFs(s,zl);g.font='600 '+fs+'px system-ui';g.textAlign='center';
+    g.globalAlpha=na;g.fillStyle=done?'rgba(255,211,107,.95)':'rgba(200,208,245,'+(zl>2.2?.55:.9)+')';g.fillText(C.name.split('').join(' '),C.x,C.top-fs*1.1);
+    if(zl<=2.2&&zl>=.8){g.font=(fs*.62)+'px system-ui';g.fillStyle='rgba(140,150,200,.8)';g.fillText(lit+' / '+c.ii.length,C.x,C.top-fs*.25)}
+    g.globalAlpha=1
   }
   g.restore();
 }
@@ -2379,7 +2412,7 @@ function skyLoop(t){
 function skyA11y(){
   const box=$('#skyList');box.textContent='';
   for(const C of SKY.C)for(const p of C.P){if(p.i<0)continue;const b=document.createElement('button');b.textContent=C.name+'：'+SONGS[p.i].name;
-    b.addEventListener('focus',()=>{const ns=Math.max(skyZoomFor(C),SKY.minS*3);skyFly(p.x,p.y,ns)});b.onclick=e=>{e.stopPropagation();skyCardShow(p.i,C.name);const f=$('#skyCard button');if(f){f.focus();$('#skyCard').dataset.back=String(p.i)}};box.appendChild(b)}
+    b.addEventListener('focus',()=>{const ns=Math.max(skyZoomFor(C),SKY.fitS*3);skyFly(p.x,p.y,ns)});b.onclick=e=>{e.stopPropagation();skyCardShow(p.i,C.name);const f=$('#skyCard button');if(f){f.focus();$('#skyCard').dataset.back=String(p.i)}};box.appendChild(b)}
 }
 (()=>{   // gestures: one finger pans, two fingers pinch around their midpoint, wheel zooms, a tap picks a star or a constellation
   const cv=$('#skyCv'),pts=new Map();let last=null,moved=0;
@@ -2394,7 +2427,7 @@ function skyA11y(){
     if(!SKY)return;if(moved>=8){e.stopPropagation();return}   // the end of a drag is not a tap
     const S=SKY,r=cv.getBoundingClientRect(),sx=e.clientX-r.left,sy=e.clientY-r.top,wx=(sx-S.ox)/S.s,wy=(sy-S.oy)/S.s;
     let best=null,bd=26;for(const C of S.C)for(const p of C.P){if(p.i<0)continue;const d=Math.hypot(p.x*S.s+S.ox-sx,p.y*S.s+S.oy-sy);if(d<bd){bd=d;best=[p,C]}}   // finger-sized reach in screen pixels
-    const C=S.C.find(c=>Math.hypot(c.x-wx,c.y-wy)<c.R*1.15||skyNameHit(c,wx,wy));   // the shape or its name
+    let C=null,cd=1e9;for(const c of S.C){const d=Math.hypot(c.x-wx,c.y-wy);if((d<Math.max(c.R*1.15,30/S.s)||skyNameHit(c,wx,wy))&&d<cd){cd=d;C=c}}   // the nearest shape or name
     if(best&&S.s>=skyZoomFor(best[1])*.7){e.stopPropagation();skyCardShow(best[0].i,best[1].name)}
     else if(C&&S.s<skyZoomFor(C)*.7){e.stopPropagation();$('#skyCard').hidden=true;skyFlyTo(C)}
     else if(best){e.stopPropagation();skyCardShow(best[0].i,best[1].name)}});
@@ -2441,7 +2474,7 @@ const skyOn=()=>!$('#sky').classList.contains('hidden');
 $('#bSky').onclick=()=>{initAudio();skyOpen('home')};
 $('#skyX').onclick=()=>skyClose();
 $('#sky').addEventListener('click',e=>{if(!e.target.closest('#skyCard'))$('#skyCard').hidden=true});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&skyOn()){if(!$('#skyCard').hidden)$('#skyCard').hidden=true;else if(SKY&&SKY.s>SKY.minS*1.15)skyOverview();else skyClose()}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&skyOn()){if(!$('#skyCard').hidden)$('#skyCard').hidden=true;else if(SKY&&Math.abs(SKY.s/SKY.fitS-1)>.15)skyOverview();else skyClose()}});
 navTap('#skyBk',()=>{$('#skyCard').hidden=true;skyOverview()});
 $('#rsky').onclick=()=>skyOpen('end');
 skyBadge();
@@ -2550,12 +2583,13 @@ $('#bShare').onclick=()=>{
 /* ---- bug reports: "回報問題" on the home screen and in the pause menu (which attaches the paused game screen).
    The text is optional, but a report needs text or an image. Images are shrunk to JPEG here (long side 1280 px, < 400 KB).
    The device details sent along (bugMeta) are all listed in the dialog before sending. A report that fails to send stays as a draft. */
-const BUILD='2026-11-13';
+const BUILD='2026-11-13b';
 const BUGK=[['bug','遊戲錯誤'],['gfx','畫面異常'],['audio','聲音／節奏不準'],['net','連線／對戰'],['friend','好友／訊息'],['idea','建議'],['other','其他']];
 const BUG={kind:'bug',imgs:[],from:'',busy:false,conv:false,auto:null,shut:0};   // auto: the pause screenshot now in imgs
 const bugDev=()=>{const u=navigator.userAgent;return /iPad/.test(u)?'iPad':/iPhone/.test(u)?'iPhone':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':'其他'};
 function bugMeta(){return{v:BUILD,pf:APP?'ios':'web',ua:navigator.userAgent,scr:innerWidth+'x'+innerHeight,dpr:String(devicePixelRatio||1),lat:Math.round(latS()*1000)+'ms',
-  song:SONGS[si]?SONGS[si].name:'',d:DIFFS[di]?DIFFS[di].n:'',st:String(st),err:LASTERR,lang:navigator.language||''}}
+  song:SONGS[si]?SONGS[si].name:'',d:DIFFS[di]?DIFFS[di].n:'',st:String(st),err:LASTERR,lang:navigator.language||'',sa:bugSa()}}
+function bugSa(){const a=safeIns();return[a.l,a.r,a.t,a.b].map(v=>Math.round(v)).join(',')+' 框'+Math.round(FR.w||0)}   // screen safe areas (left,right,top,bottom) and the play frame's width
 function bugShrink(src){   // a File, or the game canvas -> JPEG data URL small enough for the server
   return new Promise((res,rej)=>{
     const draw=im=>{let w=im.naturalWidth||im.width,h=im.naturalHeight||im.height;if(!w||!h){rej(new Error('empty'));return}
@@ -2574,20 +2608,24 @@ function bugRender(){
   $('#bugK').innerHTML=BUGK.map(([k,n])=>'<button role="radio" aria-checked="'+(k===BUG.kind)+'" data-k="'+k+'">'+n+'</button>').join('');
   $('#bugI').innerHTML=BUG.imgs.map((d,i)=>'<div class="th" style="background-image:url('+d+')"><button data-rm="'+i+'" aria-label="移除第 '+(i+1)+' 張圖片">✕</button></div>').join('')
     +(BUG.imgs.length<3?'<button class="add" id="bugAdd"'+(BUG.conv?' disabled>處理圖片中⋯':'>＋ 加入圖片')+'<br>'+BUG.imgs.length+' / 3</button>':'');
-  const m=bugMeta(),it=[ME?'暱稱 '+esc(ME.name):'未設定暱稱','版本 '+m.v+(APP?'（App）':'（網頁）'),'裝置 '+bugDev()+'（含瀏覽器與系統版本）','畫面 '+m.scr+'、像素比 '+esc(m.dpr),
+  const m=bugMeta(),it=[ME?'暱稱 '+esc(ME.name):'未設定暱稱','版本 '+m.v+(APP?'（App）':'（網頁）'),'裝置 '+bugDev()+'（含瀏覽器與系統版本）','畫面 '+m.scr+'、像素比 '+esc(m.dpr)+'、安全邊距 '+esc(m.sa),
     '語言 '+esc(m.lang||'—'),'目前畫面 '+({home:'主畫面',menu:'選曲',ready:'準備開始',starting:'準備開始',play:'遊戲中',over:'結算',done:'結算'}[m.st]||esc(m.st||'—')),'延遲校正 '+m.lat];
   if(m.song)it.push('最近遊玩：'+esc(m.song)+'／'+esc(m.d));if(m.err)it.push('最近錯誤訊息：'+esc(m.err.slice(0,60)));
-  $('#bugM').innerHTML='一併送出：'+it.map(s=>'<b>'+s+'</b>').join(' · ');
+  $('#bugM').innerHTML=it.map(s=>'<b>'+s+'</b>').join(' · ');
   $('#bugC').textContent=$('#bugT').value.length+' / 1000';
 }
+function bugOn(){return!$('#bugv').classList.contains('hidden')}
 function bugOpen(from){
+  if(AC&&master){try{const now=AC.currentTime;master.gain.cancelScheduledValues(now);master.gain.setValueAtTime(master.gain.value,now);master.gain.setTargetAtTime(0,now,.08)}catch(e){}}   // quiet while typing or dictating
   BUG.from=from;BUG.shut++;$('#bugv').classList.remove('hidden');$(from==='pause'?'#pause':'#home').inert=true;$('#err').style.visibility='hidden';   // the error bar would cover the send button
   bugSay(BUG.busy?'送出中⋯':'我們會看每一則回報，但不會逐一回覆');bugRender();$('#bugv .card').focus();
   if(from==='pause'){   // a fresh shot of the paused game each time, replacing the one taken at an earlier pause
     const old=BUG.imgs.indexOf(BUG.auto);if(old>=0)BUG.imgs.splice(old,1);BUG.auto=null;
     if(BUG.imgs.length<3)bugShrink(cv).then(d=>{if(BUG.imgs.length>=3)return;BUG.auto=d;BUG.imgs.unshift(d);bugRender()}).catch(()=>bugRender());else bugRender()}
 }
-function bugClose(){const v=$('#bugv');if(v.classList.contains('hidden'))return;v.classList.add('hidden');$('#home').inert=false;$('#pause').inert=false;$('#err').style.visibility='';
+function bugClose(){const v=$('#bugv');if(v.classList.contains('hidden'))return;v.classList.add('hidden');
+  try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}gainBack();   // dictation may have left the audio set for recording
+  $('#home').inert=false;$('#pause').inert=false;$('#err').style.visibility='';
   const b=$(BUG.from==='pause'?'#bBugP':'#bBug');if(b)b.focus({preventScroll:true})}
 async function bugSend(){
   if(BUG.busy)return;const text=$('#bugT').value.trim();

@@ -2,32 +2,49 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#05060f">
 <title>曲目來源</title>
 <link rel="icon" href="icon-192.png">
 <style>
-:root{--bg:#05060f;--fg:#e8ecff;--dim:#8a93c0;--accent:#7cf0ff;--line:#1c2140;--panel:#0b0e1f}
+:root{--w:960px}
+/* same look as the game's panels: night background, glass card, pill buttons, thin cyan scroll bars */
+:root{--bg:#05060f;--fg:#e8ecff;--dim:#8a93c0;--accent:#7cf0ff;--line:rgba(255,255,255,.1);--panel:rgba(0,0,0,.22)}
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--fg)}
-body{font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.7;font-size:16px;padding:16px;max-width:960px;margin:0 auto;overflow-x:hidden}
-h1{font-size:1.4rem;margin:0.4em 0 0.6em}
+html{background:var(--bg);color-scheme:dark;-webkit-text-size-adjust:100%;scrollbar-width:thin;scrollbar-color:rgba(124,240,255,.4) transparent;overscroll-behavior-y:none}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(124,240,255,.4);border-radius:3px}
+body{margin:0;min-height:100vh;color:var(--fg);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;font-size:15px;line-height:1.75;overflow-x:hidden;
+  background:radial-gradient(ellipse 70% 60% at 15% 0%,rgba(90,110,220,.2),transparent 70%),radial-gradient(ellipse 60% 50% at 95% 100%,rgba(150,90,170,.16),transparent 70%),linear-gradient(#070a1f,#04061a 60%,#020309);background-attachment:fixed;
+  padding:0 max(12px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+.top{position:sticky;top:0;z-index:3;max-width:var(--w);margin:0 auto;display:flex;align-items:center;gap:14px;padding:max(10px,env(safe-area-inset-top)) 0 10px}
+.inapp .top{padding-right:60px}
+.top::before{content:'';position:absolute;z-index:-1;top:0;bottom:0;left:-100vw;right:-100vw;background:linear-gradient(rgba(5,6,18,.96) 75%,rgba(5,6,18,0));-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.top h1{margin:0;font-size:19px;font-weight:700;letter-spacing:.04em;background:linear-gradient(90deg,#7cf0ff,#b08cff);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.back{flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;min-height:40px;padding:0 16px;border-radius:999px;font-size:14px;color:var(--fg);text-decoration:none;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);transition:.15s}
+.back:hover,.back:focus-visible{background:rgba(124,240,255,.12);border-color:rgba(124,240,255,.5);color:#bff6ff}
+main{max-width:var(--w);margin:4px auto 0;padding:18px 22px 20px;border-radius:22px;border:1px solid rgba(255,255,255,.14);background:linear-gradient(160deg,rgba(30,36,80,.85),rgba(14,16,40,.94));box-shadow:0 20px 80px rgba(80,120,255,.22)}
+main>:first-child{margin-top:0}
+p,li{color:#cfd5f5}
 p{margin:0 0 1em}
-a{color:var(--accent)}
-.back{display:inline-block;margin-bottom:1em;padding:0.4em 0}
-.table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
-table{border-collapse:collapse;width:100%;min-width:560px;font-size:0.95rem}
-th,td{padding:0.55em 0.75em;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
-th{color:var(--accent);font-weight:600;background:#0e1228}
-td.no{color:var(--dim);text-align:right;font-variant-numeric:tabular-nums}
+h2{font-size:16px;margin:1.6em 0 .5em;color:var(--accent);font-weight:600}
+a{color:var(--accent);text-underline-offset:3px}
+.dim,.muted{color:var(--dim)}
+.dim{font-size:13px}
+@media (max-height:480px){body{font-size:14px}.top{padding-top:max(6px,env(safe-area-inset-top));padding-bottom:6px}main{padding:14px 18px 16px}}
+
+.table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px}
+th,td{padding:.55em .8em;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--accent);font-weight:600;background:#151a3e}
+td{color:#cfd5f5}td.no{color:var(--dim);text-align:right;font-variant-numeric:tabular-nums}
+tbody tr:nth-child(even) td{background:rgba(255,255,255,.025)}
 tr:last-child td{border-bottom:none}
-.muted{color:var(--dim)}
 </style>
 </head>
 <body>
-<a class="back" href="./">&larr; 返回遊戲</a>
-<h1>曲目來源</h1>
+<header class="top"><a class="back" href="./">‹ 返回遊戲</a><h1>曲目來源</h1></header>
+<main>
 <p>古典曲目、聖詩與民謠的音符取自 <a href="https://www.mutopiaproject.org/" target="_blank" rel="noopener noreferrer">Mutopia Project</a>、<a href="https://openhymnal.org/" target="_blank" rel="noopener noreferrer">Open Hymnal Project</a> 與 <a href="https://commons.wikimedia.org/" target="_blank" rel="noopener noreferrer">Wikimedia Commons</a> 的 MIDI 與樂譜檔案（授權如下表，依原作者標示）；〈小星星〉及表中註明「依原曲旋律手寫」的曲目，是本遊戲依公有領域原曲寫成的旋律與伴奏；「霓虹座」3 首為本遊戲原創作品。主旋律取自檔案中的旋律聲部，各曲以接近原編制的樂器音色演奏（見下方「樂器音色」）。</p>
 
 <div class="table-wrap" role="region" aria-label="曲目來源表" tabindex="0">
@@ -112,9 +129,10 @@ tr:last-child td{border-bottom:none}
 </tbody>
 </table>
 </div>
-<h2 style="font-size:1.1rem;margin:1.4em 0 .4em">樂器音色</h2>
+<h2>樂器音色</h2>
 <p>鋼琴：<a href="https://archive.org/details/SalamanderGrandPianoV3" target="_blank" rel="noopener noreferrer">Salamander Grand Piano</a>（Alexander Holm，<a href="https://creativecommons.org/licenses/by/3.0/deed.zh_TW" target="_blank" rel="noopener noreferrer">CC BY 3.0</a>）。<br>
 小提琴、中提琴、大提琴、弦樂合奏、撥弦、長笛、直笛、單簧管、小號、管風琴、合唱、尼龍弦吉他：FluidR3 GM 音色庫（Frank Wen，<a href="https://creativecommons.org/licenses/by/3.0/deed.zh_TW" target="_blank" rel="noopener noreferrer">CC BY 3.0</a>；採用 <a href="https://github.com/gleitz/midi-js-soundfonts" target="_blank" rel="noopener noreferrer">midi-js-soundfonts</a> 的單音錄音）。<br>
 遊戲內經過剪裁、淡出與轉檔；原創曲目的音色與鼓組由程式即時合成。</p>
+</main>
 </body>
 </html>

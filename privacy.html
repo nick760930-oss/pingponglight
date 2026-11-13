@@ -2,28 +2,43 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="color-scheme" content="dark">
 <meta name="theme-color" content="#05060f">
 <title>隱私權政策</title>
 <link rel="icon" href="icon-192.png">
 <style>
-:root{--bg:#05060f;--fg:#e8ecff;--dim:#8a93c0;--accent:#7cf0ff;--line:#1c2140}
+:root{--w:760px}
+/* same look as the game's panels: night background, glass card, pill buttons, thin cyan scroll bars */
+:root{--bg:#05060f;--fg:#e8ecff;--dim:#8a93c0;--accent:#7cf0ff;--line:rgba(255,255,255,.1);--panel:rgba(0,0,0,.22)}
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--fg)}
-body{font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.75;font-size:16px;padding:16px;max-width:760px;margin:0 auto;overflow-x:hidden}
-h1{font-size:1.4rem;margin:.4em 0 .2em}
-h2{font-size:1.05rem;margin:1.6em 0 .4em;color:var(--accent)}
+html{background:var(--bg);color-scheme:dark;-webkit-text-size-adjust:100%;scrollbar-width:thin;scrollbar-color:rgba(124,240,255,.4) transparent;overscroll-behavior-y:none}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(124,240,255,.4);border-radius:3px}
+body{margin:0;min-height:100vh;color:var(--fg);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;font-size:15px;line-height:1.75;overflow-x:hidden;
+  background:radial-gradient(ellipse 70% 60% at 15% 0%,rgba(90,110,220,.2),transparent 70%),radial-gradient(ellipse 60% 50% at 95% 100%,rgba(150,90,170,.16),transparent 70%),linear-gradient(#070a1f,#04061a 60%,#020309);background-attachment:fixed;
+  padding:0 max(12px,env(safe-area-inset-right)) max(20px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+.top{position:sticky;top:0;z-index:3;max-width:var(--w);margin:0 auto;display:flex;align-items:center;gap:14px;padding:max(10px,env(safe-area-inset-top)) 0 10px}
+.inapp .top{padding-right:60px}
+.top::before{content:'';position:absolute;z-index:-1;top:0;bottom:0;left:-100vw;right:-100vw;background:linear-gradient(rgba(5,6,18,.96) 75%,rgba(5,6,18,0));-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.top h1{margin:0;font-size:19px;font-weight:700;letter-spacing:.04em;background:linear-gradient(90deg,#7cf0ff,#b08cff);-webkit-background-clip:text;background-clip:text;color:transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.back{flex:0 0 auto;display:inline-flex;align-items:center;gap:4px;min-height:40px;padding:0 16px;border-radius:999px;font-size:14px;color:var(--fg);text-decoration:none;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);transition:.15s}
+.back:hover,.back:focus-visible{background:rgba(124,240,255,.12);border-color:rgba(124,240,255,.5);color:#bff6ff}
+main{max-width:var(--w);margin:4px auto 0;padding:18px 22px 20px;border-radius:22px;border:1px solid rgba(255,255,255,.14);background:linear-gradient(160deg,rgba(30,36,80,.85),rgba(14,16,40,.94));box-shadow:0 20px 80px rgba(80,120,255,.22)}
+main>:first-child{margin-top:0}
 p,li{color:#cfd5f5}
-ul{padding-left:1.2em}
-.dim{color:var(--dim);font-size:.9rem}
-a{color:var(--accent)}
-.back{display:inline-block;margin-bottom:.6em;padding:.4em 0}
+p{margin:0 0 1em}
+h2{font-size:16px;margin:1.6em 0 .5em;color:var(--accent);font-weight:600}
+a{color:var(--accent);text-underline-offset:3px}
+.dim,.muted{color:var(--dim)}
+.dim{font-size:13px}
+@media (max-height:480px){body{font-size:14px}.top{padding-top:max(6px,env(safe-area-inset-top));padding-bottom:6px}main{padding:14px 18px 16px}}
+
+ul{padding-left:1.2em}li{margin:.3em 0}
 </style>
 </head>
 <body>
-<a class="back" href="./">← 返回遊戲</a>
-<h1>PingPongLight 隱私權政策</h1>
+<header class="top"><a class="back" href="./">‹ 返回遊戲</a><h1>PingPongLight 隱私權政策</h1></header>
+<main>
 <p class="dim">生效日期：2026 年 11 月 13 日</p>
 
 <p>PingPongLight（以下稱「本遊戲」）不需要註冊帳號、不需要電子郵件或密碼，不放廣告，也不使用任何追蹤或分析工具。本政策說明本遊戲會處理哪些資料，以及處理的方式。</p>
@@ -51,7 +66,7 @@ a{color:var(--accent)}
 </ul>
 <p>未設定暱稱就不會上傳任何資料（您主動送出的問題回報除外，見下方），可以照常離線玩單人模式。</p>
 <ul>
-<li><b>問題回報</b>：您在主畫面或暫停選單按「回報問題」並送出時，伺服器會保存您選的問題類型、您寫的說明、您選擇附上的圖片（從暫停選單回報時，預設附上當下的遊戲畫面，送出前可以移除），以及回報視窗中列出的裝置資訊：遊戲版本、網頁或 App、瀏覽器與系統版本、螢幕大小與像素比、語言設定、回報當下所在的畫面（例如遊戲中）、延遲校正值、最近遊玩的曲目與難度、最近一次的錯誤訊息。設定了暱稱的話，回報會連到您的暱稱。回報只供開發者修正問題，不會公開；保存 180 天後自動刪除。請不要在說明或圖片中放入個人資料。</li>
+<li><b>問題回報</b>：您在主畫面或暫停選單按「回報問題」並送出時，伺服器會保存您選的問題類型、您寫的說明、您選擇附上的圖片（從暫停選單回報時，預設附上當下的遊戲畫面，送出前可以移除），以及回報視窗中列出的裝置資訊：遊戲版本、網頁或 App、瀏覽器與系統版本、螢幕大小與像素比、螢幕安全邊距與遊戲框寬度、語言設定、回報當下所在的畫面（例如遊戲中）、延遲校正值、最近遊玩的曲目與難度、最近一次的錯誤訊息。設定了暱稱的話，回報會連到您的暱稱。回報只供開發者修正問題，不會公開；保存 180 天後自動刪除。請不要在說明或圖片中放入個人資料。</li>
 </ul>
 
 <h2>三、使用線上對戰時處理的資料</h2>
@@ -95,5 +110,6 @@ a{color:var(--accent)}
 
 <h2>十、聯絡我們</h2>
 <p>對本政策有任何疑問，請來信：<a id="contact" href="mailto:nick760930@gmail.com">nick760930@gmail.com</a></p>
+</main>
 </body>
 </html>

@@ -17,7 +17,7 @@ const txt = (v, n) => String(v == null ? '' : v).replace(/[\u0000-\u0008\u000b\u
   .replace(/[\uD800-\uDBFF]$/, '');   // never leave half an emoji
 
 // device details: whitelisted keys, short strings or numbers only
-const META = { v: 40, pf: 10, ua: 300, scr: 20, dpr: 6, lat: 8, song: 40, d: 2, st: 12, err: 300, lang: 20, at: 8 };
+const META = { v: 40, pf: 10, ua: 300, scr: 20, dpr: 6, lat: 8, song: 40, d: 2, st: 12, err: 300, lang: 20, at: 8, sa: 30 };
 function cleanMeta(m) {
   const out = {};
   if (!m || typeof m !== 'object' || Array.isArray(m)) return out;
