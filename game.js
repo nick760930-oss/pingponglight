@@ -1,9 +1,10 @@
 (()=>{
 'use strict';
 const $=s=>document.querySelector(s);
-let errShown=0;
+let errShown=0,LASTERR='';   // LASTERR: the latest error text, offered with a bug report
 function showErr(e){
   try{console.error(e)}catch(_){}
+  try{LASTERR=String((e&&(e.message||e))||e).slice(0,300)}catch(_){}
   if(errShown++>0)return;
   const el=$('#err');if(!el)return;
   $('#errT').textContent='發生錯誤，請截圖回報：'+String((e&&(e.message||e))||e).slice(0,160);el.style.display='block';
@@ -671,6 +672,7 @@ function pauseGame(){
 function showPauseMenu(){$('#bQuit').textContent=mode==='tut'?'離開教學':'離開';$('#pause').classList.remove('hidden')}
 function resumeGame(){   // audio resumes inside the tap (iOS needs a gesture); the game clock stays frozen during the count-in
   if(!paused||resumeCD)return;
+  if(!$('#bugv').classList.contains('hidden'))return;   // not while the bug report is open over the pause menu (lock-screen play button)
   if(st!=='play'){paused=false;$('#pause').classList.add('hidden');return}
   $('#pause').classList.add('hidden');resumeCD=1.5;
   unlockAudio();if(AC&&AC.resume){const p=AC.resume();if(p&&p.catch)p.catch(()=>{})}
@@ -723,7 +725,7 @@ document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('selectstart',e=>{if(!(e.target.closest&&e.target.closest('input,select,textarea')))e.preventDefault()});
 document.addEventListener('wheel',e=>{if(e.ctrlKey||!(e.target.closest&&e.target.closest('.card,.ddp'))&&!inScroller(e.target))e.preventDefault()},{passive:false});
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['+','-','=','0'].includes(e.key))e.preventDefault();
-  else if(e.key==='Escape'||e.key==='p'||e.key==='P'){if(st==='play'){if(paused&&!resumeCD)resumeGame();else pauseGame()}}});
+  else if(e.key==='Escape'||e.key==='p'||e.key==='P'){if(st==='play'&&$('#bugv').classList.contains('hidden')&&!(e.target&&e.target.closest&&e.target.closest('input,textarea'))){/* not while a bug report is open or being typed */if(paused&&!resumeCD)resumeGame();else pauseGame()}}});
 const standalone=APP||!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches));
 if(!(DE.requestFullscreen||DE.webkitRequestFullscreen)&&!standalone)$('#fsHint').style.display='block';
 
@@ -2545,6 +2547,79 @@ $('#bShare').onclick=()=>{
     const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='pingponglight.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000);
   },'image/png');
 };
+/* ---- bug reports: "回報問題" on the home screen and in the pause menu (which attaches the paused game screen).
+   The text is optional, but a report needs text or an image. Images are shrunk to JPEG here (long side 1280 px, < 400 KB).
+   The device details sent along (bugMeta) are all listed in the dialog before sending. A report that fails to send stays as a draft. */
+const BUILD='2026-11-13';
+const BUGK=[['bug','遊戲錯誤'],['gfx','畫面異常'],['audio','聲音／節奏不準'],['net','連線／對戰'],['friend','好友／訊息'],['idea','建議'],['other','其他']];
+const BUG={kind:'bug',imgs:[],from:'',busy:false,conv:false,auto:null,shut:0};   // auto: the pause screenshot now in imgs
+const bugDev=()=>{const u=navigator.userAgent;return /iPad/.test(u)?'iPad':/iPhone/.test(u)?'iPhone':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':'其他'};
+function bugMeta(){return{v:BUILD,pf:APP?'ios':'web',ua:navigator.userAgent,scr:innerWidth+'x'+innerHeight,dpr:String(devicePixelRatio||1),lat:Math.round(latS()*1000)+'ms',
+  song:SONGS[si]?SONGS[si].name:'',d:DIFFS[di]?DIFFS[di].n:'',st:String(st),err:LASTERR,lang:navigator.language||''}}
+function bugShrink(src){   // a File, or the game canvas -> JPEG data URL small enough for the server
+  return new Promise((res,rej)=>{
+    const draw=im=>{let w=im.naturalWidth||im.width,h=im.naturalHeight||im.height;if(!w||!h){rej(new Error('empty'));return}
+      let k=Math.min(1,1280/Math.max(w,h)),d='';
+      for(let t=0;t<3;t++,k*=.7){const cw=Math.max(1,Math.round(w*k)),ch=Math.max(1,Math.round(h*k));
+        const c=document.createElement('canvas');c.width=cw;c.height=ch;const x=c.getContext('2d');x.fillStyle='#05060f';x.fillRect(0,0,cw,ch);x.drawImage(im,0,0,cw,ch);
+        let q=.85;d=c.toDataURL('image/jpeg',q);while(d.length>5.2e5&&q>.4){q-=.15;d=c.toDataURL('image/jpeg',q)}
+        if(d.length<=5.2e5)break}
+      d.length>5.2e5?rej(new Error('big')):res(d)};
+    if(src instanceof HTMLCanvasElement){try{draw(src)}catch(e){rej(e)}return}
+    const url=URL.createObjectURL(src),im=new Image();
+    im.onload=()=>{try{draw(im)}catch(e){rej(e)}finally{URL.revokeObjectURL(url)}};im.onerror=()=>{URL.revokeObjectURL(url);rej(new Error('decode'))};im.src=url});
+}
+function bugSay(t,warn){const s=$('#bugS');s.textContent=t;s.style.color=warn?'#ffb86b':''}
+function bugRender(){
+  $('#bugK').innerHTML=BUGK.map(([k,n])=>'<button role="radio" aria-checked="'+(k===BUG.kind)+'" data-k="'+k+'">'+n+'</button>').join('');
+  $('#bugI').innerHTML=BUG.imgs.map((d,i)=>'<div class="th" style="background-image:url('+d+')"><button data-rm="'+i+'" aria-label="移除第 '+(i+1)+' 張圖片">✕</button></div>').join('')
+    +(BUG.imgs.length<3?'<button class="add" id="bugAdd"'+(BUG.conv?' disabled>處理圖片中⋯':'>＋ 加入圖片')+'<br>'+BUG.imgs.length+' / 3</button>':'');
+  const m=bugMeta(),it=[ME?'暱稱 '+esc(ME.name):'未設定暱稱','版本 '+m.v+(APP?'（App）':'（網頁）'),'裝置 '+bugDev()+'（含瀏覽器與系統版本）','畫面 '+m.scr+'、像素比 '+esc(m.dpr),
+    '語言 '+esc(m.lang||'—'),'目前畫面 '+({home:'主畫面',menu:'選曲',ready:'準備開始',starting:'準備開始',play:'遊戲中',over:'結算',done:'結算'}[m.st]||esc(m.st||'—')),'延遲校正 '+m.lat];
+  if(m.song)it.push('最近遊玩：'+esc(m.song)+'／'+esc(m.d));if(m.err)it.push('最近錯誤訊息：'+esc(m.err.slice(0,60)));
+  $('#bugM').innerHTML='一併送出：'+it.map(s=>'<b>'+s+'</b>').join(' · ');
+  $('#bugC').textContent=$('#bugT').value.length+' / 1000';
+}
+function bugOpen(from){
+  BUG.from=from;BUG.shut++;$('#bugv').classList.remove('hidden');$(from==='pause'?'#pause':'#home').inert=true;$('#err').style.visibility='hidden';   // the error bar would cover the send button
+  bugSay(BUG.busy?'送出中⋯':'我們會看每一則回報，但不會逐一回覆');bugRender();$('#bugv .card').focus();
+  if(from==='pause'){   // a fresh shot of the paused game each time, replacing the one taken at an earlier pause
+    const old=BUG.imgs.indexOf(BUG.auto);if(old>=0)BUG.imgs.splice(old,1);BUG.auto=null;
+    if(BUG.imgs.length<3)bugShrink(cv).then(d=>{if(BUG.imgs.length>=3)return;BUG.auto=d;BUG.imgs.unshift(d);bugRender()}).catch(()=>bugRender());else bugRender()}
+}
+function bugClose(){const v=$('#bugv');if(v.classList.contains('hidden'))return;v.classList.add('hidden');$('#home').inert=false;$('#pause').inert=false;$('#err').style.visibility='';
+  const b=$(BUG.from==='pause'?'#bBugP':'#bBug');if(b)b.focus({preventScroll:true})}
+async function bugSend(){
+  if(BUG.busy)return;const text=$('#bugT').value.trim();
+  if(!text&&!BUG.imgs.length){bugSay('請寫一點說明，或加入至少一張圖片',1);return}
+  BUG.busy=true;$('#bugGo').disabled=true;bugSay('送出中⋯');
+  const j=await api('/bug/send',{pk:pkey(),kind:BUG.kind,body:text,meta:bugMeta(),imgs:BUG.imgs},45000);
+  BUG.busy=false;$('#bugGo').disabled=false;
+  if(j.ok){BUG.imgs=[];BUG.auto=null;BUG.kind='bug';$('#bugT').value='';bugRender();bugSay('已送出回報，感謝協助！');
+    const n=BUG.shut;setTimeout(()=>{if(n!==BUG.shut)return;bugClose();if(!busyNow())toast('已送出回報，感謝協助！')},1200);return}   // not if it was closed and reopened meanwhile
+  const E={daily:'今天已送出 5 則回報，請明天再試',slow:'操作太頻繁，請稍後再試',img:'有圖片無法使用，請換一張再試',big:'圖片太大，請減少張數再試',
+    empty:'請寫一點說明，或加入至少一張圖片',full:'回報的圖片空間暫時滿了，請移除圖片、只送文字',busy:'今天的回報太多了，請明天再試',
+    bad:'回報內容有誤，請重新開啟遊戲再試',store:'儲存失敗，內容已保留，請稍後再試'};
+  bugSay(E[j.error]||'目前無法連線，內容已保留，請稍後再試',1);
+}
+$('#bBug').onclick=()=>bugOpen('home');
+$('#bBugP').onclick=()=>bugOpen('pause');
+$('#bugX').onclick=bugClose;
+$('#bugGo').onclick=bugSend;
+$('#bugT').addEventListener('input',()=>{$('#bugC').textContent=$('#bugT').value.length+' / 1000'});
+$('#bugv').addEventListener('click',e=>{
+  if(e.target.id==='bugv'){bugClose();return}
+  const k=e.target.closest('[data-k]');if(k){BUG.kind=k.dataset.k;bugRender();return}
+  const rm=e.target.closest('[data-rm]');if(rm){BUG.imgs.splice(+rm.dataset.rm,1);bugRender();return}
+  if(e.target.closest('#bugAdd')&&!BUG.conv)$('#bugF').click();
+});
+$('#bugF').addEventListener('change',async e=>{
+  if(BUG.conv)return;const fs=[...(e.target.files||[])].slice(0,3-BUG.imgs.length);e.target.value='';let bad=0;
+  BUG.conv=true;bugRender();
+  try{for(const f of fs){try{const d=await bugShrink(f);if(BUG.imgs.length<3)BUG.imgs.push(d)}catch(_){bad++}}}finally{BUG.conv=false}
+  bugRender();if(bad)bugSay('有 '+bad+' 張圖片無法讀取，請換一張（JPG 或 PNG）',1);
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#bugv').classList.contains('hidden'))bugClose()});
 // How-to opens as a card over the home screen; ✕, the dimmed backdrop or Esc closes it.
 function howOpen(){$('#howv').classList.remove('hidden');$('#home').inert=true;$('#howv .card').focus()}   // the card, not a button: buttons fade in and can't take focus yet
 function howClose(){const v=$('#howv');if(!v)return;if(v.classList.contains('hidden'))return;v.classList.add('hidden');$('#home').inert=false;$('#bHow').focus({preventScroll:true})}

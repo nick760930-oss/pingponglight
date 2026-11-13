@@ -14,6 +14,7 @@
 import { handleLb } from './lb.js';
 import { handleFr, friendSweep } from './friends.js';
 import { moderate } from './moderate.js';
+import { handleBug, bugSweep } from './bugs.js';
 export { Hub } from './friends.js';   // presence Durable Object (friends)
 export { Arena, Lobby } from './arena.js';   // v2 multiplayer rooms (2..8) and lobby
 const ALPH = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';          // no 0/O/1/I/L
@@ -48,7 +49,7 @@ async function limited(env, key) {    // true when this key is over its limit
 }
 
 export default {
-  async scheduled(ev, env, ctx) { ctx.waitUntil(Promise.all([friendSweep(env), moderate(env, 20)])); },   // hourly (wrangler.toml [triggers])
+  async scheduled(ev, env, ctx) { ctx.waitUntil(Promise.all([friendSweep(env), moderate(env, 20), bugSweep(env)])); },   // hourly (wrangler.toml [triggers])
   async fetch(req, env, ctx) {
     const url = new URL(req.url), origin = req.headers.get('Origin');
     if (url.pathname.startsWith('/lb/')) {           // leaderboard (POST); moderation (/lb/admin) is token-only, no page
@@ -57,6 +58,12 @@ export default {
       const H = admin ? BASE_H : cors(origin);
       if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: { ...H, 'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Max-Age': '86400' } });
       return handleLb(req, env, url.pathname, clientKey(req), origin, H, limited);
+    }
+    if (url.pathname.startsWith('/bug/')) {          // bug reports from testers (src/bugs.js)
+      if (!okOrigin(origin, env)) return new Response('forbidden', { status: 403, headers: BASE_H });
+      const H = cors(origin);
+      if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: { ...H, 'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Max-Age': '86400' } });
+      return handleBug(req, env, url.pathname, clientKey(req), H, limited);
     }
     if (url.pathname.startsWith('/fr/')) {           // friends: JSON over POST, plus the presence WebSocket
       if (!okOrigin(origin, env)) return new Response('forbidden', { status: 403, headers: BASE_H });

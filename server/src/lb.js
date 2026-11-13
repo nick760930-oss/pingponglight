@@ -21,6 +21,7 @@
 import { CHARTS } from './charts.js';
 import { cleanName, nameProblem, nameKey } from './names.js';
 import { friendWipe } from './friends.js';
+import { bugAdmin, bugWipe } from './bugs.js';
 
 const DIFFS = 5, TICKET_MAX_MS = 3 * 3600e3, MAX_BODY = 16384, TOP = 100, HIDE_AT = 3, BOARD_CACHE_S = 30;
 const MAX_ERR = 400, MISS = null;                      // ms; a missed beat is null in the log
@@ -162,6 +163,7 @@ export async function handleLb(req, env, path, who, origin, H, limited) {
   if (path === '/lb/admin') {                         // moderation, with the LB_ADMIN secret (curl, no page)
     if (!env.LB_ADMIN || !same(body.token, env.LB_ADMIN)) return json({ error: 'forbidden' }, 403);
     const id = body.id;
+    const bug = await bugAdmin(db, body, json); if (bug) return bug;   // bug reports: 'bugs', 'bugimg', 'bugdone'
     if (body.op === 'flagged') return json({ rows: (await db.prepare(`SELECT s.board, s.pid AS id, p.name, s.acc, s.err, s.pf, s.ts
       FROM scores s JOIN players p ON p.id = s.pid WHERE s.sus = 1 ORDER BY s.ts DESC LIMIT 200`).all()).results });
     if (body.op === 'run') { if (!Number.isInteger(id)) return json({ error: 'bad' }, 400); const x = await db.prepare('SELECT acc, err, combo, score, pf, ts, log FROM scores WHERE board = ?1 AND pid = ?2').bind(String(body.board), id).first(); return json({ run: x }); }
@@ -190,7 +192,7 @@ async function dropCache(b) { try { if (typeof caches !== 'undefined') await cac
 async function wipe(db, id) {                         // a player and everything about them; their boards refresh at once
   const bs = (await db.prepare('SELECT board FROM scores WHERE pid = ?1').bind(id).all()).results;
   await db.batch([db.prepare('DELETE FROM scores WHERE pid = ?1').bind(id), db.prepare('DELETE FROM reports WHERE pid = ?1').bind(id),
-    ...friendWipe(db, id), db.prepare('DELETE FROM players WHERE id = ?1').bind(id)]);
+    ...friendWipe(db, id), ...bugWipe(db, id), db.prepare('DELETE FROM players WHERE id = ?1').bind(id)]);
   for (const r of bs) await dropCache(r.board);
 }
 async function setHidden(db, id, v) {
