@@ -2666,11 +2666,14 @@ function skyBuild(){
   const fb=new Map(),BL=360*K,nb=Math.round(.55*2600*1.9*H/4.8e6*BL),nf=Math.round(.45*2600*FW*FH/4.8e6*Math.min(1,(11/K)**2)),cnt=nb+nf,cx0=W/2;
   // the band is one full turn of the sky (360 degrees), thinning out towards its ends, so pulling far back shows the
   // galactic plane once instead of repeating
-  for(let i=0;i<cnt;i++){const band=rnd()<nb/cnt,   // mixed at random, so any first part of a batch is an even sample
+  // the band is kept light so it never buries the song stars: 60% of its stars at 80% brightness, and 70% fewer (nebulae at 40%) inside a constellation
+  const inC=(x,y)=>C.some(c=>Math.hypot(c.x-x,c.y-y)<c.R*1.25);
+  for(let i=0;i<cnt;i++){let band=rnd()<nb/cnt,   // mixed at random, so any first part of a batch is an even sample
     x=band?cx0+(rnd()-.5)*BL:rnd()*FW-MX,wide=1+Math.abs(x-cx0)/W*.6,y=band?bandY(x)+(rnd()+rnd()+rnd()-1.5)*230*wide:rnd()*FH-MY,m=Math.pow(rnd(),3.2)*(band?Math.min(1,(1-Math.abs(x-cx0)/(BL/2))*8):1);
+    if(band&&(rnd()>.6||(inC(x,y)&&rnd()<.7)))continue;if(band)m*=.8;
     const h=rnd()<.15?'#ffd9b0':rnd()<.25?'#b9ccff':'#ffffff',a=Math.min(2,Math.floor(m*3.5)),g=Math.floor(rnd()*8),key=h+a+g;
     if(!fb.has(key))fb.set(key,{h,a:[.22,.42,.7][a],g,p:[]});fb.get(key).p.push([x,y,.3+m*1.0])}
-  const neb=[];for(let i=0;i<Math.round(70*BL/3200);i++){const x=cx0+(rnd()-.5)*BL*.8;neb.push({x,y:bandY(x)+(rnd()-.5)*260,r:120+rnd()*260,c:rnd()<.5?'90,110,200':'150,90,170',a:.025+rnd()*.035})}
+  const neb=[];for(let i=0;i<Math.round(70*BL/3200);i++){const x=cx0+(rnd()-.5)*BL*.8;{const ny=bandY(x)+(rnd()-.5)*260;neb.push({x,y:ny,r:120+rnd()*260,c:rnd()<.5?'90,110,200':'150,90,170',a:(.025+rnd()*.035)*(inC(x,ny)?.4:1)})}}
   const cv=$('#skyCv');
   SKY={W,H,NT,noteOn:false,MX,MY,FW,FH,C,fb:[...fb.values()],neb,cv,cx:cv.getContext('2d'),vw:0,vh:0,dpr:1,s:1,ox:0,oy:0,minS:1,fitS:1,anim:null,raf:0,dirty:true,focus:-2,cache:new Map(),lt:0};
   skyA11y();
