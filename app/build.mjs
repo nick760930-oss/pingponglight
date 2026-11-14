@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const APP = dirname(fileURLToPath(import.meta.url)), ROOT = join(APP, '..'), WWW = join(APP, 'www');
-const FILES = ['index.html', 'game.js', 'songs.js', 'credits.html', 'privacy.html', 'icon-192.png', 'icon-512.png', 'manifest.webmanifest'];
+const FILES = ['index.html', 'cosmetics.js', 'game.js', 'shop.js', 'ach-data.js', 'ach.js', 'songs.js', 'credits.html', 'privacy.html', 'icon-192.png', 'icon-512.png', 'manifest.webmanifest'];
 // instrument samples go in as one script per instrument (inst/<name>.js: base64 mp3 by midi number), loaded with a
 // <script> tag: the app web view loads bundled scripts for sure, while fetching the bundled mp3 files left the app on synth sound
 const INST_DIR = join(ROOT, 'inst');

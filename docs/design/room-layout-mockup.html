@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>房間版面重設計</title>
+<style>
+:root{--fg:#e8ecff;--dim:#8a93c0;--bg:#070917}
+*{box-sizing:border-box}
+body{margin:0;background:#03040b;color:var(--fg);font:14px/1.6 system-ui,"Noto Sans TC","Microsoft JhengHei",sans-serif;padding:20px 16px 40px}
+h1{font-size:20px;margin:0 0 4px}h2{font-size:16px;margin:26px 0 6px;color:#7cf0ff}
+.note{color:var(--dim);font-size:13px;margin:4px 0 10px;max-width:1000px}
+.lb{font-size:12px;color:var(--dim);margin:10px 0 4px}
+.out{font-size:12px;margin:4px 0 0}.out.ok{color:#7cffaa}.out.bad{color:#ff8a8a}
+.verdict{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:6px;margin-left:6px;color:#7cffaa;border:1px solid #4fd48a;background:rgba(124,255,170,.12)}
+/* phone screen in landscape, real pixel size */
+.ph{position:relative;background:var(--bg);border:1px solid #2a2f55;border-radius:14px;overflow:hidden;padding:8px 14px 8px;display:flex;flex-direction:column;gap:6px}
+.top{display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:12.5px;flex:0 0 auto}
+.top .back{padding:5px 10px;border:1px solid rgba(255,255,255,.2);border-radius:999px}
+.top b{font-size:15px}.top .rc{color:var(--dim);font-size:11.5px}.top .rc b{color:var(--fg);letter-spacing:.12em}
+.top .sp{margin-left:auto;display:flex;gap:5px}.top .sp span{padding:5px 10px;border:1px solid rgba(255,255,255,.2);border-radius:999px}
+.body{flex:1 1 auto;min-height:0;display:flex;gap:14px}
+.slist{flex:1 1 0;min-width:0;overflow:hidden;border-top:1px solid rgba(255,255,255,.12);padding-top:4px}
+.sr{display:flex;align-items:center;gap:8px;height:40px;padding:0 8px;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px;white-space:nowrap;overflow:hidden}
+.sr.on{background:linear-gradient(90deg,rgba(63,216,255,.18),rgba(143,107,255,.1));border-radius:8px}
+.sr small{color:var(--dim);font-size:11px}
+.sdet{flex:0 0 auto;display:flex;flex-direction:column;gap:5px;padding-left:14px;border-left:1px solid rgba(255,255,255,.12);min-height:0}
+.sdet h3{margin:0;font-size:16px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sdet .mt{font-size:11.5px;color:#b9c1ea;white-space:nowrap}
+.seg{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border:1px solid rgba(255,255,255,.18);border-radius:10px;overflow:hidden;flex:0 0 auto}
+.seg span{display:flex;align-items:center;justify-content:center;height:32px;font-size:12px}.seg span+span{border-left:1px solid rgba(255,255,255,.14)}.seg .on{background:#e8ecff;color:#05060f;font-weight:700}
+.grow{flex:1 1 auto}
+.rnote{font-size:11.5px;color:#ffd36b;white-space:nowrap}
+.act{display:flex;gap:8px;flex:0 0 auto}.act span{display:flex;align-items:center;justify-content:center;height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.2)}
+.act .say{width:48px}.act .go{flex:1;background:linear-gradient(90deg,#3fd8ff,#8f6bff);color:#04060f;font-weight:800;letter-spacing:.12em;border:0}
+/* the seat card: line 1 = avatar + name, line 2 = title (never cut) */
+.seats{display:grid;gap:6px 6px}
+.seat{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:auto auto;column-gap:6px;align-items:center;padding:4px 8px;border-radius:10px;background:rgba(30,36,90,.55);border:1px solid transparent;min-width:0}
+.seat .av{grid-row:1/3;width:26px;height:26px;border-radius:50%;box-shadow:0 0 0 1px rgba(255,255,255,.35)}
+.seat .nm{font-size:12px;font-weight:700;line-height:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;padding-right:12px}
+.seat .tl{justify-self:start;font-size:10px;line-height:14px;padding:0 6px;border-radius:999px;font-weight:700;white-space:nowrap}
+.seat.empty{display:flex;align-items:center;justify-content:center;border:1px dashed rgba(120,130,220,.3);background:none;color:#5a6090;font-size:12px}
+.seat .host{position:absolute;top:-7px;left:8px;font-size:9px;line-height:12px;padding:0 4px;background:var(--bg);color:#ffd36b;border:1px solid #ffd36b;border-radius:6px}
+.seat .ft{position:absolute;top:-7px;right:8px;font-size:9px;line-height:12px;padding:0 5px;border-radius:999px;background:#0b0f2e;color:#7cf0ff;border:1px solid rgba(124,240,255,.6)}
+.seat.ok:after{content:'✓';position:absolute;right:7px;top:3px;color:#7cffaa;font-weight:800;font-size:12px}
+.seat.me{border-color:#ffd36b}
+.seat .bub{position:absolute;left:0;right:0;bottom:calc(100% + 6px);width:max-content;max-width:100%;margin:0 auto;padding:2px 8px;border-radius:12px;background:linear-gradient(160deg,#22285a,#12143a);border:1px solid rgba(124,240,255,.55);font-size:11px;font-weight:700;white-space:nowrap;z-index:3}
+.t1{color:#e8a878;border:1px solid #8a5a3a}.t2{background:linear-gradient(90deg,#8a93c0,#cfd5f5,#8a93c0);color:#10132a}
+.t3{color:#2a1800;background:linear-gradient(90deg,#ffe8a8,#ffb84d)}.t4{color:#fff;background:linear-gradient(90deg,#ff6fb5,#7cf0ff,#c9b6ff)}
+.p-cold{background:rgba(124,240,255,.14);border-color:#3fd8ff}
+.p-neon{background:linear-gradient(90deg,rgba(255,111,149,.35),rgba(143,107,255,.35));border-color:#ff6f95}
+.p-sakura{background:linear-gradient(90deg,rgba(255,159,208,.28),rgba(255,209,232,.16));border-color:#ff9fd0}
+.p-ice{background:linear-gradient(180deg,#1b4a6b,#0b1a33);border-color:#bfefff}
+.p-pixel{background:#111;border-color:#8fe388;border-radius:4px}
+.p-ink{background:#ece5d6;color:#1a1a1a;border-color:#1a1a1a}
+.p-gold{background:linear-gradient(90deg,rgba(255,211,107,.3),rgba(255,143,209,.2));border-color:#ffd36b}
+.p-orbit{background:linear-gradient(#141a48,#141a48) padding-box,conic-gradient(#7cf0ff,#c9b6ff,#ffd36b,#7cf0ff) border-box}
+/* option 1: seats stay in the right panel, panel widened, 2 per row */
+.o1 .sdet{width:var(--pw)}
+.o1 .seats{grid-template-columns:repeat(2,minmax(0,1fr))}
+/* option 2: seats move to a full-width strip under the song area, 4 per row */
+.o2 .sdet{width:var(--pw)}
+.o2 .seats{grid-template-columns:repeat(4,minmax(0,1fr));flex:0 0 auto;padding-top:8px}
+</style></head><body>
+<h1>多人房間：重新設計讓稱號完整顯示</h1>
+<p class="note">畫面是手機橫放的實際像素大小（812×375 是一般手機，667×375 是小手機）。每個座位改成兩行：第一行頭像＋名字，第二行稱號，稱號一律不截斷。
+測試資料用目前最長的稱號「全連擊大師」（5 字，另有 4 位放 4 字稱號）、12 字中文名（暱稱上限 12 字）、英文 12 字名，8 人坐滿。下方的數字是實際量到的。</p>
+
+<h2>方案一：座位留在右欄，右欄加寬、一排 2 位<span class="verdict" style="color:#ff8a8a;border-color:#ff6a6a;background:rgba(255,90,90,.15)">曲名被擠掉</span></h2>
+<p class="note">右欄從 296px 加寬（一般手機 400px、小手機 350px），座位一排 2 位、共 4 排。稱號放得下，但 4 排座位太高，右欄頂端的曲名被擠出畫面，歌單也變窄。</p>
+<div id="o1"></div>
+
+<h2>方案二：座位移到畫面下方整排，一排 4 位<span class="verdict">建議</span></h2>
+<p class="note">右欄維持原本寬度（296／240px），只放曲名、難度、準備鈕；8 個座位改放在畫面最下方，橫跨整個寬度，一排 4 位、共 2 排。歌單維持原寬度，只是少顯示約 2 首。房主、好友標籤、準備打勾、快速發言氣泡都保留在原本的位置。</p>
+<div id="o2"></div>
+
+<script>
+const P=[
+ {n:'小光',av:['#7cf0ff','#3a6bff'],p:'p-orbit',t:['摘星者',4],me:1,host:1,ok:1},
+ {n:'午夜十二點的乒乓光之王者',av:['#ff8a3d','#ffd36b'],p:'p-cold',t:['全連擊大師',3],ok:1,ft:'好友',bub:'衝了衝了 🚀'},
+ {n:'Mia',av:['#ff9fd0','#fff0f6'],p:'p-sakura',t:['新星',1],ok:1},
+ {n:'小美',av:['#5fe0ff','#04324a'],p:'p-ice',t:['千回百轉',3]},
+ {n:'Kevin_Chen12',av:['#8fe388','#0f1f12'],p:'p-pixel',t:['三光並行',3],ok:1},
+ {n:'星星',av:['#ffd36b','#8a5a10'],p:'p-gold',t:['分毫不差',4]},
+ {n:'阿哲',av:['#222','#ece5d6'],p:'p-ink',t:['墨上聽潮',3],ok:1},
+ {n:'Yuki',av:['#ff6f95','#8f6bff'],p:'p-neon',t:['疾風勁草',3]},
+];
+const SONGS=['小星星','歡樂頌','卡農','綠袖子','土耳其進行曲','給愛麗絲','月光','天鵝湖'];
+const seat=p=>`<div class="seat ${p.p}${p.me?' me':''}${p.ok?' ok':''}"><span class="av" style="background:radial-gradient(circle at 35% 35%,#fff,${p.av[0]} 45%,${p.av[1]})"></span><span class="nm">${p.n}</span><span class="tl t${p.t[1]}">${p.t[0]}</span>${p.host?'<span class="host">房主</span>':''}${p.ft?'<span class="ft">'+p.ft+'</span>':''}${p.bub?'<span class="bub">'+p.bub+'</span>':''}</div>`;
+const TOPB=`<div class="top"><span class="back">‹ 返回</span><b>房間</b><span class="rc">房號 <b>K7Q2</b>　8/8 人</span><span class="sp"><span>8 人房</span><span>公開</span><span>邀請好友</span></span></div>`;
+const list=`<div class="slist">${SONGS.map((s,i)=>`<div class="sr${i==2?' on':''}">${s}<small>古典・${2+i%3} 分鐘</small></div>`).join('')}</div>`;
+const det=inner=>`<div class="sdet"><h3>卡農</h3><div class="mt">帕海貝爾・古典・4:05</div><div class="seg"><span>入門</span><span>簡單</span><span class="on">普通</span><span>困難</span><span>專家</span></div>${inner}<div class="rnote">等待 3 人準備…</div><div class="grow"></div><div class="act"><span class="say">💬</span><span class="go">準備</span></div></div>`;
+const seats=`<div class="seats">${P.map(seat).join('')}</div>`;
+function frame(opt,w,h,pw){
+ const body=opt==1?`<div class="body">${list}${det(seats)}</div>`:`<div class="body">${list}${det('')}</div>${seats}`;
+ return `<div class="lb">${w}×${h}（${w>700?'一般手機橫放':'小手機橫放'}）</div><div class="ph o${opt}" style="width:${w}px;height:${h}px;--pw:${pw}px">${TOPB}${body}</div><div class="out"></div>`}
+document.getElementById('o1').innerHTML=frame(1,812,375,400)+frame(1,667,375,350);
+document.getElementById('o2').innerHTML=frame(2,812,375,296)+frame(2,667,375,240);
+// measure: titles cut, names cut, and anything pushed below the bottom edge of the screen
+document.querySelectorAll('.ph').forEach(ph=>{const r=ph.getBoundingClientRect(),S=[...ph.querySelectorAll('.seat')];
+ const tcut=S.filter(s=>{const t=s.querySelector('.tl'),b=s.getBoundingClientRect(),q=t.getBoundingClientRect();return t.scrollWidth>t.clientWidth+1||q.right>b.right-2}).length;
+ const ncut=S.filter(s=>{const n=s.querySelector('.nm');return n.scrollWidth>n.clientWidth+1}).length;
+ const low=[...ph.querySelectorAll('.seat,.act,.seg')].filter(e=>e.getBoundingClientRect().bottom>r.bottom-2).length+[...ph.querySelectorAll('.sdet h3,.sdet .mt')].filter(e=>e.getBoundingClientRect().top<ph.querySelector('.body').getBoundingClientRect().top-1).length;
+ const sw=Math.round(S[0].getBoundingClientRect().width),sl=ph.querySelector('.slist'),rows=Math.floor(sl.clientHeight/40);
+ const o=ph.nextElementSibling;o.className='out '+(tcut||low?'bad':'ok');
+ o.textContent=`稱號被截：${tcut}／8　名字被截：${ncut}／8（${ncut?'只有 12 字長名':'無'}）　超出畫面：${low}　座位寬 ${sw}px　歌單寬 ${Math.round(sl.clientWidth)}px、可見約 ${rows} 首`});
+</script>
+</body></html>

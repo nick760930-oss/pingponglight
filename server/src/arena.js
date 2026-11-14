@@ -4,9 +4,11 @@
 import { CHARTS } from './charts.js';
 import { cleanName, nameProblem } from './names.js';
 import { friendRequest, relations, pidOf, blockedBy } from './friends.js';
+import { cosOf, NOCOS } from './cos.js';
+const cosOut = c => c ? { avatar: c.avatar, plate: c.plate, title: c.title, cmc: c.cmc } : NOCOS;   // what a seat wears (cos.js), only known for signed-in players
 
 const SONGS = Object.keys(CHARTS).filter(k => !CHARTS[k].rw);   // quick match: regular songs only
-const MAX_MSG = 512;
+const MAX_MSG = 512, MAX_V = 1000, V_PER_SEC = 20, V_BURST = 150, V_OVER = 100, COS_GAP = 3000;   // v = spectator frames (a looser size limit and their own rate limit, see relayV)
 const BUCKET = 30, REFILL = 8, MAX_DROPS = 60;
 const IDLE_MS = 75000, SWEEP_MS = 30000;
 const RESERVE_MS = 30 * 60000;
@@ -16,7 +18,8 @@ const MAX_ROUND_MS = 15 * 60000;          // a round nobody finished in 15 min i
 const MAX_SCORE_STEP = 30000;
 const LOBBY_TTL = 120000, LIST_MAX = 30, LOBBY_CAP = 500;
 const PH_TTL = 15000, PEND_TTL = 10000, PH_CAP = 1000, UPSERT_GAP = 1000;   // placeholder life, pending-join life, placeholder cap, rename upsert throttle
-const RANKS = ['S', 'A', 'B', 'C', 'D', '—'];
+// the nine ranks (F..SSS) plus what older apps send (S A B C D —); anything else becomes '—'. Passed through unchanged: old apps show an unknown rank as '—'.
+const RANKS = ['SSS', 'SS', 'S', 'A', 'B', 'C', 'D', 'E', 'F', '—'];
 const SAY_N = 64, SAY_GAP = 2200, REL_GAP = 800, FADD_GAP = 600;   // room phrases: highest index accepted (the client's append-only list holds the text); per-socket gaps
 const int = (v, lo, hi) => { v = Math.floor(Number(v)); return Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : lo; };
 const rndSong = () => SONGS[crypto.getRandomValues(new Uint32Array(1))[0] % SONGS.length];
@@ -80,7 +83,7 @@ export class Arena {
     const s = this.socks(); if (!s.length) return;
     const cfg = await this.get('cfg'), phase = await this.get('phase', 'lobby'), auto = await this.get('auto', null);
     const host = this.hostOf(s), votes = {};
-    const players = s.map(w => { const a = this.info(w); if (cfg.vote && a.vote) votes[a.vote] = (votes[a.vote] || 0) + 1; return { i: a.i, name: a.name, ready: !!a.ready, back: !!a.back, vote: cfg.vote ? a.vote || null : null }; }).sort((a, b) => a.i - b.i);
+    const players = s.map(w => { const a = this.info(w); if (cfg.vote && a.vote) votes[a.vote] = (votes[a.vote] || 0) + 1; return { i: a.i, name: a.name, ready: !!a.ready, back: !!a.back, vote: cfg.vote ? a.vote || null : null, ...cosOut(a.cos) }; }).sort((a, b) => a.i - b.i);
     for (const w of only ? [only] : s) this.send(w, { t: 'room', code: await this.code(), you: this.info(w).i, host, players, cfg, votes, phase, auto: auto ? { at: auto.at } : null });
   }
   async summary() {
@@ -138,29 +141,65 @@ export class Arena {
     const seed = crypto.getRandomValues(new Uint32Array(1))[0], at = now + START_DELAY;
     await this.ctx.storage.put({ phase: 'play', auto: null, gone: [], round: { at, song } });
     if (cfg.qm) await this.ctx.storage.put('cfg', { ...cfg, song: rndSong() });   // next round's song
-    for (const w of s) { const a = this.info(w); a.ready = false; a.fin = null; a.st = null; a.vote = null; a.finAt = 0; w.serializeAttachment(a); }
+    for (const w of s) { const a = this.info(w); a.ready = false; a.fin = null; a.st = null; a.vote = null; a.finAt = 0; a.watch = -1; w.serializeAttachment(a); }
     this.lastBoard = 0;
     this.all({ t: 'start', at, seed, song, di: cfg.di, n: s.length });
     await this.room(); await this.upsert(); await this.sched(now);
   }
   async finishRound(now) {
-    const recs = this.socks().map(w => { const a = this.info(w); return { i: a.i, name: a.name, fin: a.fin, s: a.fin ? a.fin.s : (a.st ? a.st[0] : 0), off: false }; });
+    const recs = this.socks().map(w => { const a = this.info(w); return { i: a.i, name: a.name, cos: a.cos, fin: a.fin, s: a.fin ? a.fin.s : (a.st ? a.st[0] : 0), off: false }; });
     for (const g of await this.get('gone', [])) recs.push({ ...g, off: true });
-    const row = x => x.fin ? { i: x.i, name: x.name, s: x.fin.s, ok: x.fin.ok, acc: x.fin.acc, rank: x.fin.rank, mc: x.fin.mc } : { i: x.i, name: x.name, s: x.s, ok: false, acc: 0, rank: '—', mc: 0 };
+    const row = x => x.fin ? { i: x.i, name: x.name, s: x.fin.s, ok: x.fin.ok, acc: x.fin.acc, rank: x.fin.rank, mc: x.fin.mc, ...cosOut(x.cos) } : { i: x.i, name: x.name, s: x.s, ok: false, acc: 0, rank: '—', mc: 0, ...cosOut(x.cos) };
     const grp = x => x.fin ? (x.fin.ok ? 0 : 1) : (x.off ? 3 : 2);   // finished, failed, still-online unfinished, offline unfinished
     recs.sort((a, b) => grp(a) - grp(b) || b.s - a.s || a.i - b.i);
     const cfg = await this.get('cfg');
     await this.ctx.storage.put({ phase: 'lobby', gone: [], round: null });
-    for (const w of this.socks()) { const a = this.info(w); a.ready = false; a.fin = null; a.st = null; a.finAt = 0; if (cfg.qm) a.back = false; w.serializeAttachment(a); }
+    for (const w of this.socks()) { const a = this.info(w); a.ready = false; a.fin = null; a.st = null; a.finAt = 0; a.watch = -1; if (cfg.qm) a.back = false; w.serializeAttachment(a); }
     this.all({ t: 'res', r: recs.map(row) });
     await this.afterChange(now);
   }
   allFin() { const s = this.socks(); return s.length > 0 && s.every(w => this.info(w).fin); }
 
+  // ---- spectating (docs/spectate-spec.md): a seat that has finished may watch one that has not ----
+  watching(w) { const k = this.info(w).watch; return Number.isInteger(k) ? k : -1; }
+  wcnt(k) {                                           // tell seat k how many are watching (called whenever that number may have changed)
+    const t = this.socks().find(w => this.info(w).i === k); if (!t) return;
+    this.send(t, { t: 'wcnt', n: this.socks().filter(w => this.watching(w) === k).length });
+  }
+  setWatch(ws, k) {
+    const a = this.info(ws), old = this.watching(ws); if (old === k) return;
+    a.watch = k; ws.serializeAttachment(a);
+    if (old >= 0) this.wcnt(old);
+    if (k >= 0) this.wcnt(k);
+  }
+  endWatch(k) {                                       // seat k finished or left: everybody watching it is told and let go
+    for (const w of this.socks()) if (this.watching(w) === k) { const x = this.info(w); x.watch = -1; w.serializeAttachment(x); this.send(w, { t: 'wend', i: k }); }
+  }
+  // a spectator frame {t:'v', ...} from a seat still playing: only to the connections watching it; never stored, never written to D1.
+  // Handled before the normal token bucket (a 15 fps stream would exhaust it): its own bucket refills V_PER_SEC frames a second and
+  // holds V_BURST (about 10 s of frames), so frames queued behind a network stall and delivered at once still pass.
+  // Not exempt from flood protection: over the size limit is treated like any oversize message (the connection is dropped);
+  // frames over the bucket are dropped silently and counted in vx, which drains at V_PER_SEC a second, so only a sustained
+  // or very large excess (vx over V_OVER) drops the connection.
+  async relayV(ws, msg) {
+    const a = this.info(ws), now = Date.now(); if (a.gone) return;
+    if (msg.length > MAX_V || new TextEncoder().encode(msg).length > MAX_V) { await this.drop(ws, 'bad message'); return; }
+    const b = this.bucket(ws, now), dt = Math.max(0, now - b.vt) / 1000; b.vt = now;
+    b.vtok = Math.min(V_BURST, b.vtok + dt * V_PER_SEC); b.vx = Math.max(0, b.vx - dt * V_PER_SEC);
+    if (b.vtok < 1) { if (++b.vx > V_OVER) await this.drop(ws, 'flood'); return; }
+    b.vtok -= 1;
+    if (a.fin) return;
+    const to = this.socks().filter(w => this.watching(w) === a.i); if (!to.length) return;
+    let d; try { d = JSON.parse(msg); } catch (e) { return; }
+    if (!d || typeof d !== 'object' || Array.isArray(d)) return;
+    const out = JSON.stringify({ ...d, t: 'v', i: a.i });
+    for (const w of to) { try { w.send(out); } catch (e) {} }
+  }
+
   // ---- socket lifecycle ----
+  bucket(ws, now) { let b = this.rate.get(ws); if (!b) { b = { tok: BUCKET, t: now, drops: 0, atk: 0, cfg: 0, vtok: V_BURST, vt: now, vx: 0 }; this.rate.set(ws, b); } return b; }
   async allow(ws) {
-    const now = Date.now(); let b = this.rate.get(ws);
-    if (!b) { b = { tok: BUCKET, t: now, drops: 0, atk: 0, cfg: 0 }; this.rate.set(ws, b); }
+    const now = Date.now(), b = this.bucket(ws, now);
     b.tok = Math.min(BUCKET, b.tok + (now - b.t) / 1000 * REFILL); b.t = now;
     if (b.tok >= 1) { b.tok -= 1; return b; }
     if (++b.drops > MAX_DROPS) await this.drop(ws, 'flood');
@@ -172,10 +211,11 @@ export class Arena {
     this.rate.delete(ws); try { ws.close(why ? 1008 : 1000, why || 'bye'); } catch (e) {}
     const now = Date.now(), phase = await this.get('phase', 'lobby');
     if (phase === 'play') {
-      const gone = await this.get('gone', []); gone.push({ i: a.i, name: a.name, fin: a.fin || null, s: a.fin ? a.fin.s : (a.st ? a.st[0] : 0) });
+      const gone = await this.get('gone', []); gone.push({ i: a.i, name: a.name, cos: a.cos, fin: a.fin || null, s: a.fin ? a.fin.s : (a.st ? a.st[0] : 0) });
       await this.ctx.storage.put('gone', gone);
     }
     this.all({ t: 'left', i: a.i });
+    this.endWatch(a.i); if (this.watching(ws) >= 0) this.wcnt(this.watching(ws));   // those watching this seat are let go; the seat this one watched has one viewer less
     if (!this.socks().length) {
       await this.ctx.storage.put({ phase: 'lobby', auto: null, gone: [], round: null, resv: now });
       await this.upsert(); return;
@@ -192,6 +232,7 @@ export class Arena {
   async webSocketError(ws) { await this.drop(ws, ''); }
 
   async webSocketMessage(ws, msg) {
+    if (typeof msg === 'string' && msg.startsWith('{"t":"v"')) { await this.relayV(ws, msg); return; }   // spectator frames: the client writes t first
     if (typeof msg !== 'string' || msg.length > MAX_MSG) { await this.drop(ws, 'bad message'); return; }
     const b = await this.allow(ws); if (!b) return;
     let d; try { d = JSON.parse(msg); } catch (e) { return; }
@@ -214,9 +255,24 @@ export class Arena {
         a.authN = (a.authN || 0) + 1; ws.serializeAttachment(a);
         let pl = null; try { pl = await pidOf(this.env.LB, d.pk); } catch (e) {}
         if (!pl) return;
-        const b2 = this.info(ws); b2.pid = pl.id; b2.acct = pl.name; ws.serializeAttachment(b2);
+        let cm = null; try { cm = (await cosOf(this.env.LB, this.env, [pl.id])).get(pl.id) || null; } catch (e) {}
+        const b2 = this.info(ws); b2.pid = pl.id; b2.acct = pl.name; b2.cos = cm; ws.serializeAttachment(b2);
+        await this.room();                              // the others see what this seat wears
         for (const w of this.socks()) if (w === ws || this.info(w).pid) await this.rels(w);   // everyone signed in gets this seat's relation
         return;
+      }
+      case 'cos': {                                   // the player changed what they wear: read it again (at most once per COS_GAP)
+        if (!a.pid || !this.env.LB || now - (b.cos || 0) < COS_GAP) return; b.cos = now;
+        let cm = null; try { cm = (await cosOf(this.env.LB, this.env, [a.pid])).get(a.pid) || null; } catch (e) { return; }
+        const b2 = this.info(ws); if (b2.gone) return; b2.cos = cm; ws.serializeAttachment(b2);
+        await this.room(); return;
+      }
+      case 'watch': {                                 // { i }: watch seat i (-1 = stop); only a finished seat, only during the round, only one still playing
+        if (phase !== 'play' || !a.fin) return;
+        if (d.i === -1) { this.setWatch(ws, -1); return; }
+        const t = Number.isInteger(d.i) && d.i >= 0 && d.i <= 7 && d.i !== a.i ? this.socks().find(w => this.info(w).i === d.i) : null;
+        if (!t || this.info(t).fin) { if (Number.isInteger(d.i)) this.send(ws, { t: 'wend', i: d.i }); if (this.watching(ws) >= 0 && this.watching(ws) === d.i) this.setWatch(ws, -1); return; }
+        this.setWatch(ws, d.i); return;
       }
       case 'rel': { if (now - (b.rel || 0) < REL_GAP) return; b.rel = now; await this.rels(ws); return; }
       case 'fadd': {                                  // { i }: ask the player in seat i to be friends
@@ -294,7 +350,7 @@ export class Arena {
       case 'fin': {
         if (phase !== 'play' || a.fin) return;
         a.fin = { s: int(d.s, 0, 1e8), ok: !!d.ok, acc: Math.max(0, Math.min(100, +d.acc || 0)), rank: RANKS.includes(d.rank) ? d.rank : '—', mc: int(d.mc, 0, 1e5) };
-        a.finAt = now; ws.serializeAttachment(a); this.board(true);
+        a.finAt = now; ws.serializeAttachment(a); this.endWatch(a.i); this.board(true);
         if (this.allFin()) await this.finishRound(now);
         return;
       }

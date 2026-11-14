@@ -8,6 +8,7 @@
 // Responses never contain pk or ph.
 import { cleanMsg, msgProblem } from './names.js';
 import { moderate, mutedUntil } from './moderate.js';
+import { cosOf, NOCOS } from './cos.js';
 
 export async function friendSweep(env) {    // hourly (cron): expired messages; reports older than a year; strikes 180 days old
   if (!env.LB) return;
@@ -258,7 +259,10 @@ export async function handleFr(req, env, path, who, origin, H, limited, ctx) {
       if (last[x.id]) f.lm = last[x.id];
       return f;
     }).sort((x, y) => y.on - x.on || x.name.localeCompare(y.name));
-    return json({ friends, incoming: inc.results, outgoing: out.results, blocked: blk.results });
+    // what each of them wears: avatar, plate, title, and cmc (best combo: colours the default avatar); see cos.js
+    let cm = new Map(); try { cm = await cosOf(db, env, [...friends.map(x => x.id), ...inc.results.map(x => x.id), ...out.results.map(x => x.id)]); } catch (e) {}
+    const dress = x => ({ ...x, ...(cm.get(x.id) || NOCOS) });
+    return json({ friends: friends.map(dress), incoming: inc.results.map(dress), outgoing: out.results.map(dress), blocked: blk.results });
   }
 
   if (path === '/fr/invite') {

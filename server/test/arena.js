@@ -110,14 +110,14 @@ const pOf = (ws, i) => last(ws, 'room').players.find(p => p.i === i);
 
   // ---- fin / res ordering ----
   A.forEach(x => { x.msgs.length = 0; });
-  S(A[2], { t: 'fin', s: 100, ok: true, acc: 50, rank: 'C', mc: 2 }); S(A[2], { t: 'fin', s: 9999, ok: true, rank: 'S' }); await sleep(250);
+  S(A[2], { t: 'fin', s: 100, ok: true, acc: 50, rank: 'E', mc: 2 }); S(A[2], { t: 'fin', s: 9999, ok: true, rank: 'S' }); await sleep(250);
   ok(!last(A[0], 'res') && last(A[0], 'board').p.find(x => x[0] === 2)[5] === 1, 'one fin -> board shows fin flag, no res yet');
   S(A[1], { t: 'fin', s: 999, ok: false, acc: 20, rank: '<x>', mc: 1 }); await sleep(300);
   const bf = last(A[0], 'board').p; ok(bf.find(x => x[0] === 1)[5] === 1 && bf.find(x => x[0] === 1)[6] === 0 && bf.find(x => x[0] === 2)[6] === 1, 'board: fin + ok:false -> ok 0, fin + ok:true -> ok 1 ' + JSON.stringify(bf));
-  S(A[0], { t: 'fin', s: 300, ok: true, acc: 99.5, rank: 'A', mc: 9 }); await sleep(400);
+  S(A[0], { t: 'fin', s: 300, ok: true, acc: 99.5, rank: 'SS', mc: 9 }); await sleep(400);
   const res = last(A[1], 'res');
   ok(res && res.r.length === 3 && res.r.map(x => x.i).join() === '0,2,1', 'res order: finished by score, failed after ' + JSON.stringify(res && res.r.map(x => [x.i, x.s, x.ok])));
-  ok(res && res.r[1].s === 100 && res.r[1].rank === 'C' && res.r[2].rank === '—' && res.r[0].acc === 99.5 && res.r[0].name, 'res rows hold clamped fields and names');
+  ok(res && res.r[1].s === 100 && res.r[1].rank === 'E' && res.r[0].rank === 'SS' && res.r[2].rank === '—' && res.r[0].acc === 99.5 && res.r[0].name, 'res rows hold clamped fields and names');
   ok(last(A[0], 'room').phase === 'lobby', 'back to lobby after res');
   closeAll(A);
   await sleep(300);

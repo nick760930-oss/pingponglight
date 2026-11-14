@@ -22,10 +22,12 @@ import { CHARTS } from './charts.js';
 import { cleanName, nameProblem, nameKey } from './names.js';
 import { friendWipe } from './friends.js';
 import { bugAdmin, bugWipe } from './bugs.js';
+import { withCos, shopWipe } from './cos.js';
+import { achRecalc, logFeats, ftOf, rankOf, statsStmt } from './ach.js';
 
 const DIFFS = 5, TICKET_MAX_MS = 3 * 3600e3, MAX_BODY = 16384, TOP = 100, HIDE_AT = 3, BOARD_CACHE_S = 30;
 const MAX_ERR = 400, MISS = null;                      // ms; a missed beat is null in the log
-const TIER_MS = [45, 90, 150], TIER_W = [1, .8, .5, .25];
+const TIER_MS = [45, 90, 150], TIER_W20 = [20, 16, 10, 5];   // integer tier weights (x20, a miss is 0): the sum does not depend on the order of the hits
 // game.js bounce(): base = round(100 * TIER_M * speed^1.1 * (1 + .3 * pressure) * (power-up ? 2 : 1)), then + combo * 5;
 // speed factor is clamped to [.3, 8] there, pressure to [0, 1]
 const TIER_M = [3, 2, 1.2, 1], Q_MIN = Math.pow(.3, 1.1) * .99, Q_MAX = Math.pow(8, 1.1) * 1.3 * 2 * 1.01, SCORE_CAP = 999999999;
@@ -57,15 +59,15 @@ export function judge(song, d, log) {
     if (!Number.isInteger(e) || Math.abs(e) > MAX_ERR || !Number.isInteger(base)) return null;
     const a = Math.abs(e), t = a < TIER_MS[0] ? 0 : a < TIER_MS[1] ? 1 : a < TIER_MS[2] ? 2 : 3;
     const q = base / (100 * TIER_M[t]); if (q < Q_MIN || q > Q_MAX) return null;   // more than this hit could earn
-    tiers[t]++; w += TIER_W[t]; hits++; sumAbs += a; sum += e; sum2 += e * e;
+    tiers[t]++; w += TIER_W20[t]; hits++; sumAbs += a; sum += e; sum2 += e * e;
     combo = t <= 2 ? combo + 1 : 0; maxCombo = Math.max(maxCombo, combo);
     score += base + combo * 5;
   }
   if (!hits) return null;
   const mean = sum / hits, sd = Math.sqrt(Math.max(0, sum2 / hits - mean * mean)), err = Math.round(sumAbs / hits);
   const sus = hits >= 20 && (sumAbs / hits < 4 || sd < 3) ? 1 : 0;   // unusually steady: kept, but listed for review
-  const acc = Math.floor(w / N * 10000);                         // basis points: 9842 = 98.42 %
-  const rank = acc >= 9500 && !miss ? 'S' : acc >= 8500 ? 'A' : acc >= 7000 ? 'B' : acc >= 5000 ? 'C' : 'D';
+  const acc = Math.floor(w * 500 / N);                           // basis points, integer arithmetic (w is x20): 9842 = 98.42 %; same formula as game.js bpOf
+  const rank = rankOf(acc, miss, tiers[2], tiers[3]);
   score = Math.min(SCORE_CAP, score);
   return { acc, err, maxCombo, miss, tiers, rank, sus, score, key: acc * 1e9 + score };   // < 2^53, exact in JS and SQLite
 }
@@ -124,18 +126,27 @@ export async function handleLb(req, env, path, who, origin, H, limited) {
     const pl = await db.prepare('SELECT id, hidden FROM players WHERE ph = ?1').bind(await sha(pk)).first();
     if (!pl) return json({ error: 'noname' }, 400);
     const prev = await db.prepare('SELECT key FROM scores WHERE board = ?1 AND pid = ?2').bind(b, pl.id).first();
-    const improved = !prev || r.key > prev.key;
-    if (improved) await db.prepare(`INSERT INTO scores (board, pid, key, acc, err, combo, ts, hid, log, pf, sus, score) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12)
-      ON CONFLICT(board, pid) DO UPDATE SET key = ?3, acc = ?4, err = ?5, combo = ?6, ts = ?7, log = ?9, pf = ?10, sus = ?11, score = ?12`)
-      .bind(b, pl.id, r.key, r.acc, r.err, r.maxCombo, now, pl.hidden, JSON.stringify(log), pf, r.sus, r.score).run();
+    const seen = await db.prepare('SELECT 1 FROM scores WHERE pid = ?1 AND board LIKE ?2').bind(pl.id, song + '-%').first();   // any difficulty of this song cleared before? (越級者)
+    const improved = !prev || r.key > prev.key, F = logFeats(log, CHARTS[song].n[d]);
+    if (improved) await db.prepare(`INSERT INTO scores (board, pid, key, acc, err, combo, ts, hid, log, pf, sus, score, ft) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)
+      ON CONFLICT(board, pid) DO UPDATE SET key = ?3, acc = ?4, err = ?5, combo = ?6, ts = ?7, log = ?9, pf = ?10, sus = ?11, score = ?12, ft = ?13, n = n + 1`)
+      .bind(b, pl.id, r.key, r.acc, r.err, r.maxCombo, now, pl.hidden, JSON.stringify(log), pf, r.sus, r.score, ftOf(F, r.acc)).run();
+    else await db.prepare('UPDATE scores SET n = n + 1 WHERE board = ?1 AND pid = ?2').bind(b, pl.id).run();   // every accepted run counts (百回, 迴聲)
     if (improved) await dropCache(b);
     const me = await myRank(db, b, pl.id);
-    return json({ ok: true, improved, acc: r.acc, err: r.err, score: r.score, rank: r.rank, me, total: await total(db, b) });
+    // achievements (src/ach.js): running totals, then whatever this run and the player's records earn; a failure here never costs the player their score
+    let ach = [];
+    try {
+      await statsStmt(db, pl.id, F).run();
+      const R = { d, acc: r.acc, maxCombo: F.maxCombo, r: r.rank, fc: F.fc, pr: F.pr, f5: F.f5, l5: F.l5, ec: F.ec, fm: F.fm };
+      ach = (await achRecalc(db, pl.id, now, { song, d, R, first: !seen }, false)).fresh;
+    } catch (e) {}
+    return json({ ok: true, improved, acc: r.acc, err: r.err, score: r.score, rank: r.rank, me, total: await total(db, b), ach });
   }
 
   if (path === '/lb/board') {
     const { song, d, pk } = body; if (!songOk(song, d)) return json({ error: 'song' }, 400);
-    const b = board(song, d), top = await topList(db, b);
+    const b = board(song, d), top = await topList(db, env, b);
     let me = null;
     if (isPk(pk)) { const pl = await db.prepare('SELECT id FROM players WHERE ph = ?1').bind(await sha(pk)).first(); if (pl) me = await myRank(db, b, pl.id); }
     return json({ top: top.rows, total: top.total, me });
@@ -192,7 +203,7 @@ async function dropCache(b) { try { if (typeof caches !== 'undefined') await cac
 async function wipe(db, id) {                         // a player and everything about them; their boards refresh at once
   const bs = (await db.prepare('SELECT board FROM scores WHERE pid = ?1').bind(id).all()).results;
   await db.batch([db.prepare('DELETE FROM scores WHERE pid = ?1').bind(id), db.prepare('DELETE FROM reports WHERE pid = ?1').bind(id),
-    ...friendWipe(db, id), ...bugWipe(db, id), db.prepare('DELETE FROM players WHERE id = ?1').bind(id)]);
+    ...friendWipe(db, id), ...bugWipe(db, id), ...shopWipe(db, id), db.prepare('DELETE FROM players WHERE id = ?1').bind(id)]);
   for (const r of bs) await dropCache(r.board);
 }
 async function setHidden(db, id, v) {
@@ -208,12 +219,12 @@ async function myRank(db, b, pid) {
   const ahead = await db.prepare('SELECT COUNT(*) AS n FROM scores WHERE board = ?1 AND hid = 0 AND (key > ?2 OR (key = ?2 AND ts < ?3))').bind(b, s.key, s.ts).first();
   return { r: ahead.n + 1, id: pid, acc: s.acc, err: s.err, combo: s.combo, score: s.score };
 }
-async function topList(db, b) {                       // shared by every viewer: cached for a short while
+async function topList(db, env, b) {                       // shared by every viewer: cached for a short while
   const cache = typeof caches !== 'undefined' ? caches.default : null, ck = cacheKey(b);
   if (cache) { const hit = await cache.match(ck); if (hit) return hit.json(); }
   const rows = (await db.prepare(`SELECT s.pid AS id, p.name, s.acc, s.err, s.combo, s.score FROM scores s JOIN players p ON p.id = s.pid
     WHERE s.board = ?1 AND s.hid = 0 ORDER BY s.key DESC, s.ts ASC LIMIT ${TOP}`).bind(b).all()).results.map((x, i) => ({ r: i + 1, ...x }));
-  const out = { rows, total: await total(db, b) };
+  const out = { rows: await withCos(db, env, rows), total: await total(db, b) };
   if (cache) await cache.put(ck, new Response(JSON.stringify(out), { headers: { 'Content-Type': 'application/json', 'Cache-Control': 'max-age=' + BOARD_CACHE_S } }));
   return out;
 }

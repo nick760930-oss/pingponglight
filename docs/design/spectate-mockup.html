@@ -1,0 +1,77 @@
+<!doctype html><meta charset="utf-8"><title>觀戰對照稿</title>
+<style>
+body{margin:0;background:#05060f;color:#e8ecff;font:14px "Microsoft JhengHei",sans-serif;padding:16px}
+h1{font-size:20px;color:#7cf0ff;margin:0 0 4px}h2{font-size:16px;margin:18px 0 4px;color:#ffd36b}p{margin:0 0 8px;color:#9aa3d0;font-size:13px;max-width:812px}
+.ph{position:relative;width:812px;height:375px;border-radius:22px;overflow:hidden;background:radial-gradient(ellipse at 40% 30%,#1a2150,#070918 70%);border:2px solid #2a3166}
+.fr{position:absolute;left:24px;top:46px;width:560px;height:305px;border:2px solid #4a6bd8;border-radius:10px;box-shadow:0 0 18px #3a5bff55 inset}
+.ball{position:absolute;width:22px;height:22px;border-radius:50%;background:radial-gradient(#fff,#7cf0ff 45%,#2a7cff00 72%)}
+.tr{position:absolute;height:3px;border-radius:2px;background:linear-gradient(90deg,#7cf0ff00,#7cf0ffaa)}
+.lad{position:absolute;right:14px;top:46px;width:200px}
+.row{display:flex;align-items:center;gap:6px;height:30px;margin-bottom:5px;padding:0 8px;border-radius:9px;background:#ffffff0d;font-size:12.5px}
+.row b{width:16px;color:#9aa3d0}.row span{flex:1}.row i{font-style:normal;color:#cfd6ff}
+.row.w{background:#7cf0ff26;outline:2px solid #7cf0ff}.row.out{opacity:.45}
+.row .eye{font-size:11px;color:#7cf0ff}
+.top{position:absolute;left:24px;top:10px;right:14px;display:flex;align-items:center;gap:10px}
+.pill{padding:5px 12px;border-radius:99px;background:#7cf0ff22;border:1px solid #7cf0ff88;color:#bff6ff;font-size:13px}
+.btn{padding:5px 12px;border-radius:10px;background:#ffffff14;border:1px solid #ffffff30;font-size:13px}
+.arr{position:absolute;top:180px;width:34px;height:34px;border-radius:50%;background:#0009;border:1px solid #fff4;display:flex;align-items:center;justify-content:center;font-size:18px}
+.hud{position:absolute;left:36px;top:54px;font-size:12px;color:#cfd6ff}.hud b{font-size:18px;color:#fff}
+.life{position:absolute;left:36px;bottom:34px;width:180px;height:6px;border-radius:3px;background:#ffffff22}.life i{display:block;height:100%;width:62%;border-radius:3px;background:#7cffaa}
+.fl{position:absolute;font-size:13px;color:#ffd36b;font-weight:bold}
+.mini{position:absolute;right:14px;bottom:10px;font-size:11px;color:#9aa3d0}
+.card{position:absolute;left:24px;top:46px;width:560px;height:305px;border-radius:12px;background:#0d1130;border:1px solid #2a3166;padding:18px 22px;box-sizing:border-box}
+.big{font-size:40px;font-weight:bold;color:#fff}.stats{display:flex;gap:26px;margin-top:8px;color:#cfd6ff}.stats b{display:block;font-size:22px;color:#fff}
+.jud{display:flex;gap:4px;margin-top:22px}.jud i{width:12px;height:26px;border-radius:3px}
+.note{margin-top:6px;font-size:12px;color:#ffb86b}
+.grid{display:flex;gap:18px;flex-wrap:wrap}
+.tag{display:inline-block;background:#ffd36b;color:#221;border-radius:6px;padding:1px 8px;font-size:12px;margin-left:6px}
+</style>
+<h1>觀戰對照稿：多人房間出局後切換觀看存活玩家</h1>
+<p>現況：出局後只看到結算表（等待其他玩家、對手顯示「比賽中」）。以下兩案都在結算表上多一個「觀戰」按鈕；出局後 2 秒自動進入觀戰，先看目前第一名。</p>
+
+<h2>A 案：即時球場轉播 <span class="tag">建議</span></h2>
+<p>看到被觀看玩家的真實球場：球、尾跡、判定字、生命條、受到牽制的效果。點右側排行任一位存活玩家或左右箭頭切換；被看的人完成或出局時自動切到下一位。<br>
+做法：只有「有人在看你」時，你的遊戲才每秒送約 15 次球的位置（很小的資料）由伺服器轉給觀戰者；沒人觀戰時完全不增加流量。被看的人畫面上會出現小眼睛「1 人觀戰中」。外觀（光球、尾跡、背景）照對方裝備顯示。</p>
+<div class="ph">
+  <div class="top"><span class="pill">👁 觀戰中：小晴　第 1 名</span><span class="btn">結算表</span><span style="flex:1"></span><span style="font-size:12px;color:#9aa3d0">你已出局 · 32,140 分</span></div>
+  <div class="fr"></div>
+  <div class="tr" style="left:180px;top:150px;width:120px;transform:rotate(-18deg)"></div>
+  <div class="ball" style="left:300px;top:118px"></div>
+  <div class="tr" style="left:350px;top:260px;width:90px;transform:rotate(12deg)"></div>
+  <div class="ball" style="left:438px;top:270px"></div>
+  <div class="fl" style="left:310px;top:94px">完美</div>
+  <div class="hud"><b>48,920</b>　連擊 37</div>
+  <div class="life"><i></i></div>
+  <div class="arr" style="left:30px">‹</div><div class="arr" style="left:542px">›</div>
+  <div class="lad">
+    <div class="row w"><b>1</b><span>小晴</span><i>48,920</i><span class="eye">👁</span></div>
+    <div class="row"><b>2</b><span>阿哲</span><i>45,310</i></div>
+    <div class="row"><b>3</b><span>Mia</span><i>40,005</i></div>
+    <div class="row out"><b>4</b><span>你</span><i>32,140 出局</i></div>
+  </div>
+  <div class="mini">點排行或箭頭切換</div>
+</div>
+
+<h2>B 案：輕量即時資訊卡</h2>
+<p>不轉播球場，放大被選玩家的即時數據：分數、連擊、生命、最近 20 個判定色塊流、名次變化。完全沿用現有資料，不增加流量、做得最快；但看不到實際打球畫面。</p>
+<div class="ph">
+  <div class="top"><span class="pill">👁 觀看：小晴　第 1 名</span><span class="btn">結算表</span><span style="flex:1"></span><span style="font-size:12px;color:#9aa3d0">你已出局 · 32,140 分</span></div>
+  <div class="card">
+    <div class="big">48,920</div>
+    <div class="stats"><div>連擊<b>37</b></div><div>生命<b>62%</b></div><div>與第 2 名差距<b>+3,610</b></div></div>
+    <div class="jud" id="jd"></div>
+    <div style="font-size:12px;color:#9aa3d0;margin-top:6px">最近 20 個判定（金＝完美、藍＝極佳、綠＝良好、灰＝尚可、紅＝失誤）</div>
+    <div class="arr" style="left:-10px;top:130px">‹</div><div class="arr" style="left:528px;top:130px">›</div>
+  </div>
+  <div class="lad">
+    <div class="row w"><b>1</b><span>小晴</span><i>48,920</i><span class="eye">👁</span></div>
+    <div class="row"><b>2</b><span>阿哲</span><i>45,310</i></div>
+    <div class="row"><b>3</b><span>Mia</span><i>40,005</i></div>
+    <div class="row out"><b>4</b><span>你</span><i>32,140 出局</i></div>
+  </div>
+</div>
+<p style="margin-top:14px">兩案共通：出局者觀戰時能聽到同一首歌的伴奏（音量可調、可靜音）；觀戰不能送牽制；全部人完成後自動跳回結算。</p>
+<script>
+const C=['#ffd36b','#ffd36b','#5fa8ff','#ffd36b','#7cffaa','#ffd36b','#ffd36b','#5fa8ff','#ff4d5e','#ffd36b','#5fa8ff','#ffd36b','#ffd36b','#9aa3c7','#ffd36b','#5fa8ff','#ffd36b','#ffd36b','#7cffaa','#ffd36b'];
+document.getElementById('jd').innerHTML=C.map(c=>'<i style="background:'+c+'"></i>').join('');
+</script>

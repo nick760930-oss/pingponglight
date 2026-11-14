@@ -15,6 +15,7 @@ import { handleLb } from './lb.js';
 import { handleFr, friendSweep } from './friends.js';
 import { moderate } from './moderate.js';
 import { handleBug, bugSweep } from './bugs.js';
+import { handleShop } from './shop.js';
 export { Hub } from './friends.js';   // presence Durable Object (friends)
 export { Arena, Lobby } from './arena.js';   // v2 multiplayer rooms (2..8) and lobby
 const ALPH = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';          // no 0/O/1/I/L
@@ -32,7 +33,8 @@ const RESERVE_MS = 30 * 60000;       // an empty room stays joinable this long a
 const ATK_GAP = 2000;                // a real attack needs 10 perfect hits in a row (>= 3 s)
 const CFG_GAP = 400;
 const STUCK_MS = 20000;              // a round with one result recorded this long ago may be reset by 'again'
-const RANKS = ['S', 'A', 'B', 'C', 'D', '—'];
+// the nine ranks (F..SSS) plus what older apps send (S A B C D —); anything else becomes '—'. Passed through unchanged: old apps show an unknown rank as '—'.
+const RANKS = ['SSS', 'SS', 'S', 'A', 'B', 'C', 'D', 'E', 'F', '—'];
 const int = (v, lo, hi) => { v = Math.floor(Number(v)); return Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : lo; };
 const cleanName = v => String(v == null ? '' : v).replace(/[\u0000-\u001f\u007f-\u009f<>&"'`\\]/g, '').replace(/\s+/g, ' ').trim().slice(0, 12);
 function clientKey(req) {             // IPv6 users own a whole /64, so limit by prefix
@@ -64,6 +66,12 @@ export default {
       const H = cors(origin);
       if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: { ...H, 'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Max-Age': '86400' } });
       return handleBug(req, env, url.pathname, clientKey(req), H, limited);
+    }
+    if (url.pathname.startsWith('/shop/') || url.pathname.startsWith('/iap/') || url.pathname.startsWith('/ach/')) {   // shop, purchases, achievements (src/shop.js)
+      if (!okOrigin(origin, env)) return new Response('forbidden', { status: 403, headers: BASE_H });
+      const H = cors(origin);
+      if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: { ...H, 'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Max-Age': '86400' } });
+      return handleShop(req, env, url.pathname, clientKey(req), H, limited);
     }
     if (url.pathname.startsWith('/fr/')) {           // friends: JSON over POST, plus the presence WebSocket
       if (!okOrigin(origin, env)) return new Response('forbidden', { status: 403, headers: BASE_H });

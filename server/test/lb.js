@@ -8,7 +8,7 @@ const crypto = require('node:crypto');
 const BASE = process.argv[2] || 'http://127.0.0.1:8788', ORIGIN = 'http://localhost:8000';
 const vars = Object.fromEntries(readFileSync(join(__dirname, '..', '.dev.vars'), 'utf8').split(/\r?\n/).filter(l => l.includes('=')).map(l => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1)]));
 const chartsSrc = readFileSync(join(__dirname, '..', 'src', 'charts.js'), 'utf8');
-const CHARTS = JSON.parse(chartsSrc.slice(chartsSrc.indexOf('{'), chartsSrc.lastIndexOf('}') + 1));
+const CHARTS = JSON.parse(chartsSrc.slice(chartsSrc.indexOf('{'), chartsSrc.indexOf('};\n') + 1));   // the first export only (CONS follows)
 let pass = 0, fail = 0;
 const ok = (c, m) => { if (c) pass++; else { fail++; console.log('FAIL', m); } };
 const b64u = b => b.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -82,6 +82,7 @@ function humanLog(n, spread = 30, misses = 0, seed = 1) {
   // scoring and ranks
   const a1 = await post('/lb/submit', { run: ticket(S, D, 120e3), pk: A, log: good });
   ok(a1.s === 200 && a1.j.me.r === 2 && a1.j.improved, 'first human run ranked 2 (behind the steady one)');
+  ok(['F','E','D','C','B','A','S','SS','SSS'].includes(a1.j.rank) && a1.j.rank !== undefined, 'submit returns one of the nine ranks: ' + a1.j.rank);
   const b1 = await post('/lb/submit', { run: ticket(S, D, 120e3), pk: B, log: humanLog(N, 70, 3, 7) });
   ok(b1.s === 200 && b1.j.me.r === 3 && b1.j.acc < a1.j.acc, 'worse run ranked 3');
   const b2 = await post('/lb/submit', { run: ticket(S, D, 120e3), pk: B, log: humanLog(N, 12, 0, 9) });

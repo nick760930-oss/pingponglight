@@ -12,6 +12,7 @@ function showErr(e){
 }
 addEventListener('error',ev=>{if(ev&&ev.message&&!/ResizeObserver/.test(ev.message))showErr(ev.error||ev.message)});
 const cv=$('#c'),ctx=cv.getContext('2d');
+const COS=window.PPLC||null;   // cosmetics.js (optional: without it the game looks like it always did)
 let W=0,H=0,dpr=1,rscale=Math.min(window.devicePixelRatio||1,1.75);
 const rand=(a,b)=>a+Math.random()*(b-a);
 let RNG=Math.random;const srand=(a,b)=>a+RNG()*(b-a);   // obstacles / items / ball starts: seeded in a duel so both phones get the same
@@ -28,6 +29,8 @@ let AC=null,master=null,wet=null,useAC=false,busMel=null,busBk=null,busFx=null,b
 const RM=!!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 const SET=Object.assign({mel:80,bk:80,fx:80,lowFx:RM,vib:true,lat:null,ml:true},(()=>{try{return JSON.parse(lsGet('ppl-set')||'{}')}catch(e){return{}}})());
 function saveSet(){lsSet('ppl-set',JSON.stringify(SET))}
+const evA=(n,d)=>{try{if(window.PPLA)window.PPLA.ev(n,d)}catch(e){}};   // achievements decided on this device (ach.js; the game never depends on it)
+let runPaused=false,runMute0=false;   // this run: was it paused and resumed, did it start with the music turned off (achievements 喘口氣 / 心中有歌)
 function applyVol(){if(!AC)return;busMel.gain.value=SET.mel/80;busBk.gain.value=SET.bk/80;busFx.gain.value=SET.fx/80}
 // audio latency compensation (s): sounds are scheduled this much earlier so they are HEARD on the beat
 function latS(){if(SET.lat!=null)return clamp(SET.lat,-100,400)/1000;if(!AC)return 0;return clamp((AC.outputLatency||AC.baseLatency||0),0,.3)}
@@ -380,7 +383,7 @@ const CONS_DEF=window.SONGCONS||[
 const CONS=(()=>{
   const used=new Set(),out=[];
   // an optional third element marks a reward constellation: {rw: the level every regular song must be cleared at
-  // (LVL, 0 入門 … 4 專家) or 'S' (an S at 專家 on every one), di: the one difficulty its songs are played at}
+  // (LVL, 0 入門 … 4 專家) or 'S' (an S or better at 專家 on every one), di: the one difficulty its songs are played at}
   for(const[name,keys,opt]of CONS_DEF){const ii=[];for(const k of keys){const i=SONGS.findIndex(x=>x.key===k);if(i>=0&&!used.has(i)){used.add(i);ii.push(i)}}
     if(ii.length)out.push(opt&&opt.rw!=null?{name,id:name,ii,rw:opt.rw,rdi:opt.di|0}:{name,id:name,ii})}
   const rest=SONGS.map((_,i)=>i).filter(i=>!used.has(i)),reg=out.filter(c=>c.rw==null);
@@ -448,7 +451,7 @@ function prepare(s){
     bkV[i]=Math.max(.4,1/Math.sqrt(c));
   }
   tg=pickTargets(melList,D.gap).map(i=>({t:melList[i][0]/100,mi:i,mend:0}));
-  if(mode==='tut')tg=tg.slice(0,TUTN);
+  if(mode==='tut')tg=tg.slice(0,TUTN);else if(mode==='try')tg=tg.slice(0,TRYN);
   tg.forEach((x,i)=>{x.mend=i+1<tg.length?tg[i+1].mi:melList.length});
 }
 
@@ -462,7 +465,7 @@ const DU={ws:null,rel:{},says:{},relIds:'',code:'',you:0,host:0,players:[],cfg:{
   lob:{di:-1,max:4},matching:false,roomsIv:0,roomsTok:0,autoIv:0,pingIv:0,note:''};
 (()=>{const d=parseInt(lsGet('ppl-qdi')||'',10),m=parseInt(lsGet('ppl-qmax')||'',10);if(d>=-1&&d<5)DU.lob.di=d;if([4,6,8].includes(m))DU.lob.max=m})();
 let mode='normal',D=null,life=100,resumeCD=0,lastRes=null,freezeG=0;
-const TUTN=20,TUTD={n:'教學',nb:1,gap:1.25,spd:.9,dmg:0,bm:1.4,hm:1.4,wm:1.3,ob:.5,noSmall:1};
+const TRYN=40,TUTN=20,TUTD={n:'教學',nb:1,gap:1.25,spd:.9,dmg:0,bm:1.4,hm:1.4,wm:1.3,ob:.5,noSmall:1};
 let st='home',si=0,offset=0,nt=0,resolved=0,nb=1,bi=0,tickQ=[],endAt=0,paused=false,exitT=0;
 let score=0,combo=0,maxCombo=0,tierCount=[0,0,0,0],time=0,ts=1,gAC=0,gT=0,cp={ti:0,score:0},lastCents=0,lastP=.5,pSrc='none';
 let balls=[],bumps=[],items=[],rings=[],floats=[],parts=[],aims=[],missCount=0,runFrom=0;
@@ -479,7 +482,7 @@ const DORD=[3,0,1,2,4],LVL=[1,2,3,0,4],BALLS=['','單球','雙球','三球'];
 const ML_STEP=[10,15,25],ML_NAME=['微光','明亮','輝映','星耀'],ML_HUE=[225,185,265,48],ML_TIP=['','和聲與鼓組加入','加入副旋律','主旋律加入高八度鐘聲'];
 let mlv=0,mgrow=0,mlBan=null,mlFx=-1;
 const mlOn=()=>SET.ml!==false&&mode!=='tut';
-const mlFull=()=>!mlOn()||st!=='play';        // layering off (or not playing): the full accompaniment, as before
+const mlFull=()=>SP.on?SP.m<0:(!mlOn()||st!=='play');        // layering off (or not playing): the full accompaniment, as before; a spectator follows the watched player's layer
 function mlSet(v,up){
   mlv=v;mgrow=0;
   mlBan={text:'音樂層次 · '+ML_NAME[v],tip:up?ML_TIP[v]:'',hue:ML_HUE[v],up,t:1.5,max:1.5};
@@ -497,6 +500,9 @@ function mlTick(){   // backing filter + melody reverb follow the layer (only to
 let di=(v=>isNaN(v)?1:Math.min(DIFFS.length-1,Math.max(0,v)))(parseInt(lsGet('pmb6-di')||'1',10)),SPD=1;
 D=DIFFS[di];
 // records are keyed by song id (not level number) so adding songs never shifts them
+// nine ranks, low to high. An older save keeps the letter it stored (S A B C D are valid here); every comparison uses this order
+const RANKS=['F','E','D','C','B','A','S','SS','SSS'],RANK_COL={SSS:'#ffe8a8',SS:'#e8f8ff',S:'#ffd36b',A:'#7cf0ff',B:'#8fe388',C:'#c9b6ff',D:'#9aa3c7',E:'#8a93c0',F:'#5a6090'};
+const rkAtLeastS=r=>RANKS.indexOf(r)>=6;
 const KEY_SC=(i,d)=>'ppl-sc-'+SONGS[i].key+'-'+d,KEY_RK=(i,d)=>'ppl-rk-'+SONGS[i].key+'-'+d,KEY_CL=i=>'ppl-cl-'+SONGS[i].key;
 (function migrate(){   // one-time copy of the old level-number records (original 21-level order)
   if(lsGet('ppl-mig1'))return;
@@ -514,13 +520,13 @@ const conCleared=k=>CONS[k].ii.reduce((a,i)=>a+(cleared(i)?1:0),0);
 const isRw=i=>!!CON_OF[i]&&CONS[CON_OF[i][0]].rw!=null;
 const REG=SONGS.map((_,i)=>i).filter(i=>CON_OF[i]&&!isRw(i));
 const RW_LV=['入門','簡單','普通','困難','專家'];
-const rwNeed=c=>c.rw==='S'?'所有正式曲目以「專家」拿到 S ':'所有正式曲目以「'+RW_LV[c.rw]+'」難度通關';
+const rwNeed=c=>c.rw==='S'?'所有正式曲目以「專家」拿到 S 以上':'所有正式曲目以「'+RW_LV[c.rw]+'」難度通關';
 let rwDirty=true;
 function rwRefresh(){   // returns the reward constellations found just now
   rwDirty=false;const got=[];if(!CONS.some(c=>c.rw!=null&&!c.open))return got;const vs=REG.map(starOf);
   for(const c of CONS){if(c.rw==null||c.open)continue;
     if(lsGet('ppl-rw-'+c.id)){c.open=true;continue}
-    if(vs.length&&vs.every(v=>{const k=c.rw==='S'?4:LVL.indexOf(c.rw),p=v.per[k];return c.rw==='S'?!!(p&&p.r==='S'):!!p||(k===0&&v.old)})){c.open=true;lsSet('ppl-rw-'+c.id,'1');got.push(c)}}
+    if(vs.length&&vs.every(v=>{const k=c.rw==='S'?4:LVL.indexOf(c.rw),p=v.per[k];return c.rw==='S'?!!(p&&rkAtLeastS(p.r)):!!p||(k===0&&v.old)})){c.open=true;lsSet('ppl-rw-'+c.id,'1');got.push(c)}}
   return got}
 const rwOpen=c=>c.rw==null||(rwDirty&&rwRefresh(),!!c.open);
 const shown=i=>!isRw(i)||rwOpen(CONS[CON_OF[i][0]]);
@@ -540,7 +546,9 @@ const GB=()=>simG!=null?simG:G();               // physics clock: the current su
 const timeOf=t=>(t-offset)/SPD+LEADIN;                  // song time -> game clock
 const tT=i=>timeOf(tg[i].t);
 const sideOf=i=>(Math.floor(i/nb)+(i%nb))%2?3:1;  // 1 = right line, 3 = left line (alternate thumbs)
-const hueNow=()=>(songHue(si)+(tg.length?resolved/tg.length:0)*140)%360;
+// spectate (see the section "spectate" below): SP = what the viewer shows of the watched player; evq = events of my own run that watchers get
+const SP={on:false,i:-1,fr:[],Dw:[],D:0,t0:0,old:false,s:0,c:0,l:100,m:-1,pi:0,rg:0,nb:0,alive:[]};let evq=[];
+const hueNow=()=>(songHue(si)+(tg.length?(SP.on?SP.pi:resolved)/tg.length:0)*140)%360;
 const LEAD=v=>Math.max(BR0*5,(v||0)*.13)*(easeT>0?1.6:1)*(D&&D.wm||1),GRACE=v=>Math.max(BR0*5,(v||0)*.11)*(easeT>0?1.6:1)*(D&&D.wm||1);
 
 function safeIns(){const c=getComputedStyle($('#safe'));return{t:parseFloat(c.paddingTop)||0,r:parseFloat(c.paddingRight)||0,b:parseFloat(c.paddingBottom)||0,l:parseFloat(c.paddingLeft)||0}}
@@ -590,8 +598,9 @@ function newBall(ti){
   return{x:FR.x+FR.w*(s===1?srand(.25,.4):srand(.6,.75)),y:FR.y+FR.h*(nb===3?[.2,.5,.8][ti%3]:nb===2?(ti%2?.7:.3):.5),dx:(s===1?1:-1)/l,dy:dy/l,v:0,pop:0,ti,side:s,win:null,trail:[],sq:0,sqn:0,laps:0,away:false};
 }
 function startRun(from){
-  from=from||0;$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');
+  from=from||0;if(SP.on)specOff(false);DU.wn=0;evq.length=0;spEye();$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');
   if(mode==='tut'){D=TUTD;si=SONGS.findIndex(s=>s.key==='twinkle');if(si<0)si=0}
+  else if(mode==='try'){D=DIFFS[3];si=SONGS.findIndex(s=>s.key==='twinkle');if(si<0)si=0}   // shop trial: the easiest level of a short song
   else D=DIFFS[di];
   RNG=mode==='duel'?mulberry32(DU.seed):Math.random;
   DU.pstreak=0;DU.fogT=0;DU.shrinkT=0;DU.sprint=false;DU.myFin=null;DU.lastS=0;
@@ -601,14 +610,15 @@ function startRun(from){
   bi=bkList.findIndex(n=>n[0]/100>=offset);if(bi<0)bi=bkList.length;
   resolved=from;nt=from+nb;score=from?cp.score:0;if(!from)cp={ti:0,score:0};
   combo=0;maxCombo=0;tierCount=[0,0,0,0];shake=0;exitT=0;easeT=0;starT=0;shield=0;rangeT=0;rangeMul=1;paused=false;resumeCD=0;life=100;missCount=0;runFrom=from;flash.a=0;edgeGlow=[0,0,0,0];
-  bumps=[];items=[];rings=[];floats=[];parts=[];aims=[];spawnT=5;itemT=9;tickQ=[];cutAll();mlv=0;mgrow=0;mlBan=null;
+  bumps=[];items=[];rings=[];floats=[];parts=[];aims=[];hfx=[];spawnT=5;itemT=9;tickQ=[];cutAll();mlv=0;mgrow=0;mlBan=null;
   balls=[];for(let j=0;j<nb;j++)if(from+j<tg.length)balls.push(newBall(from+j));
   RUN=mode==='normal'&&!from&&ME?{log:new Array(tg.length).fill(null),ok:true,ticket:null,key:song.key,d:di}:null;   // only full solo runs can enter the leaderboard
-  endAt=mode==='tut'?timeOf(tg[tg.length-1].t)+2:timeOf(song.dur)+1.2;
+  endAt=mode==='tut'||mode==='try'?timeOf(tg[tg.length-1].t)+2:timeOf(song.dur)+1.2;
+  runPaused=false;runMute0=SET.mel===0&&SET.bk===0;
   st='ready';hudShow(true);preloadSong(song);
-  $('#sub').textContent=(mode==='tut'?'新手教學':'第 '+(si+1)+' 關')+' · 《'+song.name+'》 · '+D.n+' · '+tg.length+' 拍'+(nb>1?' · '+BALLS[nb]:'')+(from?' · 自第 '+(from+1)+' 拍':'');
+  $('#sub').textContent=(mode==='tut'?'新手教學':mode==='try'?'外觀試玩':'第 '+(si+1)+' 關')+' · 《'+song.name+'》 · '+D.n+' · '+tg.length+' 拍'+(nb>1?' · '+BALLS[nb]:'')+(from?' · 自第 '+(from+1)+' 拍':'');
   hud();
-  for(const o of['#home','#menu','#end','#pause','#set','#cal'])$(o).classList.add('hidden');
+  for(const o of['#home','#menu','#end','#pause','#set','#cal','#shop'])$(o).classList.add('hidden');
 }
 // long gaps (intros, rests): instead of crawling, the ball makes silent extra round trips and still lands on the beat
 const lineOf=b=>b.side===1?FR.x+FR.w:FR.x,farOf=b=>b.side===1?FR.x+BR:FR.x+FR.w-BR;
@@ -686,11 +696,11 @@ function pauseGame(){
   if(mode==='duel')return;
   if(st==='ready'||st==='starting'){if(!paused){paused=true;resumeCD=0;showPauseMenu()}return}
   if(st!=='play'||(paused&&!resumeCD))return;
-  holdMusic();paused=true;resumeCD=0;
+  holdMusic();paused=true;resumeCD=0;runPaused=true;
   if(AC&&AC.state==='running'&&AC.suspend){try{const q=AC.suspend();if(q&&q.catch)q.catch(()=>{})}catch(e){}}
   showPauseMenu();
 }
-function showPauseMenu(){$('#bQuit').textContent=mode==='tut'?'離開教學':'離開';$('#pause').classList.remove('hidden')}
+function showPauseMenu(){$('#bQuit').textContent=mode==='tut'?'離開教學':mode==='try'?'結束試玩':'離開';$('#pause').classList.remove('hidden')}
 function resumeGame(){   // audio resumes inside the tap (iOS needs a gesture); the game clock stays frozen during the count-in
   if(!paused||resumeCD)return;
   if(!$('#bugv').classList.contains('hidden'))return;   // not while the bug report is open over the pause menu (lock-screen play button)
@@ -784,8 +794,8 @@ function harmNote(vol){
   while(p<60)p+=12;while(p>76)p-=12;
   voice(p,0,.45,vol,0,false);
 }
-function playMel(ti,cents,vol){
-  const t=tg[ti],Gn=G(),L=latS();
+function playMel(ti,cents,vol,gn){   // gn: a spectator times the notes against the watched player's displayed clock instead of its own
+  const t=tg[ti],Gn=gn==null?G():gn,L=latS();
   for(let i=t.mi;i<t.mend;i++){
     const n=melList[i],w=timeOf(n[0]/100)-Gn;
     if(w<-.05&&i>t.mi)continue;                    // notes already in the past are dropped
@@ -809,6 +819,7 @@ function bounce(b,tx,ty,p){
   const lineX=old===1?FR.x+FR.w:FR.x;b.x=lineX+nx*BR*.3;
   aims.push({x1:b.x,y1:b.y,x2:tx,y2:ty,life:.4,max:.4,hue:T.hue});
   b.win=null;b.sq=1;b.sqn=old;
+  if(DU.wn>0)spEv(ti,b,b.ti,cents);
   playMel(b.ti,cents,T.vol);                                   // melody is heard ONLY on a correct hit
   tierCount[ti]++;combo=ti<=2?combo+1:0;life=Math.min(100,life+[3,2,1,0][ti]);if(ti===0)vib(12);maxCombo=Math.max(maxCombo,combo);
   if(mlOn()&&ti<=2&&mlv<3&&++mgrow>=ML_STEP[mlv])mlSet(mlv+1,true);   // "尚可" neither counts nor breaks the climb
@@ -818,8 +829,10 @@ function bounce(b,tx,ty,p){
   const hue=T.hue,fx=b.x+nx*40,fy=b.y;
   floats.push({x:fx,y:fy-6,text:T.n,hue,life:.9,max:.9,size:ti===0?1.5:ti===1?1.25:1});
   floats.push({x:fx,y:fy+14,text:'+'+pts+' · '+pitchTxt(cents)+' · 力道 '+Math.round(p*100)+'%',hue,life:.9,max:.9,size:.7});
-  for(let i=0;i<T.ring;i++)rings.push({x:b.x,y:b.y,r0:BR*(1+i*.4),life:.5+i*.12,max:.5+i*.12,hue:hue+i*20,w:4-i*.8});
-  burst(b.x,b.y,hue,T.part,BR*16,.8);
+  if(COS&&!COS.look().hit.def)cosHit(b,lineX,nx);   // equipped hit effect replaces the default rings and sparks
+  else{for(let i=0;i<T.ring;i++)rings.push({x:b.x,y:b.y,r0:BR*(1+i*.4),life:.5+i*.12,max:.5+i*.12,hue:hue+i*20,w:4-i*.8});
+  burst(b.x,b.y,hue,T.part,BR*16,.8)}
+  if(b.cs)b.cs.sp=Math.min(30,b.cs.sp+(ti===0?16:ti===1?13:10));   // spinning orbs kick on every hit, then ease back
   shake=Math.max(shake,T.shake);
   const ei=old;edgeGlow[ei]=ti===0?1:ti===1?.75:ti===2?.5:.3;edgeHue[ei]=hue;
   if(ti===0){flash.a=.18;flash.hue=hue}
@@ -828,6 +841,7 @@ function bounce(b,tx,ty,p){
   if(mode==='duel')duelHit(ti);
 }
 function miss(b){
+  if(DU.wn>0)spEv(4,b);
   missCount++;combo=0;
   if(mlOn()){if(mlv>0)mlSet(mlv-1,false);else mgrow=0}
   const old=b.side,nx=old===1?-1:1,sh=shield>0;
@@ -856,7 +870,7 @@ function spawnBump(){
     for(const o of bumps)if(Math.hypot(o.x-x,o.y-y)<FR.h*.4)ok=false;
     const Rm=Math.min(FR.w,FR.h)*srand(.07,.12);
     for(const it of items)if(Math.hypot(it.x-x,it.y-y)<itemGap(Rm))ok=false;   // never on top of / hugging an item
-    if(ok){bumps.push({x,y,Rm,age:0,life:srand(3.2,5.5)});return}
+    if(ok){bumps.push({x,y,Rm,age:0,life:srand(3.2,5.5)});if(DU.wn>0)spEv('bump',{x,y});return}
   }
 }
 // an item must stay reachable: keep it clear of an obstacle's full (overshooting) radius plus a ball's width and some room
@@ -869,31 +883,63 @@ function spawnItem(){
   }
 }
 const ITEM_HUE={big:165,small:340,star:50,shield:190};
-const RANKS=['D','C','B','A','S'],RANK_COL={S:'#ffd36b',A:'#7cf0ff',B:'#8fe388',C:'#c9b6ff',D:'#9aa3c7'};
+/*RANK-BEGIN*/
+// Integer arithmetic only, the same as the server (server/src/lb.js judge): tier weights 20/16/10/5 (a miss is 0), bp = floor(w20*500/N) in basis points (9842 = 98.42 %), so the order of the hits never matters and both sides agree on every boundary.
+// SSS every ball perfect (tiers[0]===N; bp 10000 is the same thing) · SS bp>=9800, no miss, no good, no ok · S bp>=9500, no miss, no ok · A 9000 · B 8000 · C 7000 · D 6000 · E 5000 · F the rest (a clear is still a clear)
+function bpOf(t,n){return Math.floor((t[0]*20+t[1]*16+t[2]*10+t[3]*5)*500/n)}
+function rankOf(bp,miss,good,ok){
+  if(bp>=10000&&!miss&&!good&&!ok)return'SSS';
+  if(bp>=9800&&!miss&&!good&&!ok)return'SS';
+  if(bp>=9500&&!miss&&!ok)return'S';
+  return bp>=9000?'A':bp>=8000?'B':bp>=7000?'C':bp>=6000?'D':bp>=5000?'E':'F'}
+// why the next S / SS / SSS was missed, when the mix of hits is what blocks it ('' when plain accuracy is the only gap)
+function rankGap(bp,miss,good,ok,great){
+  const r=rankOf(bp,miss,good,ok);
+  if(r==='SSS')return'';
+  if(r==='SS')return great>0?'差 1 級：有 '+great+' 個極佳':'';
+  if(r==='S')return good>0?'差 1 級：有 '+good+' 個良好':great>0?'差 1 級：極佳偏多，精準度需 98%':'';
+  if(bp>=9500){const a=[];if(miss>0)a.push('有 '+miss+' 次失誤');if(ok>0)a.push((miss>0?'':'有 ')+ok+' 個尚可');return a.length?'差 1 級：'+a.join('、'):''}
+  return''}
+/*RANK-END*/
+const rsssCls=r=>r==='SSS'?' rsss':'';   // SSS is a platinum gradient text (class .rsss), the other ranks a plain colour
+const rkColorAttr=r=>r==='SSS'?'':' style="color:'+RANK_COL[r]+'"';
 function jingleWin(rank){
   initAudio();cutAll();
-  const n={S:7,A:6,B:5,C:4,D:3}[rank],arp=[60,64,67,72,76,79,84].slice(0,n);
+  const n={SSS:7,SS:7,S:7,A:6,B:5,C:4,D:3,E:3,F:3}[rank]||3,arp=[60,64,67,72,76,79,84].slice(0,n);
   arp.forEach((p,i)=>voice(p,.05+i*.11,1.1,.3,0,true,busFx));
   const t=.05+arp.length*.11;
   [48,60,64,67,72].forEach((p,i)=>voice(p,t,1.8,i?.2:.26,0,i?true:false,busFx));
-  if(rank==='S'){voice(91,t+.05,1.2,.12,0,true,busFx);voice(96,t+.18,1.2,.1,0,true,busFx)}
+  if(rkAtLeastS(rank)){voice(91,t+.05,1.2,.12,0,true,busFx);voice(96,t+.18,1.2,.1,0,true,busFx)}
 }
 function jingleLose(){
   initAudio();cutAll();
   [67,64,60].forEach((p,i)=>voice(p,.05+i*.3,1,.22,0,true,busFx));voice(48,.05,1.8,.18,0,false,busFx);
 }
 function countUp(el,to){const t0=performance.now();(function f(n){const k=Math.min(1,(n-t0)/900);el.textContent=Math.round(to*k*(2-k)).toLocaleString();if(k<1)requestAnimationFrame(f)})(t0)}
+let tryKeep=null;   // the song and level the player had picked before a trial run (a trial plays its own short song at the easiest level)
+function tryEnd(){   // back to the shop after a trial run (nothing is recorded: no score, rank, leaderboard or progress)
+  setMedia(false);cutAll();hudShow(false);mode='normal';balls=[];tg=[];resolved=0;st='home';hud();hfx=[];
+  paused=false;resumeCD=0;exitT=0;   // ended from the pause menu: nothing may stay frozen (dimmed screen, slow redraws, suspended audio)
+  if(AC&&AC.state==='suspended'&&AC.resume){try{const q=AC.resume();if(q&&q.catch)q.catch(()=>{})}catch(e){}}
+  if(tryKeep){si=tryKeep.si;di=tryKeep.di;tryKeep=null}D=DIFFS[di];
+  if(COS){COS.state.trial=null;COS.bump()}
+  for(const o of['#end','#pause'])$(o).classList.add('hidden');
+  if(window.PPLG&&window.PPLG.onTryEnd)window.PPLG.onTryEnd();else showHome();
+}
 function showResult(ok,msg){
+  if(mode==='try'){tryEnd();return}
   hud();   // st is no longer 'play': clears the music-layer meter behind the result card
   const N=Math.max(1,tg.length-runFrom),hits=tierCount[0]+tierCount[1]+tierCount[2]+tierCount[3],played=Math.max(1,hits+missCount);
-  const w=tierCount[0]+tierCount[1]*.8+tierCount[2]*.5+tierCount[3]*.25,acc=w/(ok?N:played);
-  const rank=acc>=.95&&missCount===0?'S':acc>=.85?'A':acc>=.7?'B':acc>=.5?'C':'D';
+  const bp=bpOf(tierCount,ok?N:played),acc=bp/10000;   // acc is only the basis points as a fraction: every rank and every shown percentage comes from bp
+  const rank=rankOf(bp,missCount,tierCount[2],tierCount[3]);
   const kS=KEY_SC(si,di),kR=KEY_RK(si,di),prev=parseInt(lsGet(kS)||'0',10);
   const newBest=ok&&mode==='normal'&&score>prev;
   const skyB=ok&&mode==='normal'?starOf(si):null,skyC=CON_OF[si]?CONS[CON_OF[si][0]]:null,skyCB=!!skyC&&skyDone(skyC),noteB=!!skyB&&regDone();
-  if(mode==='tut'){lsSet('ppl-tut','1')}
+  if(mode==='tut'){lsSet('ppl-tut','1');evA('tut')}
   else if(ok&&mode==='normal'){
     lsSet(KEY_CL(si),'1');
+    {const lp='ppl-lp-'+SONGS[si].key,last=parseInt(lsGet(lp)||'0',10)||0;lsSet(lp,String(Date.now()));
+      evA('clear',{key:SONGS[si].key,last,paused:runPaused,musicOff:runMute0&&SET.mel===0&&SET.bk===0})}
     if(newBest)lsSet(kS,String(score));
     const pr=lsGet(kR);if(!pr||RANKS.indexOf(rank)>RANKS.indexOf(pr))lsSet(kR,rank);
     cp={ti:0,score:0};
@@ -902,13 +948,14 @@ function showResult(ok,msg){
   const found=rwDirty?rwRefresh():[];if(found.length)SKY=null;   // a reward constellation just appeared: the sky is drawn again with it
   $('#rk').textContent=mode==='tut'?'教學完成':(ok?'通關':'失敗');
   $('#rt').textContent=(mode==='tut'?'新手教學':'第 '+(si+1)+' 關')+' · 《'+song.name+'》 · '+D.n;
-  lastRes={ok,rank,score,acc,maxCombo,name:song.name,label:$('#rt').textContent};
-  const rk=$('#rank');rk.textContent=ok?rank:'失敗';rk.style.color=ok?RANK_COL[rank]:'#ff7a93';rk.style.fontSize=ok?'':'clamp(40px,11vh,64px)';
+  lastRes={ok,rank,score,acc,bp,maxCombo,name:song.name,label:$('#rt').textContent};
+  const rk=$('#rank');rk.textContent=ok?rank:'失敗';rk.className=ok&&rank==='SSS'?'rsss':'';rk.style.color=ok?(rank==='SSS'?'':RANK_COL[rank]):'#ff7a93';rk.style.fontSize=ok?(rank.length===3?'clamp(44px,12.5vh,76px)':rank.length===2?'clamp(50px,14vh,86px)':''):'clamp(40px,11vh,64px)';
+  {const gp=$('#rgap');gp.textContent=ok&&mode==='normal'?rankGap(bp,missCount,tierCount[2],tierCount[3],tierCount[1]):'';gp.hidden=!gp.textContent}
   $('#rnew').innerHTML=newBest?'<span class="badge">新紀錄</span>':(ok?'':'<span class="sub">'+(msg||'')+'</span>');
   const row=(l,v,c)=>'<tr><td style="color:'+(c||'inherit')+'">'+l+'</td><td>'+v+'</td></tr>';
   $('#rtab').innerHTML=row('完美',tierCount[0],'#ffd36b')+row('極佳',tierCount[1],'#7cf0ff')+row('良好',tierCount[2],'#8fe388')+row('尚可',tierCount[3],'#9aa3c7')+row('失誤',missCount,'#ff7a93')
-    +row('最高連擊',maxCombo)+row('精準度',Math.round(acc*100)+'%')+row('完成度',Math.min(resolved,tg.length)-runFrom+' / '+N);
-  if(ok&&mode==='normal'&&!runFrom){const bp=Math.floor(acc*10000),kA=KEY_AC(si,di);if(bp>(parseInt(lsGet(kA)||'0',10)||0))lsSet(kA,String(bp))}
+    +row('最高連擊',maxCombo)+row('精準度',pct(bp))+row('完成度',Math.min(resolved,tg.length)-runFrom+' / '+N);
+  if(ok&&mode==='normal'&&!runFrom){const kA=KEY_AC(si,di);if(bp>(parseInt(lsGet(kA)||'0',10)||0))lsSet(kA,String(bp))}
   const rs=$('#rsky');rs.hidden=true;rs.textContent='';
   if(skyB){const a=starOf(si),full=!!skyC&&!skyCB&&skyDone(skyC);
     const note=!noteB&&regDone();
@@ -928,6 +975,7 @@ function showResult(ok,msg){
   if(ok&&mode==='normal'&&!runFrom){if(RUN&&RUN.ok)lbSubmit(RUN);else if(!ME){rl.hidden=false;$('#rlbT').textContent='設定暱稱後，通關成績將列入排行榜';const b=$('#rlbB');b.textContent='設定暱稱';b.hidden=false}}
   RUN=null;
   if(ok)jingleWin(rank);else jingleLose();
+  if(window.PPLA)window.PPLA.flush();   // achievements earned during the run show up with the result
 }
 function over(msg){
   $('#pause').classList.add('hidden');setMedia(false);st='over';exitT=1.2;cutAll();
@@ -938,8 +986,8 @@ function win(){
   setTimeout(()=>{if(st==='done')showResult(true)},500);
 }
 function hudShow(v){$('#hud').style.visibility=v?'visible':'hidden';$('#bPause').style.display=mode==='duel'?'none':'';$('#prog').classList.toggle('duel',v&&mode==='duel')}
-function showHome(){if(RSEL&&RSEL.on)mpSelOff();howClose();docClose();mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');$('#frv').classList.add('hidden');$('#home').classList.remove('hidden');skyBadge();audioStatus();frBadge();layout()}
-function showSelect(){mode='normal';setMedia(false);hudShow(false);st='menu';cutAll();balls=[];buildChips();$('#home').classList.add('hidden');$('#end').classList.add('hidden');$('#lbv').classList.add('hidden');$('#menu').classList.remove('hidden');selScroll()}
+function showHome(){if(SP.on)specOff(false);if(RSEL&&RSEL.on)mpSelOff();howClose();docClose();mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');$('#frv').classList.add('hidden');$('#shop').classList.add('hidden');$('#home').classList.remove('hidden');skyBadge();audioStatus();frBadge();layout()}
+function showSelect(){if(SP.on)specOff(false);mode='normal';setMedia(false);hudShow(false);st='menu';cutAll();balls=[];buildChips();$('#home').classList.add('hidden');$('#end').classList.add('hidden');$('#lbv').classList.add('hidden');$('#menu').classList.remove('hidden');selScroll()}
 
 /* ================= update ================= */
 function wallFx(b,e){rings.push({x:b.x,y:b.y,r0:BR*.5,life:.3,max:.3,hue:hueNow()+80,w:1.5});edgeGlow[e]=Math.max(edgeGlow[e],.18);edgeHue[e]=hueNow()}
@@ -1012,6 +1060,7 @@ function update(dt){
   for(let i=floats.length-1;i>=0;i--){floats[i].life-=dt;if(floats[i].life<=0)floats.splice(i,1)}
   for(let i=aims.length-1;i>=0;i--){aims[i].life-=dt;if(aims[i].life<=0)aims.splice(i,1)}
   for(let i=parts.length-1;i>=0;i--){const p=parts[i];p.life-=dt;if(p.life<=0){parts.splice(i,1);continue}p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.96;p.vy*=.96}
+  if(SP.on){specStep(dt);return}
   if(st==='over'&&exitT>0){exitT-=dt;for(const b of balls)stepFree(b,dt);return}
   if(paused&&resumeCD>0&&st==='play'){
     if(useAC)gAC=AC.currentTime-freezeG;           // keep the game clock still while the audio clock runs
@@ -1056,10 +1105,23 @@ function paintBG(x,h){
   x.fillStyle='#cfe0ff';for(const s of stars){x.globalAlpha=.3+.3*((s.p*7)%1);x.beginPath();x.arc(s.x*W,s.y*H,s.r,0,6.283);x.fill()}
   x.globalAlpha=1;
 }
+let bgAt=0;
+function paintCosBG(c,kind,h,t){   // equipped background, drawn in the catalogue's 180-unit-tall space, plus the same song-hue tint as the default
+  c.save();const k=H/180;c.scale(k,k);COS.draw.BG[kind](c,W/k,180,t);c.restore();
+  c.save();c.globalCompositeOperation='lighter';
+  const b=c.createRadialGradient(W*.15,H*.3,0,W*.15,H*.3,Math.max(W,H)*.5);b.addColorStop(0,`hsla(${h},80%,50%,.10)`);b.addColorStop(1,'transparent');c.fillStyle=b;c.fillRect(0,0,W,H);
+  const b2=c.createRadialGradient(W*.88,H*.75,0,W*.88,H*.75,Math.max(W,H)*.5);b2.addColorStop(0,`hsla(${(h+140)%360},80%,50%,.09)`);b2.addColorStop(1,'transparent');c.fillStyle=b2;c.fillRect(0,0,W,H);
+  c.restore();
+}
 function drawBG(x){   // rendered once per size/hue step, then blitted
-  const h=hueNow(),key=W+'x'+H+'/'+Math.round(h/8);
+  const h=hueNow(),L=COS?COS.look():null,cb=!!L&&!L.bg.def,key=W+'x'+H+'/'+Math.round(h/8)+(cb?'/'+L.bg.id+(SET.lowFx?'/s':''):'');
   if(W<1||H<1)return;
-  if(!bgC||key!==bgKey){bgKey=key;bgC=document.createElement('canvas');bgC.width=W;bgC.height=H;paintBG(bgC.getContext('2d'),h)}
+  const now=performance.now();
+  if(!bgC||key!==bgKey||(cb&&!SET.lowFx&&now-bgAt>110)){   // a custom background animates at about 9 fps into the cache; reduced effects: drawn once, still
+    if(!bgC||key!==bgKey){bgKey=key;bgC=document.createElement('canvas');bgC.width=W;bgC.height=H}
+    bgAt=now;const c=bgC.getContext('2d');
+    if(cb){c.clearRect(0,0,W,H);paintCosBG(c,L.bg.k,h,SET.lowFx?3:time)}else paintBG(c,h);
+  }
   x.drawImage(bgC,0,0);
 }
 const hsl=(h,a,l)=>`hsla(${h},100%,${l||65}%,${a})`;
@@ -1078,19 +1140,22 @@ function drawField(x){
   rr(x,R.x,R.y,R.w,R.h,10);x.fillStyle='rgba(10,14,40,.55)';x.fill();
   if(flash.a>0){rr(x,R.x,R.y,R.w,R.h,10);x.fillStyle=`hsla(${flash.hue},100%,60%,${flash.a*(SET.lowFx?.3:1)})`;x.fill()}
   // frame: top/bottom are walls (dim); the two thumb lines are bright
-  x.save();x.lineCap='round';
+  const CL=COS?COS.look():null,cF=!!CL&&!CL.frame.def;
+  if(cF){const F=CL.frame;COS.draw.frameC(F.k,x,R.w+20,R.h+20,{c1:F.c1,c2:F.c2},time,Math.min(1,Math.max(edgeGlow[1],edgeGlow[3],flash.a*3)),R.x-10,R.y-10,dpr)}   // custom frame: the next-beat cue below is still drawn on top of it
+  else{x.save();x.lineCap='round';
   x.lineWidth=2;x.strokeStyle='rgba(150,170,255,.35)';seg(x,R.x,R.y,R.x+R.w,R.y);seg(x,R.x,R.y+R.h,R.x+R.w,R.y+R.h);
   gline(x,R.x,R.y,R.x,R.y+R.h,h,.9,3);gline(x,R.x+R.w,R.y,R.x+R.w,R.y+R.h,h,.9,3);
-  x.restore();
+  x.restore()}
   // the line the next beat will arrive at
-  if(st==='play'||st==='ready')for(const b of balls){
+  const cues=SP.on?spCues():st==='play'||st==='ready'?balls:[],gv=SP.on?SP.rg:G();   // a spectator computes them from the song and the watched player's clock
+  for(const b of cues){
     if(b.ti<0)continue;
-    const tau=tT(b.ti)-G(),a=st==='ready'?.5:clamp(1.3-tau,0,1)*(.4+.3*Math.sin(time*10)),l=edgeLine(b.side);
+    const tau=tT(b.ti)-gv,a=st==='ready'?.5:clamp(1.3-tau,0,1)*(.4+.3*Math.sin(time*10)),l=edgeLine(b.side);
     if(a<=0)continue;
     x.save();x.globalCompositeOperation='lighter';x.lineCap='round';gline(x,l[0],l[1],l[2],l[3],190+tau*40,a,7);x.restore();
   }
   x.save();x.globalCompositeOperation='lighter';x.lineCap='round';
-  for(let e=0;e<4;e++)if(edgeGlow[e]>0){const l=edgeLine(e);gline(x,l[0],l[1],l[2],l[3],edgeHue[e],edgeGlow[e],6)}
+  if(!cF)for(let e=0;e<4;e++)if(edgeGlow[e]>0){const l=edgeLine(e);gline(x,l[0],l[1],l[2],l[3],edgeHue[e],edgeGlow[e],6)}
   x.restore();
 }
 function drawBumps(x){
@@ -1147,7 +1212,7 @@ BFX.starOf=()=>{if(BFX.star)return BFX.star;const e=document.createElement('canv
   for(let i=0;i<4;i++){x.rotate(Math.PI/2);const gr=x.createLinearGradient(0,0,128,0);gr.addColorStop(0,'rgba(255,236,170,.6)');gr.addColorStop(1,'rgba(255,236,170,0)');x.fillStyle=gr;x.beginPath();x.moveTo(0,-7);x.lineTo(128,0);x.lineTo(0,7);x.fill()}
   return BFX.star=e};
 // one frame for one ball: s = its fx state, b = {x,y,trail}, r = radius, o = {combo,starT}, boost = music layer 3 (brighter, wider trail)
-BFX.draw=(x,s,b,r,o,dt,time,low,boost)=>{
+BFX.draw=(x,s,b,r,o,dt,time,low,boost,opt)=>{   // opt (cosmetics): {noTrail,noGlow,fix:[rgb,rgb]} a non-default trail / orb draws that part itself
   const T=BFX.target(o.combo,o.starT,time,low);s.h=BFX.mix(s.h,T.h,Math.min(1,dt*6));s.sat+=(T.sat-s.sat)*Math.min(1,dt*6);s.g+=(T.g-s.g)*Math.min(1,dt*(T.bl?30:10));
   const g=s.g,lvl=Math.min(6,Math.round(T.k*.67)+(g>.5?1:0)),L=60+18*(1-s.sat/100),span=T.rb?-330*(1-g)-18*g:-18;
   const tr=b.trail,n=tr.length;x.save();x.globalCompositeOperation='lighter';x.lineCap='round';x.lineJoin='round';
@@ -1155,9 +1220,9 @@ BFX.draw=(x,s,b,r,o,dt,time,low,boost)=>{
   const pass=(wm,al,lit)=>{for(let i=1;i<n;i++){const f=i/n,e=Math.pow(f,1.35);x.strokeStyle=BFX.css(BFX.col(s.h+(1-f)*span,s.sat,lit,g),al*e);x.lineWidth=r*wm*e;
       const p=tr[i-1],q=tr[i],m=tr[i+1]||b;x.beginPath();x.moveTo((p.x+q.x)/2,(p.y+q.y)/2);x.quadraticCurveTo(q.x,q.y,(q.x+m.x)/2,(q.y+m.y)/2);x.stroke()}};
   const bw=boost?1.25:1,ba=boost?1.3:1;
-  if(!low)pass((3.2+lvl*.35)*bw,.16*ba,L);pass(1.6*bw,Math.min(1,.55*ba),L+6);pass(.55*bw,.9,90);
+  if(!(opt&&opt.noTrail)){if(!low)pass((3.2+lvl*.35)*bw,.16*ba,L);pass(1.6*bw,Math.min(1,.55*ba),L+6);pass(.55*bw,.9,90)}
   // sparks shed behind the ball: more at higher tiers, glints in gold (none with reduced effects)
-  if(!low){s.ph+=[5,8,11,15,20,26,32][lvl]*(1+g*.6)*dt;
+  if(!low&&!(opt&&opt.noTrail)){s.ph+=[5,8,11,15,20,26,32][lvl]*(1+g*.6)*dt;
     while(s.ph>=1){s.ph--;const a=Math.random()*6.283,v=r*(.6+Math.random()*1.8),rh=T.rb&&Math.random()>g;
       s.sp.push({x:b.x+Math.cos(a)*r*.6,y:b.y+Math.sin(a)*r*.6,vx:Math.cos(a)*v,vy:Math.sin(a)*v-r*.3,l:0,m:.45+Math.random()*.5,c:BFX.col(rh?Math.random()*360:s.h+(Math.random()-.5)*30,rh?100:s.sat,80,rh?0:g),st:g>.5&&Math.random()<.45})}}
   let w=0;for(const p of s.sp){p.l+=dt;if(p.l>=p.m)continue;p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.96;p.vy=p.vy*.96+r*.9*dt;s.sp[w++]=p}
@@ -1165,15 +1230,51 @@ BFX.draw=(x,s,b,r,o,dt,time,low,boost)=>{
   for(const p of s.sp){const a=1-p.l/p.m,tw=.6+.4*Math.sin(time*30+p.x);x.fillStyle=BFX.css(p.c,a*tw);
     if(p.st){const z=r*.55*a;x.beginPath();x.moveTo(p.x,p.y-z);x.lineTo(p.x+z*.22,p.y-z*.22);x.lineTo(p.x+z,p.y);x.lineTo(p.x+z*.22,p.y+z*.22);x.lineTo(p.x,p.y+z);x.lineTo(p.x-z*.22,p.y+z*.22);x.lineTo(p.x-z,p.y);x.lineTo(p.x-z*.22,p.y-z*.22);x.fill()}
     else{x.beginPath();x.arc(p.x,p.y,r*(.1+.16*a),0,6.283);x.fill()}}
-  const c=BFX.col(s.h,s.sat,L+6,g);x.drawImage(BFX.glowOf(c),b.x-r*3.8,b.y-r*3.8,r*7.6,r*7.6);
+  if(!(opt&&opt.noGlow)){const c=BFX.col(s.h,s.sat,L+6,g);x.drawImage(BFX.glowOf(c),b.x-r*3.8,b.y-r*3.8,r*7.6,r*7.6)}
   // orbiting motes from purple (three from red), a breathing ring from orange
-  if(T.k>=3&&!low){const k=T.k>=5?3:2,mc=BFX.css(BFX.col(s.h+40,s.sat,82,g),.9);x.fillStyle=mc;for(let i=0;i<k;i++){const a=time*4.2+i*6.283/k,R=r*(1.75+.15*Math.sin(time*3+i));
+  if(T.k>=3&&!low){const k=T.k>=5?3:2,mc=BFX.css(opt&&opt.fix?opt.fix[1]:BFX.col(s.h+40,s.sat,82,g),.9);x.fillStyle=mc;for(let i=0;i<k;i++){const a=time*4.2+i*6.283/k,R=r*(1.75+.15*Math.sin(time*3+i));
       x.beginPath();x.arc(b.x+Math.cos(a)*R,b.y+Math.sin(a)*R*.85,r*.22,0,6.283);x.fill()}}
-  if(T.k>=4){x.strokeStyle=BFX.css(BFX.col(s.h,s.sat,78,g),low?.4:.38+.14*Math.sin(time*6));x.lineWidth=1.6;x.beginPath();x.arc(b.x,b.y,r*(low?2.3:2.3+.12*Math.sin(time*5)),0,6.283);x.stroke()}
+  if(T.k>=4){x.strokeStyle=BFX.css(opt&&opt.fix?opt.fix[0]:BFX.col(s.h,s.sat,78,g),low?.4:.38+.14*Math.sin(time*6));x.lineWidth=1.6;x.beginPath();x.arc(b.x,b.y,r*(low?2.3:2.3+.12*Math.sin(time*5)),0,6.283);x.stroke()}
   // gold: four-ray glint behind the ball (still with reduced effects)
   if(g>.05){x.save();x.globalAlpha=g;x.translate(b.x,b.y);if(!low)x.rotate(time*.8);x.drawImage(BFX.starOf(),-r*4.2,-r*4.2,r*8.4,r*8.4);x.restore()}
   x.restore();
 };
+/* ---- cosmetics (cosmetics.js): equipped orb / trail / hit effect / frame / background. Every default item keeps the original code path. ---- */
+const hex2rgb=h=>{const n=parseInt(h.slice(1),16);return[n>>16&255,n>>8&255,n&255]};
+const cosFix=I=>[hex2rgb(I.c1),hex2rgb(I.c2)];
+let hfx=[],hfxT=0;   // hit-effect particles
+const COS_KEEP=new Set(['ring','flare','bloom','jet','ice','staff','enso','splat','dial','sqring','arc','bar','bolt','hring']);   // shapes that are one piece: never thinned
+// combo colour (from the ball's own fx state) unless this item's "combo colour" switch is off
+function cosCols(I,b){if(I.keep)return{c1:I.c1,c2:I.c2};const f=b&&b.fx;return f?COS.comboCols(f.h,f.sat,f.g):{c1:I.c1,c2:I.c2}}
+function cosState(b){return b.cs||(b.cs={sp:2,ang:0,P:[],lz:0})}
+function cosTrail(x,b,r,I,dt){
+  const s=cosState(b),K=cosCols(I,b);
+  x.save();x.globalCompositeOperation=I.k==='ink'?'source-over':'lighter';
+  if(b.trail.length>1)COS.draw.TRAIL[I.k](x,b.trail,r*1.15,K,time,s,b);
+  for(let i=s.P.length-1;i>=0;i--){COS.draw.drawP(x,s.P[i],dt);if(s.P[i].l<=0)s.P.splice(i,1)}
+  if(s.P.length>(SET.lowFx?12:80))s.P.length=SET.lowFx?12:80;
+  x.restore();
+}
+function cosOrb(x,b,r,I,dt){
+  const s=cosState(b),K=cosCols(I,b),T=BFX.target(combo,starT,time,SET.lowFx),ti=T.g>.5?7:T.k,R=r*1.15;
+  if(!paused){s.sp+=(2-s.sp)*Math.min(1,dt*1.4);s.ang+=s.sp*dt}
+  if(I.keep&&ti>0){x.save();x.globalCompositeOperation='lighter';const hr=R*(1.6+ti*.45),g=x.createRadialGradient(b.x,b.y,0,b.x,b.y,hr);g.addColorStop(0,COS.hexA(K.c1,.18+ti*.04));g.addColorStop(1,COS.hexA(K.c1,0));x.fillStyle=g;x.beginPath();x.arc(b.x,b.y,hr,0,6.283);x.fill();x.restore()}   // combo colour off: the tier still shows as a bigger glow
+  x.save();x.translate(b.x,b.y);
+  if(b.sq>0){const horiz=b.sqn===1||b.sqn===3,q=b.sq*.35;x.scale(horiz?1-q:1+q*.6,horiz?1+q*.6:1-q)}
+  x.translate(-b.x,-b.y);COS.draw.ORB[I.k](x,{x:b.x,y:b.y,ang:s.ang,sp:s.sp,ti},R,K,time);x.restore();
+}
+function cosHit(b,lineX,dir){
+  const I=COS.look().hit,K=cosCols(I,b);if(!hfx.length)hfxT=time;
+  const n0=hfx.length;COS.draw.hit(I.k,hfx,lineX,b.y,K,dir);
+  if(SET.lowFx)for(let i=hfx.length-1;i>=n0;i--)if(!COS_KEEP.has(hfx[i].k)&&i%3)hfx.splice(i,1);   // about 30% of the particles
+  if(hfx.length>260)hfx.splice(0,hfx.length-260);
+}
+function drawHfx(x){
+  if(!hfx.length)return;const dt=clamp(time-hfxT,0,.1);hfxT=time;
+  x.save();x.globalCompositeOperation=COS.look().hit.k==='inkdrop'?'source-over':'lighter';
+  for(let i=hfx.length-1;i>=0;i--){COS.draw.drawP(x,hfx[i],dt);if(hfx[i].l<=0)hfx.splice(i,1)}
+  x.restore();
+}
 function drawBalls(x){
   for(const b of balls){
     const sc=b.pop<1?(1-Math.pow(1-b.pop,3)):1,r=BR*sc;
@@ -1181,10 +1282,13 @@ function drawBalls(x){
     const dt=paused?0:clamp(time-b.fx.t,0,.1);b.fx.t=time;
     {const now=performance.now(),mv=b.fx.lx!==b.x||b.fx.ly!==b.y;b.fx.lx=b.x;b.fx.ly=b.y;   // a ball that stopped (song over) lets its trail shrink away instead of freezing into a line
       if(mv||paused)b.fx.st=now;else if(now-b.fx.st>40&&b.trail.length){b.trail.shift();b.fx.st=now}}
-    BFX.draw(x,b.fx,b,r,{combo,starT},dt,time,SET.lowFx,!mlFull()&&mlv>=3);
-    x.save();x.translate(b.x,b.y);
+    const CL=COS?COS.look():null,cO=!!CL&&!CL.orb.def,cT=!!CL&&!CL.trail.def;   // equipped cosmetics; the default look runs exactly the code below
+    if(cT)cosTrail(x,b,r,CL.trail,dt);
+    BFX.draw(x,b.fx,b,r,{combo,starT},dt,time,SET.lowFx,!mlFull()&&mlv>=3,cO||cT?{noTrail:cT,noGlow:cO,fix:cO&&CL.orb.keep?cosFix(CL.orb):null}:null);
+    if(cO)cosOrb(x,b,r,CL.orb,dt);
+    else{x.save();x.translate(b.x,b.y);
     if(b.sq>0){const horiz=b.sqn===1||b.sqn===3,s=b.sq*.35;x.scale(horiz?1-s:1+s*.6,horiz?1+s*.6:1-s)}
-    x.fillStyle=b.fx.g>.5?'#fff8e0':'#fff';x.beginPath();x.arc(0,0,r*.7,0,6.283);x.fill();x.restore();
+    x.fillStyle=b.fx.g>.5?'#fff8e0':'#fff';x.beginPath();x.arc(0,0,r*.7,0,6.283);x.fill();x.restore()}
     if(shield>0){x.strokeStyle=`hsla(165,100%,70%,${.5+.3*Math.sin(time*8)})`;x.lineWidth=2;x.beginPath();x.arc(b.x,b.y,BR*1.9,0,6.283);x.stroke()}
     if(b.ti>=0&&(st==='play'||st==='ready')){
       const tau=tT(b.ti)-G();
@@ -1202,6 +1306,7 @@ function drawBalls(x){
   }
 }
 function drawFx(x){
+  drawHfx(x);
   x.save();x.globalCompositeOperation='lighter';
   for(const r of rings){const a=r.life/r.max,rad=r.r0+(1-a)*BR*5;x.strokeStyle=`hsla(${r.hue},100%,70%,${a*.8})`;x.lineWidth=Math.max(.5,r.w*a);x.beginPath();x.arc(r.x,r.y,rad,0,6.283);x.stroke()}
   for(const p of parts){const a=p.life/p.max;x.fillStyle=`hsla(${p.hue},100%,70%,${a})`;x.beginPath();x.arc(p.x,p.y,p.r*(.5+a),0,6.283);x.fill()}
@@ -1240,7 +1345,7 @@ function draw(){
   ctx.save();
   if(shake>0&&!SET.lowFx)ctx.translate(rand(-shake,shake)*.5,rand(-shake,shake)*.5);
   if(st==='home')drawAttract(ctx);
-  else if(st!=='menu'){drawField(ctx);drawTut(ctx);drawBumps(ctx);drawItems(ctx);drawBalls(ctx);drawFx(ctx)}
+  else if(st!=='menu'){drawField(ctx);drawTut(ctx);drawBumps(ctx);drawItems(ctx);if(SP.on){const c0=combo;combo=SP.c;drawBalls(ctx);combo=c0}else drawBalls(ctx);drawFx(ctx)}
   ctx.restore();
   ctx.textAlign='center';ctx.textBaseline='alphabetic';
   if(st==='ready'&&mode==='duel'){const left=Math.max(0,(DU.startAt-duelNow())/1000);ctx.fillStyle='#e8ecff';ctx.font='800 22px "Noto Sans TC",sans-serif';ctx.fillText(DU.n+' 人對戰'+'　即將開始 '+Math.ceil(left),FR.x+FR.w/2,FR.y+FR.h/2+BR*6);
@@ -1262,7 +1367,7 @@ function draw(){
 let last=performance.now(),lastIdle=0,costEMA=0,fc=0,lastGs=0,lastNow=performance.now(),simG=null;
 function frame(now){
   if(now-last<15){requestAnimationFrame(frame);return}                 // cap at ~60 fps (halves work on 120 Hz screens)
-  const idle=(paused&&!resumeCD)||st==='menu'||st==='done'||(st==='over'&&exitT<=0&&!floats.length&&!rings.length&&!parts.length);
+  const idle=!SP.on&&((paused&&!resumeCD)||st==='menu'||st==='done'||(st==='over'&&exitT<=0&&!floats.length&&!rings.length&&!parts.length));
   if(idle&&now-lastIdle<250){requestAnimationFrame(frame);return}        // menus / end cards: redraw rarely
   if(idle)lastIdle=now;
   const t0=performance.now();
@@ -1277,6 +1382,7 @@ function frame(now){
     const n=Math.max(1,Math.ceil(dt/(1/120))),h=dt/n;      // sub-steps keep the motion smooth and collisions exact
     for(let i=0;i<n;i++){if(g0!=null)simG=g0+h*(i+1);update(h)}   // each sub-step sees its own point in time
     simG=null;
+    if(DU.wn>0)spSend(now);
     draw();
   }catch(e){showErr(e)}                                     // one bad frame must never stop the loop
   costEMA=costEMA*.9+(performance.now()-t0)*.1;
@@ -1299,7 +1405,7 @@ const dName=v=>String(v==null?'':v).replace(/[\u0000-\u001f\u007f-\u009f<>&"'`\\
 const dKey=v=>typeof v==='string'&&/^[a-z0-9]{2,16}$/.test(v)?v:'';
 const dCode=v=>String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);
 const songIdx=k=>k?SONGS.findIndex(s=>s.key===k):-1;
-const DRANKS=['S','A','B','C','D','—'],DATK=['bump','shrink','fog'],MP_MAX=8;
+const DRANKS=['SSS','SS','S','A','B','C','D','E','F','—'],DATK=['bump','shrink','fog'],MP_MAX=8;
 // Inbound budget for the high-rate messages only (scoreboard / attacks): a flooding peer cannot stall the game loop.
 // Control messages (room, start, res, left, pong) always pass, so a burst after the page was frozen never loses them.
 const DIN={tok:60,t:0};
@@ -1376,7 +1482,7 @@ function duelClose(silent){popClose();ddClose();mpCfgDrop();DU.note='';DU.wantRe
   clearInterval(DU.pingIv);const w=DU.ws;DU.ws=null;DU.code='';DU.players=[];DU.phase='lobby';DU.joined=false;
   try{if(w)w.close()}catch(e){}if(!silent)duelView();
 }
-function duelLeave(){ddClose();mpLadOff();$('#end').classList.remove('duel');if(RSEL.on)mpSelOff();duelClose(true);clearInterval(DU.roomsIv);mpRestore();mode='normal';layout();$('#duel').classList.add('hidden');showHome()}
+function duelLeave(){if(SP.on)specOff(false);ddClose();mpLadOff();$('#end').classList.remove('duel');if(RSEL.on)mpSelOff();duelClose(true);clearInterval(DU.roomsIv);mpRestore();mode='normal';layout();$('#duel').classList.add('hidden');showHome()}
 
 /* ---- messages ---- */
 function duelOn(d){
@@ -1384,7 +1490,7 @@ function duelOn(d){
     const best=DU.pings.slice(0,3);DU.off=best.reduce((a,p)=>a+p.off,0)/best.length;return}   // clock offset from the fastest round trips
   if(d.t==='room'){if(!Array.isArray(d.players))return;DU.joined=true;
     DU.you=dInt(d.you,0,MP_MAX-1);DU.host=dInt(d.host,0,MP_MAX-1);
-    const seen=new Set();DU.players=d.players.slice(0,MP_MAX).filter(p=>p&&typeof p==='object').map(p=>({i:dInt(p.i,0,MP_MAX-1),name:dName(p.name)||'玩家',ready:p.ready===true,back:p.back===true,vote:dKey(p.vote)}))
+    const seen=new Set();DU.players=d.players.slice(0,MP_MAX).filter(p=>p&&typeof p==='object').map(p=>({i:dInt(p.i,0,MP_MAX-1),name:dName(p.name)||'玩家',ready:p.ready===true,back:p.back===true,vote:dKey(p.vote),av:dCos(p.avatar),pl:dCos(p.plate),ti:dCos(p.title),cmc:dInt(p.cmc,0,100000)}))
       .filter(p=>!seen.has(p.i)&&seen.add(p.i)).sort((a,b)=>a.i-b.i);
     const cf=d.cfg&&typeof d.cfg==='object'?d.cfg:{};
     DU.cfg={song:dKey(cf.song),di:dInt(cf.di,0,DIFFS.length-1),pub:cf.pub===true,max:dInt(cf.max,2,MP_MAX),vote:cf.vote===true,qm:cf.qm===true};DU.srv={...DU.cfg};
@@ -1414,14 +1520,18 @@ function duelOn(d){
       let b=DU.board.find(x=>x.i===i);if(!b){b={i,name:mpName(i),s:0,c:0,l:100,j:-1,jt:0,fin:0,gone:false};DU.board.push(b)}
       const s0=b.s;b.s=dInt(r[1],0,1e8);b.c=dInt(r[2],0,1e5);b.l=dInt(r[3],0,100);const j=dInt(r[4],-1,4);if(j>=0&&(j!==b.j||r[1]!==b.ls)){b.j=j;b.jt=performance.now();mpLadHit(i,j,b.s-s0)}b.ls=r[1];b.fin=r[5]?1:0;
       b.out=b.l<=0||(b.fin&&r.length>6&&!r[6])}
-    mpRankCheck();hud();if(DU.myFin&&!DU.res)duelResult();return}
+    mpRankCheck();hud();specCheck();if(DU.myFin&&!DU.res)duelResult();return}
+  if(d.t==='wcnt'){DU.wn=dInt(d.n,0,64);spK='';spEye();return}   // how many are watching me (a new watcher needs the look again)
+  if(d.t==='v'){spFrame(d);return}
+  if(d.t==='wend'){if(SP.on&&dInt(d.i,0,MP_MAX-1)===SP.i)specNext(1,true);return}
   if(d.t==='atk'){const now=performance.now();if(!DATK.includes(d.k)||now-(DU.atkT||0)<1500)return;DU.atkT=now;duelAttacked(d.k,mpName(dInt(d.from,0,MP_MAX-1)));return}
   if(d.t==='res'){if(!Array.isArray(d.r))return;
+    if(SP.on)specOff('res');
     const seen=new Set();DU.res=d.r.slice(0,MP_MAX).filter(x=>x&&typeof x==='object').map(x=>({i:dInt(x.i,0,MP_MAX-1),name:dName(x.name)||'玩家',s:dInt(x.s,0,1e8),ok:x.ok===true,
-      acc:Math.max(0,Math.min(100,+x.acc||0)),rank:DRANKS.includes(x.rank)?x.rank:'—',mc:dInt(x.mc,0,1e5)})).filter(x=>!seen.has(x.i)&&seen.add(x.i));
+      acc:Math.max(0,Math.min(100,+x.acc||0)),rank:DRANKS.includes(x.rank)?x.rank:'—',mc:dInt(x.mc,0,1e5),...whoOf(x)})).filter(x=>!seen.has(x.i)&&seen.add(x.i));
     if(DU.myFin){duelResult();mpEndNote()}return}
   if(d.t==='left'){const i=dInt(d.i,0,MP_MAX-1),b=DU.board.find(x=>x.i===i);delete DU.says[i];if(b)b.gone=true;
-    if(mode==='duel'&&st==='play'){mpBanner('info',mpName(i)+' 已離線','','#9aa3c7');mpLad()}if(DU.myFin&&!DU.res)duelResult();return}
+    if(mode==='duel'&&st==='play'){mpBanner('info',mpName(i)+' 已離線','','#9aa3c7');mpLad()}specCheck();if(DU.myFin&&!DU.res)duelResult();return}
 }
 
 /* ---- room: the single-player song page in "room mode" ---- */
@@ -1478,12 +1588,22 @@ const SAY=['大家好 👋','哈囉哈囉','新手報到 🙋','好久不見！'
   '就這？😏','看我的 😎','不服來戰','這把我帶飛','是在緊張什麼','輸的請喝飲料 🧋','手速跟上好嗎','別眨眼 👀'];
 const SAY_G=[['打招呼',[0,1,2,3]],['選曲',[4,5,6,7,8,9]],['準備',[10,11,12,13]],['反應',[14,15,16,17,18,19,20,21,22,23,24]],['小嗆一下',[32,33,34,35,36,37,38,39]],['結束',[25,26,27,28,29,30,31]]];
 const REL_TAG={f:['f','好友'],o:['p','已邀請'],i:['i','邀請您']};
+const dCos=v=>typeof v==='string'&&/^[a-z]+\.[a-z0-9]+$/.test(v)&&v.length<=40?v:'';   // an equipped item id from the server (avatar / plate / title), or '' for the default
+function seatCos(p){   // avatar (default one: coloured by the player's best combo), plate tint and title of one seat
+  if(!COS)return{pl:' pl0',st:'',av:'',tl:''};
+  const pl=p.pl&&COS.byId[p.pl]&&p.pl!=='plate.basic'?p.pl:'';
+  return{pl:pl?'':' pl0',st:pl?COS.seatStyle(pl):'',av:'<span class="av">'+COS.avHTML(COS.avSpec(p.av,COS.tierOfCombo(p.cmc||0)),26)+'</span>',tl:'<span class="tl">'+(p.ti?COS.titleHTML(p.ti):'')+'</span>'}}
+/* ---- avatar, name plate and title next to a name in lists (leaderboard 24 px, friends 28, podium 56, results 22): p = {av, pl, ti, cmc}; a missing field shows the default look ---- */
+function whoAv(p,px,dot){return COS?COS.avHTML(COS.avSpec(p&&p.av,COS.tierOfCombo(p&&p.cmc||0)),px,dot):''}
+function whoNm(p,label){return COS?COS.nameHTML(p&&p.pl,label,p&&p.ti):esc(label)}
+const whoOf=x=>({av:dCos(x&&x.avatar),pl:dCos(x&&x.plate),ti:dCos(x&&x.title),cmc:dInt(x&&x.cmc,0,100000)});
 function mpSeats(){
   if(!RSEL.on)return;const C=DU.cfg,now=Date.now();let h='';
   for(let k=0;k<C.max;k++){const p=DU.players[k];
     if(!p){h+='<div class="seat empty">空位</div>';continue}
     const rl=p.i!==DU.you&&REL_TAG[DU.rel[p.i]],sy=DU.says[p.i]&&DU.says[p.i].until>now?SAY[DU.says[p.i].k]:'';
-    h+='<div class="seat'+(p.i===DU.you?' me':'')+(p.ready&&!C.qm?' ok':'')+(p.i!==DU.you&&DU.rel[p.i]&&DU.rel[p.i]!=='b'?' tap':'')+'" data-i="'+p.i+'"><span class="nm">'+esc(p.name)+'</span>'+(p.i===DU.host&&!C.qm?'<i>房主</i>':'')
+    const sc=seatCos(p);
+    h+='<div class="seat'+(p.i===DU.you?' me':'')+(p.ready&&!C.qm?' ok':'')+sc.pl+(p.i!==DU.you&&DU.rel[p.i]&&DU.rel[p.i]!=='b'?' tap':'')+'" data-i="'+p.i+'"'+(sc.st?' style="'+sc.st+'"':'')+'>'+sc.av+'<span class="nm">'+esc(p.name)+'</span>'+sc.tl+(p.i===DU.host&&!C.qm?'<i>房主</i>':'')
       +(rl?'<span class="ft '+rl[0]+'">'+rl[1]+'</span>':'')+(sy?'<span class="bub">'+esc(sy)+'</span>':'')+'</div>'}
   $('#rseats').innerHTML=h;
 }
@@ -1514,7 +1634,7 @@ function sayOpen(){
   const q=document.createElement('div');q.className='qp';q.setAttribute('role','menu');q.setAttribute('aria-label','快速發言');
   q.innerHTML=SAY_G.map(([g,ks])=>'<div class="qh">'+g+'</div>'+ks.map(k=>'<button data-k="'+k+'" role="menuitem">'+esc(SAY[k])+'</button>').join('')).join('');
   q.onclick=e=>{const b=e.target.closest('button[data-k]');if(!b)return;const k=+b.dataset.k,now=Date.now();popClose();
-    if(now-(DU.saidAt||0)<2700){toast('發言過於頻繁，請稍候再試');return}DU.saidAt=now;dsend({t:'say',k})};
+    if(now-(DU.saidAt||0)<2700){toast('發言過於頻繁，請稍候再試');return}DU.saidAt=now;dsend({t:'say',k});evA('say')};
   popAt(q,$('#bSay'),true);
 }
 $('#bSay').onclick=e=>{e.stopPropagation();if(document.querySelector('.qp'))popClose();else sayOpen()};
@@ -1557,7 +1677,7 @@ function mpSelGo(){initAudio();if(!DU.cfg.qm)dsend({t:'ready',v:!DU.ready})}
 
 /* ---- the race ---- */
 function duelStart(d){
-  ddClose();DU.seed=d.seed>>>0||1;DU.startAt=d.at;if(DU.prevDi==null){DU.prevDi=di;DU.prevSi=si}
+  if(SP.on)specOff(false);ddClose();DU.seed=d.seed>>>0||1;DU.startAt=d.at;if(DU.prevDi==null){DU.prevDi=di;DU.prevSi=si}
   if(RSEL.on)mpSelOff();
   DU.names={};for(const p of DU.players)DU.names[p.i]=p.name;
   DU.board=DU.players.filter(p=>p.i!==DU.you).map(p=>({i:p.i,name:p.name,s:0,c:0,l:100,j:-1,jt:0,fin:0,gone:false,out:false}));
@@ -1592,8 +1712,8 @@ function duelAttacked(k,from){
   if(mode!=='duel'||st!=='play')return;
   if(shield>0){shield--;hud();mpBanner('info','護盾擋下牽制',from?'來自 '+from:'','#7cf0ff');return}
   vib([30,40,30]);flash.a=.2;flash.hue=320;
-  if(k==='bump'){for(let t=0;t<12;t++){const x=FR.x+FR.w*rand(.3,.7),y=FR.y+FR.h*rand(.2,.8);if(balls.every(b=>Math.hypot(b.x-x,b.y-y)>FR.h*.3)){bumps.push({x,y,Rm:Math.min(FR.w,FR.h)*.11,age:0,life:4});break}}}
-  else if(k==='shrink')DU.shrinkT=5;else DU.fogT=3.5;
+  if(k==='bump'){for(let t=0;t<12;t++){const x=FR.x+FR.w*rand(.3,.7),y=FR.y+FR.h*rand(.2,.8);if(balls.every(b=>Math.hypot(b.x-x,b.y-y)>FR.h*.3)){bumps.push({x,y,Rm:Math.min(FR.w,FR.h)*.11,age:0,life:4});if(DU.wn>0)spEv('bump',{x,y});break}}}
+  else if(k==='shrink'){DU.shrinkT=5;if(DU.wn>0)evq.push('shrink')}else{DU.fogT=3.5;if(DU.wn>0)evq.push('fog')}
   mpBanner('atk',from?'來自 '+from+' 的牽制':'受到牽制',ATKN[k]+ATKS[k],'#ff5fa2');
   const f=$('#mpFr');if(f.animate)f.animate([{opacity:1},{opacity:0}],{duration:600,easing:'ease-out'});hud();
 }
@@ -1616,7 +1736,7 @@ function mpLadInit(){
   mpLadPlace();mpLad();clearInterval(LAD.fz);if(!RMO.matches)LAD.fz=setInterval(mpFizz,80);
 }
 function mpRow(i,me){
-  const r=document.createElement('div'),c=me?'#ffd36b':MPC[i%MPC.length];r.className='lrw'+(me?' me':'');r.style.setProperty('--c',c);r.style.setProperty('--pc',c);
+  const r=document.createElement('div'),c=me?'#ffd36b':MPC[i%MPC.length];r.className='lrw'+(me?' me':'');r.dataset.i=i;r.style.setProperty('--c',c);r.style.setProperty('--pc',c);
   r.innerHTML='<span class="flash"></span><span class="rk"></span><span class="nm"></span><span class="ss">0</span><span class="jd"></span><span class="cb"></span>'+(me?'<span class="gp"></span>':'')+'<span class="bar"><i></i></span><span class="tip"></span>';
   r.querySelector('.nm').textContent=mpName(i);$('#mpLad').appendChild(r);
   return LAD.rows[i]={el:r,ss:r.querySelector('.ss'),c,prev:-1,pct:0,v:0,s:0,cb:-1,y:0};
@@ -1625,7 +1745,7 @@ function mpLadOff(){LAD.on=false;clearInterval(LAD.fz);$('#mpLad').hidden=true;$
 function mpLadPlace(){   // follows the field: called from layout()
   const sa=safeIns(),bn=$('#mpBn'),fr=$('#mpFr');
   Object.assign(bn.style,{left:FR.x+'px',width:FR.w+'px',top:(FR.y+8)+'px',height:'60px'});
-  Object.assign(fr.style,{left:FR.x+'px',width:FR.w+'px',top:FR.y+'px',height:FR.h+'px'});
+  Object.assign(fr.style,{left:FR.x+'px',width:FR.w+'px',top:FR.y+'px',height:FR.h+'px'});spPlace();
   if(!LAD.on)return;
   const x0=FR.x+FR.w+12,w=Math.min(170,W-x0-Math.max(8,sa.r+4)),hb=$('#hud').getBoundingClientRect().bottom||0,top=Math.max(sa.t+4,FR.y-18,hb+2),avail=H-top-Math.max(8,sa.b+4)-18,n=Object.keys(LAD.rows).length||1;
   const RH=Math.max(30,Math.min(50,Math.floor(avail/n))),rh=RH-6;
@@ -1642,7 +1762,7 @@ function mpLad(){
     o.y=Y0+k*RH;r.style.top=o.y+'px';r.querySelector('.rk').textContent=k+1;o.s=e.s;
     o.pct=out?0:top>lo?Math.max(4,(e.s-lo)/(top-lo)*100):4;
     r.querySelector('.bar i').style.width=o.pct+'%';r.querySelector('.tip').style.left=(30+BW*o.pct/100)+'px';
-    r.classList.toggle('out',out);r.classList.toggle('fire',e.c>=20&&!out);
+    r.classList.toggle('out',out);r.classList.toggle('fire',e.c>=20&&!out);r.classList.toggle('spw',SP.on&&e.i===SP.i);
     const cb=e.c>=10&&!out?e.c:0;if(cb!==o.cb){o.cb=cb;r.querySelector('.cb').textContent=cb?'連擊 '+cb:''}
     if(out)r.querySelector('.ss').textContent=e.gone?'離線':'出局';
     if(o.prev>=0&&k!==o.prev&&r.animate&&!RMO.matches){const up=k<o.prev;
@@ -1697,15 +1817,158 @@ function drawDuel(x){
   mpLadFrame();
 }
 
+/* ---- spectate (docs/spectate-spec.md): live relay of one player's field ---- */
+// Sender (someone watches me, wcnt.n>0): about every 66 ms {t:'v',g,b,e,s,c,l,k}. 't' stays the first key: the server tells frames apart by the start of the string.
+//   g = my game clock, b = balls [x,y] in 0..1 of the field, e = events since the last frame (hit [0..3,x,y], miss [4,x,y], ['bump',x,y], 'fog', 'shrink'),
+//   s c l = score, combo, life, k = [orb,trail,hit,frame,bg] ids ('' = default), sent when it changes, when someone new starts watching, and every 5 s.
+// Viewer: frames are interpolated about 100 ms behind the newest one, the trail and the beat cues are made here (same song, level and clock),
+// events replay the normal effects at the right place, the look comes from k through PPLC.look(). Nothing is ever sent to the watched player.
+let spLast=0,spK='',spKT=0;
+const n3=v=>Math.round(v*1000)/1000;
+function spEv(c,b,ti,cents){if(evq.length<24){const o=[c,n3((b.x-FR.x)/FR.w),n3((b.y-FR.y)/FR.h)];if(ti>=0)o.push(ti,Math.round(cents||0));evq.push(o)}}   // a hit also carries the chart target index and the pitch offset (cents) so the viewer plays the same note; a miss is silent here and there
+function spMyLook(){
+  if(!COS||(window.PPLSHOP&&window.PPLSHOP.MODE==='web'))return['','','','',''];   // the live web version: what was taken in the test period is not shown to others
+  return['orb','trail','hit','frame','bg'].map(sl=>{const id=COS.state.eq[sl];return id&&id!==COS.defaults[sl]?id:''})}
+function spSend(now){
+  if(mode!=='duel'||st!=='play'||paused||!DU.ws||now-spLast<62)return;spLast=now;
+  const o={t:'v',g:n3(G()),b:balls.slice(0,8).map(b=>[n3((b.x-FR.x)/FR.w),n3((b.y-FR.y)/FR.h)]),e:evq.splice(0,10),s:score,c:combo,l:Math.round(life),m:mlFull()?-1:mlv};
+  const k=spMyLook(),kk=k.join('|');if(kk!==spK||now-spKT>5000){spK=kk;spKT=now;o.k=k}
+  let j=JSON.stringify(o);if(j.length>900){o.e=[];j=JSON.stringify(o)}   // the server drops frames over 1000 bytes
+  try{if(DU.ws.readyState===1)DU.ws.send(j)}catch(e){}
+}
+function spEye(){const on=mode==='duel'&&st==='play'&&DU.wn>0;$('#mpEye').hidden=!on;if(on)$('#mpEyeN').textContent=DU.wn}
+
+const spNum=(v,lo,hi)=>typeof v==='number'&&Number.isFinite(v)&&v>=lo&&v<=hi;
+const specAlive=()=>mpStand().filter(x=>!x.me&&!x.fin&&!x.gone&&!x.out);   // in the order of the standings
+function spLook(k){   // the watched player's equipment; anything missing or unknown is the default
+  if(!COS)return;const sl=['orb','trail','hit','frame','bg'],tr={};
+  for(let j=0;j<5;j++){const id=Array.isArray(k)?dCos(k[j]):'';tr[sl[j]]=id&&COS.byId[id]&&COS.byId[id].cat===sl[j]?id:COS.defaults[sl[j]]}
+  COS.state.trial=tr;COS.bump()}
+function spFrame(d){   // one frame from the server: every field is checked, nothing is trusted
+  if(!SP.on||!d||dInt(d.i,-1,MP_MAX-1)!==SP.i||!spNum(d.g,-5,36000)||!Array.isArray(d.b)||d.b.length>8)return;
+  const b=[];for(const q of d.b){if(!Array.isArray(q)||!spNum(q[0],-.5,1.5)||!spNum(q[1],-.5,1.5))return;b.push([q[0],q[1]])}
+  const e=[];if(Array.isArray(d.e))for(const x of d.e.slice(0,16)){
+    if(x==='fog'||x==='shrink')e.push(x);
+    else if(Array.isArray(x)&&(x.length===3||x.length===5)&&spNum(x[1],-.5,1.5)&&spNum(x[2],-.5,1.5)&&(x[0]==='bump'||(Number.isInteger(x[0])&&x[0]>=0&&x[0]<=4))){const o=[x[0],x[1],x[2]];   // old 3-item hits carry no note and stay silent
+      if(x.length===5&&Number.isInteger(x[0])&&x[0]<=3&&Number.isInteger(x[3])&&x[3]>=0&&x[3]<1e5&&spNum(x[4],-30,30))o.push(x[3],x[4]);
+      e.push(o)}}
+  const f={g:d.g,b,e,s:dInt(d.s,0,1e8),c:dInt(d.c,0,1e5),l:dInt(d.l,0,100),m:Number.isInteger(d.m)&&d.m>=-1&&d.m<=3?d.m:-1,done:false},last=SP.fr[SP.fr.length-1];
+  if(last&&f.g<=last.g)return;
+  if(Array.isArray(d.k))spLook(d.k);
+  SP.Dw.push((duelNow()-DU.startAt)/1000-f.g);if(SP.Dw.length>60)SP.Dw.shift();SP.D=Math.min(...SP.Dw);   // the shortest delay seen lately: the newest frame's age
+  SP.fr.push(f);if(SP.fr.length>60)SP.fr.shift();
+  if(SP.old){SP.old=false;$('#spNote').hidden=true}
+}
+function spCues(){const o=[];if(!tg.length)return o;for(let j=0;j<nb;j++){const ti=SP.pi+j;if(ti<tg.length)o.push({ti,side:sideOf(ti)})}return o}
+function specEv(e){
+  if(e==='fog'){DU.fogT=3.5;return}
+  if(e==='shrink'){DU.shrinkT=5;return}
+  const x=FR.x+FR.w*e[1],y=FR.y+FR.h*e[2];
+  if(e[0]==='bump'){if(bumps.length<10)bumps.push({x,y,Rm:Math.min(FR.w,FR.h)*.1,age:0,life:4});return}
+  const j=e[0],nx=x>FR.x+FR.w/2?-1:1,old=nx<0?1:3,lineX=old===1?FR.x+FR.w:FR.x;
+  let b=null,bd=1e9;for(const q of balls){const dd=Math.abs(q.y-y);if(dd<bd){bd=dd;b=q}}
+  if(b){b.sq=1;b.sqn=old}
+  if(j===4){floats.push({x:x+nx*40,y,text:'失誤',hue:350,life:1,max:1,size:1.2});rings.push({x,y,r0:BR,life:.7,max:.7,hue:350,w:5});burst(x,y,350,24,BR*14,.8);
+    if(!SET.lowFx){shake=Math.max(shake,4);flash.a=.1;flash.hue=350}return}
+  const T=TIERS[j];floats.push({x:x+nx*40,y:y-6,text:T.n,hue:T.hue,life:.9,max:.9,size:j===0?1.5:j===1?1.25:1});
+  if(e.length===5&&e[3]<tg.length&&AC&&AC.state==='running')playMel(e[3],e[4],T.vol,SP.rg);   // the watched player's melody note, same voice and loudness as in their own game
+  if(COS&&!COS.look().hit.def)cosHit({x,y,fx:b&&b.fx},lineX,nx);
+  else{for(let i=0;i<T.ring;i++)rings.push({x,y,r0:BR*(1+i*.4),life:.5+i*.12,max:.5+i*.12,hue:T.hue+i*20,w:4-i*.8});burst(x,y,T.hue,T.part,BR*16,.8)}
+  shake=Math.max(shake,T.shake*.6);edgeGlow[old]=j===0?1:j===1?.75:j===2?.5:.3;edgeHue[old]=T.hue;
+  if(j===0){flash.a=.14;flash.hue=T.hue}
+}
+function specMusic(){   // the same backing track as in the race, on the shared clock
+  const Gn=G(),L=latS();
+  while(bi<bkList.length&&timeOf(bkList[bi][0]/100)-L<Gn+1){
+    const n=bkList[bi++],t0=timeOf(n[0]/100),w=t0-Gn-L;if(t0>endAt-.8)continue;
+    if(w>-.05){const k=n[3],full=mlFull();
+      if(k===2){if(full||mlv>=1||n[2]===36)drum(n[2],Math.max(0,w))}
+      else if(k===3){if(full||mlv>=2)cvoice(n[2],Math.max(0,w),n[1]/100/SPD,.12)}
+      else voice(n[2],Math.max(0,w),n[1]/100/SPD,.16*bkV[bi-1]*(full||mlv>=1||n[2]<52?1:.45),0,false)}}
+}
+function specStep(dt){   // called from update() while spectating
+  if(!DU.ws||mode!=='duel'){specOff(true);return}
+  if(DU.fogT>0)DU.fogT-=dt;if(DU.shrinkT>0)DU.shrinkT-=dt;
+  for(let i=bumps.length-1;i>=0;i--){const o=bumps[i];o.age+=dt;if(o.age>o.life+.4)bumps.splice(i,1)}
+  const F=SP.fr,gref=(duelNow()-DU.startAt)/1000,rg=F.length?gref-SP.D-.1:gref-.1;SP.rg=rg;
+  while(SP.pi<tg.length&&tT(SP.pi)<rg-.1)SP.pi++;
+  if(F.length){
+    for(const f of F){if(f.g>rg)break;if(!f.done){f.done=true;SP.s=f.s;SP.c=f.c;SP.l=f.l;SP.m=f.m;if(f.m>=0)mlv=f.m;for(const e of f.e)specEv(e)}}
+    let a=F[0],c=F[0];
+    for(let i=0;i<F.length;i++){if(F[i].g<=rg){a=F[i];c=F[i+1]||F[i]}else{if(i===0)a=c=F[0];break}}
+    const u=c.g>a.g?clamp((rg-a.g)/(c.g-a.g),0,1):0,n=a.b.length,bl=SP.bl;
+    while(bl.length<n)bl.push({x:0,y:0,dx:0,dy:0,v:0,pop:1,ti:-1,side:1,win:null,trail:[],sq:0,sqn:0,laps:0});bl.length=n;
+    for(let j=0;j<n;j++){const p=a.b[j],q=c.b[j]||p,b=bl[j];b.x=FR.x+FR.w*(p[0]+(q[0]-p[0])*u);b.y=FR.y+FR.h*(p[1]+(q[1]-p[1])*u);trailStep(b)}
+    while(F.length>3&&F[1].g<rg-1)F.shift();
+  }
+  for(const b of balls)if(b.sq>0)b.sq=Math.max(0,b.sq-dt*6);
+  if(!F.length&&!SP.old&&performance.now()-SP.t0>30000){SP.old=true;$('#spNote').hidden=false}   // no frame in 30 s: an older version that cannot relay
+  if(useAC&&AC&&AC.state==='running')specMusic();
+  const now=performance.now();if(now-(SP.ut||0)>120){SP.ut=now;spStat()}
+}
+function spStat(){
+  const b=DU.board.find(x=>x.i===SP.i),f=SP.fr.length>0,s=f?SP.s:b?b.s:0,c=f?SP.c:b?b.c:0,l=f?SP.l:b?b.l:100;
+  const t=s.toLocaleString()+(f?'　連擊 '+c+'　生命 '+l+'%':'');if(t!==SP.txt){SP.txt=t;$('#spSt').textContent=t}
+}
+function spUI(){
+  if(!SP.on)return;const S=mpStand(),k=S.findIndex(x=>x.i===SP.i),al=specAlive();
+  $('#spBar').hidden=false;$('#spNm').textContent=mpName(SP.i);$('#spRk').textContent=k>=0?'第 '+(k+1)+' 名':'';
+  $('#spPrev').hidden=$('#spNext').hidden=al.length<2;spStat();
+}
+function specGo(i){
+  if(mode!=='duel'||!DU.myFin||DU.res||!DU.ws)return;
+  if(!SP.on){
+    SP.on=true;$('#end').classList.add('hidden');
+    balls=[];bumps=[];items=[];rings=[];floats=[];parts=[];aims=[];hfx=[];
+    DU.fogT=0;DU.shrinkT=0;shield=0;starT=0;exitT=0;paused=false;resumeCD=0;
+    SP.hv=$('#hud').style.visibility;$('#hud').style.visibility='hidden';
+    cutAll();bi=bkList.findIndex(n=>timeOf(n[0]/100)-latS()>=G());if(bi<0)bi=bkList.length;
+    mpLadInit();$('#mpLad').classList.add('sp');SP.pi=0;spPlace();
+  }
+  SP.i=i;SP.fr=[];SP.Dw=[];SP.D=0;SP.t0=performance.now();SP.old=false;SP.s=0;SP.c=0;SP.l=100;SP.m=-1;SP.txt='';SP.bl=balls=[];
+  $('#spNote').hidden=true;spLook(null);dsend({t:'watch',i});spUI();mpLad();
+}
+// show: true = back to the settlement table, 'res' = just unhide it (the final results are on their way), false = leaving the race screen altogether
+function specOff(show){
+  if(!SP.on)return;SP.on=false;dsend({t:'watch',i:-1});
+  balls=[];SP.bl=[];bumps=[];rings=[];floats=[];parts=[];hfx=[];DU.fogT=0;DU.shrinkT=0;cutAll();
+  if(COS){COS.state.trial=null;COS.bump()}
+  $('#hud').style.visibility=SP.hv||'';
+  for(const o of['#spBar','#spPrev','#spNext','#spNote'])$(o).hidden=true;
+  $('#mpLad').classList.remove('sp');mpLadOff();
+  if(show){$('#end').classList.remove('hidden');if(show===true&&mode==='duel'&&DU.myFin)duelResult()}
+}
+function specNext(dir,ended){   // dir: next (1) / previous (-1) player still racing; ended: the watched one just finished, go on to the next
+  const full=specAlive(),k=full.findIndex(x=>x.i===SP.i),L=ended?full.filter(x=>x.i!==SP.i):full;
+  if(!L.length){specOff(true);return}
+  if(ended)specGo(L[k>=0?Math.min(k,L.length-1):0].i);
+  else if(L.length>1)specGo(L[(k+dir+L.length)%L.length].i)
+}
+function specCheck(){   // the scoreboard moved: the watched player may have finished or left
+  if(!SP.on)return;const b=DU.board.find(x=>x.i===SP.i);
+  if(b&&(b.fin||b.gone))specNext(1,true);else spUI();
+}
+function spBtn(){   // settlement table: the watch button, and the automatic entry 2 s after finishing
+  const al=mode==='duel'&&DU.ws&&!DU.left?specAlive():[];$('#bWatch').hidden=!al.length;
+  if(!DU.spAuto&&al.length&&!SP.on)DU.spAuto=setTimeout(()=>{if(mode==='duel'&&DU.myFin&&!DU.res&&!SP.on){const a=specAlive();if(a.length)specGo(a[0].i)}},2000);
+}
+function spPlace(){
+  const set=(id,o)=>Object.assign($(id).style,o),my=FR.y+FR.h/2-20;
+  set('#spBar',{left:FR.x+'px',width:FR.w+'px',top:(FR.y+6)+'px'});
+  set('#spPrev',{left:(FR.x+6)+'px',top:my+'px'});set('#spNext',{left:(FR.x+FR.w-46)+'px',top:my+'px'});
+  set('#spNote',{left:FR.x+'px',width:FR.w+'px',top:(FR.y+FR.h/2-14)+'px'});
+}
+
 /* ---- results: one screen. Left: my place, score, podium. Right: everyone, my judgments, buttons ---- */
 function duelFinish(ok,rank,acc){
   DU.myFin={s:score,ok,acc,rank:ok?rank:'—',mc:maxCombo};dsend({t:'fin',...DU.myFin});
-  mpLadOff();
+  mpLadOff();DU.wn=0;evq.length=0;spEye();DU.spAuto=0;
   $('#deK').textContent=DU.n+' 人對戰';$('#deS').textContent='《'+song.name+'》 · '+D.n;
   $('#deMe').innerHTML='本局成績　完美<b>'+tierCount[0]+'</b>　極佳<b>'+tierCount[1]+'</b>　良好<b>'+tierCount[2]+'</b>　尚可<b>'+tierCount[3]+'</b>　失誤<b>'+missCount+'</b>　最高連擊<b>'+maxCombo+'</b>';
   duelResult();
 }
-const mpNm=x=>esc(x.name);
+const mpPl=x=>{if(x.av||x.pl||x.ti)return x;const p=DU.players.find(q=>q.i===x.i);return p||x};   // the result rows carry what each one wears; others fall back to the room's seats
+const mpNm=x=>{const p=mpPl(x);return '<span class="who">'+whoAv(p,22)+whoNm(p,x.name)+'</span>'};
 function mpEndBtns(on){$('#bAgain').disabled=!on;$('#bRoom').disabled=!on}
 function duelResult(){
   const me=DU.myFin;if(!me)return;const R=DU.res,res=$('#deR'),sc=$('#deSc');
@@ -1718,7 +1981,7 @@ function duelResult(){
     const S=mpStand();
     $('#deT').innerHTML=hd+S.map((x,k)=>tr(k+1,x,(x.me?' me':'')+(x.gone||x.out?' out':''),x.me?(me.ok?esc(me.rank):'出局'):x.gone?'離線':x.fin?(x.out?'出局':'完成'):'比賽中',x.me?me.mc:x.fin?'':'—','')).join('');
     $('#deN').textContent=lost?'與伺服器的連線中斷，無法取得最終名次。':'其他玩家完成後顯示最終名次（'+done+' / '+DU.n+'）';
-    mpEndBtns(false);
+    mpEndBtns(false);spBtn();
     // if the results never arrive, allow going back to the room after a while (the server accepts it after 20 s)
     clearTimeout(DU.waitT);if(!lost)DU.waitT=setTimeout(()=>{if(DU.myFin===me&&!DU.res&&DU.ws)mpEndBtns(true)},22000);return}
   const pos=R.findIndex(x=>x.i===DU.you)+1,m=R.find(x=>x.i===DU.you)||{s:me.s,ok:me.ok,acc:me.acc,rank:me.rank};
@@ -1728,11 +1991,11 @@ function duelResult(){
   res.className='dres';res.style.setProperty('--c',col);res.textContent=t;
   sc.innerHTML='<b>'+m.s.toLocaleString()+'</b>'+(m.ok?'評級 '+esc(m.rank)+' · 精準 '+pct(Math.round(m.acc*10000)):'出局');
   const top=[R[1],R[0],R[2]];
-  $('#dePod').innerHTML=top.map((x,k)=>x?'<div class="pc p'+[2,1,3][k]+'">'+mpNm(x)+'<div class="bk">'+[2,1,3][k]+'</div></div>':'<div class="pc"></div>').join('');
+  $('#dePod').innerHTML=top.map((x,k)=>x?'<div class="pc p'+[2,1,3][k]+'">'+whoAv(mpPl(x),56)+'<span class="pn">'+whoNm(mpPl(x),x.name)+'</span><div class="bk">'+[2,1,3][k]+'</div></div>':'<div class="pc"></div>').join('');
   const gone=new Set(DU.board.filter(b=>b.gone&&!b.fin).map(b=>b.i));
   $('#deT').innerHTML=hd+R.map((x,k)=>{const off=gone.has(x.i)&&!x.ok;return tr(k+1,x,(x.i===DU.you?' me':'')+(x.ok?'':' out'),off?'離線':x.ok?esc(x.rank):'出局',x.mc,x.i===DU.you?(x.ok?pct(Math.round(x.acc*10000)):''):x.ok?(x.s-m.s>0?'+':'')+(x.s-m.s).toLocaleString():'')}).join('');
   $('#deN').textContent='';mpEndNote();
-  mpEndBtns(!!DU.ws);
+  mpEndBtns(!!DU.ws);$('#bWatch').hidden=true;
   if(pos===1)vib([20,40,20,40,60]);
 }
 function mpEndNote(){   // on the result screen: who already went back for another round (quick match counts down once 2 are back)
@@ -1833,6 +2096,9 @@ async function roomInviteOpen(){
   if(ME){await frLoad();if(q.isConnected){draw();q.style.left=Math.max(8,$('#dShare').getBoundingClientRect().right-q.offsetWidth)+'px'}}
 }
 $('#dShare').addEventListener('click',e=>{e.stopPropagation();roomInviteOpen()});
+navTap('#bWatch',()=>{const a=specAlive();if(a.length)specGo(a[0].i)});navTap('#spTab',()=>specOff(true));navTap('#spPrev',()=>specNext(-1));navTap('#spNext',()=>specNext(1));
+$('#mpLad').addEventListener('click',e=>{const r=SP.on&&e.target.closest&&e.target.closest('.lrw');if(!r)return;const i=+r.dataset.i;if(i!==SP.i&&specAlive().some(x=>x.i===i))specGo(i)});
+addEventListener('keydown',e=>{if(!SP.on||(e.target&&/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName)))return;if(e.key==='ArrowLeft'){e.preventDefault();specNext(-1)}else if(e.key==='ArrowRight'){e.preventDefault();specNext(1)}});
 navTap('#bAgain',()=>duelAgain(true));navTap('#bRoom',()=>duelAgain(false));navTap('#bLeave',duelLeave);
 (function(){try{const r=new URLSearchParams(location.search).get('room');if(r){lsSet('ppl-tut','1');DU.pend=r.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);setTimeout(()=>{duelOpen();if(ME){$('#dCode').value=DU.pend;DU.pend=''}},50)}}catch(e){}})();
 
@@ -1844,7 +2110,8 @@ const mmss=t=>{t=Math.round(t);return Math.floor(t/60)+':'+String(t%60).padStart
 const NET=DUEL_URL,PF=APP?((window.Capacitor&&Capacitor.getPlatform&&Capacitor.getPlatform())==='android'?'android':'ios'):'web';
 function pkey(){let k=lsGet('ppl-pk');if(!/^[0-9a-f]{32}$/.test(k||'')){const a=new Uint8Array(16);crypto.getRandomValues(a);k=Array.from(a,b=>b.toString(16).padStart(2,'0')).join('');lsSet('ppl-pk',k)}return k}
 let ME=(()=>{try{const m=JSON.parse(lsGet('ppl-me')||'null');return m&&Number.isInteger(m.id)&&typeof m.name==='string'&&m.name?{id:m.id,name:dName(m.name)}:null}catch(e){return null}})();
-function setMe(m){ME=m;if(m)lsSet('ppl-me',JSON.stringify(m));else{try{localStorage.removeItem('ppl-me');localStorage.removeItem('ppl-fc')}catch(e){}}}
+function setMe(m){const first=!ME&&!!m;ME=m;if(m)lsSet('ppl-me',JSON.stringify(m));else{try{localStorage.removeItem('ppl-me');localStorage.removeItem('ppl-fc')}catch(e){}}
+  if(first&&window.PPLG&&typeof window.PPLG.onMe==='function')setTimeout(window.PPLG.onMe,0)}   // a nickname now exists: shop.js sends up what was taken without one
 let RUN=null;   // this run's beat log: [timing error ms, base points] per beat, null = missed
 async function api(path,body,ms){
   const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||8000);
@@ -1907,7 +2174,7 @@ async function netBoot(){
 /* ---- leaderboard ---- */
 const LBC=new Map();   // board -> {t, v}; kept 30 s so browsing songs does not hit the server on every tap
 function lbClean(j){
-  const row=r=>({r:dInt(r.r,0,1e9),id:dInt(r.id,0,1e12),name:dName(r.name)||'玩家',acc:dInt(r.acc,0,10000),err:dInt(r.err,0,999),combo:dInt(r.combo,0,1e5),score:dInt(r.score,0,1e9),hidden:r.hidden===true});
+  const row=r=>({r:dInt(r.r,0,1e9),id:dInt(r.id,0,1e12),name:dName(r.name)||'玩家',acc:dInt(r.acc,0,10000),err:dInt(r.err,0,999),combo:dInt(r.combo,0,1e5),score:dInt(r.score,0,1e9),hidden:r.hidden===true,...whoOf(r)});
   return{top:Array.isArray(j.top)?j.top.slice(0,100).filter(r=>r&&typeof r==='object').map(row):[],total:dInt(j.total,0,1e9),me:j.me&&typeof j.me==='object'?row(j.me):null};
 }
 async function lbGet(key,d,fresh){
@@ -1920,6 +2187,7 @@ async function lbSubmit(R){
   const run=R.ticket?await R.ticket:{e:'net'};
   const j=typeof run==='string'?await api('/lb/submit',{run,pk:pkey(),log:R.log,pf:PF}):{error:run.e};
   if(lastRes!==tok)return;
+  if(j.ok&&Array.isArray(j.ach)&&window.PPLA)window.PPLA.fresh(j.ach.filter(x=>typeof x==='string').slice(0,40));   // what this run earned on the server: shown as notices
   if(j.ok&&j.me&&typeof j.me==='object'&&!j.me.hidden){
     const k='ppl-lr-'+R.key+'-'+R.d,prev=dInt(lsGet(k),0,1e9),r=dInt(j.me.r,1,1e9);lsSet(k,String(r));LBC.delete(R.key+'-'+R.d);
     t.innerHTML='排行榜 <b>第 '+r+' 名</b>／共 '+dInt(j.total,1,1e9)+' 人'+(prev&&r<prev?'<em>↑ 上升 '+(prev-r)+' 名</em>':'')+(j.improved===false?' <span class="dim">（未超越您的最佳紀錄）</span>':'');
@@ -1938,7 +2206,7 @@ async function lbLoad(){
   if(!v){L.innerHTML='<div class="lbmsg">目前無法連線至伺服器，請稍後再試。</div>';return}
   LBV.v=v;lbRender();
 }
-const lbCells=(r,mine)=>'<span class="'+(r.r<=3?'m'+r.r:'')+'"><b>'+r.r+'</b></span><span class="nmc">'+esc(mine?'您（'+r.name+'）':r.name)+'</span><span><b>'+pct(r.acc)+'</b></span><span>'+r.score.toLocaleString()+'</span><span>'+r.combo+'</span>';
+const lbCells=(r,mine)=>'<span class="'+(r.r<=3?'m'+r.r:'')+'"><b>'+r.r+'</b></span><span class="nmc"><span class="who">'+whoAv(r,24)+(mine?'<span class="wn">您（'+esc(r.name)+'）</span>':whoNm(r,r.name))+'</span></span><span><b>'+pct(r.acc)+'</b></span><span>'+r.score.toLocaleString()+'</span><span>'+r.combo+'</span>';
 function lbRender(){
   const v=LBV.v,L=$('#lbL'),rows=v.top.filter(r=>!HIDE.has(r.id)||(ME&&r.id===ME.id));
   L.innerHTML=rows.length?rows.map(r=>{const mine=ME&&r.id===ME.id;
@@ -1980,7 +2248,7 @@ function buildChips(){
     h+='<button class="sr'+(i===si?' on':'')+(ul||(RSEL&&RSEL.on)?'':' lock')+'" data-i="'+i+'"><span class="no">'+(CON_OF[i][1]+1)+'</span>'
       +'<span class="tx"><span class="nm">'+esc(s.name)+'</span><span class="mt">'+esc(s.year+' · '+s.composer)+'<i>'+starTxt(STARS[i])+'</i>'+(RSEL&&RSEL.on?mpTag(s.key):'')+'</span></span>'
       +(RSEL&&RSEL.on?mpVoters(s.key):'')+'<span class="pips" aria-label="已通關難度">'+DORD.map(d=>'<i class="'+(rkOf(i,d)?'l'+LVL[d]:'')+'"></i>').join('')+'</span>'
-      +'<span class="rk"'+(rk?' style="color:'+RANK_COL[rk]+'"':'')+'>'+(rk||'—')+'</span></button>';
+      +'<span class="rk'+rsssCls(rk)+'"'+(rk?rkColorAttr(rk):'')+'>'+(rk||'—')+'</span></button>';
   }}
   $('#chips').innerHTML=h||'<div class="sempty">'+(selF===1?'此難度的曲目皆已通關，可改選其他難度挑戰。':'此難度尚無已通關的曲目。')+'</div>';
   selDetail();
@@ -1994,7 +2262,7 @@ function selDetail(){
   $('#sT').textContent=s.tip||'';$('#sT').hidden=!s.tip;
   $('#diffs').innerHTML=DORD.map(k=>{const df=DIFFS[k];return'<button data-d="'+k+'" class="'+(k===di?'on':'')+'"'+(fx!=null&&k!==fx?' disabled title="獎勵曲固定難度"':'')+'>'+df.n+'<small>'+BALLS[df.nb]+(df.spd>1?'·快':df.spd<1?'·慢':'')+'</small></button>'}).join('');
   const rk=rkOf(i,di),sc=parseInt(lsGet(KEY_SC(i,di))||'0',10)||0,ac=parseInt(lsGet(KEY_AC(i,di))||'0',10)||0;
-  $('#sB').innerHTML=rk?'<span class="bk" style="color:'+RANK_COL[rk]+'">'+rk+'</span><span>'+(ac?'精準度 <b>'+pct(ac)+'</b> · ':'')+'最高分 <b>'+sc.toLocaleString()+'</b><br><span id="sRank"></span></span>'
+  $('#sB').innerHTML=rk?'<span class="bk'+rsssCls(rk)+'"'+rkColorAttr(rk)+'>'+rk+'</span><span>'+(ac?'精準度 <b>'+pct(ac)+'</b> · ':'')+'最高分 <b>'+sc.toLocaleString()+'</b><br><span id="sRank"></span></span>'
     :'<span class="bk" style="color:#3c4370">—</span><span>此難度尚未通關<br><span id="sRank"></span></span>';
   if(RSEL&&RSEL.on){mpDetail();return}   // a room plays any song: no lock, no personal leaderboard here
   $('#bGo').disabled=!unlocked(i);
@@ -2035,7 +2303,7 @@ function frSend(o){try{if(FD.ws&&FD.ws.readyState===1)FD.ws.send(JSON.stringify(
 function frStatus(force){   // what friends see: home / choosing a song / playing / in a duel
   if(!FD.ws)return;const playing=busyNow()||st==='done'||st==='over';
   const s=mode==='duel'?'duel':playing?'play':!$('#duel').classList.contains('hidden')?'duel':!$('#menu').classList.contains('hidden')?'menu':'home';
-  const sg=s==='play'&&mode!=='tut'&&song?song.key:null,k=s+'|'+sg;if(!force&&k===FD.last)return;FD.last=k;frSend({t:'st',s,song:sg});
+  const sg=s==='play'&&mode!=='tut'&&mode!=='try'&&song?song.key:null,k=s+'|'+sg;if(!force&&k===FD.last)return;FD.last=k;frSend({t:'st',s,song:sg});
 }
 document.addEventListener('visibilitychange',()=>{if(document.hidden)frDisconnect();else frConnect()});   // a closed or backgrounded game shows as offline
 setInterval(()=>{frSend({t:'ping'})},30000);
@@ -2086,7 +2354,7 @@ function frClose(){clearInterval(FD.poll);dmClose();showHome()}
 async function frLoad(){
   const j=await api('/fr/list',{pk:pkey()});
   if(j.error){if(frIsOpen()&&!FD.list)$('#frList').innerHTML='<div class="lbmsg">'+(j.error==='noname'?'請先設定暱稱。':'目前無法連線至伺服器，請稍後再試。')+'</div>';return}
-  const P=a=>Array.isArray(a)?a.slice(0,300).filter(x=>x&&typeof x==='object').map(x=>({id:dInt(x.id,0,1e12),name:dName(x.name)||'玩家',on:x.on===1||x.on===true,
+  const P=a=>Array.isArray(a)?a.slice(0,300).filter(x=>x&&typeof x==='object').map(x=>({...whoOf(x),id:dInt(x.id,0,1e12),name:dName(x.name)||'玩家',on:x.on===1||x.on===true,
     st:['home','menu','play','duel'].includes(x.st)?x.st:null,song:typeof x.song==='string'?x.song:null,seen:Number.isFinite(+x.seen)?+x.seen:0,lm:dmMsg(x.lm)})):[];
   for(const f of P(j.friends))if(f.lm&&(!FD.dm[f.id]||FD.dm[f.id].id<=f.lm.id))FD.dm[f.id]=f.lm;
   FD.list={friends:P(j.friends),incoming:P(j.incoming),outgoing:P(j.outgoing),blocked:P(j.blocked)};frBadgeSet();if(frIsOpen())frRender();
@@ -2116,7 +2384,7 @@ function dmNote(t,id){const C=FD.chat;if(C&&(id===undefined||C.id===id)){C.msgs.
 function dmOpen(id,name){
   dmClose();popClose();const f=dmFriend(id);
   const w=document.createElement('div');w.className='dmw';
-  w.innerHTML='<div class="dmv" role="dialog" tabindex="-1" aria-modal="true" aria-label="與 '+esc(name)+' 的訊息"><div class="dh"><button class="bk" aria-label="返回">‹</button><span class="dot'+(f&&f.on?' on':'')+'"></span><b>'+esc(name)+'</b><small>'+esc(dmSub(f))+'</small><button class="mo" aria-label="檢舉或封鎖" aria-haspopup="menu">⋯</button></div>'
+  w.innerHTML='<div class="dmv" role="dialog" tabindex="-1" aria-modal="true" aria-label="與 '+esc(name)+' 的訊息"><div class="dh"><button class="bk" aria-label="返回">‹</button>'+(COS?whoAv(f,24,!!(f&&f.on)):'<span class="dot'+(f&&f.on?' on':'')+'"></span>')+'<b>'+esc(name)+'</b><small>'+esc(dmSub(f))+'</small><button class="mo" aria-label="檢舉或封鎖" aria-haspopup="menu">⋯</button></div>'
     +'<div class="dl"><div class="dd">載入中⋯</div></div><div class="sr" aria-live="polite"></div>'
     +'<div class="qs">'+FSAY.map((t,k)=>'<button data-q="'+k+'">'+esc(t)+'</button>').join('')+'</div>'
     +'<div class="di"><input placeholder="輸入訊息" enterkeyhint="send" autocomplete="off" aria-label="輸入訊息"><span class="cn">0/'+DM_MAX+'</span><button class="pri">送出</button></div>'
@@ -2223,6 +2491,7 @@ function dmShow(id,name,m){
   popClose();p.addEventListener('click',e=>e.stopPropagation());document.body.appendChild(p);
   clearTimeout(FD.finT);FD.finT=setTimeout(()=>{if(p.isConnected)p.remove()},12000);
 }
+function frAv(f,cls){return '<span class="fav">'+(COS?whoAv(f,28,cls==='on'||cls==='busy').replace('class="on"','class="on'+(cls==='busy'?' busy':'')+'"'):'<span class="dot '+cls+'"></span>')+'</span>'}
 function frRender(){
   const L=FD.list;if(!L)return;const busy=f=>f.st==='play'||f.st==='duel';
   const on=L.friends.filter(f=>f.on).length;$('#frOn').textContent=on?on+' 位在線上':'';
@@ -2232,17 +2501,17 @@ function frRender(){
     const sn=f.song?SONGS.find(x=>x.key===f.song):null,cls=!f.on?'':busy(f)?'busy':'on';
     const sub=!f.on?'離線'+(f.seen?' · '+ago(f.seen):''):f.st==='duel'?'對戰中 · 結束後即可邀請':f.st==='play'?'遊戲中'+(sn?' · 《'+sn.name+'》':'')+' · 結束後即可邀請':f.st==='menu'?'在線上 · 選曲中':'在線上';
     const ls=FD.dm[f.id],nw=dmUnread(f.id),lt=ls&&Date.now()-ls.ts<7*864e5?'<span class="last'+(nw?' nw':'')+'">'+(ls.me?'您':esc(f.name))+'：'+esc(ls.text)+' · '+esc(ago(ls.ts))+'</span>':'';
-    h+='<div class="fr"><span class="dot '+cls+'"></span><span class="tx"><span class="nm">'+esc(f.name)+'</span><span class="mt '+cls+'">'+esc(sub)+'</span>'+lt+'</span>'
+    h+='<div class="fr'+(f.on?'':' off')+'">'+frAv(f,cls)+'<span class="tx"><span class="nm">'+whoNm(f,f.name)+'</span><span class="mt '+cls+'">'+esc(sub)+'</span>'+lt+'</span>'
       +(f.on&&!busy(f)?'<button class="pri inv" data-inv="'+f.id+'">邀請對戰</button>':'')
       +'<button class="dm'+(nw?' nw':'')+'" data-dm="'+f.id+'" aria-label="'+(nw?'有新訊息，':'')+'傳訊息給 '+esc(f.name)+'">'+CHAT_SVG+'</button>'
       +'<button class="more" data-more="'+f.id+'" aria-label="'+esc(f.name)+' 的更多選項">⋯</button></div>';
     if(FD.open===f.id)h+='<div class="fopt"><button data-rm="'+f.id+'">刪除好友</button><button class="warn" data-bl="'+f.id+'">封鎖</button><button data-x="1">取消</button></div>';
   }
-  if(L.outgoing.length){h+='<div class="fsec">等待對方接受</div>';for(const f of L.outgoing)h+='<div class="fr"><span class="dot"></span><span class="tx"><span class="nm">'+esc(f.name)+'</span><span class="mt">已送出好友邀請</span></span><button data-rm="'+f.id+'">取消</button></div>'}
+  if(L.outgoing.length){h+='<div class="fsec">等待對方接受</div>';for(const f of L.outgoing)h+='<div class="fr off">'+frAv(f,'')+'<span class="tx"><span class="nm">'+whoNm(f,f.name)+'</span><span class="mt">已送出好友邀請</span></span><button data-rm="'+f.id+'">取消</button></div>'}
   if(L.blocked.length){h+='<div class="fsec">已封鎖</div>';for(const f of L.blocked)h+='<div class="fr"><span class="dot"></span><span class="tx"><span class="nm">'+esc(f.name)+'</span></span><button data-ub="'+f.id+'">解除封鎖</button></div>'}
   $('#frList').innerHTML=h;
   const R=$('#frReq');R.hidden=!L.incoming.length;
-  R.innerHTML=L.incoming.map(f=>'<div><span><b>'+esc(f.name)+'</b> 想加您為好友</span><button class="pri" data-acc="'+f.id+'">接受</button><button data-dec="'+f.id+'">略過</button></div>').join('');
+  R.innerHTML=L.incoming.map(f=>'<div><span>'+whoAv(f,24)+' <b>'+esc(f.name)+'</b> 想加您為好友</span><button class="pri" data-acc="'+f.id+'">接受</button><button data-dec="'+f.id+'">略過</button></div>').join('');
 }
 async function frAct(path,body){const j=await api(path,Object.assign({pk:pkey()},body));$('#frMsg').textContent=j.error?(j.error==='net'?'目前無法連線至伺服器。':'操作失敗，請稍後再試。'):'';FD.open=-1;await frLoad()}
 $('#frList').onclick=e=>{const b=e.target.closest('button');if(!b)return;const D=b.dataset;
@@ -2290,7 +2559,22 @@ async function frInvite(id,b){
 // brightness alone and players see it themselves. Drag to pan, pinch or wheel to zoom, tap a constellation to fly in,
 // tap a star for its song. Star sizes are in screen pixels and grow only a little when zooming, like a real sky.
 const SKY_SHORT={auld:'驪歌',k545:'K.545',nocturne:'夜曲'};
-const SKY_C=['#7ee89a','#5fa8ff','#b07cff','#ff8a3d','#ff4d5e'],SKY_GOLD='#ffe36b';   // by difficulty rank (LVL): 入門 簡單 普通 困難 專家 (green blue purple orange red); gold: 專家 cleared with an S
+const SKY_C=['#7ee89a','#5fa8ff','#b07cff','#ff8a3d','#ff4d5e'];   // by difficulty rank (LVL): 入門 簡單 普通 困難 專家 (green blue purple orange red); a star's colour is always its difficulty's
+const SKY_RA=[.5,.58,.66,.74,.82,.9,1,1,1],SKY_AMP=[.12,.18,.24,.3,.36];   // brightness by rank F..SSS; how far an SSS star's glow swells, by difficulty
+const skySprs=new Map();
+// soft discs drawn once (unit radius = half the canvas) and scaled with drawImage: no gradient is made per star per frame
+function skySpr(kind,col,ha){
+  const key=kind+(col||'')+(ha||''),o=skySprs.get(key);if(o)return o;
+  const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d'),rg=g.createRadialGradient(64,64,0,64,64,64);
+  if(kind==='u'){rg.addColorStop(0,'rgba(225,232,255,.35)');rg.addColorStop(1,'rgba(200,215,255,0)')}          // a star not cleared yet
+  else if(kind==='w'){rg.addColorStop(0,'rgba(255,255,255,1)');rg.addColorStop(1,'rgba(255,255,255,0)')}       // the white heart of SS / SSS
+  else if(kind==='h'){rg.addColorStop(0,col+'00');rg.addColorStop(.4,col+'00');rg.addColorStop(.76,col);rg.addColorStop(1,col+'00')}   // SSS outer ring (hard, expert)
+  else{rg.addColorStop(0,col);rg.addColorStop(.25,col+Math.round(255*ha).toString(16).padStart(2,'0'));rg.addColorStop(1,col+'00')}   // the glow: ha is its mid-stop alpha
+  g.fillStyle=rg;g.fillRect(0,0,128,128);skySprs.set(key,c);return c}
+function skyRay(g,x,y,r,n,l1,l2,c,lw){g.strokeStyle=c;g.lineWidth=lw;g.beginPath();for(let q=0;q<n;q++){const a=q*6.2832/n,L=q%2&&l2?l2:l1,ca=Math.cos(a),sa=Math.sin(a);g.moveTo(x+ca*r*.7,y+sa*r*.7);g.lineTo(x+ca*L,y+sa*L)}g.stroke()}
+const skyHsl=(h,a)=>'hsla('+(((h%360)+360)%360)+',100%,72%,'+(a==null?1:a)+')';
+function skyRR(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
+const SKY_BADGE=['','S','SS','SSS','專家 SSS'];
 const SKY_SHAPE={
   lyra:[[18.62,38.78,0],[18.98,32.69,3.2],[18.83,33.36,3.5],[18.91,36.9,4.3],[18.75,37.6,4.4],[18.74,39.67,4.7]],
   orion:[[5.24,-8.2,.1],[5.92,7.4,.5],[5.42,6.35,1.6],[5.6,-1.2,1.7],[5.68,-1.94,1.8],[5.8,-9.67,2.1],[5.53,-.3,2.2],[5.59,-5.9,2.8],[4.83,6.96,3.2],[5.59,9.93,3.4],[4.85,5.6,3.7],[6.04,9.65,4.1]],
@@ -2354,8 +2638,10 @@ function skyBuild(){
     P.forEach(p=>{p.mag=clamp(1+(2.6-p.m)*.5,.4,2.3)});
     [...P].sort((a,b)=>a.m-b.m).slice(0,c.unk?0:c.ii.length).forEach((p,j)=>{p.i=c.ii[j]});   // songs in play order, brightest star first
     const SP=P.filter(p=>p.i>=0);SP.forEach(p=>{p.nn=Math.min(...SP.filter(o=>o!==p).map(o=>Math.hypot(o.x-p.x,o.y-p.y)),999)});   // room for a name, among song stars
+    // the lines of a finished constellation: the minimum spanning tree of its song stars
+    const E=[];if(SP.length>1){const used=new Set([SP[0]]);while(used.size<SP.length){let bst=null;for(const a of used)for(const b of SP)if(!used.has(b)){const dd=Math.hypot(a.x-b.x,a.y-b.y);if(!bst||dd<bst[2])bst=[a,b,dd]}E.push(bst);used.add(bst[1])}}
     const px=P.map(p=>p.x),py=P.map(p=>p.y),b0=Math.min(...px),b1=Math.max(...px),t0=Math.min(...py),t1=Math.max(...py);
-    return{k:c.unk?-1:k,unk:!!c.unk,hint:c.hint||'',name:c.unk?'？？？':c.name,th:c.unk?'？？？':c.theme.replace(/座$/,''),rl:c.unk?'':SKY_REAL[c.sky],P,x:(b0+b1)/2,y:(t0+t1)/2,top:t0,bw:b1-b0,bh:t1-t0,R};
+    return{k:c.unk?-1:k,unk:!!c.unk,E,st:0,hint:c.hint||'',name:c.unk?'？？？':c.name,th:c.unk?'？？？':c.theme.replace(/座$/,''),rl:c.unk?'':SKY_REAL[c.sky],P,x:(b0+b1)/2,y:(t0+t1)/2,top:t0,bw:b1-b0,bh:t1-t0,R};
   });
   const W=Math.max(...C.map(c=>c.x+c.bw/2))+PAD,H=Math.max(...C.map(c=>c.y+c.bh/2))+PAD;
   // the 音符座 (shown once every regular constellation is complete) takes the emptiest spot among them
@@ -2410,8 +2696,8 @@ const skyOverview=instant=>skyFly(SKY.W/2,SKY.H/2-20/SKY.fitS,SKY.fitS,instant);
 const skyDone=c=>c.ii.every(i=>starOf(i).lit);
 const regDone=()=>CONS.every(c=>c.rw!=null||skyDone(c));   // every regular constellation complete: the 音符座 appears
 function skyCount(){
-  let lit=0,s=0,n=0;for(let i=0;i<SONGS.length;i++){if(!shown(i))continue;n++;const v=starOf(i);if(v.lit)lit++;if(v.r===4)s++}
-  const cs=CONS.filter(rwOpen);return{lit,s,n,full:cs.filter(skyDone).length,cn:cs.length};
+  let lit=0,s=0,ss=0,sss=0,n=0;for(let i=0;i<SONGS.length;i++){if(!shown(i))continue;n++;const v=starOf(i);if(v.lit)lit++;if(v.r===6)s++;else if(v.r===7)ss++;else if(v.r===8)sss++}
+  const cs=CONS.filter(rwOpen);return{lit,s,ss,sss,n,full:cs.filter(skyDone).length,cn:cs.length};
 }
 function skyBadge(){const n=skyCount();$('#skyN').textContent=n.lit+'/'+n.n}
 // top bar: the whole sky, or the constellation the view is zoomed into
@@ -2420,9 +2706,16 @@ function skyHead(){
   if(zl>=2){const wx=(S.vw/2-S.ox)/S.s,wy=(S.vh/2-S.oy)/S.s;let bd=1e9;for(const C of S.C){const d=Math.hypot(C.x-wx,C.y-wy);if(d<C.R*1.4&&d<bd){bd=d;f=C.unk?'u':C.k}}}
   if(f===S.focus)return;S.focus=f;
   if(f==='u'){$('#skyT').textContent='？？？';$('#skyStat').textContent='尚未發現的星座';return}
-  if(f<0){const n=skyCount();$('#skyT').textContent='星空';$('#skyStat').innerHTML='點亮 <em>'+n.lit+'</em> / '+n.n+' · 完整星座 <em>'+n.full+'</em> / '+n.cn+' · S 評級 <em>'+n.s+'</em>'}
+  if(f<0){const n=skyCount();$('#skyT').textContent='星空';$('#skyStat').innerHTML='點亮 <em>'+n.lit+'</em> / '+n.n+' · 完整星座 <em>'+n.full+'</em> / '+n.cn+' · <em>S</em> '+n.s+' · <em style="color:#e8f8ff">SS</em> '+n.ss+' · <em class="rsss">SSS</em> '+n.sss}
   else{const c=CONS[f],lit=c.ii.filter(i=>starOf(i).lit).length;$('#skyT').textContent=c.name;$('#skyStat').innerHTML='點亮 <em>'+lit+'</em> / '+c.ii.length+(lit===c.ii.length?' · <em>星座完成</em>':'')}
 }
+const skyKE=LVL.indexOf(4);   // the difficulty index of 專家
+// how far a constellation is done, for its lines and badge: 0 lit (or not all) · 1 every song S+ · 2 SS+ · 3 SSS · 4 every song SSS at 專家
+function skyState(C){
+  if(C.unk)return 0;const vs=C.P.filter(p=>p.i>=0).map(p=>skyStar(p.i).v);
+  if(!vs.length||!vs.every(v=>v.lit))return 0;
+  if(vs.every(v=>{const q=v.per[skyKE];return !!q&&q.r==='SSS'}))return 4;
+  const m=Math.min(...vs.map(v=>v.r));return m>=8?3:m>=7?2:m>=6?1:0}
 const skyStar=i=>{const c=SKY.cache;if(!c.has(i))c.set(i,{v:starOf(i),ul:unlocked(i)});return c.get(i)};   // nothing changes while the sky is open
 const skyNameFs=(s,zl)=>(zl<1?10+4*clamp((zl-.6)/.4,0,1):14)/s;   // a fixed size on screen: zooming in does not make the names bigger, so they never grow over each other
 // where each name goes: above its stars, or below them when it would cover a name already placed (real positions put
@@ -2462,15 +2755,32 @@ function skyPaint(t){
       const na=clamp((zl-.4)/.35,0,1);if(na>0){const fs=skyNameFs(s,zl);g.font='600 '+fs+'px system-ui';g.textAlign='center';g.globalAlpha=na*.45;g.fillStyle='#aab2d7';g.fillText('？ ？ ？',C.nx,C.nt-fs*1.3);g.globalAlpha=1}
       continue}
     const c=CONS[C.k];let lit=0;
+    if(C.st>0&&C.E.length){   // a finished constellation: lines between its song stars (S gold, SS platinum, SSS breathing platinum, expert SSS rainbow)
+      const br=motion?.5+.5*Math.sin(t/700):.5;g.save();g.lineCap='round';
+      C.E.forEach(([a,b],n)=>{
+        if(C.st===1){g.strokeStyle='rgba(255,211,107,.36)';g.globalAlpha=1;g.lineWidth=.8/s}
+        else if(C.st===2){g.strokeStyle='rgba(235,248,255,.42)';g.globalAlpha=1;g.lineWidth=.8/s}
+        else if(C.st===3){g.strokeStyle='rgb(235,248,255)';g.globalAlpha=.3+.32*br;g.lineWidth=.95/s}
+        else{const gr=g.createLinearGradient(a.x,a.y,b.x,b.y),hu=motion?t*.05:0;gr.addColorStop(0,skyHsl(hu+n*40));gr.addColorStop(1,skyHsl(hu+n*40+60));g.strokeStyle=gr;g.globalAlpha=.72;g.lineWidth=1.15/s}
+        g.beginPath();g.moveTo(a.x,a.y);g.lineTo(b.x,b.y);g.stroke()});
+      g.restore()}
     for(const p of C.P){
       const br=motion?.5+.5*Math.sin(t/(820+(p.i<0?0:p.i%5)*90)+p.x*.37+p.y*.21):.5,tw=.86+.28*br,ba=motion?.62+.38*br:1;   // breathing: size and brightness
       if(p.i<0){const r=(.35+p.mag*.6)*k*tw;g.globalAlpha=ba;g.fillStyle='rgba(220,228,255,.5)';g.beginPath();g.arc(p.x,p.y,r*.75,0,6.28);g.fill();g.globalAlpha=1;continue}   // part of the shape, no song
       const {v,ul}=skyStar(p.i);
-      if(v.lit){lit++;g.globalAlpha=ba;const r=(.9+p.mag*1.2+v.r*.3)*k*tw,col=v.per.some((q,k)=>q&&LVL[k]===4&&q.r===RANKS[4])?SKY_GOLD:SKY_C[v.d],rg=g.createRadialGradient(p.x,p.y,0,p.x,p.y,r*4.5);rg.addColorStop(0,col);rg.addColorStop(.22,col+'99');rg.addColorStop(1,col+'00');
-        g.fillStyle=rg;g.beginPath();g.arc(p.x,p.y,r*4.5,0,6.28);g.fill();g.fillStyle='#fff';g.beginPath();g.arc(p.x,p.y,r*.5,0,6.28);g.fill();
-        if(v.r===4){g.strokeStyle=col+'aa';g.lineWidth=.8/s;g.beginPath();g.moveTo(p.x-r*4,p.y);g.lineTo(p.x+r*4,p.y);g.moveTo(p.x,p.y-r*4);g.lineTo(p.x,p.y+r*4);g.stroke()}g.globalAlpha=1}   // S rank: a four-point sparkle
-      else{const r=(.45+p.mag*.95)*k*tw,rg=g.createRadialGradient(p.x,p.y,0,p.x,p.y,r*3.2);g.globalAlpha=(ul?1:.45)*ba;   // not cleared: plain white, still brighter than the background
-        rg.addColorStop(0,'rgba(225,232,255,.35)');rg.addColorStop(1,'rgba(200,215,255,0)');g.fillStyle=rg;g.beginPath();g.arc(p.x,p.y,r*3.2,0,6.28);g.fill();
+      if(v.lit){lit++;
+        const rk=v.r,sss=rk>=8,d=v.d,col=SKY_C[d],r=(.9+p.mag*1.25+rk*.1)*k*(sss?1:tw),al=SKY_RA[rk]*(sss||!motion?1:.8+.2*br);
+        let hr=3,ha=.6,ph=.5;   // glow radius (in r), glow mid alpha, breathing phase: SSS swells with its difficulty; still at the middle value when motion is off
+        if(sss){if(motion)ph=.5+.5*Math.sin(t/(480+d*45)+p.x*.37+p.y*.21);hr=3*(1+SKY_AMP[d]*ph);ha=Math.round((.5+.25*ph)*20)/20}
+        if(sss&&d>=3){const R=r*hr*1.6;g.globalAlpha=al*(d===4?.16:.09)*(.4+.6*ph);g.drawImage(skySpr('h',col),p.x-R,p.y-R,R*2,R*2)}
+        { const R=r*hr;g.globalAlpha=al;g.drawImage(skySpr('g',col,ha),p.x-R,p.y-R,R*2,R*2) }
+        if(rk>=7){const R=r*1.5;g.globalAlpha=al*.55;g.drawImage(skySpr('w'),p.x-R,p.y-R,R*2,R*2)}
+        g.globalAlpha=al;g.fillStyle='#fff';g.beginPath();g.arc(p.x,p.y,r*(rk>=7?.6:.5),0,6.28);g.fill();
+        if(rk===6)skyRay(g,p.x,p.y,r,4,r*2.4,0,col+'73',.6/s);   // S: four fine rays in the star's colour
+        else if(rk>=7)skyRay(g,p.x,p.y,r,8,r*2.8,r*1.5,'rgba(255,255,255,.5)',.6/s);   // SS / SSS: eight white rays, long and short
+        g.globalAlpha=1}
+      else{const r=(.45+p.mag*.95)*k*tw,R=r*3.2;g.globalAlpha=(ul?1:.45)*ba;   // not cleared: plain white, still brighter than the background
+        g.drawImage(skySpr('u'),p.x-R,p.y-R,R*2,R*2);
         g.fillStyle='rgba(248,250,255,.95)';g.beginPath();g.arc(p.x,p.y,r*.75,0,6.28);g.fill();g.globalAlpha=1}
       const la=clamp((p.nn*s-40)/12,0,1)*clamp((zl-1.5)/.5,0,1);   // a song's name appears once its star has room around it on screen
       if(la>0){let lab=SKY_SHORT[SONGS[p.i].key]||SONGS[p.i].name;if(Array.from(lab).length>8)lab=Array.from(lab).slice(0,7).join('')+'…';
@@ -2478,9 +2788,18 @@ function skyPaint(t){
     }
     // pulled back past the overview the names shrink, then fade out, so the groups of stars read as tiny in a wide sky
     const na=clamp((zl-.4)/.35,0,1);if(na<=0)continue;
-    const done=lit===c.ii.length,fs=skyNameFs(s,zl);g.font='600 '+fs+'px system-ui';g.textAlign='center';
-    g.globalAlpha=na;g.fillStyle=done?'rgba(255,211,107,.95)':'rgba(200,208,245,'+(zl>2.2?.55:.9)+')';g.fillText(C.th.split('').join(' '),C.nx,C.nt-fs*1.95);g.font='600 '+(fs*.72)+'px system-ui';g.fillText(C.rl.split('').join(' '),C.nx,C.nt-fs*1.05);
-    if(zl<=2.2&&zl>=.8){g.font=(fs*.62)+'px system-ui';g.fillStyle='rgba(140,150,200,.8)';g.fillText(lit+' / '+c.ii.length,C.nx,C.nt-fs*.25)}
+    const done=lit===c.ii.length,fs=skyNameFs(s,zl),cs=C.st|0;g.font='600 '+fs+'px system-ui';g.textAlign='center';
+    g.globalAlpha=na;let fc=done?'rgba(255,211,107,.95)':'rgba(200,208,245,'+(zl>2.2?.55:.9)+')';
+    if(cs===2)fc='#eaf8ff';else if(cs===3)fc='#ffffff';
+    else if(cs===4){const hw=skyNameW(C,fs),gr=g.createLinearGradient(C.nx-hw,0,C.nx+hw,0),hu=motion?t*.06:0;gr.addColorStop(0,skyHsl(hu));gr.addColorStop(.5,skyHsl(hu+120));gr.addColorStop(1,skyHsl(hu+240));fc=gr}
+    g.fillStyle=fc;g.fillText(C.th.split('').join(' '),C.nx,C.nt-fs*1.95);g.font='600 '+(fs*.72)+'px system-ui';g.fillText(C.rl.split('').join(' '),C.nx,C.nt-fs*1.05);
+    if(cs>0){   // the badge under the name: a fixed size on screen like the name, fading out with it
+      const lab=SKY_BADGE[cs];g.font='900 '+(fs*.6)+'px system-ui';const bw=g.measureText(lab).width+fs*.7,bh=fs*.76,bx=C.nx-bw/2,by=C.nt-fs*.92;let bc;
+      if(cs===1)bc='#ffd36b';else if(cs===2)bc='#eaf8ff';
+      else if(cs===3){bc=g.createLinearGradient(bx,0,bx+bw,0);bc.addColorStop(0,'#ffffff');bc.addColorStop(1,'#ffe8a8')}
+      else{const hu=motion?t*.06:0;bc=g.createLinearGradient(bx,0,bx+bw,0);bc.addColorStop(0,skyHsl(hu));bc.addColorStop(.5,skyHsl(hu+90));bc.addColorStop(1,skyHsl(hu+180))}
+      g.fillStyle=bc;skyRR(g,bx,by,bw,bh,bh*.3);g.fill();g.fillStyle=cs===4?'#1a0a2a':'#141433';g.fillText(lab,C.nx,by+bh*.77)}
+    else if(zl<=2.2&&zl>=.8){g.font=(fs*.62)+'px system-ui';g.fillStyle='rgba(140,150,200,.8)';g.fillText(lit+' / '+c.ii.length,C.nx,C.nt-fs*.25)}
     g.globalAlpha=1
   }
   g.restore();
@@ -2516,7 +2835,7 @@ function skyA11y(){
     else if(C&&S.s<skyZoomFor(C)*.7){e.stopPropagation();$('#skyCard').hidden=true;skyFlyTo(C)}
     else if(best){e.stopPropagation();skyCardShow(best[0].i,best[1].name)}
     else if(S.noteOn&&Math.hypot(wx-S.NT.x,wy-S.NT.y)<S.NT.r*1.2){e.stopPropagation();toast('音符座：所有星座都點亮了，謝謝你一路彈到這裡')}
-    else if(C&&C.unk){e.stopPropagation();toast('這裡還有一個尚未發現的星座'+(C.hint?'。'+C.hint+'後現身':''))}});
+    else if(C&&C.unk){e.stopPropagation();evA('skyq',{id:S.C.indexOf(C)});toast('這裡還有一個尚未發現的星座'+(C.hint?'。'+C.hint+'後現身':''))}});
   cv.addEventListener('wheel',e=>{if(!SKY)return;e.preventDefault();const r=cv.getBoundingClientRect();skyZoomAt(Math.exp(-e.deltaY*.0015),e.clientX-r.left,e.clientY-r.top)},{passive:false});
   addEventListener('resize',()=>{if(SKY&&skyOn())skyFit()});
 })();
@@ -2533,7 +2852,7 @@ function skyCardShow(i,cname){
   add('div','sub',cname);add('h3','',s.name);add('div','sub',s.composer+' · '+s.year);
   if(ul){
     const tb=add('table');
-    DORD.forEach(k=>{const df=DIFFS[k],tr=add('tr','',null,tb),p=v.per[k];add('td','',df.n,tr);const td=add('td','',p?p.r+' · '+p.s.toLocaleString():v.old&&!k?'已通關':'未通關',tr);td.style.color=p?RANK_COL[p.r]:v.old&&!k?'#cfe6ff':'#8a93c0'});
+    DORD.forEach(k=>{const df=DIFFS[k],tr=add('tr','',null,tb),p=v.per[k];add('td','',df.n,tr);const td=add('td','',p?p.r+' · '+p.s.toLocaleString():v.old&&!k?'已通關':'未通關',tr);td.style.color=p?(p.r==='SSS'?'':RANK_COL[p.r]):v.old&&!k?'#cfe6ff':'#8a93c0';if(p&&p.r==='SSS')td.className='rsss'});
   }else{
     const c=CON_OF[i],need=c[1]-2-conCleared(c[0]);
     add('p','','在「'+CONS[c[0]].name+'」再通過 '+need+' 首曲目後開放。').style.margin='10px 0';
@@ -2545,8 +2864,8 @@ function skyCardShow(i,cname){
   c.hidden=false;
 }
 function skyOpen(from){
-  skyBack=from;$('#'+from).classList.add('hidden');$('#sky').classList.remove('hidden');$('#skyCard').hidden=true;
-  if(!SKY)skyBuild();SKY.cache=new Map();SKY.noteOn=!!SKY.NT&&regDone();skyFit();SKY.focus=-2;
+  evA('sky');skyBack=from;$('#'+from).classList.add('hidden');$('#sky').classList.remove('hidden');$('#skyCard').hidden=true;
+  if(!SKY)skyBuild();SKY.cache=new Map();for(const C of SKY.C)C.st=skyState(C);SKY.noteOn=!!SKY.NT&&regDone();skyFit();SKY.focus=-2;
   const c=CON_OF[si];if(from==='end'&&c)skyFlyTo(SKY.C[c[0]],true);else skyOverview(true);
   SKY.dirty=true;if(!SKY.raf)SKY.raf=requestAnimationFrame(skyLoop);
 }
@@ -2575,7 +2894,7 @@ $('#bRestart').onclick=()=>{$('#pause').classList.add('hidden');doResume();start
 function skipTut(){lsSet('ppl-tut','1');$('#pause').classList.add('hidden');doResume();showSelect()}
 
 // in the tutorial, 離開 is the way out of it (marked done, on to the songs); the HUD has no separate skip button
-$('#bQuit').onclick=()=>{if(mode==='tut'){skipTut();return}$('#pause').classList.add('hidden');doResume();if(mode==='normal')showSelect();else showHome()};
+$('#bQuit').onclick=()=>{if(mode==='tut'){skipTut();return}if(mode==='try'){$('#pause').classList.add('hidden');tryEnd();return}$('#pause').classList.add('hidden');doResume();if(mode==='normal')showSelect();else showHome()};
 /* ---- settings ---- */
 function audioDiag(){
   const el=$('#aDiag');if(!el)return;
@@ -2588,11 +2907,11 @@ function syncSet(){
   const tg2=(id,on)=>{const b=$('#'+id);b.setAttribute('aria-checked',String(!!on));b.classList.toggle('on',on)};tg2('tFx',SET.lowFx);tg2('tVib',SET.vib);tg2('tMl',SET.ml!==false);
   const ms=Math.round(latS()*1000);$('#calV').textContent=(ms>=0?'+':'')+ms+' ms'+(SET.lat==null?'（自動）':'');$('#calCur').textContent=(ms>=0?'+':'')+ms+' ms'+(SET.lat==null?'（自動）':'');
 }
-for(const[k,id]of[['mel','vMel'],['bk','vBk'],['fx','vFx']])$('#'+id).oninput=e=>{SET[k]=+e.target.value;applyVol();saveSet();syncSet()};
-$('#tFx').onclick=()=>{SET.lowFx=!SET.lowFx;saveSet();syncSet()};
-$('#tMl').onclick=()=>{SET.ml=SET.ml===false;saveSet();syncSet()};
+for(const[k,id]of[['mel','vMel'],['bk','vBk'],['fx','vFx']])$('#'+id).oninput=e=>{SET[k]=+e.target.value;applyVol();saveSet();syncSet();evA('set')};
+$('#tFx').onclick=()=>{SET.lowFx=!SET.lowFx;saveSet();syncSet();evA('set')};
+$('#tMl').onclick=()=>{SET.ml=SET.ml===false;saveSet();syncSet();evA('set')};
 if(!navigator.vibrate)$('#tVib').closest('.sw').style.display='none';   // iPhone browsers and apps have no vibration API
-$('#tVib').onclick=()=>{SET.vib=!SET.vib;saveSet();syncSet();vib(30)};
+$('#tVib').onclick=()=>{SET.vib=!SET.vib;saveSet();syncSet();vib(30);evA('set')};
 $('#bNick').onclick=()=>nickOpen(ME?'rename':'set');
 let wipeT=-1e9;
 $('#bWipe').onclick=async()=>{   // two taps: the first one only arms it
@@ -2629,7 +2948,7 @@ function calDone(){
   if(calTaps.length<4){$('#calMsg').textContent='有效點擊不足，請再試一次。';return}
   const a=calTaps.slice().sort((x,y)=>x-y),m=a[Math.floor(a.length/2)];
   SET.lat=Math.round(clamp(m*1000,-100,400));saveSet();syncSet();
-  $('#calMsg').textContent='校準完成：'+(SET.lat>=0?'+':'')+SET.lat+' ms（'+calTaps.length+' 次有效點擊）。';
+  $('#calMsg').textContent='校準完成：'+(SET.lat>=0?'+':'')+SET.lat+' ms（'+calTaps.length+' 次有效點擊）。';evA('cal');
 }
 $('#calM').onclick=()=>{SET.lat=Math.round(latS()*1000)-10;saveSet();syncSet()};
 $('#calP').onclick=()=>{SET.lat=Math.round(latS()*1000)+10;saveSet();syncSet()};
@@ -2647,13 +2966,15 @@ function shareImg(){
   x.fillStyle=lg;x.font='800 64px '+F;x.fillText('PingPongLight',70,120);
   x.fillStyle='#e8ecff';x.font='700 40px '+F;x.fillText(r.label,70,210,700);
   x.font='800 86px '+F;x.fillText(r.score.toLocaleString(),70,340);
-  x.fillStyle='#b9c1ea';x.font='500 32px '+F;x.fillText('精準度 '+Math.round(r.acc*100)+'%　最高連擊 '+r.maxCombo,70,410);
+  x.fillStyle='#b9c1ea';x.font='500 32px '+F;x.fillText('精準度 '+pct(r.bp)+'　最高連擊 '+r.maxCombo,70,410);
   x.fillStyle='#8a93c0';x.font='400 26px '+F;x.fillText((APP?new URL(SITE).host:location.host)+'　'+new Date().toLocaleDateString('zh-TW'),70,560);
-  x.textAlign='center';x.fillStyle=RANK_COL[r.rank];x.shadowColor=RANK_COL[r.rank];x.shadowBlur=40;x.font='800 300px '+F;x.fillText(r.rank,950,420);
+  x.textAlign='center';x.shadowColor=RANK_COL[r.rank];x.shadowBlur=40;
+  if(r.rank==='SSS'){const pg=x.createLinearGradient(700,0,1200,0);pg.addColorStop(0,'#ffe8a8');pg.addColorStop(.35,'#ffffff');pg.addColorStop(.65,'#ffe8a8');pg.addColorStop(1,'#ffd36b');x.fillStyle='#ffe8a8';x.font='800 190px '+F;x.fillText(r.rank,950,390);x.shadowBlur=0;x.fillStyle=pg}else x.fillStyle=RANK_COL[r.rank];
+  x.font='800 '+(r.rank.length===3?190:r.rank.length===2?250:300)+'px '+F;x.fillText(r.rank,950,r.rank.length===3?390:420);
   return c;
 }
 $('#bShare').onclick=()=>{
-  const c=shareImg();if(!c)return;
+  const c=shareImg();if(!c)return;evA('share');
   const text='我在 PingPongLight '+lastRes.label+' 拿到 '+lastRes.rank+'（'+lastRes.score.toLocaleString()+' 分）';
   if(APP){const data=c.toDataURL('image/png').split(',')[1];   // the app: save to the cache folder, then the system share sheet
     capCall('Filesystem','writeFile',{path:'pingponglight-result.png',data,directory:'CACHE'}).then(r=>capCall('Share','share',{title:'PingPongLight',text,files:[r.uri]})).catch(()=>{});return}
@@ -2790,5 +3111,8 @@ if(APP){$('#bFs').style.display='none';
 else if('serviceWorker' in navigator&&location.protocol==='https:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));hudShow(false);$('#fsHint').style.display=(!(DE.requestFullscreen||DE.webkitRequestFullscreen)&&!standalone)?'block':'none';
 requestAnimationFrame(frame);
 try{netBoot()}catch(e){}
+// hooks for shop.js (shop, collection, trial run); the game itself never depends on it
+window.PPLG={api,pkey,APP,PF,SET,saveSet,lsGet,lsSet,toast,initAudio,esc,get ME(){return ME},showHome,onTryEnd:null,onMe:null,roomSend(o){if(DU.joined)dsend(o)},busy:()=>st==='play'||st==='ready'||st==='over'||st==='done'||mode==='duel',
+  startTry(tr){if(!COS)return;initAudio();tryKeep={si,di};COS.state.trial=tr||null;COS.bump();mode='try';startRun(0)}};
 window.__pb={get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:FR,HR:HRe(),BR,nb,tiers:tierCount,cents:lastCents,p:lastP,pSrc,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},setTs(v){ts=v},setSong(i){si=i},skyRes(k,d,ok){const j=SONGS.findIndex(x=>x.key===k);if(j<0)return null;mode='normal';si=j;song=SONGS[si];di=d;D=DIFFS[d];score=1000;tierCount=[tg.length||10,0,0,0];missCount=0;st='done';showResult(ok,'');const r=$('#rsky');return r.hidden?'':r.textContent},tg:()=>tg.map(t=>t.t),pv:()=>({key:PV.s&&PV.s.key,i:PV.i,n:PV.n&&PV.n.length,g:PV.g?+PV.g.gain.value.toFixed(3):null,home:HM.on,ac:AC&&AC.state}),pause:pauseGame,resume:resumeGame,shareImg,STARS,il:()=>instLoad,gaps:()=>{const r=[];for(const it of items)for(const o of bumps)r.push(Math.hypot(it.x-o.x,it.y-o.y)-itemGap(o.Rm));return r}};
 })();

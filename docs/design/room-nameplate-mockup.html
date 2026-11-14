@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>房間名牌對照</title>
+<style>
+:root{--fg:#e8ecff;--dim:#8a93c0;--gold:#ffd36b;--bg:#070917}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.6 system-ui,"Noto Sans TC","Microsoft JhengHei",sans-serif;padding:20px 16px 40px}
+h1{font-size:20px;margin:0 0 4px}h2{font-size:16px;margin:26px 0 6px;color:#7cf0ff}
+.note{color:var(--dim);font-size:13px;margin:4px 0 10px;max-width:980px}
+.row{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.col .lb{font-size:12px;color:var(--dim);margin-bottom:6px}
+/* the room's right-hand panel at its real widths, drawn at 2x so the details are visible */
+.zoom{transform:scale(2);transform-origin:0 0}
+.wrap{display:inline-block;border:1px dashed rgba(255,255,255,.12);border-radius:6px}
+.sdet{background:#070917;padding:16px 0 10px 18px;border-left:1px solid rgba(255,255,255,.12)}
+.sdet.w296{width:296px}.sdet.w240{width:240px;padding-left:12px}
+/* copied from the game's room styles */
+#rseats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+.seat{position:relative;display:flex;align-items:center;gap:4px;height:28px;padding:0 15px 0 8px;border-radius:9px;background:rgba(30,36,90,.55);border:1px solid transparent;font-size:12px;min-width:0}
+.seat .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.seat i{position:absolute;top:-7px;left:6px;font-style:normal;font-size:8.5px;line-height:12px;padding:0 3px;background:#070917;color:#ffd36b;border:1px solid #ffd36b;border-radius:6px}
+.seat.ok:after{content:'✓';position:absolute;right:5px;color:#7cffaa;font-weight:800}
+.seat.me{border-color:#ffd36b}
+.av{flex:0 0 auto;width:16px;height:16px;border-radius:50%;box-shadow:0 0 0 1px rgba(255,255,255,.35)}
+.tt{flex:0 0 auto;font-size:9px;line-height:13px;padding:0 4px;border-radius:999px;font-weight:700;white-space:nowrap}
+.t1{color:#e8a878;border:1px solid #8a5a3a}.t2{color:#e8ecff;background:linear-gradient(90deg,#8a93c0,#cfd5f5,#8a93c0);color:#10132a}
+.t3{color:#2a1800;background:linear-gradient(90deg,#ffe8a8,#ffb84d)}.t4{color:#fff;background:linear-gradient(90deg,#ff6fb5,#7cf0ff,#c9b6ff)}
+/* plate styles, cut down so they fit a 28px seat: border + tint only */
+.p-cold{background:rgba(124,240,255,.14);border-color:#3fd8ff;box-shadow:0 0 6px rgba(63,216,255,.45)}
+.p-neon{background:linear-gradient(90deg,rgba(255,111,149,.35),rgba(143,107,255,.35));border-color:#ff6f95}
+.p-sakura{background:linear-gradient(90deg,rgba(255,159,208,.28),rgba(255,209,232,.16));border-color:#ff9fd0}
+.p-ice{background:linear-gradient(180deg,#1b4a6b,#0b1a33);border-color:#bfefff}
+.p-pixel{background:#111;border:1px solid #8fe388;border-radius:3px;font-family:monospace}
+.p-ink{background:#ece5d6;color:#1a1a1a;border-color:#1a1a1a}
+.p-gold{background:linear-gradient(90deg,rgba(255,211,107,.3),rgba(255,143,209,.2));border-color:#ffd36b}
+.p-orbit{border:1px solid transparent;background:linear-gradient(#141a48,#141a48) padding-box,conic-gradient(#7cf0ff,#c9b6ff,#ffd36b,#7cf0ff) border-box}
+.seat.me.p-cold,.seat.me.p-neon{outline:1px solid #ffd36b;outline-offset:1px}
+/* proposal: tap a seat to see the player card with the full plate and title */
+.card{width:220px;padding:10px 12px;border-radius:12px;background:linear-gradient(160deg,#1a1f4a,#0e1130);border:1px solid rgba(124,240,255,.4);box-shadow:0 6px 20px rgba(0,0,0,.5);font-size:12px}
+.plate{display:inline-flex;align-items:center;gap:6px;padding:3px 10px 3px 3px;border-radius:999px;font-size:13px;font-weight:700;border:1px solid transparent}
+.plate .av{width:22px;height:22px}
+.card .sub{color:var(--dim);font-size:11px;margin-top:6px}
+.card .ttl{margin-top:6px}
+.card .ttl .tt{font-size:11px;line-height:16px;padding:0 7px}
+.verdict{display:inline-block;font-size:12px;font-weight:700;padding:1px 8px;border-radius:6px;margin-left:6px}
+.bad{background:rgba(255,90,90,.15);color:#ff8a8a;border:1px solid #ff6a6a}.good{background:rgba(124,255,170,.12);color:#7cffaa;border:1px solid #4fd48a}
+.out{font-size:12px;color:#ffb86b;margin-top:6px}
+.res{display:grid;grid-template-columns:24px 1fr auto;gap:4px 8px;align-items:center;width:420px;font-size:13px}
+.res .plate{font-size:12px}
+@media (max-width:700px){.zoom{transform:scale(1.4)}}
+</style></head><body>
+<h1>多人房間：名牌框與稱號</h1>
+<p class="note">座位格用遊戲裡房間的實際樣式和尺寸（右側面板 296px，窄螢幕 240px；一排 4 格、每格高 28px），放大 2 倍顯示。
+上方數字是實際量到的：名字被「…」截掉、或內容超出格子的座位數。</p>
+
+<h2>A. 直接把名牌框＋頭像＋稱號塞進座位<span class="verdict bad">放不下</span></h2>
+<div class="row" id="rowA"></div>
+
+<h2>B. 名牌框邊框底色＋16px 小頭像（不放稱號）<span class="verdict bad">名字被擠掉</span></h2>
+<p class="note">格子不會爆，但每格只剩約 40px 給名字，連兩個字都放不下。</p>
+<div class="row" id="rowB"></div>
+
+<h2>C. 建議：座位只套名牌框的「邊框和底色」，不放頭像和稱號<span class="verdict good">放得下</span></h2>
+<p class="note">座位格維持 28px 高，名牌框縮成邊框色＋淡底色（動畫、粗框、光暈在這麼小的格子裡會糊成一團，先拿掉）。中文 3 個字、英文 5～6 個字母以內的名字完整顯示。頭像和稱號改在下面的地方完整顯示。</p>
+<div class="row" id="rowC"></div>
+
+<h2>C 的頭像和稱號顯示位置</h2>
+<div class="row">
+ <div class="col"><div class="lb">① 點房間座位 → 玩家小卡</div><div id="cardDemo"></div></div>
+ <div class="col"><div class="lb">② 對戰結算（名牌框完整樣式＋稱號）</div><div class="res" id="resDemo"></div></div>
+</div>
+<p class="note">③ 好友名單、排行榜、個人資料頁：空間夠，名牌框和稱號照商城預覽的完整樣式顯示。</p>
+
+<script>
+const P=[
+ {n:'小光',av:['#7cf0ff','#3a6bff'],p:'p-orbit',t:['摘星者',4],me:1,host:1},
+ {n:'阿明',av:['#ff8a3d','#ffd36b'],p:'p-cold',t:['全連擊大師',3],ok:1},
+ {n:'Mia',av:['#ff9fd0','#fff0f6'],p:'p-sakura',t:['新星',1],ok:1},
+ {n:'小美',av:['#5fe0ff','#04324a'],p:'p-ice',t:['千回百轉',3]},
+ {n:'Kevin_Chen',av:['#8fe388','#0f1f12'],p:'p-pixel',t:['三光並行',3],ok:1},
+ {n:'星星',av:['#ffd36b','#8a5a10'],p:'p-gold',t:['分毫不差',4]},
+ {n:'阿哲',av:['#222','#ece5d6'],p:'p-ink',t:['墨上聽潮',3],ok:1},
+ {n:'Yuki',av:['#ff6f95','#8f6bff'],p:'p-neon',t:['彩虹橋',2]},
+];
+const av=(c,z)=>`<span class="av" style="background:radial-gradient(circle at 35% 35%,#fff,${c[0]} 45%,${c[1]})${z?';width:'+z+'px;height:'+z+'px':''}"></span>`;
+const seatA=p=>`<div class="seat ${p.p}${p.me?' me':''}${p.ok?' ok':''}">${av(p.av)}<span class="nm">${p.n}</span><span class="tt t${p.t[1]}">${p.t[0]}</span>${p.host?'<i>房主</i>':''}</div>`;
+const seatC=p=>`<div class="seat ${p.p}${p.me?' me':''}${p.ok?' ok':''}"><span class="nm">${p.n}</span>${p.host?'<i>房主</i>':''}</div>`;
+const seatB=p=>`<div class="seat ${p.p}${p.me?' me':''}${p.ok?' ok':''}">${av(p.av)}<span class="nm">${p.n}</span>${p.host?'<i>房主</i>':''}</div>`;
+const panel=(w,fn,id)=>`<div class="col"><div class="lb">寬 ${w}px（${w===296?'一般手機橫放／平板':'窄螢幕'}）</div><div style="width:${w*2+4}px;height:${(16+28*2+5+10)*2+4}px"><div class="zoom"><div class="wrap"><div class="sdet w${w}"><div id="rseats" data-k="${id}">${P.map(fn).join('')}</div></div></div></div></div><div class="out" id="o${id}"></div></div>`;
+document.getElementById('rowA').innerHTML=panel(296,seatA,'a296')+panel(240,seatA,'a240');
+document.getElementById('rowB').innerHTML=panel(296,seatB,'b296')+panel(240,seatB,'b240');
+document.getElementById('rowC').innerHTML=panel(296,seatC,'c296')+panel(240,seatC,'c240');
+// measure: a seat is broken when its name is cut with … or its contents spill past the seat
+document.querySelectorAll('[data-k]').forEach(g=>{let cut=0,spill=0;[...g.children].forEach(s=>{const nm=s.querySelector('.nm');if(nm&&nm.scrollWidth>nm.clientWidth+1)cut++;if(s.scrollWidth>s.clientWidth+1)spill++});
+ const full=[...g.children].filter(s=>{const nm=s.querySelector('.nm');return nm&&nm.scrollWidth<=nm.clientWidth+1}).length;
+ document.getElementById('o'+g.dataset.k).textContent=`名字被截掉：${cut}／8　內容超出格子：${spill}／8　名字完整：${full}／8`});
+const me=P[1];
+document.getElementById('cardDemo').innerHTML=`<div class="card"><span class="plate ${me.p}">${av(me.av,22)}${me.n}</span><div class="ttl"><span class="tt t${me.t[1]}">${me.t[0]}</span></div><div class="sub">最高連擊 412・好友・點一下可加好友／檢舉</div></div>`;
+document.getElementById('resDemo').innerHTML=P.slice(0,4).map((p,i)=>`<b>${i+1}</b><span><span class="plate ${p.p}">${av(p.av,20)}${p.n}</span> <span class="tt t${p.t[1]}" style="font-size:10.5px;line-height:15px;padding:0 6px">${p.t[0]}</span></span><span style="color:#ffd36b;font-weight:700">${[98.7,97.2,95.0,91.4][i]}%</span>`).join('');
+</script>
+</body></html>

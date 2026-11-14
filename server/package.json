@@ -4,9 +4,14 @@
   "scripts": {
     "dev": "wrangler dev --port 8787",
     "charts": "node scripts/charts.mjs",
-    "predeploy": "node scripts/charts.mjs --check",
+    "predeploy": "node scripts/charts.mjs --check && node scripts/catalog.mjs --check",
     "deploy": "npx -y wrangler@4.100.0 deploy",
-    "db:local": "wrangler d1 migrations apply LB --local"
+    "db:local": "wrangler d1 migrations apply LB --local",
+    "catalog": "node scripts/catalog.mjs",
+    "test:iap": "node test/iap.mjs",
+    "test:shop": "node test/shop.mjs",
+    "test:spectate": "node test/spectate.js",
+    "test:rank": "node test/rank.mjs"
   },
   "devDependencies": {
     "wrangler": "^4"

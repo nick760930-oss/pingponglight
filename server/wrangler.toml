@@ -12,6 +12,12 @@ crons = ["17 * * * *"]
 [ai]
 binding = "AI"
 
+# SHOP_TEST = "1": every purchasable item can be taken for free (shop.js, the free test period). IAP_ON = "1" switches on
+# /iap/verify (App Store purchases); anything else answers 503 {error:"off"}. Local tests override both with --var.
+[vars]
+SHOP_TEST = "1"
+IAP_ON = "0"
+
 [[durable_objects.bindings]]
 name = "ROOMS"
 class_name = "Room"
