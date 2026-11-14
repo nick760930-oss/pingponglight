@@ -1108,7 +1108,7 @@ function paintBG(x,h){
   x.fillStyle='#cfe0ff';for(const s of stars){x.globalAlpha=.3+.3*((s.p*7)%1);x.beginPath();x.arc(s.x*W,s.y*H,s.r,0,6.283);x.fill()}
   x.globalAlpha=1;
 }
-let bgAt=0;
+let bgAt=0,bgMs=4,bgSlow=false;   // bgMs: smoothed cost of one custom-background paint, sets how often it is repainted
 function paintCosBG(c,kind,h,t){   // equipped background, drawn in the catalogue's 180-unit-tall space, plus the same song-hue tint as the default
   c.save();const k=H/180;c.scale(k,k);COS.draw.BG[kind](c,W/k,180,t);c.restore();
   c.save();c.globalCompositeOperation='lighter';
@@ -1120,12 +1120,17 @@ function drawBG(x){   // rendered once per size/hue step, then blitted
   const h=hueNow(),L=COS?COS.look():null,cb=!!L&&!L.bg.def,key=W+'x'+H+'/'+Math.round(h/8)+(cb?'/'+L.bg.id+(SET.lowFx?'/s':''):'');
   if(W<1||H<1)return;
   const now=performance.now();
-  if(!bgC||key!==bgKey||(cb&&!SET.lowFx&&now-bgAt>110)){   // a custom background animates at about 9 fps into the cache; reduced effects: drawn once, still
+  // a custom background animates into the cache as often as its cost allows (every frame when cheap, at most ~25% of the time, never under ~9 fps);
+  // the cost includes the blit (a software canvas rasterises there); outside play at most ~30 fps; a frame already over budget falls back to ~9 fps; reduced effects: drawn once, still
+  if(costEMA>8)bgSlow=true;else if(costEMA<5)bgSlow=false;
+  let rep=false;
+  if(!bgC||key!==bgKey||(cb&&!SET.lowFx&&now-bgAt>=(bgSlow?110:clamp(bgMs*4,st==='play'?14:33,110)))){
     if(!bgC||key!==bgKey){bgKey=key;bgC=document.createElement('canvas');bgC.width=W;bgC.height=H}
     bgAt=now;const c=bgC.getContext('2d');
-    if(cb){c.clearRect(0,0,W,H);paintCosBG(c,L.bg.k,h,SET.lowFx?3:time)}else paintBG(c,h);
+    if(cb){c.clearRect(0,0,W,H);paintCosBG(c,L.bg.k,h,SET.lowFx?3:time);rep=true}else paintBG(c,h);
   }
   x.drawImage(bgC,0,0);
+  if(rep)bgMs+=(Math.min(60,performance.now()-now)-bgMs)*.2;
 }
 const hsl=(h,a,l)=>`hsla(${h},100%,${l||65}%,${a})`;
 function gline(x,a,b,c,d,h,al,w){x.lineWidth=w*2.8;x.strokeStyle=hsl(h,al*.28,62);seg(x,a,b,c,d);x.lineWidth=w;x.strokeStyle=hsl(h,al,70);seg(x,a,b,c,d)}   // cheap glow (no shadowBlur)
