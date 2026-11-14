@@ -135,7 +135,7 @@ function pluck(f,t,hold,vol,parts,decay,dest,cents){
     og.gain.setTargetAtTime(0,end,.09);
     o.connect(og);og.connect(g);o.start(t);o.stop(end+.6);
   }
-  track(g,end+.4);
+  if(dest!==HM.g)track(g,end+.4);   // the menu music is not cut when a screen changes (cutAll)
 }
 const P_LEAD=[[1,1],[2,.42],[3,.17],[4,.07]],P_BK=[[1,1],[2,.28],[3,.08]],P_BASS=[[1,1],[2,.55],[3,.3],[4,.12]];
 /* ---- sampled instruments: real recordings (Salamander piano, FluidR3 GM), one sample every 3 semitones ----
@@ -298,10 +298,12 @@ function homeTick(){
   // on the iPhone, and the opening bars came out as synth); after 4 s it starts anyway
   if(want&&!HM.on&&HM.ld!==2){if(!HM.ld){HM.ld=1;Promise.race([loadInst('piano'),new Promise(r=>setTimeout(r,4000))]).then(()=>{HM.ld=2})}return}
   if(want!==HM.on){HM.on=want;HM.g.gain.cancelScheduledValues(now);HM.g.gain.setTargetAtTime(want?.55:0,now,want?.9:.12);   // ~5 dB under gameplay music
-    if(want){HM.next=now+.2;HM.step=0;HM.loop=0;loadInst('piano')}}
+    if(want){HM.next=now+.2;HM.step=0;HM.loop=0;loadInst('piano')}
+    else{const og=HM.g;setTimeout(()=>{try{og.disconnect()}catch(e){}},2600);HM.g=AC.createGain();HM.g.gain.value=0;HM.g.connect(busBk)}}   // notes already queued fade out on the old node, a restart never doubles them
   if(!HM.on)return;
   if(HM.next<now-.1)HM.next=now+.05;   // timer was throttled: skip ahead instead of bursting notes
-  while(HM.next<now+.6){homeStep(HM.step,HM.next);HM.next+=HM_E;if(++HM.step>=64){HM.step=0;HM.loop++}}
+  // queued 2 s ahead: opening the shop or the achievements page can block a phone's main thread for over half a second, and the music must not run dry
+  while(HM.next<now+2){homeStep(HM.step,HM.next);HM.next+=HM_E;if(++HM.step>=64){HM.step=0;HM.loop++}}
 }
 setInterval(homeTick,150);
 /* ---- song preview: a piece tapped on the select screen plays quietly from its first tune note for PV_LEN seconds, with its own
@@ -342,6 +344,8 @@ setInterval(pvTick,150);
 // (pointerup/click: on touch screens a pointerdown does not count as a gesture that may start audio)
 function menuWake(){if(st!=='home'&&st!=='menu')return;if(!AC)initAudio();else if(AC.state!=='running')unlockAudio()}
 for(const ev of ['pointerdown','pointerup','click'])document.addEventListener(ev,menuWake,{capture:true,passive:true});
+// focus rings only while the keyboard is in use (index.html: html.ptr hides them after a tap or click)
+{const R=document.documentElement;R.classList.add('ptr');document.addEventListener('pointerdown',()=>R.classList.add('ptr'),{capture:true,passive:true});document.addEventListener('keydown',e=>{if(e.key==='Tab'||e.key.startsWith('Arrow'))R.classList.remove('ptr')},{capture:true})}
 let noiseBuf=null;
 function noise(){if(!noiseBuf){const n=AC.sampleRate*.4,b=AC.createBuffer(1,n,AC.sampleRate),d=b.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;noiseBuf=b}return noiseBuf}
 function drum(kind,when){      // 36 kick, 38 snare, 42 hi-hat
@@ -906,10 +910,10 @@ const rkColorAttr=r=>r==='SSS'?'':' style="color:'+RANK_COL[r]+'"';
 function jingleWin(rank){
   initAudio();cutAll();
   const n={SSS:7,SS:7,S:7,A:6,B:5,C:4,D:3,E:3,F:3}[rank]||3,arp=[60,64,67,72,76,79,84].slice(0,n);
-  arp.forEach((p,i)=>voice(p,.05+i*.11,1.1,.3,0,true,busFx));
+  arp.forEach((p,i)=>voice(p,.05+i*.11,1.1,.13,0,true,busFx));   // levels measured offline: the old ones drove the output soft clipper hard (crackle); its curve reaches ~0.8 at an input of 0.4
   const t=.05+arp.length*.11;
-  [48,60,64,67,72].forEach((p,i)=>voice(p,t,1.8,i?.2:.26,0,i?true:false,busFx));
-  if(rkAtLeastS(rank)){voice(91,t+.05,1.2,.12,0,true,busFx);voice(96,t+.18,1.2,.1,0,true,busFx)}
+  [48,60,64,67,72].forEach((p,i)=>voice(p,t+i*.02,1.8,i?.07:.12,0,i?true:false,busFx));   // a quick strum, not five attacks at once
+  if(rkAtLeastS(rank)){voice(91,t+.12,1.2,.07,0,true,busFx);voice(96,t+.25,1.2,.06,0,true,busFx)}
 }
 function jingleLose(){
   initAudio();cutAll();

@@ -24,6 +24,8 @@
 <style>
 :root{--bg:#05060f;--fg:#e8ecff;--dim:#8a93c0;--accent:#7cf0ff}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+/* focus rings only for keyboard use: after a tap or click (html.ptr, set in game.js) focus moved back to a button by script draws no blue frame */
+html.ptr :focus,html.ptr :focus-visible{outline:none!important}html.ptr button.tog:focus-visible::before{outline:none!important}
 html,body{margin:0;position:fixed;inset:0;width:100%;height:100%;background:var(--bg);color:var(--fg);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;overflow:hidden;overscroll-behavior:none;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-text-size-adjust:100%}
 button{touch-action:manipulation}
 canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;-webkit-touch-callout:none}
@@ -199,7 +201,7 @@ svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stro
 .hm3{display:flex;justify-content:center;flex-wrap:wrap;margin:10px 0 4px}
 .hm3 button{background:none;border-color:transparent;color:var(--dim);font-size:13px;padding:6px 12px;min-height:44px;border-radius:10px}
 .hm3 button+button{border-left-color:rgba(255,255,255,.13);border-radius:0}
-.hm3 button:hover,.hm3 button:focus-visible{color:#e8ecff}
+.hm3 button:hover,html:not(.ptr) .hm3 button:focus-visible{color:#e8ecff}
 #howv .card{max-width:460px;outline:none}
 .hm3 .bugb,#bBugP{color:#ffd36b}
 #bugv{z-index:7}
