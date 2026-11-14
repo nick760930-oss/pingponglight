@@ -854,7 +854,7 @@ function miss(b){
   if(life<=0){hud();vib(120);over('生命值歸零');return}
   if(!sh){shake=Math.max(shake,6);flash.a=.14;flash.hue=350}
   const lineX=old===1?FR.x+FR.w:FR.x,a=rand(-.5,.5);       // the ball comes back into play
-  b.x=lineX+nx*BR*.3;b.dx=nx*Math.cos(a);b.dy=Math.sin(a);b.win=null;
+  b.x=lineX+nx*BR*.3;b.dx=nx*Math.cos(a);b.dy=Math.sin(a);b.win=null;b.ct=[];
   resolveTarget(b);if(b.ti>=0){planLaps(b);b.vr=0;b.v=ballWant(b);b.vr=b.v}
 }
 function bumpH(o){
@@ -994,7 +994,10 @@ function wallFx(b,e){rings.push({x:b.x,y:b.y,r0:BR*.5,life:.3,max:.3,hue:hueNow(
 function stepFree(b,dt){b.x+=b.dx*b.v*dt;b.y+=b.dy*b.v*dt}
 function trailStep(b){const last=b.trail[b.trail.length-1];
   if(!last||Math.hypot(b.x-last.x,b.y-last.y)>BR*.45){b.trail.push({x:b.x,y:b.y});if(b.trail.length>20)b.trail.shift()}
-  else if(b.trail.length>4)b.trail.shift()}
+  else if(b.trail.length>4)b.trail.shift();
+  ctStep(b)}
+// cosmetic trails get their own history like the catalog preview: one point per ~60 Hz frame, 22 points, never shortened by a slow ball
+function ctStep(b){if(!b.ct)b.ct=[];if(!(time-b.ctT<.012)){b.ctT=time;b.ct.push({x:b.x,y:b.y});if(b.ct.length>22)b.ct.shift()}}
 function updateBall(b,dt){
   if(b.pop<1)b.pop=Math.min(1,b.pop+dt*3);
   if(b.sq>0)b.sq=Math.max(0,b.sq-dt*6);
@@ -1061,7 +1064,7 @@ function update(dt){
   for(let i=aims.length-1;i>=0;i--){aims[i].life-=dt;if(aims[i].life<=0)aims.splice(i,1)}
   for(let i=parts.length-1;i>=0;i--){const p=parts[i];p.life-=dt;if(p.life<=0){parts.splice(i,1);continue}p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.96;p.vy*=.96}
   if(SP.on){specStep(dt);return}
-  if(st==='over'&&exitT>0){exitT-=dt;for(const b of balls)stepFree(b,dt);return}
+  if(st==='over'&&exitT>0){exitT-=dt;for(const b of balls){stepFree(b,dt);ctStep(b)}return}
   if(paused&&resumeCD>0&&st==='play'){
     if(useAC)gAC=AC.currentTime-freezeG;           // keep the game clock still while the audio clock runs
     resumeCD-=dt;if(resumeCD<=0){if(useAC)gAC=AC.currentTime-freezeG;doResume()}return}
@@ -1250,7 +1253,7 @@ function cosState(b){return b.cs||(b.cs={sp:2,ang:0,P:[],lz:0})}
 function cosTrail(x,b,r,I,dt){
   const s=cosState(b),K=cosCols(I,b);
   x.save();x.globalCompositeOperation=I.k==='ink'?'source-over':'lighter';
-  if(b.trail.length>1)COS.draw.TRAIL[I.k](x,b.trail,r*1.15,K,time,s,b);
+  const H=b.ct||b.trail;if(H.length>1)COS.draw.TRAIL[I.k](x,H,r*1.15,K,time,s,b);
   for(let i=s.P.length-1;i>=0;i--){COS.draw.drawP(x,s.P[i],dt);if(s.P[i].l<=0)s.P.splice(i,1)}
   if(s.P.length>(SET.lowFx?12:80))s.P.length=SET.lowFx?12:80;
   x.restore();
@@ -1281,7 +1284,7 @@ function drawBalls(x){
     if(!b.fx){b.fx=BFX.state();const q=BFX.target(combo,starT,time,SET.lowFx);b.fx.h=q.h;b.fx.sat=q.sat;b.fx.g=q.g;b.fx.t=time}
     const dt=paused?0:clamp(time-b.fx.t,0,.1);b.fx.t=time;
     {const now=performance.now(),mv=b.fx.lx!==b.x||b.fx.ly!==b.y;b.fx.lx=b.x;b.fx.ly=b.y;   // a ball that stopped (song over) lets its trail shrink away instead of freezing into a line
-      if(mv||paused)b.fx.st=now;else if(now-b.fx.st>40&&b.trail.length){b.trail.shift();b.fx.st=now}}
+      if(mv||paused)b.fx.st=now;else if(now-b.fx.st>40&&(b.trail.length||b.ct&&b.ct.length)){b.trail.shift();if(b.ct)b.ct.shift();b.fx.st=now}}
     const CL=COS?COS.look():null,cO=!!CL&&!CL.orb.def,cT=!!CL&&!CL.trail.def;   // equipped cosmetics; the default look runs exactly the code below
     if(cT)cosTrail(x,b,r,CL.trail,dt);
     BFX.draw(x,b.fx,b,r,{combo,starT},dt,time,SET.lowFx,!mlFull()&&mlv>=3,cO||cT?{noTrail:cT,noGlow:cO,fix:cO&&CL.orb.keep?cosFix(CL.orb):null}:null);
