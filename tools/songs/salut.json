@@ -1,0 +1,34 @@
+{
+  "key": "salut",
+  "name": "愛的禮讚",
+  "composer": "艾爾加",
+  "year": "1888",
+  "inst": { "lead": "violin", "bk": "piano" },
+  "credit": { "source": "依公有領域原版樂譜手寫", "url": "https://commons.wikimedia.org/wiki/File:Salut_d'amour._(Op._12)_Transcribed_for_the_organ_by_Edwin_H._Lemare_(IA_31761034912097).pdf", "licence": "Public Domain" },
+  "tune": {
+    "bpm": 76, "meter": 2, "style": "block",
+    "parts": {
+      "A": {
+        "mel": "G#5:1 B4:0.5 G#5:0.5 | F#5:0.5 E5:0.5 D#5:0.5 E5:0.5 | A5:1 A5:1 | A5:1 B4:0.5 r:0.5 | G#5:1 C5:0.5 G#5:0.5",
+        "chords": "E:2 E:1 B7:1 A:2 A:1 B7:1 G#7:2"
+      },
+      "B": {
+        "mel": "F#5:1 F#5:1 | F#5:1.5 G5:0.5 | G#5:1 B4:0.5 G#5:0.5 | F#5:0.5 E5:0.5 D#5:0.5 E5:0.5 | C#6:1 C#6:1 | C#6:1 B5:0.5 A5:0.5 | G#5:1 F#5:0.5 E5:0.5",
+        "chords": "F#m:2 B7:2 E:2 E:1 B7:1 A:2 A:2 E:2"
+      },
+      "C": {
+        "mel": "E5:1 B4:1 | G#5:1 B4:0.5 G#5:0.5 | F#5:0.5 E5:0.5 D#5:0.5 E5:0.5 | A5:1 A5:1 | A5:1 B4:0.5 r:0.5 | G#5:1 C5:0.5 G#5:0.5 | F#5:0.5 E5:0.5 D#5:0.5 E5:0.5",
+        "chords": "E:2 E:2 E:1 B7:1 A:2 A:1 B7:1 G#7:2 E:1 B7:1"
+      },
+      "D": {
+        "mel": "F#5:1.5 G5:0.5 | G#5:1 B4:0.5 G#5:0.5 | F#5:0.5 E5:0.5 D#5:0.5 E5:0.5 | C#6:1 C#6:1 | C#6:1 B5:0.5 A5:0.5 | G#5:1 F#5:0.5 E5:0.5 | C#5:1 D#5:1",
+        "chords": "B7:2 E:2 E:1 B7:1 A:2 A:2 E:2 C#m:1 B7:1"
+      },
+      "E": {
+        "mel": "E5:4",
+        "chords": "E:4"
+      }
+    },
+    "form": ["A", "B", "C", "D", "E"]
+  }
+}

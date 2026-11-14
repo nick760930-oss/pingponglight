@@ -57,6 +57,14 @@ for (const [name, keys] of CONS) for (const k of keys) {
   if (!DATA[k]) problems.push('constellations.json: "' + k + '" in ' + name + ' has no song');
   if (seen.has(k)) problems.push('constellations.json: "' + k + '" listed twice'); seen.add(k);
 }
+// reward constellations: {rw: 0-4 (LVL) or 'S', di: 0-4 (DIFFS)}, and all of them after the regular ones, so 'next song' never jumps into one
+let rwSeen = false;
+for (const [name, , opt] of CONS) {
+  if (opt == null) { if (rwSeen) problems.push('constellations.json: ' + name + ' comes after a reward constellation (put reward ones last)'); continue }
+  rwSeen = true;
+  if (!(opt.rw === 'S' || [0, 1, 2, 3, 4].includes(opt.rw))) problems.push('constellations.json: ' + name + ' rw must be 0-4 or "S"');
+  if (![0, 1, 2, 3, 4].includes(opt.di)) problems.push('constellations.json: ' + name + ' di must be 0-4');
+}
 for (const k of Object.keys(DATA)) if (!seen.has(k)) problems.push('song "' + k + '" is in no constellation');
 const ORDER = CONS.flatMap(c => c[1]).filter(k => DATA[k]);
 // one-line facts shown on the song page (tools/trivia.json, checked against sources); every piece needs one

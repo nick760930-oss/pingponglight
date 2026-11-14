@@ -1,0 +1,29 @@
+{
+ "key": "scarborough",
+ "name": "史卡博羅市集",
+ "composer": "英國民謠",
+ "year": "傳統",
+ "inst": {
+  "lead": "recorder",
+  "bk": "guitar"
+ },
+ "credit": {
+  "source": "依原曲旋律手寫",
+  "licence": "Public Domain"
+ },
+ "tune": {
+  "bpm": 90,
+  "meter": 3,
+  "style": "waltz",
+  "parts": {
+   "A": {
+    "mel": "D4:2 D4:1 | A4:0.5 A4:1.5 A4:1 | E4:1.5 F4:0.5 E4:1 | D4:3 | r:1 A4:1 C5:1 | D5:2 C5:1 | A4:1 B4:1 G4:1 | A4:2 D5:1 | D5:2 D5:1 | C5:2 A4:1 | A4:1 G4:1 F4:1 | E4:3 | D4:2 A4:1 | G4:2 F4:1 | E4:1 D4:1 C4:1 | D4:3",
+    "chords": "Dm:3 Am:3 Am:3 Dm:3 F:3 Dm:3 G:3 Am:2 Dm:1 Dm:3 F:3 Dm:3 Am:3 Dm:3 F:3 C:3 Dm:3"
+   }
+  },
+  "form": [
+   "A",
+   "A"
+  ]
+ }
+}

@@ -1,0 +1,29 @@
+{
+ "key": "sakura",
+ "name": "櫻花",
+ "composer": "日本民謠",
+ "year": "傳統",
+ "inst": {
+  "lead": "flute",
+  "bk": "piano"
+ },
+ "credit": {
+  "source": "依原曲旋律手寫",
+  "licence": "Public Domain"
+ },
+ "tune": {
+  "bpm": 100,
+  "meter": 4,
+  "style": "arp",
+  "parts": {
+   "A": {
+    "mel": "A4:1 A4:1 B4:2 | A4:1 A4:1 B4:2 | A4:1 B4:1 C5:1 B4:1 | A4:1 B4:0.5 A4:0.5 F4:2 | E4:1 C4:1 E4:1 F4:1 | E4:1 E4:0.5 C4:0.5 B3:2 | A4:1 B4:1 C5:1 B4:1 | A4:1 B4:0.5 A4:0.5 F4:2 | E4:1 C4:1 E4:1 F4:1 | E4:1 E4:0.5 C4:0.5 B3:2 | A4:1 A4:1 B4:2 | A4:1 A4:1 B4:2 | E4:1 F4:1 B4:0.5 A4:0.5 F4:1 | E4:4",
+    "chords": "Am:4 Am:2 E:2 Am:4 Am:2 Dm:2 Am:2 F:2 E:4 Am:4 Am:2 F:2 Am:2 F:2 E:4 Am:4 Am:2 E:2 Dm:2 E:2 Am:4"
+   }
+  },
+  "form": [
+   "A",
+   "A"
+  ]
+ }
+}

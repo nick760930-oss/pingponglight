@@ -8,5 +8,11 @@
   ["聖誕座", ["jingle", "wishmerry", "deck", "holynight", "joyworld", "harkherald", "firstnoel", "restyemerry"]],
   ["聖詩座", ["adeste", "littletown", "awayinmanger", "angelshigh", "friendjesus", "nearermygod", "abidewithme"]],
   ["童謠民謠座", ["happybday", "london", "jacques", "rowboat", "korobeiniki", "jollygood", "yankee", "mollymalone", "alohaoe"]],
-  ["霓虹座", ["neon", "pixel", "velvet"]]
+  ["霓虹座", ["neon", "pixel", "velvet"]],
+  ["初聲座", ["londonderry", "scarborough", "shenandoah", "auralee", "molihua"], {"rw":0,"di":3}],
+  ["鄉謠座", ["sakura", "arirang", "santalucia", "funicula", "kalinka2"], {"rw":1,"di":0}],
+  ["名曲座", ["largo", "barcarolle", "morning", "salut", "flowerwaltz"], {"rw":2,"di":1}],
+  ["疾風座", ["cancan", "radetzky", "williamtell", "trepak", "hungarian5"], {"rw":3,"di":2}],
+  ["炫技座", ["bwv565", "revolution", "bumblebee"], {"rw":4,"di":4}],
+  ["至高座", ["paganini24", "campanella"], {"rw":"S","di":4}]
 ]

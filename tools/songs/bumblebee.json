@@ -1,0 +1,31 @@
+{
+  "key": "bumblebee",
+  "name": "大黃蜂的飛行",
+  "composer": "林姆斯基-高沙可夫",
+  "year": "1900",
+  "inst": {
+    "lead": "violin",
+    "bk": "pizz"
+  },
+  "credit": {
+    "source": "林姆斯基-高沙可夫原曲旋律；音符讀自 Wikimedia Commons 標示公有領域的鋼琴譜右手（free-scores.com 排版，Commons 頁面記載為拉赫曼尼諾夫改編），開頭動機另以 Commons 公有領域的 Fotbbmotives.png 核對",
+    "url": "https://commons.wikimedia.org/wiki/File:Rimsky-Korsakov,_Nikolai_-_Flight_of_the_bumblebee.pdf",
+    "licence": "Public Domain",
+    "note": "A 小調，2/4，原曲出自歌劇《沙皇薩爾坦的故事》（1900）。速度放慢到約每秒 4 音（bpm 66）。取右手旋律：開頭兩組下行半音階、主題、A 音上行段、D 音長音過門、上行半音階與回到開頭下行，結尾接到原譜第 45 小節的 E5 並收在 A 小調主和弦；第 32、34 小節原譜為 Db5＋Eb5 雙音，取上方音 Eb5；左手略過。未能在 Commons 或 Internet Archive 找到可辨識解析度的林姆斯基-高沙可夫 Bessel 原版譜（只找到縮圖；IA 上的 Muzyka 1981 年版小提琴譜非公有領域，未使用），因此與原曲版本的對照只到旋律動機層級，改編版與原曲在伴奏與細節上可能有出入。伴奏和弦為自配。",
+    "by": "Wikimedia Commons 公有領域樂譜（free-scores.com 排版）"
+  },
+  "tune": {
+    "bpm": 66,
+    "meter": 2,
+    "style": "block",
+    "parts": {
+      "A": {
+        "mel": "E6:0.25 Eb6 D6 C#6 D6 C#6 C6 B5 | C6:0.25 B5 Bb5 A5 G#5 G5 F#5 F5 | E5:0.25 Eb5 D5 C#5 D5 C#5 C5 B4 | C5:0.25 B4 Bb4 A4 G#4 G4 F#4 F4 | E4:0.25 Eb4 D4 C#4 D4 C#4 C4 B3 | E4:0.25 Eb4 D4 C#4 D4 C#4 C4 B3 | E4:0.25 Eb4 D4 C#4 C4 F4 E4 Eb4 | E4:0.25 Eb4 D4 C#4 C4 C#4 D4 Eb4 | E4:0.25 Eb4 D4 C#4 C4 F4 E4 Eb4 | E4:0.25 Eb4 D4 C#4 C4 C#4 D4 Eb4 | E4:0.25 Eb4 D4 C#4 D4 C#4 C4 B3 | C4:0.25 C#4 D4 Eb4 E4 F4 E4 Eb4 | E4:0.25 Eb4 D4 C#4 D4 C#4 C4 B3 | C4:0.25 C#4 D4 Eb4 E4 F#4 G4 G#4 | A4:0.25 G#4 G4 F#4 F4 Bb4 A4 G#4 | A4:0.25 G#4 G4 F#4 F4 F#4 G4 G#4 | A4:0.25 G#4 G4 F#4 F4 Bb4 A4 G#4 | A4:0.25 G#4 G4 F#4 F4 F#4 G4 G#4 | A4:0.25 G#4 G4 F#4 G4 F#4 F4 E4 | F4:0.25 F#4 G4 G#4 A4 Bb4 A4 G#4 | A4:0.25 G#4 G4 F#4 G4 F#4 F4 E4 | F4:0.25 F#4 G4 G#4 A4 Bb4 A4 G#4 | A4:0.5 r:0.5 A4:1 | Bb4:2 | A4:1 A4:1 | Bb4:2 | A4:0.25 Bb4 A4 G#4 A4 Bb4 A4 G#4 | A4:0.25 Bb4 A4 G#4 A4 Bb4 A4 G#4 | A4:0.25 Bb4 B4 C5 C#5 C5 B4 Bb4 | A4:0.25 Bb4 B4 C5 C#5 C5 B4 Bb4 | A4:0.5 r:0.5 D5:1 | Eb5:2 | D5:1 D5:1 | Eb5:2 | D5:0.25 Eb5 D5 C#5 D5 Eb5 D5 C#5 | D5:0.25 Eb5 D5 C#5 D5 Eb5 D5 C#5 | D5:0.25 Eb5 E5 F5 F#5 F5 E5 Eb5 | D5:0.25 Eb5 E5 F5 F#5 F5 E5 Eb5 | D5:0.25 C#5 C5 B4 Bb4 Eb5 D5 C#5 | D5:0.25 C#5 C5 B4 Bb4 B4 C5 C#5 | D5:0.25 C#5 C5 B4 C5 B4 Bb4 A4 | Bb4:0.25 B4 C5 C#5 C5 C#5 D5 Eb5 | E6:0.25 Eb6 D6 C#6 D6 C#6 C6 B5 | C6:0.25 B5 Bb5 A5 G#5 G5 F#5 F5 | E5:2",
+        "chords": "E7:2 E7:2 E7:2 E7:2 Am:2 E7:2 Am:2 E7:2 Am:2 E7:2 Am:2 E7:2 Am:2 E7:2 Am:2 E7:2 Am:2 E7:2 Am:2 E7:2 Am:2 E7:2 Am:2 E7:2 Am:2 E7:2 Am:2 Am:2 Am:2 E7:2 Dm:2 Dm:2 Dm:2 Dm:2 Dm:2 A7:2 Dm:2 A7:2 Dm:2 A7:2 Dm:2 A7:2 E7:2 E7:2 Am:2"
+      }
+    },
+    "form": [
+      "A"
+    ]
+  }
+}

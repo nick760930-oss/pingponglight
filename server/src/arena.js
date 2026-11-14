@@ -5,7 +5,7 @@ import { CHARTS } from './charts.js';
 import { cleanName, nameProblem } from './names.js';
 import { friendRequest, relations, pidOf, blockedBy } from './friends.js';
 
-const SONGS = Object.keys(CHARTS);
+const SONGS = Object.keys(CHARTS).filter(k => !CHARTS[k].rw);   // quick match: regular songs only
 const MAX_MSG = 512;
 const BUCKET = 30, REFILL = 8, MAX_DROPS = 60;
 const IDLE_MS = 75000, SWEEP_MS = 30000;

@@ -1,0 +1,9 @@
+{
+  "key": "revolution",
+  "name": "革命練習曲",
+  "composer": "蕭邦",
+  "year": "1833",
+  "inst": { "lead": "piano", "bk": "piano" },
+  "credit": { "source": "Mutopia Project", "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=743", "licence": "Public Domain", "by": "Roland Goretzki" },
+  "midi": { "file": "tools/midi/op10-12.mid", "mel": 1, "crop": [0, 126] }
+}

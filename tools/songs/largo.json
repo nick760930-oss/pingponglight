@@ -1,0 +1,49 @@
+{
+  "key": "largo",
+  "name": "新世界・廣板主題",
+  "composer": "德弗札克",
+  "year": "1893",
+  "inst": {
+    "lead": "clarinet",
+    "bk": "strings"
+  },
+  "credit": {
+    "source": "依原曲旋律手寫",
+    "licence": "Public Domain"
+  },
+  "tune": {
+    "bpm": 76,
+    "meter": 4,
+    "style": "pad",
+    "parts": {
+      "A1": {
+        "mel": "F4:1.5 Ab4:0.5 Ab4:2 | F4:1.5 Eb4:0.5 Db4:2 | Eb4:1.5 F4:0.5 Ab4:1.5 F4:0.5 | Eb4:4",
+        "chords": "Db:8 Ab7:8"
+      },
+      "A2": {
+        "mel": "F4:1.5 Ab4:0.5 Ab4:2 | F4:1.5 Eb4:0.5 Db4:2 | Eb4:1 F4:1 Eb4:1.5 Db4:0.5 | Db4:4",
+        "chords": "Db:8 Ab7:4 Db:4"
+      },
+      "B": {
+        "mel": "Bb4:1.5 Db5:0.5 Db5:2 | C5:1 Ab4:1 Bb4:2 | Bb4:1 Db5:1 C5:1 Ab4:1 | Bb4:4",
+        "chords": "Bbm:12 Gb:4"
+      },
+      "C": {
+        "mel": "F4:1.5 Ab4:0.5 Ab4:2 | Db5:1.5 Eb5:0.5 F5:2 | Eb5:1.5 Db5:0.5 Eb5:1 Bb4:1 | Db5:4",
+        "chords": "Db:8 Gb:4 Db:4"
+      },
+      "A3": {
+        "mel": "F4:1.5 Ab4:0.5 Ab4:2 | F4:1 Eb4:1 Db4:2 | Eb4:1.5 F4:0.5 Ab4:1.5 F4:0.5 | Eb4:4",
+        "chords": "Db:8 Ab7:8"
+      }
+    },
+    "form": [
+      "A1",
+      "A2",
+      "B",
+      "B",
+      "A3",
+      "C"
+    ]
+  }
+}

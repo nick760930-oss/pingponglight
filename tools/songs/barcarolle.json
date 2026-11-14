@@ -1,0 +1,26 @@
+{
+  "key": "barcarolle",
+  "name": "霍夫曼船歌",
+  "composer": "奧芬巴哈",
+  "year": "1881",
+  "inst": { "lead": "violin", "bk": "pizz" },
+  "credit": { "source": "依原曲旋律手寫", "licence": "Public Domain" },
+  "tune": {
+    "bpm": 180, "meter": 3, "style": "waltz",
+    "parts": {
+      "A": {
+        "mel": "B4:2 C5:1 C5:2 B4:1 | B4:1 A4:1 C5:1 C5:2 B4:1 | B4:1 A4:1 C5:1 C5:2 B4:1 | B4:5 r:1",
+        "chords": "G:6 D7:6 D7:6 G:6"
+      },
+      "B": {
+        "mel": "D5:2 E5:1 E5:2 F#5:1 | F#5:2 G5:1 G5:2 F#5:1 | F#5:2 E5:1 E5:2 D5:1 | D5:5 r:1",
+        "chords": "G:3 C:3 D7:3 G:3 D7:3 C:3 D7:6"
+      },
+      "B1": {
+        "mel": "D5:2 E5:1 E5:2 F#5:1 | F#5:2 G5:1 G5:2 F#5:1 | F#5:2 E5:1 E5:2 D5:1 | G5:4 r:2",
+        "chords": "G:3 C:3 D7:3 G:3 D7:3 C:3 G:6"
+      }
+    },
+    "form": ["A", "A", "B", "B1", "A", "A", "B", "B1"]
+  }
+}

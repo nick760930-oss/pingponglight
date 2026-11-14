@@ -1,0 +1,45 @@
+{
+  "key": "cancan",
+  "name": "康康舞",
+  "composer": "奧芬巴哈",
+  "year": "1858",
+  "inst": {
+    "lead": "violin",
+    "bk": "pizz"
+  },
+  "credit": {
+    "source": "依原曲旋律手寫",
+    "licence": "Public Domain",
+    "note": "〈地獄加洛普〉D 大調四段＋G 大調終段；為配合困難難度，速度取 ♩=150，重複音段改為等長八分音符。"
+  },
+  "tune": {
+    "bpm": 150,
+    "meter": 4,
+    "style": "march",
+    "parts": {
+      "A": {
+        "mel": "A4:0.5 E4 E4 F#4 E4 D4 D4 F#4 | G4 B4 D5 B4 B4 A4 A4:1 | B4:0.5 C#5 C#5 B4 A4 D4 D4 F#4 | F#4 E4 F#4 E4 F#4 E4 F#4 E4 | A4 E4 E4 F#4 E4 D4 D4 F#4 | G4 B4 D5 B4 B4 A4 A4:1 | B4:0.5 C#5 C#5 B4 A4 D4 D4 F#4 | E4:1 F#4:0.5 E4 E4 D4 D4:1",
+        "chords": "A:2 D:2 G:2 D:2 A:2 D:2 E:2 A:2 A:2 D:2 G:2 D:2 A:2 D:2 A:2 D:2"
+      },
+      "B": {
+        "free": true,
+        "mel": "F#5:1 D5 B4 A4 | A4:0.5 E4 F#4 G4 F#4 E4 D4:1 | F#5:1 D5 B4 A4 | G#4:0.5 A4 B4 C#5 E5 D5 D5:1 | F#5:1 D5 B4 A4 | A4:0.5 E4 F#4 G4 F#4 E4 D4:1 | F#5:1 D5 B4 A4 | G#4:0.5 A4 B4 C#5",
+        "chords": "D:4 A:2 D:2 D:4 E7:2 D:2 D:4 A:2 D:2 D:4 E7:2"
+      },
+      "C": {
+        "mel": "D5:0.5 A4 C#5 A4 D5 A4 C#5 A4 | D5 A4 C#5 A4 D5 A4 C#5 A4 | D5 D5 D5 D5 D5 D5 D5 D5 | D5 D5 D5 D5 D5 D5 D5 D5",
+        "chords": "D:1 A:1 D:1 A:1 D:1 A:1 D:1 A:1 D:4 D:2 D7:2"
+      },
+      "D": {
+        "mel": "G4:2 A4:0.5 C5 B4 A4 | D5:1 D5:1 D5:0.5 E5 B4 C5 | A4:1 A4:1 A4:0.5 C5 B4 A4 | G4:0.5 G5 F#5 E5 D5 C5 B4 A4 | G4:2 A4:0.5 C5 B4 A4 | D5:1 D5:1 D5:0.5 E5 B4 C5 | A4:1 A4:1 A4:0.5 C5 B4 A4 | G4:0.5 D5 A4 B4 G4:1 D4:1 | G4:2 A4:0.5 C5 B4 A4 | D5:1 D5:1 D5:0.5 E5 B4 C5 | A4:1 A4:1 A4:0.5 C5 B4 A4 | G4:0.5 G5 F#5 E5 D5 C5 B4 A4 | G4:2 A4:0.5 C5 B4 A4 | D5:1 D5:1 D5:0.5 E5 B4 C5 | A4:1 A4:1 A4:0.5 C5 B4 A4 | G4:0.5 D5 A4 B4 G4:2",
+        "chords": "G:2 D7:2 G:4 D:2 D7:2 G:2 D7:2 G:2 D7:2 G:4 D:2 D7:2 G:1 D:1 G:1 D:1 G:2 D7:2 G:4 D:2 D7:2 G:2 D7:2 G:2 D7:2 G:4 D:2 D7:2 G:1 D:1 G:2"
+      }
+    },
+    "form": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ]
+  }
+}

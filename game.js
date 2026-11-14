@@ -379,9 +379,12 @@ const CONS_DEF=window.SONGCONS||[
   ['霓虹座',['neon','pixel','velvet']]];
 const CONS=(()=>{
   const used=new Set(),out=[];
-  for(const[name,keys]of CONS_DEF){const ii=[];for(const k of keys){const i=SONGS.findIndex(x=>x.key===k);if(i>=0&&!used.has(i)){used.add(i);ii.push(i)}}if(ii.length)out.push({name,ii})}
-  const rest=SONGS.map((_,i)=>i).filter(i=>!used.has(i));
-  if(rest.length){if(out.length)out[out.length-1].ii.push(...rest);else out.push({name:'星空',ii:rest})}
+  // an optional third element marks a reward constellation: {rw: the level every regular song must be cleared at
+  // (LVL, 0 入門 … 4 專家) or 'S' (an S at 專家 on every one), di: the one difficulty its songs are played at}
+  for(const[name,keys,opt]of CONS_DEF){const ii=[];for(const k of keys){const i=SONGS.findIndex(x=>x.key===k);if(i>=0&&!used.has(i)){used.add(i);ii.push(i)}}
+    if(ii.length)out.push(opt&&opt.rw!=null?{name,id:name,ii,rw:opt.rw,rdi:opt.di|0}:{name,id:name,ii})}
+  const rest=SONGS.map((_,i)=>i).filter(i=>!used.has(i)),reg=out.filter(c=>c.rw==null);
+  if(rest.length){if(reg.length)reg[reg.length-1].ii.push(...rest);else out.push({name:'星空',id:'星空',ii:rest})}
   return out;
 })();
 const CON_OF=[];CONS.forEach((c,k)=>c.ii.forEach((i,j)=>{CON_OF[i]=[k,j]}));
@@ -506,7 +509,25 @@ const KEY_SC=(i,d)=>'ppl-sc-'+SONGS[i].key+'-'+d,KEY_RK=(i,d)=>'ppl-rk-'+SONGS[i
 const cleared=i=>!!lsGet(KEY_CL(i));
 const LOCKS=false;   // testing phase: every level is open
 const conCleared=k=>CONS[k].ii.reduce((a,i)=>a+(cleared(i)?1:0),0);
-const unlocked=i=>{if(!LOCKS)return true;const c=CON_OF[i];return !c||c[1]<3+conCleared(c[0])};   // first 3 of each constellation are open; each song cleared there opens one more
+// reward constellations stay hidden (a dim '？？？' in the sky, nothing in the song list) until every regular song is
+// cleared at exactly their level (each difficulty separately: a harder clear does not count for an easier one); once found they are kept, so new regular songs added later never hide them again
+const isRw=i=>!!CON_OF[i]&&CONS[CON_OF[i][0]].rw!=null;
+const REG=SONGS.map((_,i)=>i).filter(i=>CON_OF[i]&&!isRw(i));
+const RW_LV=['入門','簡單','普通','困難','專家'];
+const rwNeed=c=>c.rw==='S'?'所有正式曲目以「專家」拿到 S ':'所有正式曲目以「'+RW_LV[c.rw]+'」難度通關';
+let rwDirty=true;
+function rwRefresh(){   // returns the reward constellations found just now
+  rwDirty=false;const got=[];if(!CONS.some(c=>c.rw!=null&&!c.open))return got;const vs=REG.map(starOf);
+  for(const c of CONS){if(c.rw==null||c.open)continue;
+    if(lsGet('ppl-rw-'+c.id)){c.open=true;continue}
+    if(vs.length&&vs.every(v=>{const k=c.rw==='S'?4:LVL.indexOf(c.rw),p=v.per[k];return c.rw==='S'?!!(p&&p.r==='S'):!!p||(k===0&&v.old)})){c.open=true;lsSet('ppl-rw-'+c.id,'1');got.push(c)}}
+  return got}
+const rwOpen=c=>c.rw==null||(rwDirty&&rwRefresh(),!!c.open);
+const shown=i=>!isRw(i)||rwOpen(CONS[CON_OF[i][0]]);
+const fixDi=i=>isRw(i)?CONS[CON_OF[i][0]].rdi:null;   // a reward song is played at its constellation's difficulty only
+let diPref=null;   // the player's own difficulty, kept while a reward song holds it fixed
+function diSync(){const f=fixDi(si);if(f!=null){if(diPref==null)diPref=di;di=f}else if(diPref!=null){di=diPref;diPref=null}}
+const unlocked=i=>{if(isRw(i))return rwOpen(CONS[CON_OF[i][0]]);if(!LOCKS)return true;const c=CON_OF[i];return !c||c[1]<3+conCleared(c[0])};   // first 3 of each constellation are open; each song cleared there opens one more
 const TIERS=[
   {n:'完美',hue:48,m:3,ring:3,part:28,shake:5,vol:.4},
   {n:'極佳',hue:185,m:2,ring:2,part:15,shake:3,vol:.37},
@@ -869,14 +890,16 @@ function showResult(ok,msg){
   const rank=acc>=.95&&missCount===0?'S':acc>=.85?'A':acc>=.7?'B':acc>=.5?'C':'D';
   const kS=KEY_SC(si,di),kR=KEY_RK(si,di),prev=parseInt(lsGet(kS)||'0',10);
   const newBest=ok&&mode==='normal'&&score>prev;
-  const skyB=ok&&mode==='normal'?starOf(si):null,skyC=CON_OF[si]?CONS[CON_OF[si][0]]:null,skyCB=!!skyC&&skyDone(skyC);
+  const skyB=ok&&mode==='normal'?starOf(si):null,skyC=CON_OF[si]?CONS[CON_OF[si][0]]:null,skyCB=!!skyC&&skyDone(skyC),noteB=!!skyB&&regDone();
   if(mode==='tut'){lsSet('ppl-tut','1')}
   else if(ok&&mode==='normal'){
     lsSet(KEY_CL(si),'1');
     if(newBest)lsSet(kS,String(score));
     const pr=lsGet(kR);if(!pr||RANKS.indexOf(rank)>RANKS.indexOf(pr))lsSet(kR,rank);
     cp={ti:0,score:0};
+    rwDirty=true;
   }
+  const found=rwDirty?rwRefresh():[];if(found.length)SKY=null;   // a reward constellation just appeared: the sky is drawn again with it
   $('#rk').textContent=mode==='tut'?'教學完成':(ok?'通關':'失敗');
   $('#rt').textContent=(mode==='tut'?'新手教學':'第 '+(si+1)+' 關')+' · 《'+song.name+'》 · '+D.n;
   lastRes={ok,rank,score,acc,maxCombo,name:song.name,label:$('#rt').textContent};
@@ -888,9 +911,10 @@ function showResult(ok,msg){
   if(ok&&mode==='normal'&&!runFrom){const bp=Math.floor(acc*10000),kA=KEY_AC(si,di);if(bp>(parseInt(lsGet(kA)||'0',10)||0))lsSet(kA,String(bp))}
   const rs=$('#rsky');rs.hidden=true;rs.textContent='';
   if(skyB){const a=starOf(si),full=!!skyC&&!skyCB&&skyDone(skyC);
-    rs.textContent=full?'✦ '+skyC.name+' 完成':!skyB.lit?'✦ 《'+song.name+'》在星空中亮起了':(a.d>skyB.d||a.r>skyB.r)?'✦ 《'+song.name+'》在星空中更亮了':'';
+    const note=!noteB&&regDone();
+    rs.textContent=found.length?'✦ 新的星座現身了：'+found.map(c=>c.name).join('、')+(note?'；星空中也浮現了音符座':''):note?'✦ 所有星座都點亮了，星空中浮現了音符座':full?'✦ '+skyC.name+' 完成':!skyB.lit?'✦ 《'+song.name+'》在星空中亮起了':(a.d>skyB.d||a.r>skyB.r)?'✦ 《'+song.name+'》在星空中更亮了':'';
     rs.hidden=!rs.textContent;
-    if(full)setTimeout(()=>{if(AC&&!$('#end').classList.contains('hidden'))[62,66,69,74].forEach((p,k)=>voice(p,k*.06,1.6,.12,0,true,busFx))},1500)}
+    if(full||note||found.length)setTimeout(()=>{if(AC&&!$('#end').classList.contains('hidden'))[62,66,69,74].forEach((p,k)=>voice(p,k*.06,1.6,.12,0,true,busFx))},1500)}
   countUp($('#rscore'),score);
   const hasNext=mode==='tut'||(mode==='normal'&&ok&&si+1<SONGS.length&&unlocked(si+1));
   $('#bNext').style.display=hasNext?'':'none';$('#bNext').textContent=mode==='tut'?'開始第 1 關':'下一關';
@@ -1324,7 +1348,7 @@ async function mpMatch(){
 }
 async function duelCreate(){
   initAudio();if(DU.creating)return;DU.creating=true;dmsg('建立房間中⋯');   // one request at a time: a double tap would make two rooms
-  try{const j=await mget('/m/new?pub=1&max=6&di='+di);const c=dCode(j.code);if(c.length!==4)throw new Error('bad');duelJoin(c)}
+  try{const j=await mget('/m/new?pub=1&max=6&di='+(diPref??di));const c=dCode(j.code);if(c.length!==4)throw new Error('bad');duelJoin(c)}
   catch(e){mpErr(e)}
   DU.creating=false;
 }
@@ -1943,12 +1967,14 @@ let selF=0,selTok=0,selTm=0;
 const rkOf=(i,d)=>{const r=lsGet(KEY_RK(i,d));return RANKS.includes(r)?r:''};
 const durTxt=s=>{const t=Math.round(s.dur||0);return Math.floor(t/60)+' 分 '+String(t%60).padStart(2,'0')+' 秒'};
 function buildChips(){
-  const done=SONGS.map((_,i)=>!!rkOf(i,di)),n2=done.filter(Boolean).length,cnt=[SONGS.length,SONGS.length-n2,n2];
+  if(!(RSEL&&RSEL.on))diSync();
+  const vis=SONGS.map((_,i)=>shown(i)),nv=vis.filter(Boolean).length,done=SONGS.map((_,i)=>vis[i]&&!!rkOf(i,di)),n2=done.filter(Boolean).length,cnt=[nv,nv-n2,n2];
   document.querySelectorAll('#sTabs button').forEach((b,k)=>{b.classList.toggle('on',k===selF);b.setAttribute('aria-selected',String(k===selF));b.querySelector('b').textContent=cnt[k]});
   let h='';
   for(const C of CONS){
+    if(!rwOpen(C))continue;
     const ii=C.ii.filter(i=>!selF||(RSEL&&RSEL.on)||(selF===2)===done[i]);if(!ii.length)continue;
-    h+='<div class="era">'+esc(C.name)+'<small>'+C.ii.filter(i=>done[i]).length+' / '+C.ii.length+'</small><span class="eh"><span class="ehd">難度</span>評級</span></div>';
+    h+='<div class="era">'+esc(C.name)+(C.rw!=null?'<em class="rwt">獎勵 · '+DIFFS[C.rdi].n+'</em>':'')+'<small>'+C.ii.filter(i=>done[i]).length+' / '+C.ii.length+'</small><span class="eh"><span class="ehd">難度</span>評級</span></div>';
     for(const i of ii){const s=SONGS[i];
     const ul=unlocked(i),rk=rkOf(i,di);
     h+='<button class="sr'+(i===si?' on':'')+(ul||(RSEL&&RSEL.on)?'':' lock')+'" data-i="'+i+'"><span class="no">'+(CON_OF[i][1]+1)+'</span>'
@@ -1962,10 +1988,11 @@ function buildChips(){
 function selScroll(){const on=$('#chips .sr.on');if(on)try{on.scrollIntoView({block:'center'})}catch(e){}}
 function selDetail(){
   const i=si,s=SONGS[i];if(!s)return;
+  const room=RSEL&&RSEL.on;if(!room)diSync();const fx=room?null:fixDi(i);
   $('#sK').textContent=CONS[CON_OF[i][0]].name+' · 第 '+(CON_OF[i][1]+1)+' 首 · '+s.year;$('#sN').textContent=s.name;
   $('#sM').innerHTML=esc(s.composer+' · '+durTxt(s))+'<i>'+starTxt(STARS[i])+'</i>';
   $('#sT').textContent=s.tip||'';$('#sT').hidden=!s.tip;
-  $('#diffs').innerHTML=DORD.map(k=>{const df=DIFFS[k];return'<button data-d="'+k+'" class="'+(k===di?'on':'')+'">'+df.n+'<small>'+BALLS[df.nb]+(df.spd>1?'·快':df.spd<1?'·慢':'')+'</small></button>'}).join('');
+  $('#diffs').innerHTML=DORD.map(k=>{const df=DIFFS[k];return'<button data-d="'+k+'" class="'+(k===di?'on':'')+'"'+(fx!=null&&k!==fx?' disabled title="獎勵曲固定難度"':'')+'>'+df.n+'<small>'+BALLS[df.nb]+(df.spd>1?'·快':df.spd<1?'·慢':'')+'</small></button>'}).join('');
   const rk=rkOf(i,di),sc=parseInt(lsGet(KEY_SC(i,di))||'0',10)||0,ac=parseInt(lsGet(KEY_AC(i,di))||'0',10)||0;
   $('#sB').innerHTML=rk?'<span class="bk" style="color:'+RANK_COL[rk]+'">'+rk+'</span><span>'+(ac?'精準度 <b>'+pct(ac)+'</b> · ':'')+'最高分 <b>'+sc.toLocaleString()+'</b><br><span id="sRank"></span></span>'
     :'<span class="bk" style="color:#3c4370">—</span><span>此難度尚未通關<br><span id="sRank"></span></span>';
@@ -1981,10 +2008,10 @@ function selDetail(){
   },250);
 }
 $('#chips').onclick=e=>{const b=e.target.closest('.sr');if(!b)return;const i=+b.dataset.i,room=RSEL&&RSEL.on;if(!room&&!unlocked(i))return;
-  if(room)mpPick(i);si=i;document.querySelectorAll('#chips .sr.on').forEach(x=>x.classList.remove('on'));b.classList.add('on');initAudio();preloadSong(SONGS[i]);selDetail();pvPlay(SONGS[i])};
+  if(room)mpPick(i);const f0=di;si=i;if(!room)diSync();if(di!==f0){buildChips();selScroll();initAudio();preloadSong(SONGS[i]);pvPlay(SONGS[i]);return}document.querySelectorAll('#chips .sr.on').forEach(x=>x.classList.remove('on'));b.classList.add('on');initAudio();preloadSong(SONGS[i]);selDetail();pvPlay(SONGS[i])};
 $('#sTabs').onclick=e=>{const b=e.target.closest('button[data-f]');if(!b)return;selF=+b.dataset.f;buildChips();$('#chips').scrollTop=0};
 $('#diffs').onclick=e=>{const b=e.target.closest('button[data-d]');if(!b||(RSEL&&RSEL.on&&!mpHost()))return;   // guests in a room see the room's level
-  if(RSEL&&RSEL.on){if(+b.dataset.d!==DU.cfg.di)mpCfg({di:+b.dataset.d});return}di=+b.dataset.d;lsSet('pmb6-di',String(di));buildChips()};
+  if(RSEL&&RSEL.on){if(+b.dataset.d!==DU.cfg.di)mpCfg({di:+b.dataset.d});return}if(fixDi(si)!=null)return;di=+b.dataset.d;lsSet('pmb6-di',String(di));buildChips()};
 $('#bLb').onclick=()=>lbOpen(si,di);
 
 /* ---- friends: presence socket, list, invites ---- */
@@ -2249,7 +2276,7 @@ $('#frX').onclick=frClose;
 $('#bFr').onclick=frOpen;
 async function frInvite(id,b){
   const f=FD.list&&FD.list.friends.find(x=>x.id===id),name=f?f.name:'好友';b.disabled=true;b.textContent='建立房間⋯';
-  let code=null;try{const j=await mget('/m/new?pub=0&max=6&di='+di);code=dCode(j.code);if(code.length!==4)code=null}catch(e){}
+  let code=null;try{const j=await mget('/m/new?pub=0&max=6&di='+(diPref??di));code=dCode(j.code);if(code.length!==4)code=null}catch(e){}
   if(!code){b.disabled=false;b.textContent='邀請對戰';$('#frMsg').textContent='無法建立房間，請稍後再試。';return}
   clearInterval(FD.poll);$('#frv').classList.add('hidden');duelOpen();
   duelJoin(code,()=>{dsend({t:'cfg',song:SONGS[si].key,di,pub:false,max:6,vote:false});DU.note='邀請送出中⋯';
@@ -2282,7 +2309,7 @@ const SKY_SHAPE={
   aql:[[19.85,8.87,.8],[19.77,10.61,2.7],[19.09,13.86,3],[20.19,-.82,3.2],[19.43,3.11,3.4],[19.1,-4.88,3.4],[19.92,6.41,3.7],[19.87,1,3.9],[18.99,15.07,4],[19.6,-1.29,4.4]],
   del:[[20.63,14.6,3.6],[20.66,15.91,3.8],[20.78,16.12,3.9],[20.55,11.3,4],[20.73,15.07,4.4]]};
 // which real pattern each constellation borrows; a name not listed takes the smallest free pattern that fits its songs
-const SKY_PICK={'古老旋律座':'lyra','巴洛克座':'orion','古典座':'uma','浪漫座':'sco','晚浪漫與印象座':'leo','鋼琴詩人座':'leo','歌劇座':'gem','芭蕾座':'cyg','管弦樂座':'sgr','進行曲座':'cma','圓舞曲座':'cas','聖誕座':'tau','聖詩座':'cyg','歌劇與名歌座':'cas','童謠座':'boo','童謠民謠座':'boo','世界民謠座':'peg','亞洲座':'aql','霓虹座':'del'};
+const SKY_PICK={'古老旋律座':'lyra','巴洛克座':'orion','古典座':'uma','浪漫座':'sco','晚浪漫與印象座':'leo','鋼琴詩人座':'leo','歌劇座':'gem','芭蕾座':'cyg','管弦樂座':'sgr','進行曲座':'cma','圓舞曲座':'cas','初聲座':'aql','鄉謠座':'gem','名曲座':'peg','疾風座':'sgr','炫技座':'cma','至高座':'cru','聖誕座':'tau','聖詩座':'cyg','歌劇與名歌座':'cas','童謠座':'boo','童謠民謠座':'boo','世界民謠座':'peg','亞洲座':'aql','霓虹座':'del'};
 // the real constellation each theme borrows, and its name: '古老旋律座' becomes '古老旋律 天琴座' wherever it is shown
 const SKY_REAL={lyra:'天琴座',orion:'獵戶座',uma:'大熊座',sco:'天蠍座',leo:'獅子座',gem:'雙子座',cyg:'天鵝座',sgr:'人馬座',cma:'大犬座',cas:'仙后座',tau:'金牛座',cru:'南十字座',boo:'牧夫座',peg:'飛馬座',aql:'天鷹座',del:'海豚座'};
 (()=>{const used=new Set();for(const c of CONS){
@@ -2305,7 +2332,8 @@ function skyBuild(){
     const R=Math.sqrt(Q.length)*46,ext=Math.max(...Q.map(p=>Math.max(Math.abs(p.x)/1.25,Math.abs(p.y)/.85)))||1;
     return{c,Q,R,f:R/ext,ra:(r0%24+24)%24,de:d0};
   };
-  const D=CONS.map(c=>mkD(c,c.sky));
+  // a reward constellation not found yet is drawn like any unknown one (its size still counts its songs, so the layout never moves)
+  const D=CONS.map(c=>mkD(rwOpen(c)?c:Object.assign({},c,{unk:true,hint:rwNeed(c)}),c.sky));
   // the real patterns no theme uses yet are already in the sky, dim and named '？？？': constellations still to be found
   const usedK=new Set(CONS.map(c=>c.sky));
   for(const key of Object.keys(SKY_SHAPE))if(!usedK.has(key))D.push(mkD({name:'？？？',ii:[],unk:true,sky:key},key));
@@ -2324,12 +2352,14 @@ function skyBuild(){
     // nudge very close pairs apart so each star can be tapped and labelled; the shape stays the same
     for(let it=0;it<40;it++)for(const p of P)for(const o of P){if(p===o)continue;const dx=o.x-p.x,dy=o.y-p.y,d=Math.hypot(dx,dy)||1;if(d<28){const u=(28-d)/2/d;p.x-=dx*u;p.y-=dy*u;o.x+=dx*u;o.y+=dy*u}}
     P.forEach(p=>{p.mag=clamp(1+(2.6-p.m)*.5,.4,2.3)});
-    [...P].sort((a,b)=>a.m-b.m).slice(0,c.ii.length).forEach((p,j)=>{p.i=c.ii[j]});   // songs in play order, brightest star first
+    [...P].sort((a,b)=>a.m-b.m).slice(0,c.unk?0:c.ii.length).forEach((p,j)=>{p.i=c.ii[j]});   // songs in play order, brightest star first
     const SP=P.filter(p=>p.i>=0);SP.forEach(p=>{p.nn=Math.min(...SP.filter(o=>o!==p).map(o=>Math.hypot(o.x-p.x,o.y-p.y)),999)});   // room for a name, among song stars
     const px=P.map(p=>p.x),py=P.map(p=>p.y),b0=Math.min(...px),b1=Math.max(...px),t0=Math.min(...py),t1=Math.max(...py);
-    return{k:c.unk?-1:k,unk:!!c.unk,name:c.name,th:c.unk?'？？？':c.theme.replace(/座$/,''),rl:c.unk?'':SKY_REAL[c.sky],P,x:(b0+b1)/2,y:(t0+t1)/2,top:t0,bw:b1-b0,bh:t1-t0,R};
+    return{k:c.unk?-1:k,unk:!!c.unk,hint:c.hint||'',name:c.unk?'？？？':c.name,th:c.unk?'？？？':c.theme.replace(/座$/,''),rl:c.unk?'':SKY_REAL[c.sky],P,x:(b0+b1)/2,y:(t0+t1)/2,top:t0,bw:b1-b0,bh:t1-t0,R};
   });
   const W=Math.max(...C.map(c=>c.x+c.bw/2))+PAD,H=Math.max(...C.map(c=>c.y+c.bh/2))+PAD;
+  // the 音符座 (shown once every regular constellation is complete) takes the emptiest spot among them
+  let NT=null;{let bd=0;for(let x=PAD;x<=W-PAD;x+=40)for(let y=PAD;y<=H-PAD;y+=40){const d=Math.min(...C.map(c=>Math.hypot(c.x-x,c.y-y)-c.R*1.25));if(d>bd){bd=d;NT={x,y,r:clamp(d*.75,80,320)}}}}
   // the milky way follows the real galactic plane: for each right ascension, the declination where it crosses
   const GP=[192.86*Math.PI/180,27.13*Math.PI/180];
   const bandY=x=>{const ra=((seam+raM-(x-PAD)/(15*K))%24+24)%24*15*Math.PI/180;return DE_Y(Math.atan(-Math.cos(GP[1])*Math.cos(ra-GP[0])/Math.sin(GP[1]))*180/Math.PI)};
@@ -2348,7 +2378,7 @@ function skyBuild(){
     if(!fb.has(key))fb.set(key,{h,a:[.22,.42,.7][a],g,p:[]});fb.get(key).p.push([x,y,.3+m*1.0])}
   const neb=[];for(let i=0;i<Math.round(70*BL/3200);i++){const x=cx0+(rnd()-.5)*BL*.8;neb.push({x,y:bandY(x)+(rnd()-.5)*260,r:120+rnd()*260,c:rnd()<.5?'90,110,200':'150,90,170',a:.025+rnd()*.035})}
   const cv=$('#skyCv');
-  SKY={W,H,MX,MY,FW,FH,C,fb:[...fb.values()],neb,cv,cx:cv.getContext('2d'),vw:0,vh:0,dpr:1,s:1,ox:0,oy:0,minS:1,fitS:1,anim:null,raf:0,dirty:true,focus:-2,cache:new Map(),lt:0};
+  SKY={W,H,NT,noteOn:false,MX,MY,FW,FH,C,fb:[...fb.values()],neb,cv,cx:cv.getContext('2d'),vw:0,vh:0,dpr:1,s:1,ox:0,oy:0,minS:1,fitS:1,anim:null,raf:0,dirty:true,focus:-2,cache:new Map(),lt:0};
   skyA11y();
 }
 function skyFit(){
@@ -2378,18 +2408,19 @@ function skyFly(x,y,ns,instant){
 const skyFlyTo=(C,instant)=>{const ns=skyZoomFor(C);skyFly(C.x,C.y-14/ns,ns,instant)};
 const skyOverview=instant=>skyFly(SKY.W/2,SKY.H/2-20/SKY.fitS,SKY.fitS,instant);
 const skyDone=c=>c.ii.every(i=>starOf(i).lit);
+const regDone=()=>CONS.every(c=>c.rw!=null||skyDone(c));   // every regular constellation complete: the 音符座 appears
 function skyCount(){
-  let lit=0,s=0;for(let i=0;i<SONGS.length;i++){const v=starOf(i);if(v.lit)lit++;if(v.r===4)s++}
-  return{lit,s,full:CONS.filter(skyDone).length};
+  let lit=0,s=0,n=0;for(let i=0;i<SONGS.length;i++){if(!shown(i))continue;n++;const v=starOf(i);if(v.lit)lit++;if(v.r===4)s++}
+  const cs=CONS.filter(rwOpen);return{lit,s,n,full:cs.filter(skyDone).length,cn:cs.length};
 }
-function skyBadge(){$('#skyN').textContent=skyCount().lit+'/'+SONGS.length}
+function skyBadge(){const n=skyCount();$('#skyN').textContent=n.lit+'/'+n.n}
 // top bar: the whole sky, or the constellation the view is zoomed into
 function skyHead(){
   const S=SKY,zl=S.s/S.fitS;let f=-1;
   if(zl>=2){const wx=(S.vw/2-S.ox)/S.s,wy=(S.vh/2-S.oy)/S.s;let bd=1e9;for(const C of S.C){const d=Math.hypot(C.x-wx,C.y-wy);if(d<C.R*1.4&&d<bd){bd=d;f=C.unk?'u':C.k}}}
   if(f===S.focus)return;S.focus=f;
   if(f==='u'){$('#skyT').textContent='？？？';$('#skyStat').textContent='尚未發現的星座';return}
-  if(f<0){const n=skyCount();$('#skyT').textContent='星空';$('#skyStat').innerHTML='點亮 <em>'+n.lit+'</em> / '+SONGS.length+' · 完整星座 <em>'+n.full+'</em> / '+CONS.length+' · S 評級 <em>'+n.s+'</em>'}
+  if(f<0){const n=skyCount();$('#skyT').textContent='星空';$('#skyStat').innerHTML='點亮 <em>'+n.lit+'</em> / '+n.n+' · 完整星座 <em>'+n.full+'</em> / '+n.cn+' · S 評級 <em>'+n.s+'</em>'}
   else{const c=CONS[f],lit=c.ii.filter(i=>starOf(i).lit).length;$('#skyT').textContent=c.name;$('#skyStat').innerHTML='點亮 <em>'+lit+'</em> / '+c.ii.length+(lit===c.ii.length?' · <em>星座完成</em>':'')}
 }
 const skyStar=i=>{const c=SKY.cache;if(!c.has(i))c.set(i,{v:starOf(i),ul:unlocked(i)});return c.get(i)};   // nothing changes while the sky is open
@@ -2419,6 +2450,10 @@ function skyPaint(t){
     const pn=Math.ceil(b.p.length*part);for(let j=0;j<pn;j++){const p=b.p[j];if(p[0]<X0||p[0]>X1||p[1]<Y0||p[1]>Y1)continue;const r=p[2]*fr;g.moveTo(p[0]+r,p[1]);g.arc(p[0],p[1],r,0,6.28)}g.fill()}
   g.globalAlpha=1;
   skyNamePlace(s,zl);
+  if(S.noteOn&&vis(S.NT.x,S.NT.y,S.NT.r*1.5)){const N=S.NT,gl=motion?.75+.25*Math.sin(t/1400):.9;   // the 音符座: a golden eighth note
+    g.save();g.font='700 '+(N.r*2)+'px system-ui';g.textAlign='center';g.textBaseline='middle';g.shadowColor='rgba(255,211,107,.8)';g.shadowBlur=N.r*.35*s;
+    g.globalAlpha=.85*gl;g.fillStyle='#ffd36b';g.fillText('♪',N.x,N.y);g.restore();
+    const na=clamp((zl-.4)/.35,0,1);if(na>0){const fs=skyNameFs(s,zl);g.globalAlpha=na*gl;g.font='600 '+fs+'px system-ui';g.textAlign='center';g.fillStyle='rgba(255,211,107,.95)';g.fillText('音 符 座',N.x,N.y+N.r*1.15+fs);g.globalAlpha=1}}
   const k=Math.pow(Math.max(zl,.6),.3)/s;   // pulled back, constellation stars keep their size so they stand out from the field
   for(const C of S.C){
     if(!vis(C.x,C.y,C.R*1.6))continue;
@@ -2480,7 +2515,8 @@ function skyA11y(){
     if(best&&S.s>=skyZoomFor(best[1])*.7){e.stopPropagation();skyCardShow(best[0].i,best[1].name)}
     else if(C&&S.s<skyZoomFor(C)*.7){e.stopPropagation();$('#skyCard').hidden=true;skyFlyTo(C)}
     else if(best){e.stopPropagation();skyCardShow(best[0].i,best[1].name)}
-    else if(C&&C.unk){e.stopPropagation();toast('這裡還有一個尚未發現的星座')}});
+    else if(S.noteOn&&Math.hypot(wx-S.NT.x,wy-S.NT.y)<S.NT.r*1.2){e.stopPropagation();toast('音符座：所有星座都點亮了，謝謝你一路彈到這裡')}
+    else if(C&&C.unk){e.stopPropagation();toast('這裡還有一個尚未發現的星座'+(C.hint?'。'+C.hint+'後現身':''))}});
   cv.addEventListener('wheel',e=>{if(!SKY)return;e.preventDefault();const r=cv.getBoundingClientRect();skyZoomAt(Math.exp(-e.deltaY*.0015),e.clientX-r.left,e.clientY-r.top)},{passive:false});
   addEventListener('resize',()=>{if(SKY&&skyOn())skyFit()});
 })();
@@ -2503,14 +2539,14 @@ function skyCardShow(i,cname){
     add('p','','在「'+CONS[c[0]].name+'」再通過 '+need+' 首曲目後開放。').style.margin='10px 0';
   }
   if(ul){const row=add('div','row');add('button','pri','挑戰這首',row).onclick=()=>{
-    const top=DORD.reduce((a,k,j)=>v.per[k]||(v.old&&!k)?j:a,-1),nd=DORD[Math.min(DORD.length-1,top+1)];di=nd;lsSet('pmb6-di',String(nd))   // the level just above the hardest one cleared
+    const top=DORD.reduce((a,k,j)=>v.per[k]||(v.old&&!k)?j:a,-1),nd=DORD[Math.min(DORD.length-1,top+1)];if(fixDi(i)==null){di=nd;diPref=null;lsSet('pmb6-di',String(nd))}   // the level just above the hardest one cleared
     si=i;skyClose(true);initAudio();preloadSong(s);showSelect()}}
   const x=add('button','xbtn','✕');x.setAttribute('aria-label','關閉');x.onclick=e=>{e.stopPropagation();c.hidden=true};
   c.hidden=false;
 }
 function skyOpen(from){
   skyBack=from;$('#'+from).classList.add('hidden');$('#sky').classList.remove('hidden');$('#skyCard').hidden=true;
-  if(!SKY)skyBuild();SKY.cache=new Map();skyFit();SKY.focus=-2;
+  if(!SKY)skyBuild();SKY.cache=new Map();SKY.noteOn=!!SKY.NT&&regDone();skyFit();SKY.focus=-2;
   const c=CON_OF[si];if(from==='end'&&c)skyFlyTo(SKY.C[c[0]],true);else skyOverview(true);
   SKY.dirty=true;if(!SKY.raf)SKY.raf=requestAnimationFrame(skyLoop);
 }
@@ -2714,7 +2750,7 @@ $('#howX').onclick=howClose;
 $('#howv').addEventListener('click',e=>{if(e.target.id==='howv')howClose()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#howv').classList.contains('hidden'))howClose()});
 navTap('#bGo',()=>{if(RSEL&&RSEL.on){mpSelGo();return}if(!unlocked(si))return;initAudio();goFs();mode='normal';startRun(0)});
-$('#bNext').onclick=()=>{initAudio();if(mode==='tut'){mode='normal';si=0;startRun(0)}else if(si+1<SONGS.length&&unlocked(si+1)){si++;startRun(0)}};
+$('#bNext').onclick=()=>{initAudio();if(mode==='tut'){mode='normal';si=0;diSync();startRun(0)}else if(si+1<SONGS.length&&unlocked(si+1)){si++;diSync();startRun(0)}};
 $('#bRetry').onclick=()=>{initAudio();startRun(0)};
 $('#bCont').onclick=()=>{initAudio();startRun(cp.ti)};
 $('#bSel').onclick=showSelect;

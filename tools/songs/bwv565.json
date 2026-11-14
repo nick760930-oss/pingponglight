@@ -1,0 +1,9 @@
+{
+  "key": "bwv565",
+  "name": "D 小調觸技曲",
+  "composer": "巴哈",
+  "year": "約1708",
+  "inst": { "lead": "organ", "bk": "organ", "bass": "organ" },
+  "credit": { "source": "Mutopia Project", "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1780", "licence": "Public Domain", "by": "Anonymous", "note": "取開頭觸技曲段，收在 D 小調終止和弦" },
+  "midi": { "file": "tools/midi/bwv565.mid", "mel": 1, "crop": [0, 118] }
+}
