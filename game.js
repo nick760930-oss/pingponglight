@@ -470,7 +470,7 @@ const DU={ws:null,rel:{},says:{},relIds:'',code:'',you:0,host:0,players:[],cfg:{
   lob:{di:-1,max:4},matching:false,roomsIv:0,roomsTok:0,autoIv:0,pingIv:0,note:''};
 (()=>{const d=parseInt(lsGet('ppl-qdi')||'',10),m=parseInt(lsGet('ppl-qmax')||'',10);if(d>=-1&&d<5)DU.lob.di=d;if([4,6,8].includes(m))DU.lob.max=m})();
 let mode='normal',D=null,life=30,lifeMax=30,resumeCD=0,lastRes=null,freezeG=0;
-const LIFE0=30,GRACE_N=20;   // every run opens with 30 HP; lifeMax = 30 + level (levels come later); the first 20 balls cost half and never kill
+const LIFE0=30;   // every run opens with 30 HP; lifeMax = 30 + level (levels come later)
 const lifeP=()=>Math.round(life/lifeMax*100);   // percent, as the room and spectator protocol expects
 const TRYN=40,TUTN=20,TUTD={n:'教學',nb:1,gap:1.25,spd:.9,dmg:0,bm:1.4,hm:1.4,wm:1.3,ob:.5,noSmall:1};
 let st='home',si=0,offset=0,nt=0,resolved=0,nb=1,bi=0,tickQ=[],endAt=0,paused=false,exitT=0;
@@ -852,7 +852,7 @@ function miss(b){
   missCount++;combo=0;
   if(mlOn()){if(mlv>0)mlSet(mlv-1,false);else mgrow=0}
   const old=b.side,nx=old===1?-1:1,sh=shield>0;
-  if(sh)shield--;else if(D.dmg){const early=resolved-runFrom<GRACE_N;life=early?Math.max(1,life-Math.ceil(D.dmg/2)):Math.max(0,life-D.dmg)}   // a plain miss stays silent
+  if(sh)shield--;else life=Math.max(0,life-(D.dmg||0))   // a plain miss stays silent
   vib(sh?20:[40,30,40]);
   floats.push({x:b.x+nx*40,y:b.y,text:sh?'護盾抵銷':'失誤',hue:sh?190:350,life:1,max:1,size:1.2});
   const hue=sh?190:350;
