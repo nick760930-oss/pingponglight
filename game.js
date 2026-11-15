@@ -469,7 +469,9 @@ const DU={ws:null,rel:{},says:{},relIds:'',code:'',you:0,host:0,players:[],cfg:{
   board:[],names:{},n:1,rank:0,rankT:0,res:null,myFin:null,left:false,joined:false,pstreak:0,fogT:0,shrinkT:0,sprint:false,banner:null,prevDi:null,ready:false,
   lob:{di:-1,max:4},matching:false,roomsIv:0,roomsTok:0,autoIv:0,pingIv:0,note:''};
 (()=>{const d=parseInt(lsGet('ppl-qdi')||'',10),m=parseInt(lsGet('ppl-qmax')||'',10);if(d>=-1&&d<5)DU.lob.di=d;if([4,6,8].includes(m))DU.lob.max=m})();
-let mode='normal',D=null,life=100,resumeCD=0,lastRes=null,freezeG=0;
+let mode='normal',D=null,life=30,lifeMax=30,resumeCD=0,lastRes=null,freezeG=0;
+const LIFE0=30,GRACE_N=20;   // every run opens with 30 HP; lifeMax = 30 + level (levels come later); the first 20 balls cost half and never kill
+const lifeP=()=>Math.round(life/lifeMax*100);   // percent, as the room and spectator protocol expects
 const TRYN=40,TUTN=20,TUTD={n:'教學',nb:1,gap:1.25,spd:.9,dmg:0,bm:1.4,hm:1.4,wm:1.3,ob:.5,noSmall:1};
 let st='home',si=0,offset=0,nt=0,resolved=0,nb=1,bi=0,tickQ=[],endAt=0,paused=false,exitT=0;
 let score=0,combo=0,maxCombo=0,tierCount=[0,0,0,0],time=0,ts=1,gAC=0,gT=0,cp={ti:0,score:0},lastCents=0,lastP=.5,pSrc='none';
@@ -481,7 +483,7 @@ const LEADIN=2.6,CPN=25;
 //   bm: ball size, hm: touch radius, wm: hit window (all × the base), side: a tap anywhere on the ball's half counts,
 //   ob: obstacle amount, noSmall: no "smaller touch range" item. Tuned with an analysis of every song on an iPhone in landscape.
 //   Keep it on one line: server/scripts/charts.mjs reads it from here.
-const DIFFS=[{n:'簡單',nb:1,gap:1.0,spd:1.0,dmg:15,bm:1.4,hm:1.6,wm:1.5,ob:.5,noSmall:1},{n:'普通',nb:2,gap:.6,spd:1.0,dmg:20,bm:1.25,hm:1.25,wm:1.15,ob:1},{n:'困難',nb:2,gap:.45,spd:1.1,dmg:28,bm:1.1,hm:1.1,wm:1.05,ob:1},{n:'入門',nb:1,gap:1.3,spd:.9,dmg:10,bm:1.5,hm:1.3,wm:1.7,side:1,ob:0,noSmall:1},{n:'專家',nb:3,gap:.3,spd:1.25,dmg:34,ob:1}];
+const DIFFS=[{n:'簡單',nb:1,gap:1.0,spd:1.0,dmg:3,bm:1.4,hm:1.6,wm:1.5,ob:.5,noSmall:1},{n:'普通',nb:2,gap:.6,spd:1.0,dmg:4,bm:1.25,hm:1.25,wm:1.15,ob:1},{n:'困難',nb:2,gap:.45,spd:1.1,dmg:7,bm:1.1,hm:1.1,wm:1.05,ob:1},{n:'入門',nb:1,gap:1.3,spd:.9,dmg:2,bm:1.5,hm:1.3,wm:1.7,side:1,ob:0,noSmall:1},{n:'專家',nb:3,gap:.3,spd:1.25,dmg:8,ob:1}];
 const DORD=[3,0,1,2,4],LVL=[1,2,3,0,4],BALLS=['','單球','雙球','三球'];
 /* music layers: the accompaniment grows with unbroken good hits; a miss drops one layer */
 const ML_STEP=[10,15,25],ML_NAME=['微光','明亮','輝映','星耀'],ML_HUE=[225,185,265,48],ML_TIP=['','和聲與鼓組加入','加入副旋律','主旋律加入高八度鐘聲'];
@@ -595,8 +597,8 @@ function hud(){
   $('#score').textContent=score.toLocaleString();
   if(mode==='duel'){const top=Math.max(score,...DU.board.map(b=>b.s)),o=DU.board[0],tot=score+(o?o.s:0);$('#pf').style.width=(top?score/top*100:100)+'%';duelSub()}   // 2 players: tug of war; more: share of the leader's score
   else $('#pf').style.width=(tg.length?resolved/tg.length*100:0)+'%';
-  const lf=$('#life');lf.style.width=life+'%';lf.classList.toggle('low',life<35);
-  $('#combo').innerHTML=(mlOn()&&st==='play'?'<span class="mlv" style="--c:hsl('+ML_HUE[mlv]+',90%,'+(mlv?68:62)+'%)">'+[0,1,2,3].map(i=>'<i'+(i<=mlv?' class="on"':'')+'></i>').join('')+'</span>'+ML_NAME[mlv]+' · ':'')+(combo>1?'連擊 '+combo+' · ':'')+resolved+' / '+tg.length+(rangeT>0?(rangeMul>1?' · 範圍放大':' · 範圍縮小'):'')+(starT>0?' · 分數×2':'')+(shield?' · 護盾':'');
+  const lf=$('#life');lf.style.width=life/lifeMax*100+'%';lf.classList.toggle('low',life<lifeMax*.35);
+  $('#combo').innerHTML=(mlOn()&&st==='play'?'<span class="mlv" style="--c:hsl('+ML_HUE[mlv]+',90%,'+(mlv?68:62)+'%)">'+[0,1,2,3].map(i=>'<i'+(i<=mlv?' class="on"':'')+'></i>').join('')+'</span>'+ML_NAME[mlv]+' · ':'')+(combo>1?'連擊 '+combo+' · ':'')+resolved+' / '+tg.length+(rangeT>0?(rangeMul>1?' · 範圍放大':' · 範圍縮小'):'')+(starT>0?' · 分數×2':'')+(shield?' · 護盾'+(shield>1?' ×'+shield:''):'');
 }
 function newBall(ti){
   const s=sideOf(ti),dy=srand(-.35,.35),l=Math.hypot(1,dy);
@@ -614,7 +616,7 @@ function startRun(from){
   offset=from>0?tg[from].t-.02:0;
   bi=bkList.findIndex(n=>n[0]/100>=offset);if(bi<0)bi=bkList.length;
   resolved=from;nt=from+nb;score=from?cp.score:0;if(!from)cp={ti:0,score:0};
-  combo=0;maxCombo=0;tierCount=[0,0,0,0];shake=0;exitT=0;easeT=0;starT=0;shield=0;rangeT=0;rangeMul=1;paused=false;resumeCD=0;life=100;missCount=0;runFrom=from;flash.a=0;edgeGlow=[0,0,0,0];
+  combo=0;maxCombo=0;tierCount=[0,0,0,0];shake=0;exitT=0;easeT=0;starT=0;shield=0;rangeT=0;rangeMul=1;paused=false;resumeCD=0;lifeMax=LIFE0;life=LIFE0;missCount=0;runFrom=from;flash.a=0;edgeGlow=[0,0,0,0];
   bumps=[];items=[];rings=[];floats=[];parts=[];aims=[];hfx=[];spawnT=5;itemT=9;tickQ=[];cutAll();mlv=0;mgrow=0;mlBan=null;
   balls=[];for(let j=0;j<nb;j++)if(from+j<tg.length)balls.push(newBall(from+j));
   RUN=mode==='normal'&&!from&&ME?{log:new Array(tg.length).fill(null),ok:true,ticket:null,key:song.key,d:di}:null;   // only full solo runs can enter the leaderboard
@@ -826,7 +828,7 @@ function bounce(b,tx,ty,p){
   b.win=null;b.sq=1;b.sqn=old;
   if(DU.wn>0)spEv(ti,b,b.ti,cents);
   playMel(b.ti,cents,T.vol);                                   // melody is heard ONLY on a correct hit
-  tierCount[ti]++;combo=ti<=2?combo+1:0;life=Math.min(100,life+[3,2,1,0][ti]);if(ti===0)vib(12);maxCombo=Math.max(maxCombo,combo);
+  tierCount[ti]++;combo=ti<=2?combo+1:0;life=Math.min(lifeMax,life+[2,1,1,0][ti]);if(ti===0)vib(12);maxCombo=Math.max(maxCombo,combo);
   if(mlOn()&&ti<=2&&mlv<3&&++mgrow>=ML_STEP[mlv])mlSet(mlv+1,true);   // "尚可" neither counts nor breaks the climb
   const sf=Math.pow(Math.max(.3,b.v/V0),1.1),base=Math.round((100*T.m*sf*(1+.3*p)*(starT>0?2:1))*(mode==='duel'&&DU.sprint?2:1)),pts=base+combo*5;
   if(RUN&&b.ti<RUN.log.length)RUN.log[b.ti]=[Math.max(-400,Math.min(400,Math.trunc(e*1000))),base];   // ms toward zero keeps the same timing tier as here
@@ -850,7 +852,7 @@ function miss(b){
   missCount++;combo=0;
   if(mlOn()){if(mlv>0)mlSet(mlv-1,false);else mgrow=0}
   const old=b.side,nx=old===1?-1:1,sh=shield>0;
-  if(sh)shield--;else life=Math.max(0,life-(D.dmg||0));   // a plain miss stays silent
+  if(sh)shield--;else if(D.dmg){const early=resolved-runFrom<GRACE_N;life=early?Math.max(1,life-Math.ceil(D.dmg/2)):Math.max(0,life-D.dmg)}   // a plain miss stays silent
   vib(sh?20:[40,30,40]);
   floats.push({x:b.x+nx*40,y:b.y,text:sh?'護盾抵銷':'失誤',hue:sh?190:350,life:1,max:1,size:1.2});
   const hue=sh?190:350;
@@ -881,7 +883,7 @@ function spawnBump(){
 // an item must stay reachable: keep it clear of an obstacle's full (overshooting) radius plus a ball's width and some room
 const itemGap=Rm=>Rm*1.3+BR*2+17+30;
 function spawnItem(){
-  const r=RNG(),type=r<.3?'big':r<.5?(D&&D.noSmall?'big':'small'):r<.78?'star':(shield>=2?'star':'shield');
+  const r=RNG(),type=r<.3?'big':r<.5?(D&&D.noSmall?'big':'small'):r<.78?'star':'shield';
   for(let tries=0;tries<16;tries++){
     const x=FR.x+FR.w*srand(.25,.75),y=FR.y+FR.h*srand(.2,.8);
     if(bumps.every(o=>Math.hypot(o.x-x,o.y-y)>=itemGap(o.Rm))){items.push({x,y,type,age:0,life:7});return}
@@ -1048,7 +1050,7 @@ function updateBall(b,dt){
       if(it.type==='big'){rangeT=9;rangeMul=1.7;txt='點擊範圍放大'}
       else if(it.type==='small'){rangeT=9;rangeMul=.6;txt='點擊範圍縮小'}
       else if(it.type==='star'){starT=8;txt='分數 ×2'}
-      else{shield=Math.min(2,shield+1);txt='護盾 +1'}
+      else{shield++;txt='護盾 +1'}
       hud();burst(it.x,it.y,hue,22,BR*16,.9);flash.a=.2;flash.hue=hue;
       rings.push({x:it.x,y:it.y,r0:8,life:.6,max:.6,hue,w:4},{x:it.x,y:it.y,r0:6,life:.8,max:.8,hue:hue+25,w:3});
       floats.push({x:it.x,y:it.y-18,text:txt,hue,life:1,max:1,size:1.2});
@@ -1702,7 +1704,7 @@ function duelStart(d){
   wait();
 }
 // standings: everyone sorted by score, me included; players who are out drop to the bottom
-function mpStand(){const me={i:DU.you,name:mpName(DU.you),s:score,c:combo,l:life,fin:DU.myFin?1:0,me:true,out:st==='over'||!!(DU.myFin&&!DU.myFin.ok)};
+function mpStand(){const me={i:DU.you,name:mpName(DU.you),s:score,c:combo,l:lifeP(),fin:DU.myFin?1:0,me:true,out:st==='over'||!!(DU.myFin&&!DU.myFin.ok)};
   return[me,...DU.board].sort((a,b)=>((a.out||a.gone)?1:0)-((b.out||b.gone)?1:0)||b.s-a.s||(a.me?-1:b.me?1:0))}
 function mpRankCheck(){
   if(mode!=='duel')return;const S=mpStand(),r=S.findIndex(x=>x.me)+1;
@@ -1713,7 +1715,7 @@ function mpRankCheck(){
 const ATKN={bump:'障礙',shrink:'觸碰範圍縮小',fog:'迷霧'},ATKS={bump:' · 4 秒',shrink:' · 5 秒',fog:' · 3 秒'};
 function duelHit(j){   // j: 0-3 tier, 4 miss
   const d=score-(DU.lastS||0);DU.lastS=score;
-  dsend({t:'st',s:score,c:combo,l:life,r:resolved,j});
+  dsend({t:'st',s:score,c:combo,l:lifeP(),r:resolved,j});
   mpLadHit(DU.you,j,d);
   if(j===0){if(++DU.pstreak>=10){DU.pstreak=0;const k=['bump','shrink','fog'][Math.floor(Math.random()*3)];dsend({t:'atk',k});
     const S=mpStand().filter(x=>x.me||!x.fin&&!x.gone),r=S.findIndex(x=>x.me),tg2=r>0?S[r-1]:S[1];   // the server sends it to the player just ahead (or 2nd when leading)
@@ -1844,7 +1846,7 @@ function spMyLook(){
   return['orb','trail','hit','frame','bg'].map(sl=>{const id=COS.state.eq[sl];return id&&id!==COS.defaults[sl]?id:''})}
 function spSend(now){
   if(mode!=='duel'||st!=='play'||paused||!DU.ws||now-spLast<62)return;spLast=now;
-  const o={t:'v',g:n3(G()),b:balls.slice(0,8).map(b=>[n3((b.x-FR.x)/FR.w),n3((b.y-FR.y)/FR.h)]),e:evq.splice(0,10),s:score,c:combo,l:Math.round(life),m:mlFull()?-1:mlv};
+  const o={t:'v',g:n3(G()),b:balls.slice(0,8).map(b=>[n3((b.x-FR.x)/FR.w),n3((b.y-FR.y)/FR.h)]),e:evq.splice(0,10),s:score,c:combo,l:lifeP(),m:mlFull()?-1:mlv};
   const k=spMyLook(),kk=k.join('|');if(kk!==spK||now-spKT>5000){spK=kk;spKT=now;o.k=k}
   let j=JSON.stringify(o);if(j.length>900){o.e=[];j=JSON.stringify(o)}   // the server drops frames over 1000 bytes
   try{if(DU.ws.readyState===1)DU.ws.send(j)}catch(e){}
