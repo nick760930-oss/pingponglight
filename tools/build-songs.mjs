@@ -71,11 +71,15 @@ const ORDER = CONS.flatMap(c => c[1]).filter(k => DATA[k]);
 const TRIV = existsSync(join(TOOLS, 'trivia.json')) ? JSON.parse(readFileSync(join(TOOLS, 'trivia.json'), 'utf8')) : {};
 for (const k of ORDER) { if (TRIV[k]) DATA[k].tip = TRIV[k]; else problems.push('tools/trivia.json: no entry for "' + k + '"') }
 
+// difficulty stars from tools/stars.mjs (run it after adding songs, then build again); a song without one falls back to the old note-density stars in game.js
+const STARJ = existsSync(join(TOOLS, 'stars.json')) ? JSON.parse(readFileSync(join(TOOLS, 'stars.json'), 'utf8')) : {};
+const STARS = {}; for (const k of ORDER) if (STARJ[k]) STARS[k] = STARJ[k].s; else console.warn('tools/stars.json: no entry for "' + k + '" yet: run node tools/stars.mjs, then build again');
+
 if (stats.length) console.table(stats);
 console.log(ORDER.length + ' songs in ' + CONS.length + ' constellations');
 if (problems.length) { console.error('\n' + problems.join('\n')); process.exit(1) }
 if (check) process.exit(0);
-const out = head + '\nwindow.SONGCONS=' + JSON.stringify(CONS) + ';\nwindow.SONGORDER=' + JSON.stringify(ORDER)
+const out = head + '\nwindow.SONGCONS=' + JSON.stringify(CONS) + ';\nwindow.SONGSTARS=' + JSON.stringify(STARS) + ';\nwindow.SONGORDER=' + JSON.stringify(ORDER)
   + ';\nwindow.SONGDATA={' + ORDER.map(k => JSON.stringify(k) + ':' + JSON.stringify(DATA[k])).join(',\n') + '};\n';
 writeFileSync(join(ROOT, 'songs.js'), out);
 console.log('songs.js written, ' + Math.round(out.length / 1024) + ' KB');

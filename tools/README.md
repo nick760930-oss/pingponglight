@@ -2,6 +2,8 @@
 
 一首曲目＝ `tools/songs/<key>.json` 一個檔案。組裝：`node tools/build-songs.mjs`（寫出 songs.js）；只看一首：`node tools/build-songs.mjs --only <key>`。曲目要放進 `tools/constellations.json` 的某個星座才會出現在遊戲裡。
 
+星級與星座內順序：組裝後執行 `node tools/stars.mjs`，它用遊戲本身的選球程式算出每首在困難、專家實際出的球（平均密度 40%、最密 8 秒 25%、節奏變化 20%、球數 15%），寫出 `tools/stars.json`，並把每座星座的曲目由易到難重新排序；接著再跑一次 `node tools/build-songs.mjs`。評分基準固定，新增曲目不會改變其他曲目的星級。`node tools/stars.mjs --check` 可檢查是否過期。
+
 ## 共同欄位
 
 ```json

@@ -419,7 +419,8 @@ function pickTargets(mel,gap){
   }
   return out;
 }
-const STARS=SONGS.map(s=>{const m=s.n.filter(n=>n[3]===1).length/Math.max(1,s.dur);return m<1?1:m<2?2:m<3?3:m<4.5?4:5});
+// difficulty stars come from tools/stars.mjs (what the game actually throws at 困難 and 專家); the old note-density guess is only a fallback
+const STARS=SONGS.map(s=>{const k=(window.SONGSTARS||{})[s.key];if(k>=1&&k<=5)return k;const m=s.n.filter(n=>n[3]===1).length/Math.max(1,s.dur);return m<1?1:m<2?2:m<3?3:m<4.5?4:5});
 const starTxt=n=>'★'.repeat(n)+'☆'.repeat(5-n);
 // when the tune rests or holds one note for long (Canon's slow voice, long intros), lend the top accompaniment line
 // to the player so the beats keep flowing; those notes then ring only when hit, like the tune itself
@@ -540,7 +541,7 @@ const shown=i=>!isRw(i)||rwOpen(CONS[CON_OF[i][0]]);
 const fixDi=i=>isRw(i)?CONS[CON_OF[i][0]].rdi:null;   // a reward song is played at its constellation's difficulty only
 let diPref=null;   // the player's own difficulty, kept while a reward song holds it fixed
 function diSync(){const f=fixDi(si);if(f!=null){if(diPref==null)diPref=di;di=f}else if(diPref!=null){di=diPref;diPref=null}}
-const unlocked=i=>{if(isRw(i))return rwOpen(CONS[CON_OF[i][0]]);if(!LOCKS)return true;const c=CON_OF[i];return !c||c[1]<3+conCleared(c[0])};   // first 3 of each constellation are open; each song cleared there opens one more
+const unlocked=i=>{if(isRw(i))return rwOpen(CONS[CON_OF[i][0]]);if(!LOCKS)return true;const c=CON_OF[i];return !c||cleared(i)||c[1]<3+conCleared(c[0])};   // first 3 of each constellation are open; each song cleared there opens one more; a cleared song stays open if the order changes
 const TIERS=[
   {n:'完美',hue:48,m:3,ring:3,part:28,shake:5,vol:.4},
   {n:'極佳',hue:185,m:2,ring:2,part:15,shake:3,vol:.37},
