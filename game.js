@@ -91,18 +91,19 @@ function resetAudio(){   // decoded samples (AudioBuffers) stay valid across con
   try{if(AC&&AC.close&&AC.state!=='closed'){const p=AC.close();if(p&&p.catch)p.catch(()=>{})}}catch(e){}
   AC=null;master=wet=busMel=busBk=busFx=bkLP=melSend=null;mlFx=-1;noiseBuf=null;live.length=0;acStale=false;acWatch={t:-1,w:0};
 }
+const MASTER_G=.79;   // overall level into the compressor and limiter (was .55 with a curve that doubled everything after the limiter)
 function initAudio(force){
   if(AC&&(force||acStale||AC.state==='closed'||AC.state==='interrupted')&&(st!=='play'||paused))resetAudio();
   if(AC){unlockAudio();return}
   try{
     AC=new(window.AudioContext||window.webkitAudioContext)();
-    master=AC.createGain();master.gain.value=bugOn()?0:.55;   // stays quiet while the report form is open
+    master=AC.createGain();master.gain.value=bugOn()?0:MASTER_G;   // stays quiet while the report form is open
     const comp=AC.createDynamicsCompressor();
     comp.threshold.value=-16;comp.knee.value=10;comp.ratio.value=3.5;comp.attack.value=.004;comp.release.value=.25;
     const lim=AC.createDynamicsCompressor();lim.threshold.value=-3;lim.knee.value=0;lim.ratio.value=20;lim.attack.value=.001;lim.release.value=.08;
-    const out=AC.createGain();out.gain.value=.72;   // compressors add automatic make-up gain; trim it back
-    const sat=AC.createWaveShaper(),cv2=new Float32Array(1025);   // soft clipper: transparent below 0.8, smooth above
-    for(let i=0;i<1025;i++){const x=i/256-2,a=Math.abs(x);cv2[i]=Math.sign(x)*(a<.8?a:.8+.2*Math.tanh((a-.8)/.2))}
+    const out=AC.createGain();out.gain.value=1;   // sustained limiting lands at about 0.87-0.90 here; only the loudest peaks touch the clipper's soft zone
+    const sat=AC.createWaveShaper(),cv2=new Float32Array(1025);   // soft clipper: unity below 0.8, smooth above (the curve spans inputs -1..1)
+    for(let i=0;i<1025;i++){const x=i/512-1,a=Math.abs(x);cv2[i]=Math.sign(x)*(a<.8?a:.8+.2*(1-(1-(a-.8)/.2)**2))}   // knee: slope 1 at 0.8, flat at 1.0
     sat.curve=cv2;
     master.connect(comp);comp.connect(lim);lim.connect(out);out.connect(sat);sat.connect(AC.destination);
     // small-hall reverb (generated impulse response) instead of a slap-back echo
@@ -721,7 +722,7 @@ function hushAll(){
   const ac=AC;setTimeout(()=>{if(ac&&ac===AC&&document.hidden&&ac.state==='running'&&ac.suspend){try{ac.suspend()}catch(e){}}},120);
   try{if(navigator.mediaSession){navigator.mediaSession.playbackState='none';navigator.mediaSession.metadata=null}}catch(e){}
 }
-function gainBack(){if(bugOn())return;if(AC&&master){try{const now=AC.currentTime;master.gain.cancelScheduledValues(now);master.gain.setValueAtTime(master.gain.value,now);master.gain.setTargetAtTime(.55,now,.03)}catch(e){}}}
+function gainBack(){if(bugOn())return;if(AC&&master){try{const now=AC.currentTime;master.gain.cancelScheduledValues(now);master.gain.setValueAtTime(master.gain.value,now);master.gain.setTargetAtTime(MASTER_G,now,.03)}catch(e){}}}
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden)hushAll();
   else{try{if(navigator.audioSession)navigator.audioSession.type='playback'}catch(e){}gainBack();if(isIOS)acStale=true;
@@ -910,7 +911,7 @@ const rkColorAttr=r=>r==='SSS'?'':' style="color:'+RANK_COL[r]+'"';
 function jingleWin(rank){
   initAudio();cutAll();
   const n={SSS:7,SS:7,S:7,A:6,B:5,C:4,D:3,E:3,F:3}[rank]||3,arp=[60,64,67,72,76,79,84].slice(0,n);
-  arp.forEach((p,i)=>voice(p,.05+i*.11,1.1,.13,0,true,busFx));   // levels measured offline: the old ones drove the output soft clipper hard (crackle); its curve reaches ~0.8 at an input of 0.4
+  arp.forEach((p,i)=>voice(p,.05+i*.11,1.1,.13,0,true,busFx));   // levels measured offline: the old ones drove the output soft clipper hard (crackle); it then doubled every input, so 0.4 already reached its soft zone
   const t=.05+arp.length*.11;
   [48,60,64,67,72].forEach((p,i)=>voice(p,t+i*.02,1.8,i?.07:.12,0,i?true:false,busFx));   // a quick strum, not five attacks at once
   if(rkAtLeastS(rank)){voice(91,t+.12,1.2,.07,0,true,busFx);voice(96,t+.25,1.2,.06,0,true,busFx)}
