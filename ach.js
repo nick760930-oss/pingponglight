@@ -121,9 +121,9 @@ function head(){
     +'<div class="acBar" role="progressbar" aria-valuemin="0" aria-valuemax="'+tot.length+'" aria-valuenow="'+got+'"><i style="width:'+pc+'%"></i></div>'
     +'<div class="acSub">已達成 '+got+' / '+tot.length+'（'+pc+'%）'+(tot.length<D.list.length?'　另有 '+(D.list.length-tot.length)+' 個即將開放':'')+'</div></div>'
     +'<div class="acTt"><div class="acTh">已取得的稱號 <small>'+tt.length+'</small></div>'+(tt.length?'<div class="acTl">'+tt.map(id=>C.titleHTML(id)).join('')+'</div>':'<div class="acNo">還沒有稱號。完成成就就會取得。</div>')+'</div>'}
-// hidden achievements (隱藏成就 tab, desc "提示：… → condition"): until earned only the hint before "→" is shown
+// hidden achievements (隱藏成就 tab): the condition stays "？？？" until earned
 const HIDDEN_CAT=D.tabs.indexOf('隱藏成就');
-const shownDesc=(a,e)=>{if(e||a.cat!==HIDDEN_CAT)return a.desc;const i=a.desc.indexOf('→');return i<0?'？？？':a.desc.slice(0,i).trim()};
+const shownDesc=(a,e)=>e||a.cat!==HIDDEN_CAT?a.desc:'？？？';
 function row(a){
   const e=earned(a.id),s=soon(a),ts=SRV[a.id]||LOC[a.id];
   const tag=s?'<span class="tt soon">即將開放</span>':a.chk==='l'?'<span class="tt loc">本機判定</span>':'';
