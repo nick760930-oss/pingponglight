@@ -57,8 +57,11 @@ for (const [k, runs] of Object.entries(ctx.out)) {
 
 const consPath = join(TOOLS, 'constellations.json'), starsPath = join(TOOLS, 'stars.json');
 const CONS = JSON.parse(readFileSync(consPath, 'utf8'));
+// songs pinned to the front of their constellation whatever their score: 小星星 is the tutorial and shop-trial song, so it must stay in the free 30%
+const PIN = ['twinkle'];
 const sorted = CONS.map(([name, keys, opt]) => {
-  const ks = keys.map((k, i) => [k, i]).sort((a, b) => (STARS[a[0]] ? STARS[a[0]].score : 0) - (STARS[b[0]] ? STARS[b[0]].score : 0) || a[1] - b[1]).map(x => x[0]);
+  const sc = k => PIN.includes(k) ? -1e9 + PIN.indexOf(k) : STARS[k] ? STARS[k].score : 0;
+  const ks = keys.map((k, i) => [k, i]).sort((a, b) => sc(a[0]) - sc(b[0]) || a[1] - b[1]).map(x => x[0]);
   return opt ? [name, ks, opt] : [name, ks];
 });
 const consText = '[\n' + sorted.map(c => '  [' + JSON.stringify(c[0]) + ', [' + c[1].map(k => JSON.stringify(k)).join(', ') + ']' + (c[2] ? ', ' + JSON.stringify(c[2]) : '') + ']').join(',\n') + '\n]\n';

@@ -192,7 +192,7 @@ function setCombo(it,on){
 C.themePartIds=th=>(th.parts||[]).filter(id=>/^(orb|trail|hit)\./.test(id));
 
 // ---------------------------------------------------------------- ui state
-const SIDE=[['full','完整版'],['theme','主題套組'],['single','單件外觀'],['vis','名牌與頭像'],['emote','對戰表情'],['share','分享圖外框'],['sponsor','贊助']];
+const SIDE=[['full','完整版'],['theme','主題套組'],['single','單件外觀'],['vis','名牌與頭像'],['emote','對戰表情'],['share','分享圖外框']];   // no sponsoring (decided 2026-11-16): the tab and the sponsor-only rewards are hidden
 const SUBS={single:[['orb','光球'],['trail','尾跡'],['hit','打擊特效'],['frame','框線'],['bg','背景']],vis:[['plate','名牌框'],['avatar','頭像'],['title','稱號']]};
 const UI={view:'shop',cat:'theme',sub:{single:'orb',vis:'plate'},sel:{}};
 const catOf=()=>UI.cat==='single'||UI.cat==='vis'?UI.sub[UI.cat]:UI.cat;
@@ -202,7 +202,7 @@ const unavail=it=>MODE==='iap'&&!!it.pid&&!!window.PPLIAP&&typeof window.PPLIAP.
 const priceTxt=it=>MODE==='test'?'免費':(MODE==='iap'&&window.PPLIAP&&typeof window.PPLIAP.price==='function'&&window.PPLIAP.price(it.pid))||'NT$'+it.price;
 
 function listFor(cat){
-  let l=C.items.filter(i=>i.cat===cat);
+  let l=C.items.filter(i=>i.cat===cat&&(i.how!=='sponsor'||isOwn(i)));
   if(UI.view==='coll')l=l.filter(isOwn);
   if(cat==='title'||cat==='avatar'||cat==='plate')l=l.slice().sort((a,b)=>(isOwn(b)-isOwn(a)));
   return l}
