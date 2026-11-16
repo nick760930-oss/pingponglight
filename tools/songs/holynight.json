@@ -15,6 +15,10 @@
   },
   "midi": {
     "file": "tools/midi/minuit_chretiens.mid",
-    "mel": 2
+    "mel": 2,
+    "crop": [
+      0,
+      56.7
+    ]
   }
 }

@@ -1,0 +1,40 @@
+{
+  "key": "nocturne",
+  "name": "夜曲 Op.9-2",
+  "composer": "蕭邦",
+  "year": "1832",
+  "inst": {
+    "lead": "piano",
+    "bk": "piano"
+  },
+  "credit": {
+    "source": "依原曲旋律手寫",
+    "url": "",
+    "licence": "公有領域（原曲）",
+    "note": "取開頭 A–A′–B（12 小節）與 A″–B′–A‴（略去最華麗的快速裝飾音），收在主音；裝飾音簡化為十六分音符以內"
+  },
+  "tune": {
+    "bpm": 96,
+    "meter": 6,
+    "style": "arp",
+    "parts": {
+      "A": {
+        "mel": "G5:2 F5:0.5 G5:0.5 F5:1.5 Eb5:1 Bb4:0.5 G5:1 C5:0.5 C6:1 G5:0.5 Bb5:1.5 Ab5:1 G5:0.5 F5:1.5 G5:1 D5:0.5 Eb5:1.5 C5:1.5 Bb4:0.5 D6:0.5 C6:0.5 Bb5:0.25 Ab5 G5 Ab5 C5 D5 Eb5:1.5 r:1 Bb4:0.5 G5:1.5 F5:0.25 G5 F5 E5 F5 G5 F5:0.5 Eb5:1.25 F5:0.25 Eb5:0.25 D5:0.25 Eb5:0.25 F5 G5 B4 C5 Db5 C5 F5 E5 Ab5 G5 Db6 C6 G5 Bb5:1.5 Ab5:1 G5:0.5 F5:1.5 G5:0.5 G5:0.5 D5:0.5 Eb5:1.5 C5:1.5 Bb4:0.5 D6:0.5 C6:0.5 Bb5:0.25 Ab5 G5 Ab5 C5 D5 Eb5:2 D5:0.5 Eb5:0.5 F5:1.5 G5:1 F5:0.5 F5:1.5 C5:1.5 Eb5:0.5 Eb5 Eb5 Eb5 D5:0.25 Eb5:0.25 F5:0.5 Eb5:1.5 Bb4:1.5 Bb5:1.5 A5:1 G5:0.5 F5:1.5 D5:1.5 Eb5:1.5 D5:0.5 C5:0.5 D5:0.5 Bb4:0.5 B4:0.5 B4:0.5 C5:0.5 C5:0.5 D5:0.5",
+        "chords": "Eb:3 Bb7/D:3 C7:3 Fm:3 Bb7:3 F7/A:3 Bb7:3 Eb:3 Eb:3 Bb7/D:3 C7:3 Fm:3 Bb7:3 F7/A:3 Bb7:3 Eb:3 Bb:3 F7/A:3 Ab:3 Eb:3 Edim7:3 Bb/F:3 Cm7:3 F7:3"
+      },
+      "V": {
+        "mel": "G5:1 A4:0.25 Bb4 B4 Bb4 Db5 D5 G5:0.5 F5:1 Eb5:0.75 F5:0.25 Eb5:0.25 D5:0.25 Eb5:0.25 F5 G5 B4 C5 Db5 C5 F5 E5 Ab5 G5 Db6 C6 G5 Bb5:1.5 Ab5:1 G5:0.5 F5:1.5 G5:0.5 G5:0.5 D5:0.5 Eb5:1.5 C5:1.5 Bb4:0.5 D6:0.5 Db6:0.5 C6:0.25 Bb5 A5 Ab5 G5 F5 Eb5:2 D5:0.5 Eb5:0.5 F5:1.5 G5:1 F5:0.5 F5:1.5 C5:1.5 Eb5:0.5 Eb5 Eb5 Eb5 D5:0.25 Eb5:0.25 F5:0.5 Eb5:1.5 Bb4:1.5 Bb5:1.5 A5:1 G5:0.5 F5:1.5 D5:1.5 Eb5:1.5 D5:0.5 C5:0.5 D5:0.5 Bb4:0.5 B4:0.5 B4:0.5 C5:0.5 C5:0.5 D5:0.5 G5:1 A4:0.25 Bb4 B4 Bb4 Db5 D5 G5:0.5 F5:1 Eb5:0.75 F5:0.25 Eb5:0.25 D5:0.25 Eb5:0.25 F5 G5 B4 C5 Db5 C5 F5 E5 Ab5 G5 Db6 C6 G5 Bb5:1.5 Ab5:1 G5:0.5 F5:1.5 G5:0.5 G5:0.5 D5:0.5 Eb5:1.5 C5:1.5 Bb4:0.5 D6:0.5 Db6:0.5 C6:0.25 Bb5 A5 Ab5 G5 F5 Eb5:3",
+        "chords": "Eb:3 Bb7/D:3 C7:3 Fm:3 Bb7:3 F7/A:3 Bb7:3 Eb:3 Bb:3 F7/A:3 Ab:3 Eb:3 Edim7:3 Bb/F:3 Cm7:3 F7:3 Eb:3 Bb7/D:3 C7:3 Fm:3 Bb7:3 F7/A:3 Bb7:3 Eb:3"
+      },
+      "P": {
+        "mel": "r:5.5 Bb4:0.5",
+        "chords": "r:6"
+      }
+    },
+    "form": [
+      "P",
+      "A",
+      "V"
+    ]
+  }
+}

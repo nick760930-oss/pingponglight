@@ -8,15 +8,16 @@
     "bk": "organ"
   },
   "credit": {
-    "source": "Mutopia Project",
-    "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1220",
+    "source": "Open Hymnal Project（ABC）",
+    "url": "http://openhymnal.org/Abc/O_Come_All_Ye_Faithful-Adeste_Fideles-Portugese_Hymn.abc",
     "licence": "Public Domain",
-    "by": "Steve Dunlop",
-    "note": "旋律與 Open Hymnal Project ABC 交叉比對"
+    "note": "旋律與和弦取自 Open Hymnal 的 1916 年《A Hymnal》四部和聲版"
   },
-  "midi": {
-    "file": "tools/src2/adeste/adeste_fideles.mid",
-    "mel": 1,
-    "speed": 1.8
+  "score": {
+    "file": "tools/src2/adeste/O_Come_All_Ye_Faithful-Adeste_Fideles-Portugese_Hymn.abc",
+    "part": 0,
+    "bpm": 84,
+    "style": "block",
+    "chords": "G:3 Bm:1 G:1 D:4 G:1 D:1 G:1 C:1 G:2 D:1 Em:2 C#dim:1 D:1 A:1 D:1 G:1 D:1 Em7:1 D:2 A7:2 D:4 Bm:2 Am:1 G:1 Am7:1 F#dim:1 G:2 D:1 G:1 Em:1 Am:1 D:3 G:2 D:1 G:1 D7:1 G:2 Bm:1 G:2 D:1 G:1 D7:1 G:2 D:1 G:1 D7:1 G:1 D:1 A7:1 D:1 D7:1 G:1 C:1 G:2 D:2 G:3"
   }
 }

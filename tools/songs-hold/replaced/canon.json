@@ -1,0 +1,31 @@
+{
+ "key": "canon",
+ "name": "卡農",
+ "composer": "帕海貝爾",
+ "year": "約1680",
+ "inst": {
+  "lead": "violin",
+  "bk": "strings",
+  "bass": "cello"
+ },
+ "credit": {
+  "source": "依原曲旋律手寫",
+  "url": "",
+  "licence": "公有領域（原曲）",
+  "note": "取固定低音 D A Bm F#m G D G A 上的第一小提琴聲部前八個變奏（四分、八分、十六分音符與附點節奏），最後補一小節 D 收尾"
+ },
+ "tune": {
+  "bpm": 60,
+  "meter": 4,
+  "style": "block",
+  "parts": {
+   "A": {
+    "mel": "F#5:1 E5 D5 C#5 B4 A4 B4 C#5 D5 C#5 B4 A4 G4 F#4 G4 E4 D4:0.5 F#4 A4 G4 F#4 D4 F#4 E4 D4 B4 D4 A4 G4 B4 A4 G4 F#4 D4 E4 C#5 D5 F#5 A5 A4 B4 G4 A4 F#4 D4 D5 D5:0.75 C#5:0.25 D5:0.25 C#5 D5 D5 C#5 A4 E4 F#4 D4 D5 C#5 B4 C#5 F#5 A5 B5 G5 F#5 E5 G5 F#5 E5 D5 C#5 B4 A4 G4 F#4 E4 G4 F#4 E4 D4 E4 F#4 G4 A4 E4 A4 G4 F#4 B4 A4 G4 A4 G4 F#4 E4 D4 B4 B4 C#5 D5 C#5 B4 A4 G4 F#4 E4 B4 A4 B4 A4 G4 F#4:0.5 F#5:0.5 E5:1 r:0.5 D5:0.5 F#5:1 B4:1 A4:1 B4:1 C#5:1 D5:0.5 D5:0.5 C#5:1 r:0.5 B4:0.5 D5:1 D5:1.5 D5:0.5 D5:0.5 G5:0.5 E5:0.5 A5:0.5 D5:4",
+    "chords": "D:1 A:1 Bm:1 F#m:1 G:1 D:1 G:1 A:1 D:1 A:1 Bm:1 F#m:1 G:1 D:1 G:1 A:1 D:1 A:1 Bm:1 F#m:1 G:1 D:1 G:1 A:1 D:1 A:1 Bm:1 F#m:1 G:1 D:1 G:1 A:1 D:1 A:1 Bm:1 F#m:1 G:1 D:1 G:1 A:1 D:1 A:1 Bm:1 F#m:1 G:1 D:1 G:1 A:1 D:1 A:1 Bm:1 F#m:1 G:1 D:1 G:1 A:1 D:1 A:1 Bm:1 F#m:1 G:1 D:1 G:1 A:1 D:4"
+   }
+  },
+  "form": [
+   "A"
+  ]
+ }
+}

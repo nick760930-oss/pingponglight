@@ -1,30 +1,33 @@
 {
- "key": "k545",
- "name": "C大調奏鳴曲 K.545",
- "composer": "莫札特",
- "year": "1788",
- "inst": {
-  "lead": "piano",
-  "bk": "piano"
- },
- "credit": {
-  "source": "依原曲旋律手寫",
-  "url": "",
-  "licence": "公有領域（原曲）",
-  "note": "取第一樂章呈示部（C 大調主題、十六分音階段、G 大調第二主題到終止），略去裝飾音；左手以分解和弦帶過"
- },
- "tune": {
-  "bpm": 108,
-  "meter": 4,
-  "style": "arp",
-  "parts": {
-   "A": {
-    "mel": "C5:2 E5:1 G5:1 B4:1.5 C5:0.25 D5:0.25 C5:1 r:1 A5:2 G5:1 C6:1 G5:1 F5:0.5 E5:0.25 F5:0.25 E5:1 r:1 A4:0.5 B4:0.25 C5 D5 E5 F5 G5 A5 G5 F5 E5 D5 C5 B4 A4 G4:0.5 A4:0.25 B4 C5 D5 E5 F5 G5 F5 E5 D5 C5 B4 A4 G4 F4:0.5 G4:0.25 A4 B4 C5 D5 E5 F5 E5 D5 C5 B4 A4 G4 F4 E4:0.5 F4:0.25 G4 A4 B4 C5 D5 E5 D5 C5 B4 A4 G4 F4 E4 D4:0.5 E4:0.25 F4 G4 A4 B4 C#5 D5 A4 B4 C#5 D5 E5 F5 G5 A5:0.25 B5 C6 B5 A5 G5 F5 E5 F5 G5 A5 G5 F5 E5 D5 C5 B4:0.5 G5 E5 C5 D5 G5 E5 C5 D5:1 G5:1 G4:1 r:1 r:4 D6:0.5 B5:0.5 G5:1.5 A5:0.25 B5:0.25 A5:0.5 G5:0.5 G5:0.75 F#5:0.25 F#5:1 r:2 D6:0.5 B5:0.5 G5:1.5 A5:0.25 B5:0.25 A5:0.5 G5:0.5 G5:0.75 F#5:0.25 F#5:1 r:2 D6:1 r:0.25 D6:0.25 B5:0.25 G5:0.25 E5:1 r:0.25 E5:0.25 G5:0.25 E5:0.25 C6:1 r:0.25 C6:0.25 A5:0.25 F#5:0.25 D5:1 r:0.25 D5:0.25 F#5:0.25 D5:0.25 B5:1 r:0.25 B5:0.25 G5:0.25 E5:0.25 C5:1 r:0.25 C5:0.25 E5:0.25 C5:0.25 A5:1 r:0.25 A5:0.25 F#5:0.25 D5:0.25 B4:1 r:0.25 G5:0.25 D5:0.25 B4:0.25 A4:2 C5:1 E5:1 A5:2 C6:0.5 A5:0.5 C6:0.5 A5:0.5 B5:0.5 G5:0.5 D6:2 C6:0.25 B5:0.25 A5:0.25 G5:0.25 A5:4 G5:1 G5:0.25 D5 G5 B5 D6 B5 G5 B5 C6 A5 F#5 A5 G5:1 G4:0.25 D4 G4 B4 D5 B4 G4 B4 C5 A4 F#4 A4 G4:1 B5:1 G5:1 r:1",
-    "chords": "C:4 G7:2 C:2 F:2 C:2 G:2 C:2 F:4 C/E:4 G7:4 C:4 Dm:4 F:2 F/A:1.5 D7/F#:0.5 G:1 C/G:1 G:1 C/G:1 G:4 D7:4 G:4 D7:4 G:4 D7:4 G:2 C:2 D7:2 Bm:2 Em:2 Am:2 D:2 G:2 Am:4 Am:4 G:4 D7:4 G:2 D7:2 G:2 D7:2 G:4"
-   }
+  "key": "k545",
+  "name": "C大調奏鳴曲 K.545",
+  "composer": "莫札特",
+  "year": "1788",
+  "inst": { "lead": "piano", "bk": "piano" },
+  "credit": {
+    "source": "依公有領域原譜手寫",
+    "url": "https://archive.org/details/sonatenundphanta12moza",
+    "licence": "Public Domain",
+    "note": "依 Breitkopf & Härtel 舊全集（Rudorff 編，Sonate Nr.15）PDF 第 200 頁第 1～24 小節與第 201 頁第一行（第 25～28 小節），第一樂章呈示部（不反覆）；旋律為右手，和弦依左手 Alberti／和弦分析；顫音不展開（第 4、15、17、25 小節只寫主音），倚音（第 22、23 小節）省略，第 23 小節 32 分音符迴音改為 16 分音符（附點四分縮為四分）；和弦取頂音當旋律（第 12、28 小節）"
   },
-  "form": [
-   "A"
-  ]
- }
+  "tune": {
+    "bpm": 104,
+    "meter": 4,
+    "style": "arp",
+    "parts": {
+      "A": {
+        "mel": "C5:2 E5:1 G5:1 | B4:1.5 C5:0.25 D5 C5:1 r:1 | A5:2 G5:1 C6:1 | G5:1 F5:0.5 E5:0.25 F5 E5:1 r:1 | A4:0.5 B4:0.25 C5 D5 E5 F5 G5 A5 G5 F5 E5 D5 C5 B4 A4 | G4:0.5 A4:0.25 B4 C5 D5 E5 F5 G5 F5 E5 D5 C5 B4 A4 G4 | F4:0.5 G4:0.25 A4 B4 C5 D5 E5 F5 E5 D5 C5 B4 A4 G4 F4 | E4:0.5 F4:0.25 G4 A4 B4 C5 D5 E5 D5 C5 B4 A4 G4 F4 E4 | D4:0.5 E4:0.25 F4 G4 A4 B4 C#5 D5 A4 B4 C5 D5 E5 F5 G5 | A5:0.25 B5 C6 B5 A5 G5 F5 E5 F5 G5 A5 G5 F5 E5 D5 C5 | B4:0.5 G5 E5 C5 D5 G5 E5 C5 | D5:1 G5:1 G4:1 r:1 | r:4",
+        "chords": "C:4 G7:2 C:2 F:2 C:2 G7:2 C:2 F:4 C:4 G7:4 C:4 Dm:4 F:3 D7:1 G:1 C/G:1 G:1 C/G:1 G:4 D:2 D7:2"
+      },
+      "B": {
+        "mel": "D6:0.5 B5:0.5 G5:1.5 A5:0.25 B5 A5:0.5 G5 | G5:0.75 F#5:0.25 F#5:1 r:2 | D6:0.5 B5:0.5 G5:1.5 A5:0.25 B5 A5:0.5 G5 | G5:0.75 F#5:0.25 F#5:1 r:2 | D6:1 r:0.25 D6 B5 G5 E5:1 r:0.25 E5 G5 E5 | C6:1 r:0.25 C6 A5 F#5 D5:1 r:0.25 D5 F#5 D5 | B5:1 r:0.25 B5 G5 E5 C5:1 r:0.25 C5 E5 C5 | A5:1 r:0.25 A5 F#5 D5 B4:1 r:0.25 G5 D5 B4",
+        "chords": "G:4 D7:4 G:4 D7:4 G:2 C:2 D7:2 G:2 Em:2 Am:2 D7:2 G:2"
+      },
+      "C": {
+        "mel": "A4:2 C5:1 E5:1 | A5:1 B5:0.25 A5 G#5 A5 C6:0.5 A5 C6 A5 | B5:0.5 G5:0.5 D6:2 C6:0.25 B5 A5 G5 | A5:4 | G5:1 G5:0.25 D5 G5 B5 D6 B5 G5 B5 C6 A5 F#5 A5 | G5:1 G4:0.25 D4 G4 B4 D5 B4 G4 B4 C5 A4 F#4 A4 | G4:1 B5:1 G5:1 r:1",
+        "chords": "Am:4 Am:4 G/D:4 D7:4 G:3 D7:1 G:3 D7:1 G:4"
+      }
+    },
+    "form": ["A", "B", "C"]
+  }
 }

@@ -17,6 +17,7 @@
   "midi": {
     "file": "tools/src2/lastrose/lrose.mid",
     "mel": 1,
-    "speed": 1.5
+    "speed": 1.5,
+    "minMel": 0.08
   }
 }

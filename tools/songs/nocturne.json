@@ -8,33 +8,39 @@
     "bk": "piano"
   },
   "credit": {
-    "source": "依原曲旋律手寫",
-    "url": "",
-    "licence": "公有領域（原曲）",
-    "note": "取開頭 A–A′–B（12 小節）與 A″–B′–A‴（略去最華麗的快速裝飾音），收在主音；裝飾音簡化為十六分音符以內"
+    "source": "依公有領域原譜手寫",
+    "url": "https://commons.wikimedia.org/wiki/File:Chopin_Nocturnes_Op_9_Kistner_First_Edition_1832.pdf",
+    "licence": "Public Domain",
+    "note": "依 Kistner 1832 首版 PDF 第 6 頁：弱起＋第 1～10 小節（主題 A、A 的裝飾變奏、B 段第一句，至 poco ritard. 的 Bb4 收）；12/8 以四分音符為拍（每小節 6 拍）；原譜印 M.M. ♩=132（一般解為八分音符），此處放慢為四分音符=60；顫音、迴音記號、波音不展開，倚音省略（第 7、8、10 小節）；和弦取右手頂音當旋律，和聲依左手低音與和弦分析，部分和弦為簡化判讀"
   },
   "tune": {
-    "bpm": 96,
+    "bpm": 60,
     "meter": 6,
     "style": "arp",
     "parts": {
-      "A": {
-        "mel": "G5:2 F5:0.5 G5:0.5 F5:1.5 Eb5:1 Bb4:0.5 G5:1 C5:0.5 C6:1 G5:0.5 Bb5:1.5 Ab5:1 G5:0.5 F5:1.5 G5:1 D5:0.5 Eb5:1.5 C5:1.5 Bb4:0.5 D6:0.5 C6:0.5 Bb5:0.25 Ab5 G5 Ab5 C5 D5 Eb5:1.5 r:1 Bb4:0.5 G5:1.5 F5:0.25 G5 F5 E5 F5 G5 F5:0.5 Eb5:1.25 F5:0.25 Eb5:0.25 D5:0.25 Eb5:0.25 F5 G5 B4 C5 Db5 C5 F5 E5 Ab5 G5 Db6 C6 G5 Bb5:1.5 Ab5:1 G5:0.5 F5:1.5 G5:0.5 G5:0.5 D5:0.5 Eb5:1.5 C5:1.5 Bb4:0.5 D6:0.5 C6:0.5 Bb5:0.25 Ab5 G5 Ab5 C5 D5 Eb5:2 D5:0.5 Eb5:0.5 F5:1.5 G5:1 F5:0.5 F5:1.5 C5:1.5 Eb5:0.5 Eb5 Eb5 Eb5 D5:0.25 Eb5:0.25 F5:0.5 Eb5:1.5 Bb4:1.5 Bb5:1.5 A5:1 G5:0.5 F5:1.5 D5:1.5 Eb5:1.5 D5:0.5 C5:0.5 D5:0.5 Bb4:0.5 B4:0.5 B4:0.5 C5:0.5 C5:0.5 D5:0.5",
-        "chords": "Eb:3 Bb7/D:3 C7:3 Fm:3 Bb7:3 F7/A:3 Bb7:3 Eb:3 Eb:3 Bb7/D:3 C7:3 Fm:3 Bb7:3 F7/A:3 Bb7:3 Eb:3 Bb:3 F7/A:3 Ab:3 Eb:3 Edim7:3 Bb/F:3 Cm7:3 F7:3"
-      },
-      "V": {
-        "mel": "G5:1 A4:0.25 Bb4 B4 Bb4 Db5 D5 G5:0.5 F5:1 Eb5:0.75 F5:0.25 Eb5:0.25 D5:0.25 Eb5:0.25 F5 G5 B4 C5 Db5 C5 F5 E5 Ab5 G5 Db6 C6 G5 Bb5:1.5 Ab5:1 G5:0.5 F5:1.5 G5:0.5 G5:0.5 D5:0.5 Eb5:1.5 C5:1.5 Bb4:0.5 D6:0.5 Db6:0.5 C6:0.25 Bb5 A5 Ab5 G5 F5 Eb5:2 D5:0.5 Eb5:0.5 F5:1.5 G5:1 F5:0.5 F5:1.5 C5:1.5 Eb5:0.5 Eb5 Eb5 Eb5 D5:0.25 Eb5:0.25 F5:0.5 Eb5:1.5 Bb4:1.5 Bb5:1.5 A5:1 G5:0.5 F5:1.5 D5:1.5 Eb5:1.5 D5:0.5 C5:0.5 D5:0.5 Bb4:0.5 B4:0.5 B4:0.5 C5:0.5 C5:0.5 D5:0.5 G5:1 A4:0.25 Bb4 B4 Bb4 Db5 D5 G5:0.5 F5:1 Eb5:0.75 F5:0.25 Eb5:0.25 D5:0.25 Eb5:0.25 F5 G5 B4 C5 Db5 C5 F5 E5 Ab5 G5 Db6 C6 G5 Bb5:1.5 Ab5:1 G5:0.5 F5:1.5 G5:0.5 G5:0.5 D5:0.5 Eb5:1.5 C5:1.5 Bb4:0.5 D6:0.5 Db6:0.5 C6:0.25 Bb5 A5 Ab5 G5 F5 Eb5:3",
-        "chords": "Eb:3 Bb7/D:3 C7:3 Fm:3 Bb7:3 F7/A:3 Bb7:3 Eb:3 Bb:3 F7/A:3 Ab:3 Eb:3 Edim7:3 Bb/F:3 Cm7:3 F7:3 Eb:3 Bb7/D:3 C7:3 Fm:3 Bb7:3 F7/A:3 Bb7:3 Eb:3"
-      },
-      "P": {
+      "P0": {
         "mel": "r:5.5 Bb4:0.5",
-        "chords": "r:6"
+        "chords": "r:6",
+        "free": true
+      },
+      "A": {
+        "mel": "G5:2 F5:0.5 G5:0.5 F5:1.5 Eb5:1 Bb4:0.5 | G5:1 C5:0.5 C6:1 G5:0.5 Bb5:1.5 Ab5:1 G5:0.5 | F5:1.5 G5:1 D5:0.5 Eb5:1.5 C5:1.5 | Bb4:0.5 D6 C6 Bb5:0.25 Ab5 G5 Ab5 C5 D5 Eb5:1.5 r:1 Bb4:0.5",
+        "chords": "Eb:1.5 Eb7:1.5 Eb:3 C7:3 Bbm/F:1.5 Bb7/F:1.5 Bb7:1.5 G7/B:1.5 Cm:1.5 F7/A:1.5 Eb/Bb:1.5 Bb7:1.5 Eb:3"
+      },
+      "A2": {
+        "mel": "G5:1.5 F5:0.25 G5 F5 E5 F5 G5 F5:0.5 Eb5:1 Eb5:0.25 F5 Eb5 D5 Eb5 F5 | G5:0.25 B4 C5 D5 C5 F5 E5 Ab5 G5 D6 C6 G5 Bb5:1.5 Ab5:1 G5:0.5 | F5:1.5 G5:0.5 G5 D5 Eb5:1.5 C5:1.5 | Bb4:0.5 D6 C6 Bb5:0.25 Ab5 G5 Ab5 C5 D5 Eb5:1.5 Eb5:0.5 D5 Eb5",
+        "chords": "Eb:1.5 Eb7:1.5 Eb:3 C7:3 Bbm/F:1.5 Bb7/F:1.5 Bb7:1.5 G7/B:1.5 Cm:1.5 F7/A:1.5 Eb/Bb:1.5 Bb7:1.5 Eb:3"
+      },
+      "B": {
+        "mel": "F5:1.5 G5:1 F5:0.5 F5:1.5 C5:1.5 | Eb5:0.5 Eb5 Eb5 Eb5 D5:0.25 Eb5 F5:0.375 Eb5:0.125 Eb5:1.5 Bb4:1.5",
+        "chords": "Bb7:3 F7/A:1.5 F7:1.5 Ab:1.5 Ddim7:1.5 Eb:3"
       }
     },
     "form": [
-      "P",
+      "P0",
       "A",
-      "V"
+      "A2",
+      "B"
     ]
   }
 }

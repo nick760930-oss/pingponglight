@@ -143,9 +143,9 @@ const P_LEAD=[[1,1],[2,.42],[3,.17],[4,.07]],P_BK=[[1,1],[2,.28],[3,.08]],P_BASS
    g: loudness match, rel: release after the note ends, lo/hi: natural range (notes outside fold by octaves), pan */
 const INST={
   piano:{g:.67,rel:.35,lo:27,hi:102},violin:{g:2.2,rel:.22,lo:55,hi:100},viola:{g:2.05,rel:.22,lo:48,hi:88},
-  cello:{g:2.25,rel:.25,lo:36,hi:76},strings:{g:2.1,rel:.3,lo:36,hi:96},flute:{g:1.1,rel:.12,lo:60,hi:96},
+  cello:{g:2.25,rel:.25,lo:36,hi:76},strings:{g:2.1,rel:.3,lo:36,hi:96},flute:{g:1.1,rel:.12,lo:59,hi:96,sl:60},
   recorder:{g:1.05,rel:.1,lo:60,hi:96},guitar:{g:1.8,rel:.45,lo:40,hi:84},organ:{g:1.5,rel:.12,lo:36,hi:96},
-  choir:{g:2.2,rel:.3,lo:48,hi:84},trumpet:{g:1.6,rel:.1,lo:52,hi:88},clarinet:{g:.82,rel:.1,lo:50,hi:94},pizz:{g:1.3,rel:.3,lo:28,hi:88}};
+  choir:{g:2.2,rel:.3,lo:48,hi:87,sh:84},trumpet:{g:1.6,rel:.1,lo:52,hi:91,sh:90},clarinet:{g:.82,rel:.1,lo:50,hi:99,sh:96},pizz:{g:1.3,rel:.3,lo:28,hi:92,sh:90}};
 // which instrument plays which part of each piece (lead = melody, bk = accompaniment, bass = accompaniment below E3, ctr = counter-melody)
 const INSTMAP={green:{lead:'flute',bk:'guitar'},canon:{lead:'violin',bk:'strings',bass:'cello'},prelude:{lead:'piano',bk:'piano'},
   minuetg:{lead:'piano',bk:'piano'},spring:{lead:'violin',bk:'strings',bass:'cello'},air:{lead:'violin',bk:'strings',bass:'cello'},
@@ -192,7 +192,7 @@ function instFail(){if(instWarned||busyNow())return;instWarned=true;   // during
 function loadInst(name){
   if(SAMP[name])return SAMP[name].p;
   const I=INST[name],S=SAMP[name]={buf:{},n:0,total:0,ready:false};
-  const ms=[];for(let m=I.lo-2;m<=I.hi+2;m++)if(m%3===0)ms.push(m);S.total=ms.length;
+  const ms=[];for(let m=I.sl||I.lo-2;m<=(I.sh||I.hi+2);m++)if(m%3===0)ms.push(m);S.total=ms.length;   // sl/sh: lowest/highest sample when the playable range reaches past the recorded ones
   const pack=APP?instScript(name).catch(e=>{noteErr(name,e);return null}):Promise.resolve(null);
   S.p=pack.then(pk=>Promise.all(ms.map(m=>(pk&&pk[m]?Promise.resolve().then(()=>b64AB(pk[m])).catch(()=>getAB('inst/'+name+'/'+m+'.mp3')):getAB('inst/'+name+'/'+m+'.mp3'))
       .then(ab=>AC?tmo(decodeAB(ab),8000,'decode').catch(e=>Promise.reject('decode '+(e&&e.message||e))):Promise.reject('no audio')).then(b=>{S.buf[m]=trimLead(b);S.n++}).catch(e=>{S.n++;noteErr(name,e)}))))

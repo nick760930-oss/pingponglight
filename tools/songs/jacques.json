@@ -1,9 +1,21 @@
 {
-  "key": "jacques", "name": "兩隻老虎（雅克弟兄）", "composer": "法國童謠", "year": "約1780",
-  "inst": { "lead": "recorder", "bk": "guitar" },
-  "credit": { "source": "依原曲旋律手寫（本遊戲製作）", "url": "", "licence": "公有領域" },
+  "key": "jacques",
+  "name": "兩隻老虎（雅克弟兄）",
+  "composer": "法國童謠",
+  "year": "約1780",
+  "inst": {
+    "lead": "clarinet",
+    "bk": "guitar"
+  },
+  "credit": {
+    "source": "依原曲旋律手寫（本遊戲製作）",
+    "url": "",
+    "licence": "公有領域"
+  },
   "tune": {
-    "bpm": 120, "meter": 4, "style": "march",
+    "bpm": 120,
+    "meter": 4,
+    "style": "march",
     "parts": {
       "A": {
         "mel": "C4:1 D4:1 E4:1 C4:1 | C4:1 D4:1 E4:1 C4:1 | E4:1 F4:1 G4:2 | E4:1 F4:1 G4:2 | G4:0.5 A4:0.5 G4:0.5 F4:0.5 E4:1 C4:1 | G4:0.5 A4:0.5 G4:0.5 F4:0.5 E4:1 C4:1 | C4:1 G3:1 C4:2 | C4:1 G3:1 C4:2",
@@ -14,6 +26,11 @@
         "chords": "C:4 C:4 C:4 C:4 G:2 C:2 G:2 C:2 C:4 C:4"
       }
     },
-    "form": ["A", "B", "A", "B"]
+    "form": [
+      "A",
+      "B",
+      "A",
+      "B"
+    ]
   }
 }
