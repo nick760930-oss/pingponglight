@@ -69,5 +69,6 @@ class PPLViewController: CAPBridgeViewController {
     override func capacitorDidLoad() {
         super.capacitorDidLoad()
         bridge?.registerPluginInstance(PPLSafePlugin())
+        bridge?.registerPluginInstance(PPLIAPPlugin())   // StoreKit 2 purchases (PPLIAPPlugin.swift)
     }
 }

@@ -14,6 +14,7 @@ const $=s=>document.querySelector(s),LS='ppl-shop-';
 const VIS=['avatar','plate','title'];                       // the equipment other players see: kept on the server
 const LOOK=['orb','trail','hit','frame','bg'];
 let MODE=G.APP?'iap':(G.lsGet(LS+'mode')||(/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)?'test':'web'));
+let MODE_KNOWN=!!G.APP||!!G.lsGet(LS+'mode')||/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);   // the web mode is certain only when the server said it, it was stored, or this is a local test host
 let SRV=false;                                              // the server answered the last /shop/state for this player
 let serverOwned=new Set();
 
@@ -93,11 +94,16 @@ function applyServer(r){
   sanitize();C.bump();save();
   if(window.PPLA&&Array.isArray(r.ach))window.PPLA.setServer(r);
 }
-async function sync(){
+// the 30% lock in game.js depends on the mode and on owning the full version: tell it when either changes
+let lockKey='';
+const lockOn=()=>MODE!=='test'&&MODE_KNOWN;   // the 30% lock: never on while the mode is unknown (first visit, offline)
+function lockCheck(){const k=lockOn()+'|'+C.state.own.has('full');if(k!==lockKey){const first=lockKey==='';lockKey=k;if(!first)window.dispatchEvent(new Event('ppl-full'))}}
+async function sync(){try{return await sync0()}finally{lockCheck()}}
+async function sync0(){
   if(busyT>Date.now())return null;
   let r;try{r=await G.api('/shop/state',{pk:G.pkey()},6000)}catch(e){r=null}
   if(r&&(r._s===429||r.error==='slow')){busyT=Date.now()+65000}
-  if(r&&r._s>0&&typeof r.mode==='string'&&!G.APP&&(r.mode==='test'||r.mode==='web')){MODE=r.mode;G.lsSet(LS+'mode',MODE)}
+  if(r&&r._s>0&&typeof r.mode==='string'&&!G.APP&&(r.mode==='test'||r.mode==='web')){MODE=r.mode;MODE_KNOWN=true;G.lsSet(LS+'mode',MODE)}
   if(!G.ME){NONAME=true;SRV=false;return r}                   // no nickname: only the mode is taken from the server; what is owned stays local (the server needs a nickname to know the player)
   if(r&&(r.noname===true||r.error==='noname')){NONAME=true;SRV=false;return r}
   if(goodOwned(r)){applyServer(r);pushEquipAll();claimPending()}
@@ -125,8 +131,24 @@ async function buy(it){
   if(MODE==='test'){const ok=await claim(it);if(ok){done(it)}return}
   if(MODE==='iap'){
     if(!window.PPLIAP||typeof window.PPLIAP.buy!=='function'){G.toast('購買功能尚未就緒，請稍後再試');return}
-    try{const r=await window.PPLIAP.buy(it.pid);if(r&&r.error==='off')G.toast('目前無法驗證購買，請稍後再試');else if(r===false||r&&r.ok===false&&!r.cancelled){G.toast('購買沒有完成')}}catch(e){G.toast('購買沒有完成')}
-    await sync();render();return}
+    if(unavail(it)){G.toast('這個品項尚未開放');return}
+    let r=null,err=false;
+    try{r=await window.PPLIAP.buy(it.pid)}catch(e){err=true}
+    if(r&&r.ok&&goodOwned(r.state)){applyServer(r.state);lockCheck()}   // the verify answer carries the owned list: use it even if the sync below is held back
+    await sync();
+    if(err||!r||r===false){G.toast('購買沒有完成');render();return}
+    if(r.noname)G.toast('請先設定暱稱再購買');
+    else if(r.paid&&!r.ok){G.toast(r.bad?'已付款但驗證失敗，請稍後按「恢復購買」或聯絡我們':'已付款，購買紀錄稍後會自動補上，請勿重複購買')}   // the money is spent: never suggest paying again
+    else if(r.ok){
+      const st=r.results&&r.results[0]&&r.results[0].status;
+      if(st==='taken')G.toast('這筆購買已在 24 小時內轉移過，暫時無法再轉移');
+      else if(st==='revoked')G.toast('這筆購買已退款');
+      else if(it.id==='full')done(it);
+      else G.toast('購買完成')}
+    else if(r.error==='off')G.toast('目前無法驗證購買，請稍後再試');
+    else if(r.pending)G.toast('購買等待核准中，核准後會自動取得');
+    else if(!r.cancelled)G.toast('購買沒有完成');
+    render();return}
   webDialog();
 }
 function done(it){
@@ -139,9 +161,17 @@ async function restore(){
     if(!window.PPLIAP||typeof window.PPLIAP.restore!=='function'){G.toast('恢復購買尚未就緒');return}
     try{const r=await window.PPLIAP.restore();   // the server's answer: {error:'off'} when it cannot verify; a result's status 'moved' = it was bought by another player and now belongs to this one
       const res=r&&Array.isArray(r.results)?r.results:Array.isArray(r)?r:[];
-      if(r&&r.error==='off')G.toast('目前無法驗證購買，請稍後再試');
-      else if(res.some(x=>x&&x.status==='moved'))G.toast('已恢復購買（購買已轉移到這個玩家）');
-      else G.toast('已恢復購買')}catch(e){G.toast('恢復購買沒有完成')}
+      const n=st=>res.filter(x=>x&&x.status===st).length,good=n('granted')+n('dup')+n('moved');
+      if(r&&r.noname)G.toast('請先設定暱稱再恢復購買');
+      else if(r&&r.error==='off')G.toast('目前無法驗證購買，請稍後再試');
+      else if(r&&r.ok===false)G.toast('恢復購買沒有完成');
+      else{
+        const m=[];
+        if(good)m.push(n('moved')?'已恢復購買（購買已轉移到這個玩家）':'已恢復購買');
+        if(n('taken'))m.push(n('taken')+' 筆購買已在 24 小時內轉移過，暫時無法恢復');
+        if(n('bad'))m.push(n('bad')+' 筆驗證失敗，請稍後再試或聯絡我們');
+        if(!m.length)m.push(res.length?'沒有可恢復的購買':'沒有找到可恢復的購買');
+        G.toast(m.join('；'))}}catch(e){G.toast('恢復購買沒有完成')}
     await sync();render();return}
   if(MODE==='test'){G.toast('測試期間所有外觀免費取得，不需要恢復購買。');return}
   webDialog();
@@ -168,7 +198,8 @@ const UI={view:'shop',cat:'theme',sub:{single:'orb',vis:'plate'},sel:{}};
 const catOf=()=>UI.cat==='single'||UI.cat==='vis'?UI.sub[UI.cat]:UI.cat;
 const shopOpen=()=>!$('#shop').classList.contains('hidden');
 const esc=C.esc;
-const priceTxt=it=>MODE==='test'?'免費':'NT$'+it.price;
+const unavail=it=>MODE==='iap'&&!!it.pid&&!!window.PPLIAP&&typeof window.PPLIAP.has==='function'&&window.PPLIAP.has(it.pid)===false;   // not on sale in the App Store
+const priceTxt=it=>MODE==='test'?'免費':(MODE==='iap'&&window.PPLIAP&&typeof window.PPLIAP.price==='function'&&window.PPLIAP.price(it.pid))||'NT$'+it.price;
 
 function listFor(cat){
   let l=C.items.filter(i=>i.cat===cat);
@@ -216,14 +247,14 @@ function grid(){
   const g=$('#shGrid'),coll=UI.view==='coll';g.className='shGrid';
   if(UI.cat==='full'){
     g.classList.add('one');const f=C.byId.full,own=isOwn(f);
-    g.innerHTML='<div class="shFull"><div class="ic">🌌</div><div style="flex:1"><b>完整版　'+(MODE==='test'?'測試期間免費':'NT$'+f.price)+'</b><br>解除每個星座 30% 的上限：71 首全部可以過關解鎖（免費版 27 首）。之後新增的正式曲目也包含在內。一次買斷，不訂閱、沒有廣告。</div>'
-      +(own?'<span class="pr own">已擁有</span>':'<button class="gold" data-buy="full">'+(MODE==='test'?'取得':'購買')+'</button>')+'</div>'
+    g.innerHTML='<div class="shFull"><div class="ic">🌌</div><div style="flex:1"><b>完整版　'+(MODE==='test'?'測試期間免費':priceTxt(f))+'</b><br>解除每個星座 30% 的上限：71 首全部可以過關解鎖（免費版 27 首）。之後新增的正式曲目也包含在內。一次買斷，不訂閱、沒有廣告。</div>'
+      +(own?'<span class="pr own">已擁有</span>':unavail(f)?'<button disabled>尚未開放</button>':'<button class="gold" data-buy="full">'+(MODE==='test'?'取得':'購買')+'</button>')+'</div>'
       +'<div class="shNote">獎勵星座和音符座一律免費，只要玩就能取得。</div>';return}
   if(UI.cat==='sponsor'){
     g.innerHTML=C.items.filter(i=>i.cat==='sponsor').map(it=>{const ic={'30':'☕','90':'🎵','300':'🎹'}[it.k]||'✦',nm={'30':'請喝咖啡','90':'買一張唱片','300':'送一台鋼琴'}[it.k]||it.name;
       const sub={'30':'贊助者稱號「點燈人」','90':'稱號＋金冠頭像','300':'稱號＋金冠＋金色名牌框「燈塔」'}[it.k]||it.desc;
       return '<div class="shIt shSp"><div class="ic">'+ic+'</div><div class="nm" style="text-align:center">'+esc(nm)+'</div><small style="margin:3px 0 6px">'+esc(sub)+'</small>'
-        +(MODE==='test'?'<button disabled>App 版開放</button>':'<button class="gold" data-buy="'+it.id+'">NT$'+it.price+'</button>')+'</div>'}).join('')
+        +(MODE==='test'?'<button disabled>App 版開放</button>':unavail(it)?'<button disabled>尚未開放</button>':'<button class="gold" data-buy="'+it.id+'">'+priceTxt(it)+'</button>')+'</div>'}).join('')
       +'<div class="shNote">贊助不會讓遊戲變簡單，也不影響排行榜，只會讓別人看到你支持了這款遊戲。可以重複贊助，稱號與外觀只會給一次。'+(MODE==='test'?'<br><b>測試期間不開放贊助</b>（贊助是真實付費，App 上架後才能買）。':'')+'</div>';return}
   const l=listFor(catOf());
   if(UI.cat==='theme'&&coll)l.unshift(null);
@@ -283,9 +314,9 @@ function pview(){
     else if(eq)b+='<button class="pri" disabled>使用中</button>'+(cat==='title'?'<button data-act="off">卸下</button>':'');
     else b+='<button class="pri" data-act="use">使用</button>';
   }else if(it.how==='buy'&&UI.view==='shop'){
-    b+=MODE==='test'?'<button class="gold" data-act="buy">取得</button>':MODE==='iap'?'<button class="gold" data-act="buy">購買 NT$'+it.price+'</button>':'<button class="gold" data-act="buy">購買 NT$'+it.price+'</button>';
+    b+=MODE==='test'?'<button class="gold" data-act="buy">取得</button>':unavail(it)?'<button disabled>尚未開放</button>':'<button class="gold" data-act="buy">購買 '+priceTxt(it)+'</button>';
   }else if(!own){b+='<button disabled>'+(it.how==='sponsor'?'贊助取得':'成就取得')+'</button>'}
-  const priceLine=!own&&it.how==='buy'?'<div class="d" style="color:#ffd36b">'+(MODE==='test'?'測試期間免費':'NT$'+it.price)+(it.cat==='theme'?'　（單買 5 件要 NT$150）':'')+'</div>':'';
+  const priceLine=!own&&it.how==='buy'?'<div class="d" style="color:#ffd36b">'+(MODE==='test'?'測試期間免費':priceTxt(it))+(it.cat==='theme'?'　（單買 5 件要 NT$150）':'')+'</div>':'';
   p.innerHTML=top+'<div class="t">'+esc(it.name)+'</div><div class="d">'+esc(it.desc)+'</div>'+priceLine+(how?'<div class="d">'+how+'</div>':'')+(it.limited?'<div class="d" style="color:#c9b6ff">限定</div>':'')+keep+'<div class="btns">'+b+'</div>';
   if(vis){const cv=p.querySelector('canvas.big');pvScene(cv,pvT(it))}
 }
@@ -351,9 +382,11 @@ G.onMe=()=>{sync().then(()=>{if(shopOpen())render()}).catch(()=>{})};
 document.addEventListener('keydown',e=>{if(e.key!=='Escape')return;if(dlgOpen())dlgClose();else if(shopOpen())close()});
 
 // boot: apply what the server knows for a signed-in player (silent when it cannot be reached)
-if(G.ME)sync().then(()=>{if(shopOpen())render()}).catch(()=>{});
+if(G.ME||!G.APP)sync().then(()=>{if(shopOpen())render()}).catch(()=>{});   // the web always asks once: without a nickname it only brings the mode
 sanitize();
 // a good /ach/sync answer (it carries the owned list and equipment too): same rules as /shop/state
-function apply(r){if(goodOwned(r)){applyServer(r);if(shopOpen())render()}}
-window.PPLSHOP={apply,open,close,render,sync,claim,buy,equip,equipTheme,unequipTheme,setCombo,UI,get MODE(){return MODE},set MODE(v){MODE=v},get SRV(){return SRV}};
+function apply(r){if(goodOwned(r)){applyServer(r);lockCheck();if(shopOpen())render()}}
+function openCat(cat){UI.cat=cat;open('shop')}   // the shop on one section (game.js: a locked song opens the full version)
+lockCheck();
+window.PPLSHOP={mode:()=>MODE,lockOn,ownsFull:()=>C.state.own.has('full'),openCat,apply,open,close,render,sync,claim,buy,equip,equipTheme,unequipTheme,setCombo,UI,get MODE(){return MODE},set MODE(v){MODE=v},get SRV(){return SRV}};
 })();

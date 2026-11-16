@@ -541,7 +541,11 @@ const shown=i=>!isRw(i)||rwOpen(CONS[CON_OF[i][0]]);
 const fixDi=i=>isRw(i)?CONS[CON_OF[i][0]].rdi:null;   // a reward song is played at its constellation's difficulty only
 let diPref=null;   // the player's own difficulty, kept while a reward song holds it fixed
 function diSync(){const f=fixDi(si);if(f!=null){if(diPref==null)diPref=di;di=f}else if(diPref!=null){di=diPref;diPref=null}}
-const unlocked=i=>{if(isRw(i))return rwOpen(CONS[CON_OF[i][0]]);if(!LOCKS)return true;const c=CON_OF[i];return !c||cleared(i)||c[1]<3+conCleared(c[0])};   // first 3 of each constellation are open; each song cleared there opens one more; a cleared song stays open if the order changes
+// the full-version lock: outside the free test period, each regular constellation plays only its first 30% (rounded up) until the full version is owned (shop.js: PPLSHOP.mode / ownsFull, read at call time)
+const fullLocked=i=>{const S=window.PPLSHOP;if(!S||isRw(i)||!CON_OF[i]||!S.lockOn()||S.ownsFull())return false;const c=CON_OF[i];return c[1]>=Math.ceil(CONS[c[0]].ii.length*.3)};
+const openFullShop=()=>{if(RSEL.on){toast('這首是完整版曲目，離開房間後可以在商城取得完整版');return}   // in a room: stay in it (leaving the screen without duelLeave would keep the connection open)
+  if(window.PPLSHOP){showHome();window.PPLSHOP.openCat('full')}};
+const unlocked=i=>{if(isRw(i))return rwOpen(CONS[CON_OF[i][0]]);if(fullLocked(i))return false;if(!LOCKS)return true;const c=CON_OF[i];return !c||cleared(i)||c[1]<3+conCleared(c[0])};   // first 3 of each constellation are open; each song cleared there opens one more; a cleared song stays open if the order changes
 const TIERS=[
   {n:'完美',hue:48,m:3,ring:3,part:28,shake:5,vol:.4},
   {n:'極佳',hue:185,m:2,ring:2,part:15,shake:3,vol:.37},
@@ -1656,6 +1660,7 @@ function sayOpen(){
 $('#bSay').onclick=e=>{e.stopPropagation();if(document.querySelector('.qp'))popClose();else sayOpen()};
 document.addEventListener('click',e=>{if(!e.target.closest('.frpop,.qp'))popClose()});
 function mpPick(i){   // a tap on a song row in a room
+  if(fullLocked(i)){openFullShop();return}   // a locked song cannot be picked for the room
   const C=DU.cfg,key=SONGS[i].key;
   if(C.qm||DU.ready)return;   // once ready, the pick (or vote) is fixed: a tap only previews the song
   if(C.vote)dsend({t:'vote',song:key});else if(mpHost()&&key!==C.song)mpCfg({song:key});
@@ -2261,10 +2266,10 @@ function buildChips(){
     h+='<div class="era">'+esc(C.name)+(C.rw!=null?'<em class="rwt">獎勵 · '+DIFFS[C.rdi].n+'</em>':'')+'<small>'+C.ii.filter(i=>done[i]).length+' / '+C.ii.length+'</small><span class="eh"><span class="ehd">難度</span>評級</span></div>';
     for(const i of ii){const s=SONGS[i];
     const ul=unlocked(i),rk=rkOf(i,di);
-    h+='<button class="sr'+(i===si?' on':'')+(ul||(RSEL&&RSEL.on)?'':' lock')+'" data-i="'+i+'"><span class="no">'+(CON_OF[i][1]+1)+'</span>'
+    h+='<button class="sr'+(i===si?' on':'')+(fullLocked(i)||!ul&&!(RSEL&&RSEL.on)?' lock':'')+'" data-i="'+i+'"><span class="no">'+(CON_OF[i][1]+1)+'</span>'
       +'<span class="tx"><span class="nm">'+esc(s.name)+'</span><span class="mt">'+esc(s.year+' · '+s.composer)+'<i>'+starTxt(STARS[i])+'</i>'+(RSEL&&RSEL.on?mpTag(s.key):'')+'</span></span>'
       +(RSEL&&RSEL.on?mpVoters(s.key):'')+'<span class="pips" aria-label="已通關難度">'+DORD.map(d=>'<i class="'+(rkOf(i,d)?'l'+LVL[d]:'')+'"></i>').join('')+'</span>'
-      +'<span class="rk'+rsssCls(rk)+'"'+(rk?rkColorAttr(rk):'')+'>'+(rk||'—')+'</span></button>';
+      +(fullLocked(i)?'<span class="rk fl">完整版</span>':'<span class="rk'+rsssCls(rk)+'"'+(rk?rkColorAttr(rk):'')+'>'+(rk||'—')+'</span>')+'</button>';
   }}
   $('#chips').innerHTML=h||'<div class="sempty">'+(selF===1?'此難度的曲目皆已通關，可改選其他難度挑戰。':'此難度尚無已通關的曲目。')+'</div>';
   selDetail();
@@ -2291,7 +2296,8 @@ function selDetail(){
     if(r)r.innerHTML=v.me&&!v.me.hidden?'排行榜 <b style="color:#ffd36b">第 '+v.me.r+' 名</b>／共 '+v.total+' 人':'';
   },250);
 }
-$('#chips').onclick=e=>{const b=e.target.closest('.sr');if(!b)return;const i=+b.dataset.i,room=RSEL&&RSEL.on;if(!room&&!unlocked(i))return;
+$('#chips').onclick=e=>{const b=e.target.closest('.sr');if(!b)return;const i=+b.dataset.i,room=RSEL&&RSEL.on;if(fullLocked(i)){openFullShop();return}
+  if(!room&&!unlocked(i))return;
   if(room)mpPick(i);const f0=di;si=i;if(!room)diSync();if(di!==f0){buildChips();selScroll();initAudio();preloadSong(SONGS[i]);pvPlay(SONGS[i]);return}document.querySelectorAll('#chips .sr.on').forEach(x=>x.classList.remove('on'));b.classList.add('on');initAudio();preloadSong(SONGS[i]);selDetail();pvPlay(SONGS[i])};
 $('#sTabs').onclick=e=>{const b=e.target.closest('button[data-f]');if(!b)return;selF=+b.dataset.f;buildChips();$('#chips').scrollTop=0};
 $('#diffs').onclick=e=>{const b=e.target.closest('button[data-d]');if(!b||(RSEL&&RSEL.on&&!mpHost()))return;   // guests in a room see the room's level
@@ -2858,6 +2864,8 @@ function skyA11y(){
   cv.addEventListener('wheel',e=>{if(!SKY)return;e.preventDefault();const r=cv.getBoundingClientRect();skyZoomAt(Math.exp(-e.deltaY*.0015),e.clientX-r.left,e.clientY-r.top)},{passive:false});
   addEventListener('resize',()=>{if(SKY&&skyOn())skyFit()});
 })();
+// the shop mode or the full version changed (shop.js): draw the song list and the sky again
+window.addEventListener('ppl-full',()=>{try{if(st==='menu')buildChips();if(SKY&&!$('#sky').classList.contains('hidden')){SKY.cache=new Map();for(const C of SKY.C)C.st=skyState(C);SKY.dirty=true}}catch(e){}});
 // one star: best rank and score per difficulty, highest difficulty cleared, best rank overall
 function starOf(i){
   const per=DIFFS.map((_,d)=>{const r=lsGet(KEY_RK(i,d));return RANKS.includes(r)?{r,s:parseInt(lsGet(KEY_SC(i,d))||'0',10)||0}:null});   // by difficulty index
@@ -2872,6 +2880,9 @@ function skyCardShow(i,cname){
   if(ul){
     const tb=add('table');
     DORD.forEach(k=>{const df=DIFFS[k],tr=add('tr','',null,tb),p=v.per[k];add('td','',df.n,tr);const td=add('td','',p?p.r+' · '+p.s.toLocaleString():v.old&&!k?'已通關':'未通關',tr);td.style.color=p?(p.r==='SSS'?'':RANK_COL[p.r]):v.old&&!k?'#cfe6ff':'#8a93c0';if(p&&p.r==='SSS')td.className='rsss'});
+  }else if(fullLocked(i)){
+    add('p','','這首是完整版曲目。').style.margin='10px 0';
+    const row=add('div','row');add('button','pri','取得完整版',row).onclick=()=>{skyClose(true);openFullShop()};
   }else{
     const c=CON_OF[i],need=c[1]-2-conCleared(c[0]);
     add('p','','在「'+CONS[c[0]].name+'」再通過 '+need+' 首曲目後開放。').style.margin='10px 0';
