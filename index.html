@@ -892,11 +892,11 @@ button.gold:hover{background:linear-gradient(90deg,#ffe08a,#ffad55)}
 
 <script src="songs.js"></script>
 <script src="cosmetics.js"></script>
+<script src="ai_bg.js"></script>
 <script src="game.js"></script>
 <script src="shop.js"></script>
 <script src="iap.js"></script>
 <script src="ach-data.js"></script>
 <script src="ach.js"></script>
-<script>/* AI background test (ai_inject.js): only with ?aitest, or after it was used once; ?aitest=0 switches it off again */try{const q=/[?&]aitest(=([^&]*))?/.exec(location.search);if(q&&q[2]==="0")localStorage.removeItem("aitest-bg");else if(q&&!localStorage.getItem("aitest-bg"))localStorage.setItem("aitest-bg","aurora");if(localStorage.getItem("aitest-bg"))document.write("<script src=\"ai_inject.js\"><\/script>")}catch(e){}</script>
 </body>
 </html>

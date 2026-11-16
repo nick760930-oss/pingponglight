@@ -922,7 +922,7 @@ function nameHTML(plateId,name,titleId){
 // ---- previews: one still frame as an image (cached), or a live scene on a canvas ----
 const thumbCache={};
 function thumb(T,w,h,dpr){
-  dpr=dpr||1;const key=JSON.stringify(T)+'|'+w+'x'+h+'x'+dpr;if(thumbCache[key])return thumbCache[key];
+  dpr=dpr||1;const key=JSON.stringify(T)+'|'+w+'x'+h+'x'+dpr+'|'+(window.PPLAIBG?PPLAIBG.ver:0);if(thumbCache[key])return thumbCache[key];
   const cv=document.createElement('canvas');cv._w=w;cv._h=h;cv._dpr=dpr;
   const s=scene(cv,Object.assign({tier:T.tier!=null?T.tier:2},T));s.t=1.1;s.ph=.15;s.skipBG=true;
   for(let i=0;i<26;i++){s.skipBG=i<25;step(s,1/30)}

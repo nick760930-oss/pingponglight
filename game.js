@@ -1129,14 +1129,15 @@ function paintCosBG(c,kind,h,t){   // equipped background, drawn in the catalogu
   c.restore();
 }
 function drawBG(x){   // rendered once per size/hue step, then blitted
-  const h=hueNow(),L=COS?COS.look():null,cb=!!L&&!L.bg.def,key=W+'x'+H+'/'+Math.round(h/8)+(cb?'/'+L.bg.id+(SET.lowFx?'/s':''):'');
+  // the default 星空 also goes through the catalogue painter once its AI painting has loaded (ai_bg.js); PPLAIBG.ver repaints the cache when an image arrives
+  const h=hueNow(),L=COS?COS.look():null,AI=window.PPLAIBG,cb=!!L&&(!L.bg.def||!!(AI&&AI.ready[L.bg.k])),key=W+'x'+H+'/'+Math.round(h/8)+(cb?'/'+L.bg.id+(SET.lowFx?'/s':''):'')+'/'+(AI?AI.ver:0);
   if(W<1||H<1)return;
   const now=performance.now();
   // a custom background animates into the cache as often as its cost allows (every frame when cheap, at most ~25% of the time, never under ~9 fps);
   // the cost includes the blit (a software canvas rasterises there); outside play at most ~30 fps; a frame already over budget falls back to ~9 fps; reduced effects: drawn once, still
   if(costEMA>8)bgSlow=true;else if(costEMA<5)bgSlow=false;
   let rep=false;
-  if(!bgC||key!==bgKey||(cb&&!SET.lowFx&&now-bgAt>=(bgSlow?110:clamp(bgMs*4,st==='play'?14:33,110)))){
+  if(!bgC||key!==bgKey||(cb&&!SET.lowFx&&L.bg.k!=='stars'&&now-bgAt>=(bgSlow?110:clamp(bgMs*4,st==='play'?14:33,110)))){
     if(!bgC||key!==bgKey){bgKey=key;bgC=document.createElement('canvas');bgC.width=W;bgC.height=H}
     bgAt=now;const c=bgC.getContext('2d');
     if(cb){c.clearRect(0,0,W,H);paintCosBG(c,L.bg.k,h,SET.lowFx?3:time);rep=true}else paintBG(c,h);

@@ -1,11 +1,17 @@
-(function(){const RL={},RLC={},ROWS_ALL={},TAU=Math.PI*2;
+/* PingPongLight AI backgrounds (ai_bg.js)
+   AI-painted base image (ai_<id>.webp, same folder) + code motion derived from the painting.
+   Replaces PPLC.draw.BG[id] for: stars aurora sea sakura lava snow candy nebula paper mysky. city / gold / grid keep the code versions.
+   Until an image has loaded, the original code background is drawn. window.PPLAIBG.ver increases on every image load:
+   add it to the background cache key so a still (reduced-effects) background is repainted once the image arrives. */
+(function(){'use strict';const P=window.PPLC;if(!P||!P.draw||!P.draw.BG)return;
+const API=window.PPLAIBG={ver:0,ready:{},ids:[]};const RL={},RLC={},ROWS_ALL={},TAU=Math.PI*2;
 // ===== AI-painted static base + code motion =====
 // Each background is one WebP (ai_<id>.webp). Motion layers that must line up with the painting are derived FROM the painting in stat:
 //  - glow: bright/warm pixels of the image, blurred (downsample->upsample, no ctx.filter), added back with 'lighter' and a slow breath
 //  - twinkle: the brightest small points in a region become faint twinkling stars
 //  - anchor: brightest pixel matching a colour test inside a region (e.g. the volcano crater) -> origin for embers
 const AIM={},AIIMG={};
-function aiImg(id){if(AIIMG[id])return AIIMG[id];const im=new Image();im.onload=()=>{delete RLC['ai_'+id];delete RLC['ai2_'+id];if(typeof views!=='undefined'){views.forEach(v=>{if(v.id===id){v.at=-1e9;v.painted=false}});requestAnimationFrame(frame)}};im.src='ai_'+id+'.webp';return AIIMG[id]=im}
+function aiImg(id){if(AIIMG[id])return AIIMG[id];const im=new Image();im.onload=()=>{API.ver++;API.ready[id]=true};im.src='ai_'+id+'.webp';return AIIMG[id]=im}
 const aiSm=(a,b,v)=>{const t=Math.max(0,Math.min(1,(v-a)/(b-a)));return t*t*(3-2*t)};
 function aiPixels(im,sw,sh){const c=document.createElement('canvas');c.width=sw;c.height=sh;const q=c.getContext('2d');q.drawImage(im,0,0,sw,sh);return q.getImageData(0,0,sw,sh)}
 function aiGlow(L,im,w,h,o){ // o.glow: {thr, test(r,g,b)->0..1, region:[x0,y0,x1,y1] fractions, gain}
@@ -56,6 +62,20 @@ function aiDef(id,o){aiImg(id);AIM[id]=o;
    for(const p of o.fx||[])AIP[p](x,w,h,t,L,o);if(o.dyn)o.dyn(x,w,h,t,L)}};
  ROWS_ALL['ai_'+id]=[id,'buy',o.notes||[]]}
 const warm=(r,g,b)=>aiSm(10,70,r-b),green=(r,g,b)=>aiSm(5,50,g-r)*aiSm(-10,30,g-b+20),pinkish=(r,g,b)=>aiSm(0,40,r-g);
+aiDef('stars',{notes:['預設背景維持完全靜態，只貼一張圖，不重畫。']});
+aiDef('aurora',{lift:.3,glow:{thr:.3,test:green,region:[0,0,1,.62],gain:1},breath:[.3,.18,.45],drift:3,twinkle:{region:[0,0,1,.4],min:150,peak:30,n:30},fx:['twinkle'],notes:['極光的光（從畫裡抓出偏綠的亮部，模糊後）慢慢呼吸並左右輕微飄移；少量星點閃爍。']});
+aiDef('sakura',{lift:0.4,glow:{thr:.62,region:[.55,0,1,.45]},breath:[.5,.12,.5],fx:['petals'],notes:['月光暈輕微呼吸；十幾片櫻花瓣慢慢飄落並翻面。']});
+aiDef('sea',{lift:0.5,glow:{thr:.35,region:[0,0,1,.55],gain:1},breath:[.5,.22,.5],fx:['marine'],notes:['水面光柱（從畫裡抓出上半部亮部）明暗呼吸；一群暗色小魚游過、漂浮的碎屑。']});
+aiDef('lava',{lift:0.45,glow:{thr:.3,test:warm,gain:1.4},breath:[.6,.18,1.3],anchor:{region:[.4,.05,.95,.55],score:(r,g,b)=>r+g*.6-b*1.5},fx:['embers'],notes:['熔岩、火口和裂縫的紅光（從畫裡抓出偏暖的亮部）起伏；火口位置由程式找出最亮的暖色點，從那裡飄出細小火星。']});
+aiDef('snow',{lift:0.4,glow:{thr:.45,test:warm,gain:1.6},breath:[.75,.12,1.7],fx:['snow'],
+ stat(x,w,h,L){const C=API.crop;L.cab=[(.7712*C.W0-C.x0)/C.sw*w,(.6656*C.H0-C.y0)/C.sh*h]},
+ dyn(x,w,h,t,L){const T=t*.5,[sx,sy]=L.cab;if(!L.puff){const c=document.createElement('canvas');c.width=c.height=32;const q=c.getContext('2d'),gr=q.createRadialGradient(16,16,0,16,16,16);gr.addColorStop(0,'rgba(165,178,205,1)');gr.addColorStop(.45,'rgba(160,172,200,.45)');gr.addColorStop(1,'rgba(160,172,200,0)');q.fillStyle=gr;q.fillRect(0,0,32,32);L.puff=c}
+  x.save();for(let i=0;i<9;i++){const f=(T*.1+i/9)%1,cx=sx+f*f*22+Math.sin(f*4+i*1.7)*1.8,cy=sy+.5-f*h*.17,r=1.3+f*7;x.globalAlpha=.22*Math.min(1,.35+f*10)*(1-f);x.drawImage(L.puff,cx-r,cy-r,r*2,r*2)}x.restore()},
+ notes:['窗光（從畫裡抓出偏暖的亮部）起伏；煙囪一縷柔邊淡煙（煙囪位置是量畫上的木屋後手動對齊的）；少量細小雪花。']});
+aiDef('candy',{shade:['#2a1440',.38],glow:{thr:.55,region:[0,0,1,.7]},breath:[.45,.15,.8],twinkle:{region:[0,0,1,.55],min:150,peak:30,n:25},fx:['twinkle'],notes:['甜甜圈月亮與棒棒糖的光暈輕微起伏；天上的亮片閃爍。']});
+aiDef('nebula',{lift:0.25,glow:{thr:.5,gain:1},breath:[.4,.15,.4],twinkle:{min:150,peak:35,n:40},fx:['twinkle'],notes:['星雲最亮的核心與星團慢慢呼吸；星點閃爍。']});
+aiDef('paper',{shade:['#1c2232',.55],glow:{thr:.6,region:[.5,0,1,.5]},breath:[.4,.1,.4],fx:['mist'],notes:['月光暈輕微呼吸；幾道淡霧慢慢橫向飄過。']});
+aiDef('mysky',{lift:0.3,twinkle:{min:140,peak:30,n:40},fx:['twinkle','meteor'],notes:['只有星空底圖；玩家的星座仍由程式依存檔畫在上面（這份試做沒畫）；星點閃爍，約每 26 秒一顆很淡的流星。']});
 
 // ===== AI base + stronger code motion (aurora, sea) =====
 // Idea: split the painting per pixel into "base" + "moving layer" (base = p*(1-k*m), layer = p*k*m, so base+layer = original).
@@ -143,19 +163,28 @@ aiMoveDef('sea',{lift:.5,fx:['marine'],
   x.restore()},
  notes:['水面一帶左右波動；光柱從畫裡分出來，像鐘擺一樣慢慢擺動並明暗呼吸。','海床有流動的水波光紋；兩側海草從根部輕輕擺動；珊瑚間冒出小氣泡；保留原本的小魚群與漂浮碎屑。']});
 
-const P=window.PPLC;let BGID='aurora';try{BGID=localStorage.getItem('aitest-bg')||'aurora'}catch(e){}
-if(BGID!=='aurora'&&BGID!=='sea')BGID='aurora';
-for(const id of ['aurora','sea']){const rl=RL['ai2_'+id];let L=null,key='';
- P.draw.BG['ai_'+id]=function(c,w,h,t){const cw=c.canvas.width,ch=c.canvas.height,im=AIIMG[id];if(!im.complete||!im.naturalWidth){c.fillStyle='#0b1022';c.fillRect(0,0,w,h);return}
-  const k2=cw+'x'+ch;if(!L||key!==k2){L={};key=k2;const s=document.createElement('canvas');s.width=cw;s.height=ch;const sx=s.getContext('2d'),k=ch/180;sx.scale(k,k);rl.stat(sx,cw/k,180,L);L.s=s}
+// my-sky keeps the game's animated constellations on top of the painted sky (same seeds and timing as cosmetics.js BG.mysky)
+{const hexA=(c,a)=>{const n=parseInt(c.slice(1),16);return`rgba(${n>>16},${n>>8&255},${n&255},${a})`};
+ const star=(x,cx,cy,r)=>{x.beginPath();for(let i=0;i<10;i++){const a=i*Math.PI/5-Math.PI/2,rr=i%2?r*.45:r;x.lineTo(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr)}x.closePath()};
+ const glow=(x,cx,cy,r,c)=>{const g=x.createRadialGradient(cx,cy,0,cx,cy,r*2.6);g.addColorStop(0,hexA(c,.55));g.addColorStop(1,hexA(c,0));x.fillStyle=g;x.beginPath();x.arc(cx,cy,r*2.6,0,TAU);x.fill()};
+ const DC=['#7ee89a','#5fa8ff','#b07cff','#ff8a3d','#ff4d5e','#ffe36b'],R0=RL.ai_mysky,d0=R0.dyn;
+ R0.dyn=function(x,w,h,t,L){d0(x,w,h,t,L);
+  for(let c=0;c<10;c++){const cx=w*(.08+(c%5)*.21),cy=h*(c<5?.25:.68),n=5+c%4;let s=c*131+7;const R=()=>(s=(s*16807)%2147483647)/2147483647;const pts=[];for(let i=0;i<n;i++)pts.push([cx+(R()-.5)*w*.15,cy+(R()-.5)*h*.3,(R()*6)|0]);
+   const prog=Math.min(1,Math.max(0,(t*.25+c*.13)%1.6));x.strokeStyle=hexA(DC[c%6],.35);x.lineWidth=.8;x.beginPath();pts.forEach(([p,q],i)=>{if(i/n<=prog)i?x.lineTo(p,q):x.moveTo(p,q)});x.stroke();
+   pts.forEach(([p,q,d],i)=>{const on=i/n<=prog,col=on?DC[d]:'#ffffff';if(on)glow(x,p,q,1.6+d*.3,col);x.fillStyle=on?col:'rgba(255,255,255,.35)';star(x,p,q,on?1.8+d*.35:1.2);x.fill()})}}}
+// cover-crop the painting to the screen's aspect (never stretch); the stat code reads it like an <img>
+function cropFor(im,a){const W0=im.naturalWidth,H0=im.naturalHeight,ia=W0/H0;let sw,sh,x0,y0;
+ if(a<ia){sh=H0;sw=H0*a;x0=(W0-sw)/2;y0=0}else{sw=W0;sh=W0/a;x0=0;y0=(H0-sh)/2}
+ const c=document.createElement('canvas');c.width=Math.max(1,Math.round(sw));c.height=Math.max(1,Math.round(sh));c.getContext('2d').drawImage(im,x0,y0,sw,sh,0,0,c.width,c.height);
+ c.complete=true;c.naturalWidth=c.width;c.naturalHeight=c.height;API.crop={W0,H0,x0,y0,sw,sh};return c}
+// install: each background keeps its own layers per canvas size
+for(const id of ['stars','aurora','sea','sakura','lava','snow','candy','nebula','paper','mysky']){
+ const rl=RL['ai2_'+id]||RL['ai_'+id],orig=P.draw.BG[id];if(!rl)continue;API.ids.push(id);const LS=new Map();   // layers per canvas size: the game screen and the shop preview draw the same background at different sizes every frame
+ P.draw.BG[id]=function(c,w,h,t){const im=AIIMG[id];if(!im.complete||!im.naturalWidth){if(orig)orig(c,w,h,t);return}
+  const cw=c.canvas.width,ch=c.canvas.height,k2=cw+'x'+ch;
+  let L=LS.get(k2);
+  if(!L){L={};LS.set(k2,L);if(LS.size>3)LS.delete(LS.keys().next().value);const k=ch/180,s=document.createElement('canvas'),g=document.createElement('canvas');s.width=g.width=cw;s.height=g.height=ch;
+   const sx=s.getContext('2d'),gx=g.getContext('2d');sx.scale(k,k);gx.scale(k,k);L.s=s;L.g=g;
+   AIIMG[id]=cropFor(im,cw/ch);try{rl.stat(sx,cw/k,180,L,gx)}finally{AIIMG[id]=im}}
   c.save();c.setTransform(1,0,0,1,0,0);c.drawImage(L.s,0,0);c.restore();rl.dyn(c,w,h,t,L)}}
-const look0=P.look;P.look=function(){const L=look0.apply(this,arguments);return Object.assign({},L,{allDef:false,bg:Object.assign({},L.bg,{id:'bg.ai_'+BGID,k:'ai_'+BGID,def:false})})};
-window.AIGAME={get BGID(){return BGID}};
-// test switch: shown outside of play, swaps between the two AI backgrounds
-const NM={aurora:'極光',sea:'深海'},bt=document.createElement('button');
-bt.style.cssText='position:fixed;z-index:9999;left:calc(10px + env(safe-area-inset-left,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));padding:8px 12px;border-radius:999px;border:1px solid rgba(160,200,255,.5);background:rgba(10,16,40,.85);color:#dfe9ff;font:600 13px system-ui,sans-serif';
-const lab=()=>{bt.textContent='測試背景：'+NM[BGID]+'（點一下換'+NM[BGID==='aurora'?'sea':'aurora']+'）'};lab();
-bt.onclick=()=>{BGID=BGID==='aurora'?'sea':'aurora';try{localStorage.setItem('aitest-bg',BGID)}catch(e){}lab()};
-const add=()=>{document.body.appendChild(bt);setInterval(()=>{let s='';try{s=__pb.S.st}catch(e){}bt.hidden=(s==='play'||s==='ready'||s==='starting')},400)};
-if(document.body)add();else addEventListener('DOMContentLoaded',add);
 })();
