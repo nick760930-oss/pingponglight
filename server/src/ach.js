@@ -16,8 +16,10 @@ import { grantStmts } from './cos.js';
 
 export const ACHS = {};
 const CID = i => CONS[i][0] + '完成';                  // the ten "○○座完成" achievements: 古老旋律座完成 ... 霓虹座完成 (the names cosmetics.js uses)
+// points of a "○○座完成" follow the number of songs of its constellation: up to 5 songs 10, 6 to 8 songs 15, 9 or more 20
+const consPts = n => n <= 5 ? 10 : n <= 8 ? 15 : 20;
 for (const [cat, tier, name, pts, chk, title] of ACHDATA) {
-  if (name.startsWith('○○座完成')) { for (let i = 0; i < 10; i++) ACHS[CID(i)] = { cat, tier, pts, chk, title: 0 }; continue; }
+  if (name.startsWith('○○座完成')) { for (let i = 0; i < 10; i++) ACHS[CID(i)] = { cat, tier, pts: consPts(CONS[i][1].length), chk, title: 0 }; continue; }
   ACHS[name] = { cat, tier, pts, chk, title };
 }
 // not decidable on the server: left out of every sync, shown as "coming soon" by the app
@@ -28,8 +30,12 @@ export const LOCAL_IDS = Object.keys(ACHS).filter(id => ACHS[id].chk === 'l');
 
 // Rewards come from the catalog (cosmetics.js): an item whose how is ach:<id> (titles, achievement-only items; a theme brings its parts)
 // or whose also is ach:<id> (bought items that this achievement gives for free too).
+// HOLD: achievements whose catalogue items are not released yet (the art is waiting for approval): they give points only.
+// The items are already in cosmetics.js with how = ach:<id>; to release them, remove the id from HOLD (the sync button then
+// gives them to everybody who already earned the achievement) and fix the reward text in the design catalogue.
+const HOLD = ['超新星'];
 const REW = {};
-for (const [item, it] of Object.entries(CATALOG)) for (const h of [it.how, it.also]) if (h && h.startsWith('ach:')) (REW[h.slice(4)] = REW[h.slice(4)] || []).push(item);
+for (const [item, it] of Object.entries(CATALOG)) for (const h of [it.how, it.also]) if (h && h.startsWith('ach:') && !HOLD.includes(h.slice(4))) (REW[h.slice(4)] = REW[h.slice(4)] || []).push(item);
 export const rewardsOf = id => ACHS[id] ? REW[id] || [] : [];
 // the "限定" items (only obtainable by achievement) that some server-decided achievement gives; 秘藏 and 萬象 count them
 export const LIM = SERVER_IDS.flatMap(rewardsOf).filter(x => CATALOG[x].lim);
@@ -61,6 +67,7 @@ export function logFeats(log, N) {                     // log: the validated bea
 export const RANKS = ['F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS', 'SSS'];
 export const rankIdx = r => RANKS.indexOf(r);          // -1 for anything else (e.g. the old '—')
 export const atLeastS = r => rankIdx(r) >= 6;
+export const atLeastA = r => rankIdx(r) >= 5;          // A is 90 % accuracy (rankOf): 起步 A and 五顆 A use the same rank as the result screen
 export function rankOf(acc, miss, good, ok) {
   const known = good !== undefined && ok !== undefined;
   if (acc >= 10000 && known && !miss && !good && !ok) return 'SSS';
@@ -75,9 +82,9 @@ const parseFt = s => { try { const o = JSON.parse(s); return o && typeof o === '
 export function singles(R) {
   const out = [], hard = R.d === 2 || R.d === 4;
   const add = (c, id) => { if (c) out.push(id); };
-  add(R.acc >= 8500, '起步 A'); add(atLeastS(R.r), '第一顆 S'); add(R.acc >= 9000, '九成準'); add(R.acc >= 9900, '九成九');
+  add(atLeastA(R.r), '起步 A'); add(atLeastS(R.r), '第一顆 S'); add(R.acc >= 9000, '九成準'); add(R.acc >= 9900, '九成九');
   add(R.acc === 10000, '零誤差'); add(R.acc === 10000 && hard, '分毫不差'); add(R.pr >= 100, '百發百中');
-  add(R.maxCombo >= 20, '二十連'); add(R.maxCombo >= 50, '五十連'); add(R.maxCombo >= 100, '彩虹橋'); add(R.maxCombo >= 300, '長虹'); add(R.maxCombo >= 1000, '千鈞一線');
+  add(R.maxCombo >= 20, '二十連'); add(R.maxCombo >= 50, '五十連'); add(R.maxCombo >= 100, '彩虹橋'); add(R.maxCombo >= 200, '長虹'); add(R.maxCombo >= 400, '千鈞一線');
   add(R.fc, '一氣呵成'); add(R.f5, '完美開場'); add(R.l5, '完美收尾'); add(R.ec === 49, '四十九'); add(R.fm, '出師不利');
   return out;
 }
@@ -96,7 +103,7 @@ function evaluate(rows, ps, friends, extra) {
     if (!song.has(r.song)) song.set(r.song, new Map());
     song.get(r.song).set(r.d, r); byD[r.d].add(r.song); clears += r.n;
     for (const id of singles(r.R)) E.add(id);
-    if (r.acc >= 8500) A++; if (atLeastS(r.R.r)) S++;
+    if (atLeastA(r.R.r)) A++; if (atLeastS(r.R.r)) S++;
     if (r.R.fc) { FC++; if (r.d === 2 || r.d === 4) FCH++; if (r.d === 4) FC4++; }
     if (r.acc === 10000 && (r.d === 2 || r.d === 4)) FLAWLESS++;
   }
@@ -122,12 +129,17 @@ function evaluate(rows, ps, friends, extra) {
     if (keys.length && c === keys.length) { done++; E.add(CID(i)); }
     for (let d = 0; d < 5; d++) if (keys.length && keys.every(k => { const r = song.has(k) && song.get(k).get(d); return r && atLeastS(r.R.r); })) E.add('一座皆 S');
   });
-  add(lit >= 1, '第一顆星'); add(lit >= 3, '連星'); add(done >= 5, '星座旅人'); add(E.has(CID(3)), '墨上聽潮'); add(done >= NORM.length, '摘星者');
   const at = (k, d) => song.has(k) && song.get(k).get(d);
+  const upTo = (keys, ds) => keys.every(k => ds.some(d => at(k, d)));     // every song cleared on one of these difficulties (0 簡單, 1 普通, 2 困難, 3 入門, 4 專家)
+  add(lit >= 1, '第一顆星'); add(lit >= 3, '連星'); add(done >= 5, '星座旅人');
+  add(upTo(NORM[3][1], [2, 4]), '墨上聽潮');                                      // 浪漫座, all songs on 困難 or 專家
+  add(upTo(NORM_SONGS, [1, 2, 4]), '摘星者');                                     // all 71 songs on 普通 or higher
+  add(NORM.some(([, keys]) => keys.length && keys.every(k => at(k, 4))), '超新星'); // one regular constellation entirely on 專家 (gives points only: see HOLD)
   add(NORM_SONGS.every(k => at(k, 3)), '初聲'); add(NORM_SONGS.every(k => at(k, 0)), '鄉謠'); add(NORM_SONGS.every(k => at(k, 1)), '名曲');
   add(NORM_SONGS.every(k => at(k, 2)), '疾風'); add(NORM_SONGS.every(k => at(k, 4)), '炫技');
   add(NORM_SONGS.every(k => { const r = at(k, 4); return r && atLeastS(r.R.r); }), '至高');
   add(RW.every(([, keys, o]) => keys.every(k => at(k, o.di))), '拾遺');
+  // 天籟: the 10 regular constellations complete (any difficulty) and all 6 reward constellations risen (their six unlocking achievements)
   add(done >= NORM.length && ['初聲', '鄉謠', '名曲', '疾風', '炫技', '至高'].every(x => E.has(x)), '天籟');
   // grades and streaks
   add(A >= 5, '五顆 A'); add(S >= 10, '拾星'); add(S >= 30, '繁星滿袖'); add(S >= 100, '滿天星斗');
@@ -140,9 +152,10 @@ function evaluate(rows, ps, friends, extra) {
 // the collection achievements look at the items earned by achievements (cosmetics only: no titles)
 function collection(owned) {
   const E = [], cos = [...owned].filter(x => !x.startsWith('title.')), lim = LIM.filter(x => owned.has(x));
-  if (cos.length >= 1) E.push('初得'); if (cos.length >= 5) E.push('小有收藏'); if (cos.length >= 15) E.push('珍藏家');
-  if (cos.filter(x => /^avatar\.cons\d$/.test(x)).length >= 5) E.push('徽章半冊');
-  if (lim.length >= 5) E.push('秘藏'); if (lim.length === LIM.length) E.push('萬象');
+  const badge = x => /^avatar\.cons\d$/.test(x);
+  if (cos.length >= 1) E.push('初得'); if (cos.length >= 5) E.push('小有收藏'); if (cos.length >= 25) E.push('珍藏家');
+  if (cos.filter(badge).length >= 8) E.push('徽章半冊');
+  if (lim.filter(x => !badge(x)).length >= 5) E.push('秘藏'); if (lim.length === LIM.length) E.push('萬象');   // 秘藏 does not count the constellation badges
   return E;
 }
 

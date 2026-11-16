@@ -114,8 +114,8 @@ async function suiteA(PKI) {
   r = await submit(d2.pk, 'twinkle', 2, perfect('twinkle', 2));
   ok(r.j.ach.includes('越級者') && r.j.ach.includes('分毫不差') && r.j.ach.includes('零誤差') && r.j.ach.includes('第一顆 S') && r.j.ach.includes('一氣呵成'), 'submit returns new achievements: ' + (r.j.ach || []).join(','));
   let st = (await post('/shop/state', { pk: d2.pk })).j;
-  ok([T('越級者'), T('分毫不差'), 'hit.tick', 'avatar.reticle', 'hit.starburst', 'trail.spark', T('零誤差')].every(x => st.owned.includes(x)), 'rewards were given');
-  r = await post('/shop/equip', { pk: d2.pk, slot: 'avatar', item: 'avatar.reticle' }); ok(r.j.ok, 'an achievement-earned avatar can be worn');
+  ok([T('越級者'), T('分毫不差'), 'hit.tick', 'avatar.moonnote', 'hit.starburst', 'trail.spark', T('零誤差')].every(x => st.owned.includes(x)), 'rewards were given');
+  r = await post('/shop/equip', { pk: d2.pk, slot: 'avatar', item: 'avatar.moonnote' }); ok(r.j.ok, 'an achievement-earned avatar can be worn');
   r = await post('/shop/equip', { pk: d2.pk, slot: 'title', item: T('分毫不差') }); ok(r.j.ok && r.j.equip.title === T('分毫不差'), 'an earned title can be worn');
   r = await post('/shop/equip', { pk: d2.pk, slot: 'title', item: '' }); ok(r.j.ok && r.j.equip.title === '', 'title can be taken off');
   r = await submit(d2.pk, 'twinkle', 2, perfect('twinkle', 2)); ok(r.j.ok && !['新星', '越級者', '零誤差', '第一顆 S', '一氣呵成'].some(x => r.j.ach.includes(x)), 'same run again: earned things are not announced twice (only new totals such as 百次完美): ' + JSON.stringify(r.j.ach));
@@ -150,7 +150,7 @@ async function suiteA(PKI) {
   ok((await post('/fr/add', { pk: c.pk, code: f1.j.code })).j.ok !== undefined, 'friend request sent');
   ok((await post('/fr/respond', { pk: d2.pk, id: c.id, accept: true })).j.ok, 'friend request accepted');
   r = await post('/fr/list', { pk: c.pk }); const fr = r.j.friends.find(x => x.id === d2.id);
-  ok(fr && fr.avatar === 'avatar.reticle' && fr.plate === '' && fr.title === '' && fr.cmc > 0, 'friend list carries avatar, plate, title, cmc');
+  ok(fr && fr.avatar === 'avatar.moonnote' && fr.plate === '' && fr.title === '' && fr.cmc > 0, 'friend list carries avatar, plate, title, cmc');
   ok((await post('/ach/sync', { pk: c.pk })).j.ach.some(a => a.id === '雙星相遇'), '雙星相遇 (first friend) earned on sync');
   const room = await (await fetch(BASE + '/m/new?pub=0&max=4&di=1', { headers: { Origin: ORIGIN, 'CF-Connecting-IP': ip() } })).json();
   const ws = await new Promise(res => { const w = new WS(BASE.replace(/^http/, 'ws') + '/m/ws/' + room.code, { headers: { Origin: ORIGIN, 'CF-Connecting-IP': ip() } }); w.msgs = []; w.on('message', m => w.msgs.push(JSON.parse(m))); w.on('open', () => res(w)); w.on('error', () => res(w)); });
@@ -262,9 +262,9 @@ async function suiteB(k) {
   ok((await post('/shop/claim', { pk: k.A.pk, item: 'orb.star' })).s === 403, 'web mode: claim refused');
   ok((await post('/shop/equip', { pk: k.A.pk, slot: 'avatar', item: 'avatar.planet' })).s === 403, 'web mode: a free avatar cannot be worn');
   // earned and bought things stay
-  r = await post('/shop/state', { pk: k.d2.pk }); ok(r.j.equip.avatar === 'avatar.reticle' && r.j.owned.includes('hit.tick'), 'web mode: achievement items stay valid');
+  r = await post('/shop/state', { pk: k.d2.pk }); ok(r.j.equip.avatar === 'avatar.moonnote' && r.j.owned.includes('hit.tick'), 'web mode: achievement items stay valid');
   r = await post('/shop/state', { pk: k.P.pk }); ok(r.j.owned.includes('orb.star') && r.j.owned.includes('theme.sea') && r.j.equip.avatar === 'avatar.jelly', 'web mode: purchased items stay valid, including one that was also taken for free');
-  r = await post('/fr/list', { pk: k.c.pk }); const fr = r.j.friends.find(x => x.id === k.d2.id); ok(fr && fr.avatar === 'avatar.reticle', 'web mode: friend list still shows achievement avatar');
+  r = await post('/fr/list', { pk: k.c.pk }); const fr = r.j.friends.find(x => x.id === k.d2.id); ok(fr && fr.avatar === 'avatar.moonnote', 'web mode: friend list still shows achievement avatar');
   r = await post('/iap/verify', { pk: k.P.pk, jws: 'a.b.c' }); ok(r.s === 503 && r.j.error === 'off' && !('owned' in r.j) && !('state' in r.j), 'IAP_ON is not 1: verify answers 503 {error:off} and nothing else');
   r = await post('/shop/claim', { pk: k.A.pk, item: 'orb.star' }); ok(r.s === 403 && r.j.error === 'off' && !('owned' in r.j) && !('state' in r.j) && !('equip' in r.j), 'an error answer carries no owned/equip data');
 }

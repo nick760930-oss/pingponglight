@@ -303,7 +303,7 @@ function pview(){
   else if(cat==='share')top='<div class="bx"><span style="'+esc(it.css)+';border-radius:10px;padding:10px 26px;font-size:13px;font-weight:700">我的成績 S</span></div>';
   const own=isOwn(it),eq=isEq(it),[sc,st]=statusOf(it);
   let how='';
-  if(!own){how=it.how==='buy'?(it.also?'也可由成就「'+esc(it.also.slice(4))+'」取得':''):it.how==='sponsor'?'贊助 NT$90 以上取得':'取得方式：'+esc(C.howText(it))}
+  if(!own){how=it.how==='buy'?(it.also?'也可由成就「'+esc(C.achName(it.also.slice(4)))+'」取得':''):it.how==='sponsor'?'贊助 NT$90 以上取得':'取得方式：'+esc(C.howText(it))}
   let keep='';
   if(UI.view==='coll'&&own&&it.id!==C.defaults[cat]&&it.id!=='theme.stars'&&(cat==='theme'||['orb','trail','hit'].includes(cat)))keep='<div class="kp"><span>連擊變色</span><button class="tog'+(keepOn(it)?' on':'')+'" data-act="keep" role="switch" aria-checked="'+keepOn(it)+'" aria-label="連擊變色"></button></div>';
   let b='';
