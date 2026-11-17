@@ -1771,19 +1771,23 @@ function mpLadPlace(){   // follows the field: called from layout()
   if(!LAD.on)return;
   const x0=FR.x+FR.w+12,w=Math.min(170,W-x0-Math.max(8,sa.r+4)),hb=$('#hud').getBoundingClientRect().bottom||0,top=Math.max(sa.t+4,FR.y-18,hb+2),avail=H-top-Math.max(8,sa.b+4)-18,n=Object.keys(LAD.rows).length||1;
   const RH=Math.max(30,Math.min(50,Math.floor(avail/n))),rh=RH-6;
-  LAD.geo={RH,rh,w,BW:w-38};
+  LAD.geo={RH,rh,w,BW:w-38,cmp:rh<40};
   const L=$('#mpLad');Object.assign(L.style,{left:x0+'px',top:top+'px',width:w+'px',height:(H-top)+'px'});L.classList.toggle('cmp',rh<40);
   for(const o of Object.values(LAD.rows)){o.el.style.width=w+'px';o.el.style.height=rh+'px'}
   mpLad();
 }
+// the compact ladder has room for one gap only: the chaser closing in matters most, then the gap to the one ahead
+function mpGapOne(me,a,b,near){const sp=(c,t)=>'<span class="'+c+'">'+t+'</span>';return near?sp('hot','逼近 '+(me.s-b.s).toLocaleString()):a?sp('cool','差 '+(a.s-me.s).toLocaleString()):b?sp('cool','後 '+(me.s-b.s).toLocaleString()):''}
+// bar position: in the compact ladder (8 seats) the combo text sits left of the bar and the judgement right of it (index.html .mplad.cmp)
+function mpTipX(o){const g=LAD.geo;if(!g.cmp)return 30+g.BW*o.pct/100;const l=o.el.classList.contains('me')?86:78;return l+(g.w-l-56)*o.pct/100}
 function mpLad(){
-  if(!LAD.on||!LAD.geo)return;const {RH,rh,BW}=LAD.geo,Y0=18,S=mpStand();
+  if(!LAD.on||!LAD.geo)return;const {RH,rh}=LAD.geo,Y0=18,S=mpStand();
   const live=S.filter(e=>!e.out&&!e.gone),top=live.length?Math.max(...live.map(e=>e.s)):0,lo=live.length?Math.min(...live.map(e=>e.s))*.8:0;
   const mi=S.findIndex(e=>e.me);
   S.forEach((e,k)=>{const o=LAD.rows[e.i]||mpRow(e.i,!!e.me),r=o.el,out=!!(e.out||e.gone);
     o.y=Y0+k*RH;r.style.top=o.y+'px';r.querySelector('.rk').textContent=k+1;o.s=e.s;
     o.pct=out?0:top>lo?Math.max(4,(e.s-lo)/(top-lo)*100):4;
-    r.querySelector('.bar i').style.width=o.pct+'%';r.querySelector('.tip').style.left=(30+BW*o.pct/100)+'px';
+    r.querySelector('.bar i').style.width=o.pct+'%';r.querySelector('.tip').style.left=mpTipX(o)+'px';
     r.classList.toggle('out',out);r.classList.toggle('fire',e.c>=20&&!out);r.classList.toggle('spw',SP.on&&e.i===SP.i);
     const cb=e.c>=10&&!out?e.c:0;if(cb!==o.cb){o.cb=cb;r.querySelector('.cb').textContent=cb?'連擊 '+cb:''}
     if(out)r.querySelector('.ss').textContent=e.gone?'離線':'出局';
@@ -1793,7 +1797,7 @@ function mpLad(){
     o.prev=k});
   const me=S[mi],a=S[mi-1],b=S[mi+1]&&!S[mi+1].out&&!S[mi+1].gone?S[mi+1]:null,near=!!b&&!me.out&&me.s-b.s<800;
   const gp=LAD.rows[DU.you]&&LAD.rows[DU.you].el.querySelector('.gp');
-  if(gp)gp.innerHTML=me.out?'':(a?'<span class="cool">差 '+(a.s-me.s).toLocaleString()+'</span>':'')+(b?'<span class="'+(near?'hot':'cool')+'">'+(near?'逼近 ':'後 ')+(me.s-b.s).toLocaleString()+'</span>':'');
+  if(gp)gp.innerHTML=me.out?'':LAD.geo.cmp?mpGapOne(me,a,b,near):(a?'<span class="cool">差 '+(a.s-me.s).toLocaleString()+'</span>':'')+(b?'<span class="'+(near?'hot':'cool')+'">'+(near?'逼近 ':'後 ')+(me.s-b.s).toLocaleString()+'</span>':'');
   LAD.link.classList.toggle('on',near);if(near){LAD.link.style.top=(Y0+mi*RH+rh/2)+'px';LAD.link.style.height=RH+'px'}
   $('#mpHot').textContent=near?'· 纏鬥中':'';
 }
@@ -1805,7 +1809,7 @@ function mpLadFrame(){   // rolling numbers, every frame while racing
 const JN=['完美','極佳','良好','尚可','失誤'],JC=['#ffd36b','#7cf0ff','#7cffaa','#9aa3c7','#ff6f95'];
 function mpLadHit(i,j,d){
   const o=LAD.rows[i];if(!LAD.on||!o||j<0||j>4||!o.el.animate)return;
-  const jd=o.el.querySelector('.jd');jd.textContent=j<4&&d>0?'+'+d.toLocaleString()+' '+JN[j]:JN[j];jd.style.color=JC[j];
+  const jd=o.el.querySelector('.jd');jd.textContent=j<4&&d>0&&!(LAD.geo&&LAD.geo.cmp)?'+'+d.toLocaleString()+' '+JN[j]:JN[j];jd.style.color=JC[j];
   jd.animate([{opacity:1,transform:'translateY(4px)'},{opacity:0,transform:'translateY(-6px)'}],{duration:600,easing:'ease-out'});
   const f=o.el.querySelector('.flash');f.style.background=JC[j];f.animate([{opacity:.2},{opacity:0}],{duration:350,easing:'ease-out'});
 }
@@ -1814,8 +1818,8 @@ function mpSpark(x,y,dx,dy,c,ms,big){
   s.animate([{opacity:1,transform:'translate(0,0)'},{opacity:0,transform:'translate('+dx+'px,'+dy+'px)'}],{duration:ms,easing:'ease-out'});
 }
 function mpFizz(){   // the sparkler: a few tiny sparks keep flying off every bar's tip
-  if(!LAD.on||document.hidden||!LAD.geo||st!=='play')return;const {rh,BW}=LAD.geo;
-  for(const o of Object.values(LAD.rows)){if(o.el.classList.contains('out'))continue;const x=30+BW*o.pct/100,y=o.y+rh-7;
+  if(!LAD.on||document.hidden||!LAD.geo||st!=='play')return;const {rh}=LAD.geo;
+  for(const o of Object.values(LAD.rows)){if(o.el.classList.contains('out'))continue;const x=mpTipX(o),y=o.y+rh-7;
     const a=-Math.PI*(.15+Math.random()*.7),d=6+Math.random()*14;mpSpark(x,y,Math.cos(a)*d-Math.random()*6,Math.sin(a)*d,o.c,250+Math.random()*300)}
 }
 function mpSparks(o,n){if(!LAD.geo)return;for(let k=0;k<n;k++){const a=Math.random()*6.28;mpSpark(20+Math.random()*(LAD.geo.w-40),o.y+LAD.geo.rh/2,Math.cos(a)*40,Math.sin(a)*26,o.c,600,true)}}
