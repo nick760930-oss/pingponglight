@@ -1,7 +1,7 @@
 {
   "key": "lastrose",
   "name": "夏日最後的玫瑰",
-  "composer": "愛爾蘭傳統旋律（Thomas Moore 詞，Stevenson 編曲「Martha」版）",
+  "composer": "愛爾蘭傳統旋律（Thomas Moore 詞，Stevenson 編曲，1813）",
   "year": "1813",
   "inst": {
     "lead": "violin",
@@ -18,6 +18,6 @@
     "file": "tools/src2/lastrose/lrose.mid",
     "mel": 1,
     "speed": 1.5,
-    "minMel": 0.08
+    "minMel": 0.12
   }
 }

@@ -8,11 +8,10 @@
     "bk": "pizz"
   },
   "credit": {
-    "source": "主題依公有領域原作與 Wikimedia Commons 公有領域 MIDI（作者 Hyacinth）手寫；變奏為依原曲和聲自行編寫",
+    "source": "主題依帕格尼尼原作（1820 年出版，公有領域）手寫，並以 Wikimedia Commons〈Paganini caprice24 theme.mid〉對照；變奏為依原曲和聲自行編寫",
     "url": "https://commons.wikimedia.org/wiki/File:Paganini_caprice24_theme.mid",
     "licence": "Public Domain",
-    "note": "A 小調，2/4；先奏主題（16 小節），再接三段自編炫技變奏（琶音、跳八度、音階），收在主音。",
-    "by": "Hyacinth"
+    "note": "A 小調，2/4；先奏主題（16 小節），再接三段自編炫技變奏（琶音、跳八度、音階），收在主音。"
   },
   "tune": {
     "bpm": 100,

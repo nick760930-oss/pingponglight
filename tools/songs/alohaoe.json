@@ -8,23 +8,41 @@
     "bk": "guitar"
   },
   "credit": {
-    "source": "Wikimedia Commons〈Aloha oe song midi.mid〉",
-    "url": "https://commons.wikimedia.org/wiki/File:Aloha_oe_song_midi.mid",
-    "licence": "Public domain（作曲者 1917 年過世）",
-    "note": "旋律取自 MIDI 的獨唱軌（Voice）與合唱女高音軌（Soprano）；原檔 47～48 拍處獨唱軌有兩個極短的重複 F#4（0.07 拍）視為轉檔雜音略去；和聲依鋼琴與合唱聲部手動簡化為和弦；速度 103→96"
+    "source": "依公有領域原譜手寫",
+    "url": "https://archive.org/details/b10201361",
+    "licence": "Public Domain",
+    "note": "依據 Broder & Schlam 版《Mele Hawaii》（H. Berger 編）第 2 曲 Aloha Oe 的 PDF 第 2 頁（鋼琴引子與第一、二節主歌旋律）與第 3 頁（副歌四聲部合唱＋鋼琴，取女高音旋律與鋼琴左手低音）。原調降 B 大調、4/4，不移調（旋律 F4～Eb5）。片段＝主歌第一段（8 小節，取第一段歌詞對應的音）＋副歌兩輪（第二輪結尾不接弱起）。不加引子。主歌第 4 小節照原譜（第 4 拍為弱起附點八分 F4＋十六分 Bb4）。主歌第 8 小節末接副歌弱起 F4 時，把原譜的四分休止縮成八分休止，讓小節線對齊。和弦依鋼琴左手低音（Bb、Eb、F7）加上旋律和聲手填，每小節低音以原譜為準。"
   },
   "tune": {
-    "bpm": 96,
+    "bpm": 80,
     "meter": 4,
     "style": "arp",
+    "transpose": 0,
+    "swing": 0,
     "parts": {
-      "A": {
-        "mel": "D4:0.5 G4 B4:1.5 A4:0.5 G4 F#4 G4 E4 D4:2 r:1 B4 A4:1.5 G#4:0.5 A4 A4 C5 B4 A4:3 D4:0.5 G4 B4:1.5 A4:0.5 G4 F#4 G4 E4 D4:2 r:1 D4:0.5 D4 E4:1 A4:0.5 G4 F#4 B4 A4 F#4 G4:2.5 G4:0.5 G4 F#4 E4:1 G4 C5:0.5 E4 E4 E4 D4:1 G4 B4 G4:0.5 G4 F#4 F#4 F#4 G4 A4 G#4 A4 C5 B4:2 G4:1 r:0.5 F#4 E4:1 G4 C5:1.5 E4:0.5 D4 D4 G4 G4 B4:1.5 G4:0.5 F#4:1.5 G4:0.5 B4 A4:1 F#4:0.5 G4:3",
-        "chords": "G:2 C:2 G:4 D7:8 G:2 C:2 G:4 C:2 D7:2 G:4 C:6 G:2 D7:6 G:2 C:6 G:4 D7:2 G:4"
+      "P0": {
+        "mel": "r:3 F4:0.75 Bb4:0.25",
+        "chords": "r:4",
+        "free": true
+      },
+      "V": {
+        "mel": "D5:.5 D5:1 C5:.5 Bb4:.75 A4:.25 Bb4:.5 G4:.5 | F4:2 F4:1 D5:1 | C5:.5 C5:1 B4:.5 C5:.5 C5:.5 Eb5:.5 D5:.5 | C5:2 C5:1 F4:.75 Bb4:.25 | D5:.5 D5:1 C5:.5 Bb4:.75 A4:.25 Bb4:.5 G4:.5 | F4:2 F4:1 Bb4:.5 A4:.5 | G4:.5 G4:.5 C5:.5 Bb4:.5 A4:.5 A4:.5 D5:.5 C5:.5 | Bb4:3 r:.5 F4:.5",
+        "chords": "Bb:2 Eb:2 Bb:4 F7:4 F7:4 Bb:2 Eb:2 Bb:4 Eb:2 F7:2 Bb:4"
+      },
+      "C1": {
+        "mel": "G4:1 Bb4:1 Eb5:1.5 G4:.5 | F4:1 Bb4:1 D5:1.5 Bb4:.5 | A4:.75 G4:.25 A4:.5 Bb4:.5 C5:.5 C5:.5 Eb5:.5 Eb5:.5 | D5:2 Bb4:1.5 F4:.5 | G4:1 Bb4:1 Eb5:1.5 G4:.5 | F4:1 Bb4:1 D5:1.5 Bb4:.5 | A4:1.5 Bb4:.5 C5:.75 D5:.25 C5:.5 A4:.5 | Bb4:3 r:.5 F4:.5",
+        "chords": "Eb:4 Bb:4 F7:4 Bb:4 Eb:4 Bb:4 F7:4 Bb:4"
+      },
+      "C2": {
+        "mel": "G4:1 Bb4:1 Eb5:1.5 G4:.5 | F4:1 Bb4:1 D5:1.5 Bb4:.5 | A4:.75 G4:.25 A4:.5 Bb4:.5 C5:.5 C5:.5 Eb5:.5 Eb5:.5 | D5:2 Bb4:1.5 F4:.5 | G4:1 Bb4:1 Eb5:1.5 G4:.5 | F4:1 Bb4:1 D5:1.5 Bb4:.5 | A4:1.5 Bb4:.5 C5:.75 D5:.25 C5:.5 A4:.5 | Bb4:3 r:1",
+        "chords": "Eb:4 Bb:4 F7:4 Bb:4 Eb:4 Bb:4 F7:4 Bb:4"
       }
     },
     "form": [
-      "A"
+      "P0",
+      "V",
+      "C1",
+      "C2"
     ]
   }
 }
