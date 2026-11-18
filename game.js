@@ -624,7 +624,7 @@ function startRun(from){
   combo=0;maxCombo=0;tierCount=[0,0,0,0];shake=0;exitT=0;easeT=0;starT=0;shield=0;rangeT=0;rangeMul=1;paused=false;resumeCD=0;lifeMax=LIFE0;life=LIFE0;missCount=0;runFrom=from;flash.a=0;edgeGlow=[0,0,0,0];
   bumps=[];items=[];rings=[];floats=[];parts=[];aims=[];hfx=[];spawnT=5;itemT=9;tickQ=[];cutAll();mlv=0;mgrow=0;mlBan=null;
   balls=[];for(let j=0;j<nb;j++)if(from+j<tg.length)balls.push(newBall(from+j));
-  RUN=mode==='normal'&&!from&&ME?{log:new Array(tg.length).fill(null),ok:true,ticket:null,key:song.key,d:di}:null;   // only full solo runs can enter the leaderboard
+  RUN=mode==='normal'&&!from&&ME?{log:new Array(tg.length).fill(null),star:new Uint8Array(tg.length),seq:[],ended:false,ok:true,ticket:null,key:song.key,d:di}:null;   // only full solo runs can enter the leaderboard
   endAt=mode==='tut'||mode==='try'?timeOf(tg[tg.length-1].t)+2:timeOf(song.dur)+1.2;
   runPaused=false;runMute0=SET.mel===0&&SET.bk===0;
   st='ready';hudShow(true);preloadSong(song);
@@ -655,7 +655,7 @@ async function launch(){
   tickQ=[LEADIN-1.5,LEADIN-1,LEADIN-.5];
   for(const b of balls){planLaps(b);b.vr=0;b.v=ballWant(b);b.vr=b.v}
   st='play';audioStatus();setMedia(true);hud();
-  if(RUN&&!RUN.ticket)RUN.ticket=api('/lb/start',{song:RUN.key,d:RUN.d}).then(j=>typeof j.run==='string'?j.run:{e:j.error||'net'});   // the server's signed start time
+  if(RUN&&!RUN.ticket)RUN.ticket=api('/lb/start',{song:RUN.key,d:RUN.d,pk:pkey()}).then(j=>typeof j.run==='string'?j.run:{e:j.error||'net'});   // the server's signed start time
 }
 
 /* ================= input ================= */
@@ -836,7 +836,7 @@ function bounce(b,tx,ty,p){
   tierCount[ti]++;combo=ti<=2?combo+1:0;life=Math.min(lifeMax,life+[2,1,1,0][ti]);if(ti===0)vib(12);maxCombo=Math.max(maxCombo,combo);
   if(mlOn()&&ti<=2&&mlv<3&&++mgrow>=ML_STEP[mlv])mlSet(mlv+1,true);   // "尚可" neither counts nor breaks the climb
   const sf=Math.pow(Math.max(.3,b.v/V0),1.1),base=Math.round((100*T.m*sf*(1+.3*p)*(starT>0?2:1))*(mode==='duel'&&DU.sprint?2:1)),pts=base+combo*5;
-  if(RUN&&b.ti<RUN.log.length)RUN.log[b.ti]=[Math.max(-400,Math.min(400,Math.trunc(e*1000))),base];   // ms toward zero keeps the same timing tier as here
+  if(RUN&&b.ti<RUN.log.length){RUN.log[b.ti]=[Math.max(-400,Math.min(400,Math.trunc(e*1000))),base];RUN.star[b.ti]=starT>0?1:0;RUN.seq.push(b.ti)}   // ms toward zero keeps the same timing tier as here; seq = beat indices in the order they were settled (several balls can settle out of order); star = was the x2 power-up running when this beat was settled
   score+=pts;
   const hue=T.hue,fx=b.x+nx*40,fy=b.y;
   floats.push({x:fx,y:fy-6,text:T.n,hue,life:.9,max:.9,size:ti===0?1.5:ti===1?1.25:1});
@@ -857,13 +857,14 @@ function miss(b){
   missCount++;combo=0;
   if(mlOn()){if(mlv>0)mlSet(mlv-1,false);else mgrow=0}
   const old=b.side,nx=old===1?-1:1,sh=shield>0;
+  if(RUN&&b.ti>=0&&b.ti<RUN.log.length){RUN.star[b.ti]=starT>0?1:0;RUN.seq.push(b.ti);if(sh)RUN.log[b.ti]=0}   // a miss the shield absorbed is 0 in the log (null = a miss that cost life)
   if(sh)shield--;else life=Math.max(0,life-(D.dmg||0))   // a plain miss stays silent
   vib(sh?20:[40,30,40]);
   floats.push({x:b.x+nx*40,y:b.y,text:sh?'護盾抵銷':'失誤',hue:sh?190:350,life:1,max:1,size:1.2});
   const hue=sh?190:350;
   rings.push({x:b.x,y:b.y,r0:BR,life:.7,max:.7,hue,w:5});burst(b.x,b.y,hue,24,BR*14,.8);
   if(mode==='duel')duelHit(4);
-  if(life<=0){hud();vib(120);over('生命值歸零');return}
+  if(life<=0){hud();vib(120);lbEnd('fail');over('生命值歸零');return}
   if(!sh){shake=Math.max(shake,6);flash.a=.14;flash.hue=350}
   const lineX=old===1?FR.x+FR.w:FR.x,a=rand(-.5,.5);       // the ball comes back into play
   b.x=lineX+nx*BR*.3;b.dx=nx*Math.cos(a);b.dy=Math.sin(a);b.win=null;b.ct=[];
@@ -2138,7 +2139,19 @@ function pkey(){let k=lsGet('ppl-pk');if(!/^[0-9a-f]{32}$/.test(k||'')){const a=
 let ME=(()=>{try{const m=JSON.parse(lsGet('ppl-me')||'null');return m&&Number.isInteger(m.id)&&typeof m.name==='string'&&m.name?{id:m.id,name:dName(m.name)}:null}catch(e){return null}})();
 function setMe(m){const first=!ME&&!!m;ME=m;if(m)lsSet('ppl-me',JSON.stringify(m));else{try{localStorage.removeItem('ppl-me');localStorage.removeItem('ppl-fc')}catch(e){}}
   if(first&&window.PPLG&&typeof window.PPLG.onMe==='function')setTimeout(window.PPLG.onMe,0)}   // a nickname now exists: shop.js sends up what was taken without one
-let RUN=null;   // this run's beat log: [timing error ms, base points] per beat, null = missed
+let RUN=null;   // this run's beat log: [timing error ms, base points] per beat, null = missed (cost life), 0 = missed but the shield held; star[i] = beat i was settled during star time
+// the star-time beats as index ranges [[from,to),...] over the first len beats (what the server checks the base points against)
+function starRanges(a,len){const o=[];let s=-1;for(let i=0;i<=len;i++){const on=i<len&&a[i]===1;if(on&&s<0)s=i;else if(!on&&s>=0){o.push([s,i]);s=-1}}return o.slice(0,50)}
+// a run that did not finish (kind 'fail': life ran out, log up to and including that beat; 'quit': left or restarted). Fire and forget: only with a new-format
+// (6-part) ticket, never waits and never changes the screen; what it earns shows up as notices like a result's.
+function lbEnd(kind){
+  const R=RUN;if(!R||!R.ok||R.ended||!R.ticket)return;
+  const len=kind==='fail'?(R.seq.length?Math.max(...R.seq)+1:0):0;if(kind==='fail'&&!(len>0&&len<=R.log.length))return;   // the log runs up to the highest beat settled so far
+  R.ended=true;
+  const body=kind==='fail'?{kind,log:R.log.slice(0,len),seq:R.seq.slice(),star:starRanges(R.star,len)}:{kind};
+  Promise.resolve(R.ticket).then(run=>typeof run==='string'&&run.split('.').length===6?api('/lb/end',Object.assign(body,{run,pk:pkey()})):null)
+    .then(j=>{if(j&&j.ok&&Array.isArray(j.ach)&&window.PPLA)window.PPLA.fresh(j.ach.filter(x=>typeof x==='string').slice(0,40))}).catch(()=>{});
+}
 async function api(path,body,ms){
   const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||8000);
   try{const r=await fetch(NET+path,{method:'POST',body:JSON.stringify(body),signal:c.signal});   // text body: no CORS preflight
@@ -2211,7 +2224,7 @@ async function lbGet(key,d,fresh){
 async function lbSubmit(R){
   const t=$('#rlbT'),b=$('#rlbB'),tok=lastRes;$('#rlb').hidden=false;b.hidden=true;t.textContent='成績上傳中⋯';
   const run=R.ticket?await R.ticket:{e:'net'};
-  const j=typeof run==='string'?await api('/lb/submit',{run,pk:pkey(),log:R.log,pf:PF}):{error:run.e};
+  const j=typeof run==='string'?await api('/lb/submit',{run,pk:pkey(),log:R.log,seq:R.seq,star:starRanges(R.star,R.log.length),pf:PF}):{error:run.e};
   if(lastRes!==tok)return;
   if(j.ok&&Array.isArray(j.ach)&&window.PPLA)window.PPLA.fresh(j.ach.filter(x=>typeof x==='string').slice(0,40));   // what this run earned on the server: shown as notices
   if(j.ok&&j.me&&typeof j.me==='object'&&!j.me.hidden){
@@ -2925,11 +2938,11 @@ function onPress(el,fn){let t=-1e9;
   el.addEventListener('click',e=>{e.stopPropagation();if(performance.now()-t>600)fn()});}
 onPress($('#bPause'),()=>{if(paused&&!resumeCD)resumeGame();else pauseGame()});
 $('#bResume').onclick=resumeGame;
-$('#bRestart').onclick=()=>{$('#pause').classList.add('hidden');doResume();startRun(0)};
+$('#bRestart').onclick=()=>{$('#pause').classList.add('hidden');lbEnd('quit');doResume();startRun(0)};
 function skipTut(){lsSet('ppl-tut','1');$('#pause').classList.add('hidden');doResume();showSelect()}
 
 // in the tutorial, 離開 is the way out of it (marked done, on to the songs); the HUD has no separate skip button
-$('#bQuit').onclick=()=>{if(mode==='tut'){skipTut();return}if(mode==='try'){$('#pause').classList.add('hidden');tryEnd();return}$('#pause').classList.add('hidden');doResume();if(mode==='normal')showSelect();else showHome()};
+$('#bQuit').onclick=()=>{if(mode==='tut'){skipTut();return}if(mode==='try'){$('#pause').classList.add('hidden');tryEnd();return}$('#pause').classList.add('hidden');lbEnd('quit');doResume();if(mode==='normal')showSelect();else showHome()};
 /* ---- settings ---- */
 function audioDiag(){
   const el=$('#aDiag');if(!el)return;

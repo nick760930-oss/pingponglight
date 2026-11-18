@@ -10,6 +10,9 @@
 // Checks on every submitted run (a phone can always lie, so these raise the cost of cheating; they cannot remove it):
 // - the run must start with a ticket signed by this server (HMAC), and the result may only arrive after the song
 //   could really have been played (ticket age >= song length at that difficulty), and within 3 hours;
+// - a new ticket names the player and works once (runs table); /lb/end closes a run that did not finish (failed or quit; a quit needs a quarter of the
+//   song's length) and the challenge counts (tries table) feed some achievements; a legacy ticket (no player) only updates the best score and is
+//   judged with the looser base limit; a new ticket also limits shields and star ranges to the power-ups that could have appeared;
 // - the beat log must have exactly as many entries as the game asks for (src/charts.js, generated from game.js);
 // - every timing error must be in the hit window;
 // - only full runs from the first beat count; the server keeps each player's best run per board, with its beat
@@ -26,7 +29,12 @@ import { withCos, shopWipe } from './cos.js';
 import { achRecalc, logFeats, ftOf, rankOf, statsStmt } from './ach.js';
 
 const DIFFS = 5, TICKET_MAX_MS = 3 * 3600e3, MAX_BODY = 16384, TOP = 100, HIDE_AT = 3, BOARD_CACHE_S = 30;
-const MAX_ERR = 400, MISS = null;                      // ms; a missed beat is null in the log
+const MAX_ERR = 400, MISS = null;                      // ms; a missed beat is null in the log (0 = a miss the shield absorbed)
+// Run tickets: new ones are song.d.ts.nonce.pid.sig (6 parts, single use, recorded in the runs table); old ones have 5 parts (no pid).
+// A legacy ticket can still be used (it only updates the best score: no run count, no totals, no achievements). Set this to false to stop accepting them.
+const LEGACY_TICKETS = true;
+const END_MIN_MS = 10e3, FAIL_MIN_MS = 3e3, STAR_MAX = 50, RUNS_KEEP_MS = TICKET_MAX_MS;   // /lb/end: a quit must be at least 10 s old, a fail 3 s (missing every beat from the start ends the fastest charts after about 3.4 s); at most 50 star-time ranges per log
+const LIFE0 = 30, DMG = [3, 4, 7, 2, 8], HEAL = [2, 1, 1, 0];   // game.js: opening life (= cap); damage per miss by difficulty index (DIFFS order, same as CHARTS); life a hit of tier 0..3 gives back
 const TIER_MS = [45, 90, 150], TIER_W20 = [20, 16, 10, 5];   // integer tier weights (x20, a miss is 0): the sum does not depend on the order of the hits
 // game.js bounce(): base = round(100 * TIER_M * speed^1.1 * (1 + .3 * pressure) * (power-up ? 2 : 1)), then + combo * 5;
 // speed factor is clamped to [.3, 8] there, pressure to [0, 1]
@@ -47,29 +55,127 @@ const isPk = v => typeof v === 'string' && /^[0-9a-f]{32}$/.test(v);
 const board = (song, d) => song + '-' + d;
 const songOk = (song, d) => typeof song === 'string' && Object.prototype.hasOwnProperty.call(CHARTS, song) && Number.isInteger(d) && d >= 0 && d < DIFFS;
 
-// Accuracy and the rest, recomputed from the beat log. Returns null when the log is malformed.
-export function judge(song, d, log) {
-  const N = CHARTS[song].n[d];
-  if (!Array.isArray(log) || log.length !== N) return null;
-  const tiers = [0, 0, 0, 0]; let miss = 0, w = 0, sumAbs = 0, sum = 0, sum2 = 0, hits = 0, combo = 0, maxCombo = 0, score = 0;
-  for (const x of log) {                              // each entry: null (missed) or [timing error ms, base points]
-    if (x === MISS) { miss++; combo = 0; continue; }
+// Star time (the x2 power-up): the phone sends the beat index ranges [[from, to), ...] that were played during it. A hit inside one must
+// have earned at least the smallest doubled base, a hit outside one at most the largest undoubled base. Returns the ranges, or null when invalid.
+export function parseStar(star, len) {
+  if (star === undefined || star === null) return [];
+  if (!Array.isArray(star) || star.length > STAR_MAX) return null;
+  let prev = 0;
+  for (const s of star) {
+    if (!Array.isArray(s) || s.length !== 2 || !Number.isInteger(s[0]) || !Number.isInteger(s[1])) return null;
+    if (s[0] < prev || s[1] <= s[0] || s[1] > len) return null;   // sorted, not overlapping, inside the log, at least one beat
+    prev = s[1];
+  }
+  return star;
+}
+
+// How many power-ups a run can pick up at most (game.js: the first appears at 9 s, then one every 8 s at the earliest, +1 slack). Shields (0 entries) and star ranges
+// each need one pickup, so neither can outnumber this. dur / spd is the song's length in seconds at that difficulty; the run lasts 3.8 s longer.
+const itemCap = (song, d) => Math.max(1, 2 + Math.floor((CHARTS[song].dur / CHARTS[song].spd[d] + 3.8 - 9) / 8));
+
+// One pass over a beat log (whole or partial). Each entry: null (a miss that cost life), 0 (a miss the shield absorbed: no life lost)
+// or [timing error ms, base points]. Accuracy, score and combo follow the beat order. strict (new tickets): a hit outside star time may earn at most
+// half the largest base; otherwise (legacy tickets, whose phones may not report star time) the full largest base. Returns null when an entry is malformed
+// or earns more than a hit could.
+function scan(d, log, segs, strict) {
+  const L = log.length, inStar = new Uint8Array(L);
+  for (const [a, b] of segs) for (let i = a; i < b; i++) inStar[i] = 1;
+  const tiers = [0, 0, 0, 0]; let miss = 0, w = 0, sumAbs = 0, sum = 0, sum2 = 0, hits = 0, combo = 0, maxCombo = 0, score = 0, gold = 0, zeros = 0;
+  const outMax = strict ? Q_MAX / 2 : Q_MAX;
+  for (let i = 0; i < L; i++) {
+    const x = log[i];
+    if (x === MISS || x === 0) { miss++; combo = 0; if (x === 0) zeros++; continue; }
     if (!Array.isArray(x) || x.length !== 2) return null;
     const [e, base] = x;
     if (!Number.isInteger(e) || Math.abs(e) > MAX_ERR || !Number.isInteger(base)) return null;
     const a = Math.abs(e), t = a < TIER_MS[0] ? 0 : a < TIER_MS[1] ? 1 : a < TIER_MS[2] ? 2 : 3;
-    const q = base / (100 * TIER_M[t]); if (q < Q_MIN || q > Q_MAX) return null;   // more than this hit could earn
+    const q = base / (100 * TIER_M[t]);
+    if (inStar[i] ? (q < Q_MIN * 2 || q > Q_MAX) : (q < Q_MIN || q > outMax)) return null;   // more (or less) than this hit could earn
     tiers[t]++; w += TIER_W20[t]; hits++; sumAbs += a; sum += e; sum2 += e * e;
     combo = t <= 2 ? combo + 1 : 0; maxCombo = Math.max(maxCombo, combo);
+    if (inStar[i] && combo >= 100) gold = 1;
     score += base + combo * 5;
   }
-  if (!hits) return null;
+  let clean = 0;   // star ranges without a single miss
+  for (const [a, b] of segs) { let c = 1; for (let i = a; i < b; i++) if (log[i] === MISS || log[i] === 0) { c = 0; break; } clean += c; }
+  return { tiers, miss, w, sumAbs, sum, sum2, hits, maxCombo, score, gold, zeros, sg: segs.length, sc: clean };
+}
+
+// Life, replayed in the order the beats were settled (order = beat indices). Opening 30 (also the cap); a hit heals [2,1,1,0] by tier; a null costs the
+// difficulty's damage; a 0 (shield) nothing. dead = position in the order where life first reached 0 (-1: never).
+function lifeScan(d, log, order) {
+  let life = LIFE0, lmin = LIFE0, dead = -1;
+  for (let k = 0; k < order.length; k++) {
+    const x = log[order[k]];
+    if (x === MISS) life = Math.max(0, life - DMG[d]);
+    else if (x !== 0) { const a = Math.abs(x[0]); life = Math.min(LIFE0, life + HEAL[a < TIER_MS[0] ? 0 : a < TIER_MS[1] ? 1 : a < TIER_MS[2] ? 2 : 3]); }
+    if (life < lmin) lmin = life; if (life <= 0 && dead < 0) dead = k;
+  }
+  return { end: life, min: lmin, dead };
+}
+
+// The order beats were settled in (seq), for phones with several balls at once: a list of beat indices. A whole run: a permutation of 0..len-1; a failed run:
+// distinct indices below len (the beats settled so far). Beat k-th settled can only be one of the beats within nb of k (nb = balls at that difficulty, game.js DIFFS).
+// Without seq the order is the beat order. Returns the order, or null when invalid.
+const NB = [1, 2, 2, 1, 3];
+// how many star power-ups a log shows: with several balls beats can settle out of order, so one power-up may come out as ranges a beat or two apart; ranges closer than the number of balls count as one
+const starCount = (segs, d) => segs.reduce((n, g, i) => n + (i && g[0] - segs[i - 1][1] < NB[d] ? 0 : 1), 0);
+export function parseSeq(seq, d, len, whole) {
+  if (seq === undefined || seq === null) return null;                       // (the caller decides what a missing one means)
+  if (!Array.isArray(seq) || seq.length > len || (whole && seq.length !== len)) return false;
+  const used = new Uint8Array(len);
+  for (let k = 0; k < seq.length; k++) {
+    const i = seq[k];
+    if (!Number.isInteger(i) || i < 0 || i >= len || used[i] || Math.abs(i - k) >= NB[d]) return false;
+    used[i] = 1;
+  }
+  return seq;
+}
+
+// Accuracy and the rest, recomputed from the beat log. Returns null when the log is malformed.
+// A whole run whose life was ever <= 0 is still accepted (older phones), but r.life.dead >= 0 and its life achievements are not given.
+// strict = a new ticket: the tighter base limit outside star time, the shield and star-range caps, and the settle order (seq) honoured.
+export function judge(song, d, log, star, strict, seq) {
+  const N = CHARTS[song].n[d];
+  if (!Array.isArray(log) || log.length !== N) return null;
+  const segs = parseStar(star, log.length); if (!segs) return null;
+  const s = scan(d, log, segs, !!strict); if (!s || !s.hits) return null;
+  // Checks that only guard achievements never refuse a run (they cannot affect the score): a bad seq or too many shields -> lifeBad (no life achievements);
+  // too many star ranges -> starBad (no star achievements; the ranges still bound the base points above).
+  let order = null, lifeBad = false, starBad = false;
+  if (strict) {
+    if (s.zeros > itemCap(song, d)) lifeBad = true;
+    if (starCount(segs, d) > itemCap(song, d)) starBad = true;
+    order = parseSeq(seq, d, N, true); if (order === false) { order = null; lifeBad = true; }
+  }
+  const life = lifeScan(d, log, order || Array.from({ length: N }, (_, i) => i));
+  const { tiers, miss, w, sumAbs, sum, sum2, hits } = s;
   const mean = sum / hits, sd = Math.sqrt(Math.max(0, sum2 / hits - mean * mean)), err = Math.round(sumAbs / hits);
   const sus = hits >= 20 && (sumAbs / hits < 4 || sd < 3) ? 1 : 0;   // unusually steady: kept, but listed for review
   const acc = Math.floor(w * 500 / N);                           // basis points, integer arithmetic (w is x20): 9842 = 98.42 %; same formula as game.js bpOf
   const rank = rankOf(acc, miss, tiers[2], tiers[3]);
-  score = Math.min(SCORE_CAP, score);
-  return { acc, err, maxCombo, miss, tiers, rank, sus, score, key: acc * 1e9 + score };   // < 2^53, exact in JS and SQLite
+  const score = Math.min(SCORE_CAP, s.score);
+  return { acc, err, maxCombo: s.maxCombo, miss, tiers, rank, sus, score, key: acc * 1e9 + score, life, lifeBad, starBad, sg: starBad ? 0 : s.sg, sc: starBad ? 0 : s.sc, gold: starBad ? 0 : s.gold };   // key < 2^53, exact in JS and SQLite
+}
+
+// A run that ended in failure (new tickets only, so always strict): the log has 1 to N beats. Life, replayed in settle order, must be above 0 until the
+// last settled beat and reach 0 exactly there, and that beat is a real (unshielded) miss. With seq the log runs up to the highest settled beat; beats
+// of it that were not settled yet are null placeholders and cost nothing. Without seq every beat of the log counts, in beat order.
+export function failCheck(song, d, log, star, seq) {
+  const N = CHARTS[song].n[d];
+  if (!Array.isArray(log) || log.length < 1 || log.length > N) return false;
+  const segs = parseStar(star, log.length); if (!segs) return false;
+  const s = scan(d, log, segs, true);
+  if (!s || s.zeros > itemCap(song, d) || starCount(segs, d) > itemCap(song, d)) return false;
+  let order = parseSeq(seq, d, log.length, false);
+  if (order === false) return false;
+  if (order === null) order = Array.from({ length: log.length }, (_, i) => i);
+  else {
+    if (!order.length || Math.max(...order) !== log.length - 1) return false;   // the log ends at the highest settled beat
+    const set = new Set(order); for (let i = 0; i < log.length; i++) if (!set.has(i) && log[i] !== MISS) return false;   // unsettled beats are null placeholders
+  }
+  const l = lifeScan(d, log, order);
+  return l.dead === order.length - 1 && log[order[order.length - 1]] === MISS;
 }
 
 export async function handleLb(req, env, path, who, origin, H, limited) {
@@ -77,7 +183,7 @@ export async function handleLb(req, env, path, who, origin, H, limited) {
   if (!env.LB || !env.LB_SECRET) return json({ error: 'off' }, 503);
   if (req.method !== 'POST') return json({ error: 'method' }, 405);
   // runs get their own budget, so browsing boards cannot use up the requests a finished run needs
-  const bucket = path === '/lb/start' || path === '/lb/submit' ? 'lbr:' : 'lb:';
+  const bucket = path === '/lb/start' || path === '/lb/submit' || path === '/lb/end' ? 'lbr:' : 'lb:';
   if (await limited(env, bucket + who)) return json({ error: 'slow' }, 429, { 'Retry-After': '60' });
   const len = +(req.headers.get('Content-Length') || 0);
   if (len > MAX_BODY) return json({ error: 'big' }, 413);
@@ -107,41 +213,75 @@ export async function handleLb(req, env, path, who, origin, H, limited) {
     return json({ me: pl ? { id: pl.id, name: pl.name } : null });
   }
 
-  if (path === '/lb/start') {                         // a signed ticket: song, difficulty, issue time
-    const { song, d } = body; if (!songOk(song, d)) return json({ error: 'song' }, 400);
-    const p = [song, d, now, hex(crypto.getRandomValues(new Uint8Array(8)))].join('.');
+  if (path === '/lb/start') {                         // a signed ticket: song, difficulty, issue time (and the player, when the phone sent its key)
+    const { song, d, pk } = body; if (!songOk(song, d)) return json({ error: 'song' }, 400);
+    const nonce = hex(crypto.getRandomValues(new Uint8Array(8)));
+    let pid = null;
+    if (isPk(pk)) {                                   // a registered player gets a single-use ticket that names them; anyone else the old kind
+      const pl = await db.prepare('SELECT id FROM players WHERE ph = ?1').bind(await sha(pk)).first();
+      if (pl) {
+        try {
+          await db.batch([db.prepare('INSERT INTO runs (nonce, pid, song, d, ts, done) VALUES (?1, ?2, ?3, ?4, ?5, 0)').bind(nonce, pl.id, song, d, now),
+            db.prepare('DELETE FROM runs WHERE nonce IN (SELECT nonce FROM runs WHERE ts < ?1 LIMIT 50)').bind(now - RUNS_KEEP_MS)]);   // tickets older than their lifetime are gone anyway
+          pid = pl.id;
+        } catch (e) { pid = null; }                   // e.g. the migration is not applied yet: fall back to the old ticket
+      }
+    }
+    const p = [song, d, now, nonce, ...(pid === null ? [] : [pid])].join('.');
     return json({ run: p + '.' + await hmac(env.LB_SECRET, p) });
   }
 
   if (path === '/lb/submit') {
     const { run, pk, log } = body;
     if (typeof run !== 'string' || run.length > 200 || !isPk(pk)) return json({ error: 'bad' }, 400);
-    const parts = run.split('.'); if (parts.length !== 5) return json({ error: 'ticket' }, 400);
-    const [song, ds, ts, nonce, sig] = parts, d = +ds, issued = +ts;
-    if (!same(sig, await hmac(env.LB_SECRET, [song, ds, ts, nonce].join('.'))) || !songOk(song, d)) return json({ error: 'ticket' }, 400);
+    const tk = await readTicket(env, run); if (!tk || (tk.legacy && !LEGACY_TICKETS)) return json({ error: 'ticket' }, 400);
+    const { song, d, issued } = tk;
     const c = CHARTS[song], minMs = c.dur / c.spd[d] * 900;
     if (!(now - issued >= minMs && now - issued <= TICKET_MAX_MS)) return json({ error: 'ticket' }, 400);
-    const r = judge(song, d, log); if (!r) return json({ error: 'log' }, 400);
+    const r = judge(song, d, log, body.star, !tk.legacy, body.seq); if (!r) return json({ error: 'log' }, 400);
     const b = board(song, d), pf = ['web', 'ios', 'android'].includes(body.pf) ? body.pf : 'web';
     const pl = await db.prepare('SELECT id, hidden FROM players WHERE ph = ?1').bind(await sha(pk)).first();
     if (!pl) return json({ error: 'noname' }, 400);
+    if (!tk.legacy) {                                 // a new ticket is used once, and only by the player it was issued to
+      if (tk.pid !== pl.id || !(await useRun(db, tk.nonce))) return json({ error: 'ticket' }, 400);
+    }
     const prev = await db.prepare('SELECT key FROM scores WHERE board = ?1 AND pid = ?2').bind(b, pl.id).first();
     const seen = await db.prepare('SELECT 1 FROM scores WHERE pid = ?1 AND board LIKE ?2').bind(pl.id, song + '-%').first();   // any difficulty of this song cleared before? (越級者)
     const improved = !prev || r.key > prev.key, F = logFeats(log, CHARTS[song].n[d]);
-    if (improved) await db.prepare(`INSERT INTO scores (board, pid, key, acc, err, combo, ts, hid, log, pf, sus, score, ft) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)
-      ON CONFLICT(board, pid) DO UPDATE SET key = ?3, acc = ?4, err = ?5, combo = ?6, ts = ?7, log = ?9, pf = ?10, sus = ?11, score = ?12, ft = ?13, n = n + 1`)
-      .bind(b, pl.id, r.key, r.acc, r.err, r.maxCombo, now, pl.hidden, JSON.stringify(log), pf, r.sus, r.score, ftOf(F, r.acc)).run();
-    else await db.prepare('UPDATE scores SET n = n + 1 WHERE board = ?1 AND pid = ?2').bind(b, pl.id).run();   // every accepted run counts (百回, 迴聲)
+    // the run count (n: 百回, 迴聲) only grows with a new, single-use ticket; a legacy ticket only updates the best score (a new row then starts at 0)
+    const bump = tk.legacy ? 0 : 1;
+    if (improved) await db.prepare(`INSERT INTO scores (board, pid, key, acc, err, combo, ts, hid, log, pf, sus, score, ft, n) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)
+      ON CONFLICT(board, pid) DO UPDATE SET key = ?3, acc = ?4, err = ?5, combo = ?6, ts = ?7, log = ?9, pf = ?10, sus = ?11, score = ?12, ft = ?13, n = n + ?14`)
+      .bind(b, pl.id, r.key, r.acc, r.err, r.maxCombo, now, pl.hidden, JSON.stringify(log), pf, r.sus, r.score, ftOf(F, r.acc), bump).run();
+    else if (bump) await db.prepare('UPDATE scores SET n = n + 1 WHERE board = ?1 AND pid = ?2').bind(b, pl.id).run();
     if (improved) await dropCache(b);
     const me = await myRank(db, b, pl.id);
-    // achievements (src/ach.js): running totals, then whatever this run and the player's records earn; a failure here never costs the player their score
+    // achievements (src/ach.js): the try counts, running totals, then whatever this run and the player's records earn; a failure here never costs the player their score
     let ach = [];
-    try {
+    if (!tk.legacy) try {
+      const pt = await db.prepare('SELECT fails FROM tries WHERE pid = ?1 AND song = ?2 AND d = ?3').bind(pl.id, song, d).first();   // fails before this run (屢敗屢戰)
+      await bumpTries(db, pl.id, song, d, 0).run();
       await statsStmt(db, pl.id, F).run();
-      const R = { d, acc: r.acc, maxCombo: F.maxCombo, r: r.rank, fc: F.fc, pr: F.pr, f5: F.f5, l5: F.l5, ec: F.ec, fm: F.fm };
+      const life = r.life, R = { d, acc: r.acc, maxCombo: F.maxCombo, r: r.rank, fc: F.fc, pr: F.pr, f5: F.f5, l5: F.l5, ec: F.ec, fm: F.fm,
+        lok: life.dead < 0 && !r.lifeBad ? 1 : 0, lend: life.end, lmin: life.min, sg: r.sg, sc: r.sc, gold: r.gold, pfail: pt ? pt.fails : 0 };   // single-run achievements only exist for a new ticket
       ach = (await achRecalc(db, pl.id, now, { song, d, R, first: !seen }, false)).fresh;
     } catch (e) {}
     return json({ ok: true, improved, acc: r.acc, err: r.err, score: r.score, rank: r.rank, me, total: await total(db, b), ach });
+  }
+
+  if (path === '/lb/end') {                           // a run that did not finish: { run, pk, kind: 'fail' | 'quit', log (fail only), star }
+    const { run, pk, kind } = body;
+    if (typeof run !== 'string' || run.length > 200 || !isPk(pk) || (kind !== 'fail' && kind !== 'quit')) return json({ error: 'bad' }, 400);
+    const tk = await readTicket(env, run); if (!tk || tk.legacy) return json({ error: 'ticket' }, 400);
+    const cc = CHARTS[tk.song], minEnd = kind === 'fail' ? FAIL_MIN_MS : Math.max(END_MIN_MS, cc.dur / cc.spd[tk.d] * 250);   // a quit: at least a quarter of the song's length
+    if (!(now - tk.issued >= minEnd && now - tk.issued <= TICKET_MAX_MS)) return json({ error: 'ticket' }, 400);
+    if (kind === 'fail' && !failCheck(tk.song, tk.d, body.log, body.star, body.seq)) return json({ error: 'log' }, 400);
+    const pl = await db.prepare('SELECT id FROM players WHERE ph = ?1').bind(await sha(pk)).first();
+    if (!pl) return json({ error: 'noname' }, 400);
+    if (tk.pid !== pl.id || !(await useRun(db, tk.nonce))) return json({ error: 'ticket' }, 400);
+    await bumpTries(db, pl.id, tk.song, tk.d, kind === 'fail' ? 1 : 0).run();
+    let ach = []; try { ach = (await achRecalc(db, pl.id, now, null, false)).fresh; } catch (e) {}
+    return json({ ok: true, ach });
   }
 
   if (path === '/lb/board') {
@@ -198,12 +338,23 @@ export async function handleLb(req, env, path, who, origin, H, limited) {
   return json({ error: 'not found' }, 404);
 }
 
+// A ticket: song.d.ts.nonce.sig (legacy) or song.d.ts.nonce.pid.sig. Returns null when it is malformed or the signature is wrong.
+async function readTicket(env, run) {
+  const parts = run.split('.'); if (parts.length !== 5 && parts.length !== 6) return null;
+  const legacy = parts.length === 5, sig = parts.pop(), [song, ds, ts, nonce, ps] = parts, d = +ds, issued = +ts;
+  if (!legacy && !(/^\d{1,15}$/.test(ps) && /^[0-9a-f]{16}$/.test(nonce))) return null;
+  if (!same(sig, await hmac(env.LB_SECRET, parts.join('.'))) || !songOk(song, d)) return null;
+  return { song, d, issued, nonce, legacy, pid: legacy ? null : +ps };
+}
+const useRun = async (db, nonce) => { const r = await db.prepare('UPDATE runs SET done = 1 WHERE nonce = ?1 AND done = 0').bind(nonce).run(); return !!(r && r.meta && r.meta.changes === 1); };   // false: used already (or never issued)
+const bumpTries = (db, pid, song, d, fail) => db.prepare('INSERT INTO tries (pid, song, d, ends, fails) VALUES (?1, ?2, ?3, 1, ?4) ON CONFLICT(pid, song, d) DO UPDATE SET ends = ends + 1, fails = fails + ?4').bind(pid, song, d, fail);
 const cacheKey = b => new Request('https://lb.cache/' + encodeURIComponent(b));
 async function dropCache(b) { try { if (typeof caches !== 'undefined') await caches.default.delete(cacheKey(b)); } catch (e) {} }
 async function wipe(db, id) {                         // a player and everything about them; their boards refresh at once
   const bs = (await db.prepare('SELECT board FROM scores WHERE pid = ?1').bind(id).all()).results;
   await db.batch([db.prepare('DELETE FROM scores WHERE pid = ?1').bind(id), db.prepare('DELETE FROM reports WHERE pid = ?1').bind(id),
     ...friendWipe(db, id), ...bugWipe(db, id), ...shopWipe(db, id), db.prepare('DELETE FROM players WHERE id = ?1').bind(id)]);
+  for (const t of ['runs', 'tries']) { try { await db.prepare('DELETE FROM ' + t + ' WHERE pid = ?1').bind(id).run(); } catch (e) {} }   // (each on its own: a database without migration 0010 must still delete the account)
   for (const r of bs) await dropCache(r.board);
 }
 async function setHidden(db, id, v) {

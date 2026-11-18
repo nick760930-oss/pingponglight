@@ -7,8 +7,11 @@
 // An achievement, once earned, is never taken back (achs rows stay; a row whose id is no longer in the list, e.g. the removed 四十九, is kept but ignored: no points, never listed), and its rewards are items in ents (src = 'ach').
 //
 // Achievement id = its name in the design list (achdata.js); the ten "星座完成" ones are <constellation name>完成, e.g. 古老旋律座完成.
-// Not decided here (the server has no data for them; listed in NA and never granted): things that need data a finished run does
-// not carry (star time, life, how many songs were only started) or a list of "new" songs. "check v" (duel results) is closed.
+// Run data beyond the beat log: a new single-use ticket (lb.js) also brings the run's star-time ranges and lets the server replay the
+// life, and /lb/end records runs that failed or were quit (tries table: ends, fails per player, song and difficulty). With that the server
+// decides 拾級而上, 試聽, 遍聽 (巡遍星空), 百折不撓, 屢敗屢戰, 一線生機, 不滅, 星光初拾, 星光全收 (星河盡收), 金色時刻 and 新曲嘗鮮.
+// The single-run ones (the life ones, the star ones, 金色時刻, 屢敗屢戰) are only given at the submit of a new-ticket run; a run
+// on a legacy ticket earns nothing. NA (not decidable, never granted) is empty now; "check v" (duel results) is still closed.
 import { ACHDATA } from './achdata.js';
 import { CHARTS, CONS } from './charts.js';
 import { CATALOG } from './catalog.js';
@@ -23,7 +26,9 @@ for (const [cat, tier, name, pts, chk, title] of ACHDATA) {
   ACHS[name] = { cat, tier, pts, chk, title };
 }
 // not decidable on the server: left out of every sync, shown as "coming soon" by the app
-export const NA = ['新曲嘗鮮', '拾級而上', '星光初拾', '星光全收', '金色時刻', '試聽', '遍聽', '一線生機', '不滅', '百折不撓'];
+export const NA = [];
+// Songs added after the App was released (the 新曲嘗鮮 list): put their keys here. While it is empty nobody can earn 新曲嘗鮮, but the achievement is open.
+export const NEW_SONGS = [];
 const isServer = id => ACHS[id] && ACHS[id].chk === 's' && !NA.includes(id);
 export const SERVER_IDS = Object.keys(ACHS).filter(isServer);
 export const LOCAL_IDS = Object.keys(ACHS).filter(id => ACHS[id].chk === 'l');
@@ -47,11 +52,11 @@ const RW_DI = [3, 0, 1, 2, 4];                                          // 初�
 
 // ---- one run, in detail ----
 const TIER_MS = [45, 90, 150];
-export function logFeats(log, N) {                     // log: the validated beat log (null = missed, [error ms, base points])
+export function logFeats(log, N) {                     // log: the validated beat log (null = missed, 0 = missed but the shield held, [error ms, base points])
   let combo = 0, mx = 0, run = 0, pr = 0, miss = 0, perf = 0, good = 0, ok = 0, f5 = N >= 50 ? 1 : 0, l5 = N >= 50 ? 1 : 0;
   for (let i = 0; i < log.length; i++) {
     const x = log[i]; let t = 4;
-    if (x === null) miss++; else { const a = Math.abs(x[0]); t = a < TIER_MS[0] ? 0 : a < TIER_MS[1] ? 1 : a < TIER_MS[2] ? 2 : 3; }
+    if (x === null || x === 0) miss++; else { const a = Math.abs(x[0]); t = a < TIER_MS[0] ? 0 : a < TIER_MS[1] ? 1 : a < TIER_MS[2] ? 2 : 3; }
     if (t === 2) good++; else if (t === 3) ok++;
     combo = t <= 2 ? combo + 1 : 0; if (combo > mx) mx = combo;
     run = t === 0 ? run + 1 : 0; if (run > pr) pr = run;
@@ -59,7 +64,7 @@ export function logFeats(log, N) {                     // log: the validated bea
     if (t !== 0 && i < 50) f5 = 0;
     if (t !== 0 && i >= N - 50) l5 = 0;
   }
-  return { miss, good, ok, maxCombo: mx, hits: N - miss, perf, pr, f5, l5, ec: combo, fm: log[0] === null ? 1 : 0, fc: mx === N ? 1 : 0 };
+  return { miss, good, ok, maxCombo: mx, hits: N - miss, perf, pr, f5, l5, ec: combo, fm: log[0] === null || log[0] === 0 ? 1 : 0, fc: mx === N ? 1 : 0 };
 }
 // Nine ranks, low to high. acc in basis points; miss / good (良好) / ok (尚可) are counts of the run.
 //   SSS every beat perfect · SS acc>=9800, no miss, no good, no ok · S acc>=9500, no miss, no ok · A 9000 · B 8000 · C 7000 · D 6000 · E 5000 · F rest
@@ -78,7 +83,8 @@ export function rankOf(acc, miss, good, ok) {
 export const ftOf = (F, acc) => JSON.stringify({ r: rankOf(acc, F.miss, F.good, F.ok), fc: F.fc, pr: F.pr, f5: F.f5, l5: F.l5, ec: F.ec, fm: F.fm });
 const parseFt = s => { try { const o = JSON.parse(s); return o && typeof o === 'object' ? o : null; } catch (e) { return null; } };
 
-// achievements one run can earn by itself. R = { d, acc, maxCombo, r (rank), fc, pr, f5, l5, ec, fm }
+// achievements one run can earn by itself. R = { d, acc, maxCombo, r (rank), fc, pr, f5, l5, ec, fm }, and for a run on a new ticket
+// also { lok (life never <= 0), lend (life at the end), lmin (lowest life), sg (star ranges), sc (star ranges without a miss), gold, pfail (fails of this chart before the run) }
 export function singles(R) {
   const out = [], hard = R.d === 2 || R.d === 4;
   const add = (c, id) => { if (c) out.push(id); };
@@ -86,6 +92,10 @@ export function singles(R) {
   add(R.acc === 10000, '零誤差'); add(R.acc === 10000 && hard, '分毫不差'); add(R.pr >= 100, '百發百中');
   add(R.maxCombo >= 20, '二十連'); add(R.maxCombo >= 50, '五十連'); add(R.maxCombo >= 100, '彩虹橋'); add(R.maxCombo >= 200, '長虹'); add(R.maxCombo >= 400, '千鈞一線');
   add(R.fc, '一氣呵成'); add(R.f5, '完美開場'); add(R.l5, '完美收尾'); add(R.fm, '出師不利');
+  add(R.lok && R.lend < 3, '一線生機');                                   // finished with less than 10 % of the 30 life (only when the life was never gone)
+  add(R.lok && R.lmin === 1 && atLeastA(R.r), '不滅');
+  add(R.sc >= 1, '星光初拾'); add(R.sg >= 1 && R.sc === R.sg, '星光全收'); add(R.gold, '金色時刻');
+  add(R.pfail >= 5, '屢敗屢戰');
   return out;
 }
 
@@ -93,7 +103,7 @@ const splitBoard = b => { const i = b.lastIndexOf('-'); return [b.slice(0, i), +
 const count = (set, n) => set.size >= n;
 
 // everything the stored data says is earned (ids). rows: [{ song, d, acc, combo, n, R }]
-function evaluate(rows, ps, friends, extra) {
+function evaluate(rows, ps, friends, extra, tries) {
   const E = new Set(extra || []);
   const add = (c, id) => { if (c) E.add(id); };
   const song = new Map();                               // song -> Map(d -> row)
@@ -120,6 +130,14 @@ function evaluate(rows, ps, friends, extra) {
   add(byD.every(s => s.size >= 5), '五階遊歷'); add(byD.every(s => s.size >= 20), '五線全能');
   let two = false, five = false; for (const m of song.values()) { if (m.size >= 2) two = true; if (m.size >= 5) five = true; }
   add(two, '換個難度'); add(five, '五弦俱全');
+  let steps = false; for (const m of song.values()) if ([...m.values()].filter(r => atLeastA(r.R.r)).length >= 3) steps = true;
+  add(steps, '拾級而上');                                                         // one song with 3 different difficulties at A or better
+  // challenge records: every song with a try (tries) or a best score (scores)
+  const tried = new Set(cleared); let sumEnds = new Map();
+  for (const t of tries || []) { tried.add(t.song); sumEnds.set(t.song, (sumEnds.get(t.song) || 0) + t.ends); }
+  add(tried.size >= 10, '試聽'); add(NORM_SONGS.every(k => tried.has(k)), '遍聽');
+  add([...sumEnds.values()].some(n => n >= 30), '百折不撓');                      // one song, any difficulty, 30 runs ended
+  add(NEW_SONGS.length >= 5 && NEW_SONGS.filter(k => cleared.has(k)).length >= 5, '新曲嘗鮮');
   // constellations
   let lit = 0, done = 0, three = false;
   NORM.forEach(([, keys], i) => {
@@ -192,16 +210,17 @@ async function loadRows(db, pid) {
 // Returns { fresh: ids newly earned, ids: every server-decided achievement the player has }.
 // ensure = also re-give the rewards of everything already earned (the sync the app sends once at every start; submit only gives new ones).
 export async function achRecalc(db, pid, now, run, ensure) {
-  const [rows, ps, fr, have, own] = await Promise.all([
+  const [rows, ps, fr, have, own, tr] = await Promise.all([
     loadRows(db, pid),
     db.prepare('SELECT hits, perf FROM pstats WHERE pid = ?1').bind(pid).first(),
     db.prepare('SELECT (SELECT COUNT(*) FROM fships WHERE a = ?1) + (SELECT COUNT(*) FROM fships WHERE b = ?1) AS n').bind(pid).first(),
     db.prepare('SELECT ach FROM achs WHERE pid = ?1 AND loc = 0').bind(pid).all(),
     db.prepare(`SELECT item FROM ents WHERE pid = ?1 AND src = 'ach'`).bind(pid).all(),
+    db.prepare('SELECT song, ends FROM tries WHERE pid = ?1').bind(pid).all().catch(() => ({ results: [] })),   // (an older database without the table: no records)
   ]);
   const had = new Set(have.results.map(x => x.ach).filter(id => ACHS[id])), owned = new Set(own.results.map(x => x.item));
   const extra = run ? [...singles(run.R), ...(run.first && (run.d === 2 || run.d === 4) ? ['越級者'] : [])] : [];
-  const earned = new Set([...evaluate(rows, ps || { hits: 0, perf: 0 }, fr ? fr.n : 0, extra)].filter(isServer));
+  const earned = new Set([...evaluate(rows, ps || { hits: 0, perf: 0 }, fr ? fr.n : 0, extra, tr.results)].filter(isServer));
   for (const x of had) earned.add(x);
   const fresh = [], give = id => {
     const st = [];

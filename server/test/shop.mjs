@@ -4,6 +4,8 @@
 //   B: SHOP_TEST=0, IAP_ON=0 -> test ownership turns void, claim refused, /iap/verify answers 503 {error:'off'}
 // LB_SECRET is set here (--var) so the run tickets can be signed without reading any secrets file.
 import { spawn, execSync } from 'node:child_process';
+import { DatabaseSync } from 'node:sqlite';
+import { readdirSync } from 'node:fs';
 import crypto from 'node:crypto';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
@@ -26,10 +28,21 @@ async function post(path, body, h = {}) {
   return { s: r.status, j };
 }
 const b64u = b => b.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-const ticket = (song, d, ageMs) => { const p = [song, d, Date.now() - ageMs, crypto.randomBytes(8).toString('hex')].join('.'); return p + '.' + b64u(crypto.createHmac('sha256', SECRET).update(p).digest()); };
+// A new-format ticket (song.d.ts.nonce.pid.sig) is single use and the server must know it, so the row /lb/start would have written is added to the
+// local dev database directly (back-dated: the server only accepts a result once the song could have been played).
+const D1DIR = join(SRV, '.wrangler', 'state', 'v3', 'd1', 'miniflare-D1DatabaseObject');
+let LDB = null;
+const ldb = () => LDB || (LDB = new DatabaseSync(join(D1DIR, readdirSync(D1DIR).find(f => f.endsWith('.sqlite') && f !== 'metadata.sqlite')), { timeout: 10000 }));
+const PIDS = new Map();
+async function ticket(K, song, d, ageMs) {
+  if (!PIDS.has(K)) PIDS.set(K, (await post('/lb/me', { pk: K })).j.me.id);
+  const pid = PIDS.get(K), nonce = crypto.randomBytes(8).toString('hex'), ts = Date.now() - ageMs;
+  ldb().prepare('INSERT INTO runs (nonce, pid, song, d, ts, done) VALUES (?, ?, ?, ?, ?, 0)').run(nonce, pid, song, d, ts);
+  const p = [song, d, ts, nonce, pid].join('.'); return p + '.' + b64u(crypto.createHmac('sha256', SECRET).update(p).digest());
+}
 const perfect = (song, d) => Array.from({ length: CHARTS[song].n[d] }, () => [0, 300]);      // every beat dead on: accuracy 100 %
 const okayLog = (song, d) => Array.from({ length: CHARTS[song].n[d] }, () => [60, 200]);      // every beat 60 ms off (a "good", no perfects)
-const submit = (K, song, d, log) => post('/lb/submit', { run: ticket(song, d, 600e3), pk: K, log });
+const submit = async (K, song, d, log) => post('/lb/submit', { run: await ticket(K, song, d, 600e3), pk: K, log });
 const T = a => Object.keys(CATALOG).find(k => k.startsWith('title.') && CATALOG[k].how === 'ach:' + a);   // the title an achievement gives
 const name = () => 'T' + crypto.randomBytes(4).toString('hex');
 const made = [];   // every player created here is deleted at the end, so the local database stays as the other tests expect it
@@ -140,7 +153,7 @@ async function suiteA(PKI) {
   const names = st.ach.map(a => a.id);
   ok(['新星', '起程', '暖身', '第一顆星', '半座', '古老旋律座完成'].every(x => names.includes(x)), 'achievement list: ' + names.join(','));
   ok(!names.includes('初得') && !names.includes('四十九'), '初得 is decided on the phone now, 四十九 is gone');
-  ok(st.pts > 0 && st.na.includes('試聽'), 'points and the list of not-yet-open achievements');
+  ok(st.pts > 0 && Array.isArray(st.na) && st.na.length === 0, 'points and the list of not-yet-open achievements (now empty)');
   r = await post('/shop/equip', { pk: c.pk, slot: 'title', item: T('新星') }); ok(r.j.ok, 'title earned by achievement can be worn');
   ok((await post('/shop/equip', { pk: c.pk, slot: 'plate', item: 'plate.glow' })).s === 403, 'the 冷光 plate is not owned before 半程');
   // local achievements: recorded only
