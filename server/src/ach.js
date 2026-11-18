@@ -4,7 +4,7 @@
 // difficulty, with its beat log), the number of accepted runs (scores.n), running totals (pstats), friends and the items
 // earned so far. A phone can only ask the server to look again (/ach/sync); it cannot say what it has achieved, except for
 // the ones marked "local": those are only recorded, and nothing other players can see is given for them.
-// An achievement, once earned, is never taken back (achs rows stay), and its rewards are items in ents (src = 'ach').
+// An achievement, once earned, is never taken back (achs rows stay; a row whose id is no longer in the list, e.g. the removed 四十九, is kept but ignored: no points, never listed), and its rewards are items in ents (src = 'ach').
 //
 // Achievement id = its name in the design list (achdata.js); the ten "星座完成" ones are <constellation name>完成, e.g. 古老旋律座完成.
 // Not decided here (the server has no data for them; listed in NA and never granted): things that need data a finished run does
@@ -31,9 +31,9 @@ export const LOCAL_IDS = Object.keys(ACHS).filter(id => ACHS[id].chk === 'l');
 // Rewards come from the catalog (cosmetics.js): an item whose how is ach:<id> (titles, achievement-only items; a theme brings its parts)
 // or whose also is ach:<id> (bought items that this achievement gives for free too).
 // HOLD: achievements whose catalogue items are not released yet (the art is waiting for approval): they give points only.
-// The items are already in cosmetics.js with how = ach:<id>; to release them, remove the id from HOLD (the sync button then
+// The items are already in cosmetics.js with how = ach:<id>; to release them, remove the id from HOLD (the sync the app sends at every start then
 // gives them to everybody who already earned the achievement) and fix the reward text in the design catalogue.
-const HOLD = ['超新星'];
+const HOLD = [];
 const REW = {};
 for (const [item, it] of Object.entries(CATALOG)) for (const h of [it.how, it.also]) if (h && h.startsWith('ach:') && !HOLD.includes(h.slice(4))) (REW[h.slice(4)] = REW[h.slice(4)] || []).push(item);
 export const rewardsOf = id => ACHS[id] ? REW[id] || [] : [];
@@ -82,10 +82,10 @@ const parseFt = s => { try { const o = JSON.parse(s); return o && typeof o === '
 export function singles(R) {
   const out = [], hard = R.d === 2 || R.d === 4;
   const add = (c, id) => { if (c) out.push(id); };
-  add(atLeastA(R.r), '起步 A'); add(atLeastS(R.r), '第一顆 S'); add(R.acc >= 9000, '九成準'); add(R.acc >= 9900, '九成九');
+  add(atLeastA(R.r), '起步 A'); add(atLeastS(R.r), '第一顆 S'); add(R.acc >= 9500, '九成準'); add(R.acc >= 9900, '九成九');
   add(R.acc === 10000, '零誤差'); add(R.acc === 10000 && hard, '分毫不差'); add(R.pr >= 100, '百發百中');
   add(R.maxCombo >= 20, '二十連'); add(R.maxCombo >= 50, '五十連'); add(R.maxCombo >= 100, '彩虹橋'); add(R.maxCombo >= 200, '長虹'); add(R.maxCombo >= 400, '千鈞一線');
-  add(R.fc, '一氣呵成'); add(R.f5, '完美開場'); add(R.l5, '完美收尾'); add(R.ec === 49, '四十九'); add(R.fm, '出師不利');
+  add(R.fc, '一氣呵成'); add(R.f5, '完美開場'); add(R.l5, '完美收尾'); add(R.fm, '出師不利');
   return out;
 }
 
@@ -117,24 +117,25 @@ function evaluate(rows, ps, friends, extra) {
   // difficulty (game.js DIFFS: 0 簡單, 1 普通, 2 困難, 3 入門, 4 專家)
   add(count(byD[3], 10), '入門結業'); add(count(byD[0], 10), '簡單上手'); add(count(byD[1], 1), '普通入門'); add(count(byD[2], 1), '初探困難');
   add(count(byD[1], 20), '穩拍'); add(count(byD[2], 10), '逆風'); add(count(byD[2], 40), '疾風勁草'); add(count(byD[4], 1), '三光初現'); add(count(byD[4], 10), '三光並行');
-  add(byD.every(s => s.size >= 1), '五階遊歷'); add(byD.every(s => s.size >= 20), '五線全能');
+  add(byD.every(s => s.size >= 5), '五階遊歷'); add(byD.every(s => s.size >= 20), '五線全能');
   let two = false, five = false; for (const m of song.values()) { if (m.size >= 2) two = true; if (m.size >= 5) five = true; }
   add(two, '換個難度'); add(five, '五弦俱全');
   // constellations
-  let lit = 0, done = 0;
+  let lit = 0, done = 0, three = false;
   NORM.forEach(([, keys], i) => {
     const c = keys.filter(k => cleared.has(k)).length;
     if (c > 0) lit++;
+    if (c >= 3) three = true;                                                      // 第一顆星: 3 songs of one constellation
     add(keys.length && c * 2 >= keys.length, '半座');
     if (keys.length && c === keys.length) { done++; E.add(CID(i)); }
     for (let d = 0; d < 5; d++) if (keys.length && keys.every(k => { const r = song.has(k) && song.get(k).get(d); return r && atLeastS(r.R.r); })) E.add('一座皆 S');
   });
   const at = (k, d) => song.has(k) && song.get(k).get(d);
   const upTo = (keys, ds) => keys.every(k => ds.some(d => at(k, d)));     // every song cleared on one of these difficulties (0 簡單, 1 普通, 2 困難, 3 入門, 4 專家)
-  add(lit >= 1, '第一顆星'); add(lit >= 3, '連星'); add(done >= 5, '星座旅人');
+  add(three, '第一顆星'); add(lit >= 3, '連星'); add(done >= 5, '星座旅人');
   add(upTo(NORM[3][1], [2, 4]), '墨上聽潮');                                      // 浪漫座, all songs on 困難 or 專家
   add(upTo(NORM_SONGS, [1, 2, 4]), '摘星者');                                     // all 71 songs on 普通 or higher
-  add(NORM.some(([, keys]) => keys.length && keys.every(k => at(k, 4))), '超新星'); // one regular constellation entirely on 專家 (gives points only: see HOLD)
+  add(NORM.some(([, keys]) => keys.length && keys.every(k => at(k, 4))), '超新星'); // one regular constellation entirely on 專家
   add(NORM_SONGS.every(k => at(k, 3)), '初聲'); add(NORM_SONGS.every(k => at(k, 0)), '鄉謠'); add(NORM_SONGS.every(k => at(k, 1)), '名曲');
   add(NORM_SONGS.every(k => at(k, 2)), '疾風'); add(NORM_SONGS.every(k => at(k, 4)), '炫技');
   add(NORM_SONGS.every(k => { const r = at(k, 4); return r && atLeastS(r.R.r); }), '至高');
@@ -149,11 +150,11 @@ function evaluate(rows, ps, friends, extra) {
   add(friends >= 1, '雙星相遇'); add(friends >= 3, '三五好友'); add(friends >= 10, '朋友圈');
   return E;
 }
-// the collection achievements look at the items earned by achievements (cosmetics only: no titles)
+// the collection achievements look at the items earned by achievements (cosmetics only: no titles); 初得 is decided on the phone (first time an achievement item is worn)
 function collection(owned) {
   const E = [], cos = [...owned].filter(x => !x.startsWith('title.')), lim = LIM.filter(x => owned.has(x));
   const badge = x => /^avatar\.cons\d$/.test(x);
-  if (cos.length >= 1) E.push('初得'); if (cos.length >= 5) E.push('小有收藏'); if (cos.length >= 25) E.push('珍藏家');
+  if (cos.length >= 5) E.push('小有收藏'); if (cos.length >= 25) E.push('珍藏家');
   if (cos.filter(badge).length >= 8) E.push('徽章半冊');
   if (lim.filter(x => !badge(x)).length >= 5) E.push('秘藏'); if (lim.length === LIM.length) E.push('萬象');   // 秘藏 does not count the constellation badges
   return E;
@@ -189,7 +190,7 @@ async function loadRows(db, pid) {
 // Looks at everything again and records what is new. run = the run that was just accepted (lb.js submit):
 // { song, d, R, first } adds what that single run earned even when it was not the player's best.
 // Returns { fresh: ids newly earned, ids: every server-decided achievement the player has }.
-// ensure = also re-give the rewards of everything already earned (the sync button; submit only gives new ones).
+// ensure = also re-give the rewards of everything already earned (the sync the app sends once at every start; submit only gives new ones).
 export async function achRecalc(db, pid, now, run, ensure) {
   const [rows, ps, fr, have, own] = await Promise.all([
     loadRows(db, pid),
@@ -198,7 +199,7 @@ export async function achRecalc(db, pid, now, run, ensure) {
     db.prepare('SELECT ach FROM achs WHERE pid = ?1 AND loc = 0').bind(pid).all(),
     db.prepare(`SELECT item FROM ents WHERE pid = ?1 AND src = 'ach'`).bind(pid).all(),
   ]);
-  const had = new Set(have.results.map(x => x.ach)), owned = new Set(own.results.map(x => x.item));
+  const had = new Set(have.results.map(x => x.ach).filter(id => ACHS[id])), owned = new Set(own.results.map(x => x.item));
   const extra = run ? [...singles(run.R), ...(run.first && (run.d === 2 || run.d === 4) ? ['越級者'] : [])] : [];
   const earned = new Set([...evaluate(rows, ps || { hits: 0, perf: 0 }, fr ? fr.n : 0, extra)].filter(isServer));
   for (const x of had) earned.add(x);

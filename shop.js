@@ -202,7 +202,7 @@ const unavail=it=>MODE==='iap'&&!!it.pid&&!!window.PPLIAP&&typeof window.PPLIAP.
 const priceTxt=it=>MODE==='test'?'免費':(MODE==='iap'&&window.PPLIAP&&typeof window.PPLIAP.price==='function'&&window.PPLIAP.price(it.pid))||'NT$'+it.price;
 
 function listFor(cat){
-  let l=C.items.filter(i=>i.cat===cat&&(i.how!=='sponsor'||isOwn(i)));
+  let l=C.items.filter(i=>i.cat===cat&&(i.how!=='sponsor'||isOwn(i))&&(!i.retired||isOwn(i)));   // a retired title (no longer given by any achievement) is only listed for those who own it
   if(UI.view==='coll')l=l.filter(isOwn);
   if(cat==='title'||cat==='avatar'||cat==='plate')l=l.slice().sort((a,b)=>(isOwn(b)-isOwn(a)));
   return l}

@@ -65,13 +65,18 @@ function staticChecks() {
     for (const r of rewardsOf('墨上聽潮')) ok(!!CATALOG[r], 'reward is a catalog item: ' + r);
     if (it.how.startsWith('ach:')) {
       const a = it.how.slice(4);
-      if (a === '超新星') continue;                                  // the design lists this item but no achievement for it
+      if (/（已停發）$/.test(a)) { ok(!ACHS[a] && !CATALOG[id].lim, 'retired item is given by nothing: ' + id); continue; }   // a title no achievement gives any more: only its old owners have it
       if (!ACHS[a]) { ok(false, 'achievement exists for ' + id + ': ' + a); continue; }
       if (ACHS[a].chk !== 's' || NA.includes(a)) continue;           // needs verified duels / the phone / data the server lacks: nobody can earn it yet
       ok((given.get(id) || []).length > 0, 'item ' + id + ' is given by an achievement');
     }
   }
   for (const a of SERVER_IDS) for (const r of rewardsOf(a)) ok(!!CATALOG[r], 'reward of ' + a + ' is in the catalog: ' + r);
+  // the table of 成就 (2026-11): removed / moved / new
+  ok(!ACHS['四十九'] && ACHS['九成準'].pts === 10 && ACHS['九成準'].tier === 2 && ACHS['初得'].chk === 'l', 'removed 四十九; 九成準 is silver 10; 初得 is a phone achievement');
+  ok(T('越級者') === undefined && T('追光人') === undefined && T('穩拍') !== 'title.steady' && !!T('穩拍') && !!T('超新星') && !!T('十全') && !!T('流星雨') && !!T('朋友圈') && !!T('五弦俱全') && !!T('千鈞一線'), 'titles: dropped ones are not given, new ones are');
+  ok(CATALOG['title.steady'] && CATALOG['title.chaser'] && !rewardsOf('穩拍').includes('title.steady') && !rewardsOf('追光人').includes('title.chaser'), 'retired titles stay in the catalogue but no achievement gives them');
+  ok(rewardsOf('超新星').includes('orb.core') && rewardsOf('超新星').includes('hit.nova') && rewardsOf('半程').includes('plate.glow') && rewardsOf('千回百轉').includes('avatar.comet') && rewardsOf('七十一夜').includes('plate.orbit') && rewardsOf('疾風勁草').includes('trail.comet') && rewardsOf('三光並行').includes('share.aurora') && rewardsOf('拾星').includes('hit.starburst') && rewardsOf('十全').includes('trail.spark') && rewardsOf('五線全能').includes('bg.nebula') && rewardsOf('朋友圈').includes('avatar.twin'), 'moved rewards');
   ok(CONS.length === 16 && CONS.filter(c => !c[2]).flatMap(c => c[1]).length === 71, 'constellation data: 10 regular (71 songs) and 6 reward');
 }
 
@@ -114,7 +119,7 @@ async function suiteA(PKI) {
   r = await submit(d2.pk, 'twinkle', 2, perfect('twinkle', 2));
   ok(r.j.ach.includes('越級者') && r.j.ach.includes('分毫不差') && r.j.ach.includes('零誤差') && r.j.ach.includes('第一顆 S') && r.j.ach.includes('一氣呵成'), 'submit returns new achievements: ' + (r.j.ach || []).join(','));
   let st = (await post('/shop/state', { pk: d2.pk })).j;
-  ok([T('越級者'), T('分毫不差'), 'hit.tick', 'avatar.moonnote', 'hit.starburst', 'trail.spark', T('零誤差')].every(x => st.owned.includes(x)), 'rewards were given');
+  ok([T('分毫不差'), 'hit.tick', 'avatar.moonnote', T('零誤差')].every(x => st.owned.includes(x)) && !st.owned.includes('hit.starburst') && !st.owned.includes('trail.spark'), 'rewards were given (starburst now comes with 拾星, spark with 十全)');
   r = await post('/shop/equip', { pk: d2.pk, slot: 'avatar', item: 'avatar.moonnote' }); ok(r.j.ok, 'an achievement-earned avatar can be worn');
   r = await post('/shop/equip', { pk: d2.pk, slot: 'title', item: T('分毫不差') }); ok(r.j.ok && r.j.equip.title === T('分毫不差'), 'an earned title can be worn');
   r = await post('/shop/equip', { pk: d2.pk, slot: 'title', item: '' }); ok(r.j.ok && r.j.equip.title === '', 'title can be taken off');
@@ -131,11 +136,13 @@ async function suiteA(PKI) {
   for (const k of c0) r = await submit(c.pk, k, 0, perfect(k, 0));
   ok(r.j.ach.includes('古老旋律座完成') && !r.j.ach.includes('巴洛克座完成'), 'finishing a constellation: ' + r.j.ach.join(','));
   st = (await post('/shop/state', { pk: c.pk })).j;
-  ok(st.owned.includes('avatar.cons0') && st.owned.includes('plate.glow') && st.owned.includes('avatar.comet') === false, 'constellation badge avatar and 暖身 plate given (5 songs cleared)');
+  ok(st.owned.includes('avatar.cons0') && !st.owned.includes('plate.glow') && st.owned.includes('avatar.comet') === false, 'constellation badge avatar given, no 冷光 plate yet (that is 半程 now; 5 songs cleared)');
   const names = st.ach.map(a => a.id);
-  ok(['新星', '起程', '暖身', '第一顆星', '半座', '古老旋律座完成', '初得'].every(x => names.includes(x)), 'achievement list: ' + names.join(','));
+  ok(['新星', '起程', '暖身', '第一顆星', '半座', '古老旋律座完成'].every(x => names.includes(x)), 'achievement list: ' + names.join(','));
+  ok(!names.includes('初得') && !names.includes('四十九'), '初得 is decided on the phone now, 四十九 is gone');
   ok(st.pts > 0 && st.na.includes('試聽'), 'points and the list of not-yet-open achievements');
-  r = await post('/shop/equip', { pk: c.pk, slot: 'plate', item: 'plate.glow' }); ok(r.j.ok, 'plate earned by achievement can be worn');
+  r = await post('/shop/equip', { pk: c.pk, slot: 'title', item: T('新星') }); ok(r.j.ok, 'title earned by achievement can be worn');
+  ok((await post('/shop/equip', { pk: c.pk, slot: 'plate', item: 'plate.glow' })).s === 403, 'the 冷光 plate is not owned before 半程');
   // local achievements: recorded only
   r = await post('/ach/sync', { pk: c.pk, local: ['入門完成', '翻閱', '新星', '摘星者', 'nope', 7] });
   const loc = r.j.ach.filter(a => a.l === 1).map(a => a.id).sort();
@@ -156,11 +163,11 @@ async function suiteA(PKI) {
   const ws = await new Promise(res => { const w = new WS(BASE.replace(/^http/, 'ws') + '/m/ws/' + room.code, { headers: { Origin: ORIGIN, 'CF-Connecting-IP': ip() } }); w.msgs = []; w.on('message', m => w.msgs.push(JSON.parse(m))); w.on('open', () => res(w)); w.on('error', () => res(w)); });
   ws.send(JSON.stringify({ t: 'auth', pk: c.pk })); await sleep(800);
   const seat = (ws.msgs.filter(m => m.t === 'room').pop() || { players: [] }).players[0];
-  ok(seat && seat.plate === 'plate.glow' && seat.avatar === '' && seat.title === '' && seat.cmc > 0, 'room seat carries avatar, plate, title, cmc: ' + JSON.stringify(seat));
+  ok(seat && seat.plate === '' && seat.avatar === '' && seat.title === T('新星') && seat.cmc > 0, 'room seat carries avatar, plate, title, cmc: ' + JSON.stringify(seat));
   // changing what is worn in the room: {t:'cos'} makes the server read it again (at most every 3 s)
   await post('/shop/equip', { pk: c.pk, slot: 'avatar', item: 'avatar.cons0' }); ws.send(JSON.stringify({ t: 'cos' })); await sleep(600);
   let seat2 = (ws.msgs.filter(m => m.t === 'room').pop() || { players: [] }).players[0];
-  ok(seat2 && seat2.avatar === 'avatar.cons0' && seat2.plate === 'plate.glow', 'room: {t:cos} updates the seat and broadcasts room: ' + JSON.stringify(seat2));
+  ok(seat2 && seat2.avatar === 'avatar.cons0' && seat2.title === T('新星'), 'room: {t:cos} updates the seat and broadcasts room: ' + JSON.stringify(seat2));
   await post('/shop/equip', { pk: c.pk, slot: 'avatar', item: '' }); ws.send(JSON.stringify({ t: 'cos' })); await sleep(500);
   seat2 = (ws.msgs.filter(m => m.t === 'room').pop() || { players: [] }).players[0];
   ok(seat2 && seat2.avatar === 'avatar.cons0', 'room: a second {t:cos} within 3 s is ignored');

@@ -14,6 +14,7 @@ const $=s=>document.querySelector(s),esc=G.esc,LS='ppl-ach-';
 const BY={};for(const a of D.list)BY[a.id]=a;
 const TN=['','銅','銀','金','傳說'];
 const jget=(k,d)=>{try{const v=JSON.parse(G.lsGet(LS+k)||'null');return v==null?d:v}catch(e){return d}};
+const jarr=k=>{const v=jget(k,[]);return Array.isArray(v)?v:[]};   // a list kept on this device; anything else (damaged data) counts as empty
 const jset=(k,v)=>G.lsSet(LS+k,JSON.stringify(v));
 
 // ---------------------------------------------------------------- state
@@ -43,7 +44,7 @@ function flush(){clearTimeout(upT);upT=setTimeout(upload,1800)}
 async function upload(){
   if(!G.ME)return;
   if(upBusy){upAgain=true;return}
-  const ids=Object.keys(LOC);if(!ids.length)return;
+  const ids=Object.keys(LOC);                             // may be empty: the server still looks again and hands out rewards that moved or are new
   upBusy=true;
   try{
     const r=await G.api('/ach/sync',{local:ids.slice(0,200),pk:G.pkey()},8000);
@@ -82,6 +83,8 @@ function fresh(ids){                                      // /lb/submit: what th
 // ---------------------------------------------------------------- local achievements: events from the game and the shop
 const eqNow=()=>C.state.eq;
 const srcOf=id=>{for(const t of C.items)if(t.cat==='theme'&&(t.parts||[]).includes(id))return t.id;return id};   // the theme a part came from
+// an item the player gets through an achievement: how or also is ach:<id> (titles are not counted)
+const viaAch=it=>!!it&&it.cat!=='title'&&((it.how||'').indexOf('ach:')===0||(it.also||'').indexOf('ach:')===0);
 function ev(n,d){
   d=d||{};
   try{
@@ -89,17 +92,18 @@ function ev(n,d){
     else if(n==='cal')grant('精準調校');
     else if(n==='share')grant('分享喜悅');
     else if(n==='sky')grant('仰望');
-    else if(n==='skyq'){const s=new Set(jget('skyq',[]));s.add(String(d.id));jset('skyq',[...s]);if(s.size>=5)grant('觀星')}
+    else if(n==='skyq'){const s=new Set(jarr('skyq'));s.add(String(d.id));jset('skyq',[...s]);if(s.size>=5)grant('觀星')}
     else if(n==='set')grant('調音台');
     else if(n==='say')grant('打招呼');
-    else if(n==='equip'){if(d.id&&C.byId[d.id]&&C.byId[d.id].how!=='default'||d.slot==='title'&&d.id){grant('換新裝');if(d.slot==='title'&&d.id)grant('署名')}}
-    else if(n==='preview'){const s=new Set(jget('try',[]));if(d.id)s.add(d.id);jset('try',[...s]);if(s.size>=5)grant('試穿')}
+    else if(n==='equip'){if(d.id&&C.byId[d.id]&&C.byId[d.id].how!=='default'||d.slot==='title'&&d.id){grant('換新裝');if(d.slot==='title'&&d.id)grant('署名')}
+      if(d.slot!=='title'&&viaAch(C.byId[d.id]))grant('初得')}   // 初得: the first time an achievement reward (not a title) is worn
+    else if(n==='preview'){const s=new Set(jarr('try'));if(d.id)s.add(d.id);jset('try',[...s]);if(s.size>=5)grant('試穿')}
     else if(n==='clear')clearEv(d);
   }catch(e){}
 }
 function clearEv(d){   // a normal single-player song was cleared: d = {key, last (ms of the previous clear of this song, 0 if never), paused, musicOff}
-  const eq=eqNow(),parts=['orb','trail','hit','frame','bg'].map(s=>C.byId[eq[s]]).filter(Boolean);
-  if(parts.some(p=>p.how.indexOf('ach:')===0)||(C.state.themeCol&&(C.byId[C.state.themeCol]||{}).how&&C.byId[C.state.themeCol].how.indexOf('ach:')===0))grant('戰利品');
+  const eq=eqNow(),parts=C.slots.filter(s=>s!=='title').map(s=>C.byId[eq[s]]).filter(Boolean);
+  if(parts.some(viaAch)||viaAch(C.byId[C.state.themeCol])){const s=new Set(jarr('trophyS'));s.add(String(d.key));jset('trophyS',[...s]);if(s.size>=10)grant('戰利品')}   // 戰利品: 10 different songs cleared wearing an achievement reward
   const three=['orb','trail','hit'].map(s=>C.byId[eq[s]]).filter(p=>p&&p.how!=='default');
   if(three.length===3&&new Set(three.map(p=>srcOf(p.id))).size===3)grant('混搭');
   if(d.last&&Date.now()-d.last>=30*864e5)grant('溫故');
@@ -111,7 +115,7 @@ function clearEv(d){   // a normal single-player song was cleared: d = {key, las
 const UI={tab:-1,seen:new Set(jget('tabs',[]))};
 const pageOn=()=>{const e=$('#ach');return !!e&&!e.classList.contains('hidden')};
 function tabCounts(i){const l=D.list.filter(a=>i<0||a.cat===i);return[l.filter(a=>earned(a.id)).length,l.length]}
-function titlesEarned(){const t=[];for(const a of D.list)if(earned(a.id))for(const id of a.rw||[])if(/^title\./.test(id)&&C.byId[id])t.push(id);return t}
+function titlesEarned(){const ids=Object.keys(C.byId);return [...C.state.own].filter(id=>C.byId[id]&&C.byId[id].cat==='title').sort((a,b)=>ids.indexOf(a)-ids.indexOf(b))}   // what the player actually owns (retired titles included)
 function head(){
   const tot=D.list.filter(open),got=tot.filter(a=>earned(a.id)).length,pts=points(),all=D.list.filter(open).reduce((s,a)=>s+a.pts,0),pc=tot.length?Math.round(got/tot.length*100):0;
   const px=innerHeight<=480?56:96,me=G.ME,eq=C.state.eq,tt=titlesEarned();
@@ -156,7 +160,7 @@ $('#bAch').onclick=()=>openPage();
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&pageOn())closePage()});
 addEventListener('resize',()=>{if(pageOn())render()});
 
-// boot: send up what this device decided earlier (silent when it cannot be reached)
-if(G.ME&&Object.keys(LOC).length)setTimeout(upload,4000);
+// boot: one /ach/sync per start: sends up what this device decided earlier and lets the server give any reward that is new or moved (silent when it cannot be reached)
+if(G.ME)setTimeout(upload,4000);                          // once per start (also with nothing local, e.g. after a reinstall)
 window.PPLA={ev,fresh,setServer,grant,flush:showNotes,open:openPage,render,earned,points,list:D.list,get loc(){return LOC},get srv(){return SRV}};
 })();
