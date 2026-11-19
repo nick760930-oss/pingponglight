@@ -34,6 +34,8 @@ The game is written in Traditional Chinese (Taiwan). English and Japanese are tr
 - Song names, composers and years in the credits table come from `songs.json`: they are not in `docs.json`.
 - Everything else is listed in `i18n/docs-keys.json` (written by `keys`). A key is a whole block; a table cell that has no
   translation as a whole is cut at " · " and `<br>`, and each piece is looked up by itself.
+- In these pages a text is Chinese when it has Chinese characters or only Chinese punctuation (`Open Hymnal Project（ABC）`):
+  such a piece is a key too, and `check` fails when an English translation or page still has either.
 - A translation keeps the HTML tags and every link of the Chinese text: `check` fails when they differ.
 - After the Chinese page changes (a new song's row, a new sentence in the policy): run `keys`, translate what `check` lists as
   `missing doc`, remove what it lists as no longer in the documents, run `build`.

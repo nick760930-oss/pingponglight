@@ -196,6 +196,9 @@ const DOC_FONT = {   // keep in step with the html[lang] rules in index.html
   en: 'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans TC",sans-serif',
   ja: 'font-family:"Noto Sans JP","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic","Meiryo",system-ui,sans-serif',
 };
+// In the documents a text is Chinese when it has Chinese characters or only Chinese punctuation ("Open Hymnal Project（ABC）").
+// (Not in the game: i18n.js looks up the texts that have Chinese characters, and the keys have to be the same ones.)
+const ZHP = /[\u3000-\u303f\uff00-\uffef]/, isZh = s => CJK.test(s) || ZHP.test(s);
 const DOC_BLOCK = /<(title|h[1-6]|p|li|th|td)((?:\s[^>]*)?)>([\s\S]*?)<\/\1>/g;
 const VOID = new Set(['br', 'img', 'hr', 'wbr']);
 function cutTop(s) {   // [piece, separator, piece, …]: the separators are " · " and <br>, never one inside an element
@@ -229,19 +232,19 @@ function docTranslator(c, p, d) {
   const used = new Set(), missing = new Map();   // missing: Chinese text -> where it was first met
   const piece = (s, at) => {
     const t = s.trim();
-    if (!t || !CJK.test(t)) return s;
+    if (!t || !isZh(t)) return s;
     const put = v => s.replace(t, () => v);
     if (d[t] != null && d[t] !== '') { used.add(t); return put(d[t]); }
     if (auto.has(t)) return put(auto.get(t));
     if (auto.has(sq(t))) return put(auto.get(sq(t)));
     const m = /^<([a-zA-Z0-9]+)((?:\s[^>]*)?)>([^<]*)<\/\1>$/.exec(t);
-    if (m && CJK.test(m[3])) return put('<' + m[1] + m[2] + '>' + piece(m[3], at) + '</' + m[1] + '>');
+    if (m && isZh(m[3])) return put('<' + m[1] + m[2] + '>' + piece(m[3], at) + '</' + m[1] + '>');
     if (!missing.has(t)) missing.set(t, at);
     return s;
   };
   const block = (inner, at, cell) => {
     const t = inner.trim();
-    if (!t || !CJK.test(t)) return inner;
+    if (!t || !isZh(t)) return inner;
     if (d[t] != null && d[t] !== '') { used.add(t); return inner.replace(t, () => d[t]); }
     return cell ? cutTop(inner).map((x, i) => i % 2 ? x : piece(x, at)).join('') : piece(inner, at);
   };
@@ -251,7 +254,7 @@ function docTranslator(c, p, d) {
 function docStray(f) {
   const s = rd(f).replace(/<!--[\s\S]*?-->|<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>/gi, '')
     .replace(DOC_BLOCK, '').replace(/<a class="back"[^>]*>[^<]*<\/a>/g, '').replace(/\b(aria-label|title|alt)="[^"]*"/g, '');
-  return s.split(/[<>\n]/).map(x => x.trim()).filter(x => CJK.test(x));
+  return s.split(/[<>\n]/).map(x => x.trim()).filter(x => isZh(x));
 }
 function docPage(f, l, tr) {
   const src = rd(f);
@@ -332,11 +335,11 @@ if (cmd === 'keys') {
     for (const k of dp.used) {
       if (hrefsOf(k) !== hrefsOf(dj[k])) err('doc "' + short(k) + '": the links differ from the Chinese text');
       if (tagsOf(k) !== tagsOf(dj[k])) err('doc "' + short(k) + '": the HTML tags differ from the Chinese text');
-      if (l === 'en' && CJK.test(dj[k])) err('doc "' + short(k) + '" still has Chinese characters');
+      if (l === 'en' && isZh(dj[k])) err('doc "' + short(k) + '" still has Chinese characters or punctuation');
     }
     for (const f in dp.pages) if (!existsSync(join(ROOT, f)) || readFileSync(join(ROOT, f), 'utf8').replace(/\r\n/g, '\n') !== dp.pages[f]) err(f + ' is stale: run `node tools/i18n.mjs build`');
     // nothing is missing and the English page still has Chinese in it: text the page writer does not reach
-    if (l === 'en' && !dp.missing.size) for (const f in dp.pages) if (CJK.test(dp.pages[f].replace(/<!--[\s\S]*?-->|<style[\s\S]*?<\/style>/gi, ''))) err(f + ' still has Chinese characters');
+    if (l === 'en' && !dp.missing.size) for (const f in dp.pages) if (isZh(dp.pages[f].replace(/<!--[\s\S]*?-->|<style[\s\S]*?<\/style>/gi, ''))) err(f + ' still has Chinese characters or punctuation');
     console.log('  ' + (missing - m0) + ' missing');
   }
   if (missing > 60) console.log('  (' + (missing - 60) + ' more missing lines not shown)');
