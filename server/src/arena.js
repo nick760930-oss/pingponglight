@@ -5,11 +5,17 @@ import { CHARTS } from './charts.js';
 import { cleanName, nameProblem } from './names.js';
 import { friendRequest, relations, pidOf, blockedBy } from './friends.js';
 import { cosOf, NOCOS } from './cos.js';
+import { duelJudge, parseLg, ordering, settle, duelFactsFor, duelWrite, LG_MAX } from './duel.js';
+import { achRecalc } from './ach.js';
 const cosOut = c => c ? { avatar: c.avatar, plate: c.plate, title: c.title, cmc: c.cmc } : NOCOS;   // what a seat wears (cos.js), only known for signed-in players
 
 const SONGS = Object.keys(CHARTS).filter(k => !CHARTS[k].rw);   // quick match: regular songs only
 const MAX_MSG = 512, MAX_V = 1000, V_PER_SEC = 20, V_BURST = 150, V_OVER = 100, COS_GAP = 3000;   // v = spectator frames (a looser size limit and their own rate limit, see relayV)
 const BUCKET = 30, REFILL = 8, MAX_DROPS = 60;
+const INV_MAX = 20, INV_TTL = 60000;      // room invites kept for the 邀約 achievement (friends.js /fr/invite tells this room via /inv)
+const PEND_TRIES = 5, PEND_MAX = 10, PEND_MS = 5000;   // finished rounds not written to D1 yet: retried by the alarm, dropped after PEND_TRIES retries
+const LG_KEYS = Array.from({ length: 8 }, (_, i) => 'lg:' + i);   // the raw beat logs of the round in progress (ctx.storage; never in the 2 KB socket attachment)
+const hex = n => Array.from(crypto.getRandomValues(new Uint8Array(n)), b => b.toString(16).padStart(2, '0')).join('');
 const IDLE_MS = 75000, SWEEP_MS = 30000;
 const RESERVE_MS = 30 * 60000;
 const ATK_GAP = 2000, CFG_GAP = 400, BOARD_GAP = 250, STUCK_MS = 20000;
@@ -46,6 +52,14 @@ export class Arena {
       let o = {}; try { o = await req.json(); } catch (e) {}
       const qm = !!o.qm, cfg = { song: rndSong(), di: int(o.di, 0, 4), pub: qm || !!o.pub, max: int(o.max, 2, 8), vote: false, qm };
       await this.ctx.storage.put({ resv: now, cfg, phase: 'lobby', auto: null, gone: [] });
+      return Response.json({ ok: true });
+    }
+    if (url.pathname === '/inv') {                    // called by /fr/invite only (never reachable from a client): { from, to } player ids
+      let o = {}; try { o = await req.json(); } catch (e) {}
+      if (!Number.isInteger(o.from) || !Number.isInteger(o.to) || o.from < 1 || o.to < 1 || o.from === o.to || !this.socks().length || !(await this.get('cfg'))) return Response.json({ ok: false });   // no connected seat: nothing is written, no alarm
+      const rest = (await this.get('invs', [])).filter(x => x.exp > now && !(x.from === o.from && x.to === o.to));
+      rest.push({ from: o.from, to: o.to, exp: now + INV_TTL });
+      await this.ctx.storage.put('invs', rest.slice(-INV_MAX));
       return Response.json({ ok: true });
     }
     if (req.headers.get('Upgrade') !== 'websocket') return new Response('expected websocket', { status: 426 });
@@ -127,6 +141,7 @@ export class Arena {
     if (!this.socks().length) return;
     const auto = await this.get('auto', null); let at = now + SWEEP_MS;
     if (auto && auto.at < at) at = Math.max(auto.at, now + 50);
+    if ((await this.get('pend', [])).length) at = Math.min(at, now + PEND_MS);
     await this.ctx.storage.setAlarm(at);
   }
 
@@ -139,24 +154,79 @@ export class Arena {
       if (best.length) song = best[crypto.getRandomValues(new Uint32Array(1))[0] % best.length];
     }
     const seed = crypto.getRandomValues(new Uint32Array(1))[0], at = now + START_DELAY;
-    await this.ctx.storage.put({ phase: 'play', auto: null, gone: [], round: { at, song } });
+    // the round's snapshot (docs/design/ach-duel-spec.md 3.1): who sat where and which account, the host, kind and a round id. A seat that signs in later is not added;
+    // an account in two seats makes both seats invalid (pid null, dup 1). fr0 (friend pairs at the start, for 八音和鳴) is filled in right after.
+    const infos = s.map(w => this.info(w)), cnt = new Map();
+    for (const x of infos) if (x.pid) cnt.set(x.pid, (cnt.get(x.pid) || 0) + 1);
+    const seats = infos.map(x => ({ i: x.i, pid: x.pid && cnt.get(x.pid) === 1 ? x.pid : null, ...(x.pid && cnt.get(x.pid) > 1 ? { dup: 1 } : {}) })).sort((a, b) => a.i - b.i);
+    const hs = seats.find(x => x.i === this.hostOf(s)), round = { at, song, di: cfg.di, id: hex(16), kind: cfg.qm ? 'qm' : 'room', host: hs && hs.pid ? hs.pid : null, seats, fr0: [] };
+    await this.ctx.storage.put({ phase: 'play', auto: null, gone: [], round });
+    await this.ctx.storage.delete(LG_KEYS);
     if (cfg.qm) await this.ctx.storage.put('cfg', { ...cfg, song: rndSong() });   // next round's song
-    for (const w of s) { const a = this.info(w); a.ready = false; a.fin = null; a.st = null; a.vote = null; a.finAt = 0; a.watch = -1; w.serializeAttachment(a); }
+    for (const w of s) { const a = this.info(w); a.ready = false; a.fin = null; a.st = null; a.vote = null; a.finAt = 0; a.watch = -1; a.vr = null; a.lg = 0; w.serializeAttachment(a); }
     this.lastBoard = 0;
-    this.all({ t: 'start', at, seed, song, di: cfg.di, n: s.length });
+    this.all({ t: 'start', at, seed, song, di: cfg.di, n: s.length, lg: 1 });   // lg:1 = this server takes a beat log ({t:'lg'}); a client sends it only when the start says so (an old server would kick a message over 512 bytes)
     await this.room(); await this.upsert(); await this.sched(now);
+    await this.friendSnap(round);
   }
+  async friendSnap(round) {                           // the friend pairs among the signed-in seats at the start (only 八音和鳴 reads them); failure = none = no 八音和鳴 for this round
+    const ps = round.seats.filter(x => x.pid).map(x => x.pid); if (ps.length < 2 || !this.env.LB) return;
+    try {
+      const q = ps.map((_, k) => '?' + (k + 1)).join(',');
+      const r = (await this.env.LB.prepare(`SELECT a, b FROM fships WHERE a IN (${q}) AND b IN (${q})`).bind(...ps).all()).results;
+      const cur = await this.get('round', null); if (!cur || cur.id !== round.id) return;
+      await this.ctx.storage.put('round', { ...cur, fr0: r.map(x => x.a + ':' + x.b) });
+    } catch (e) {}
+  }
+  // The result screen comes from duel.js ordering(): a seat that sent a beat log (lg) is shown with the score, accuracy, combo and rank recomputed from it;
+  // the others as they reported. v = 1: the round counts for this seat. A round that counts (2+ valid seats, long enough) is put in 'pend' first, then written to D1
+  // (flushPend: INSERT OR IGNORE by round id; a failure stays in 'pend' for the alarm). Arena never runs achRecalc for it: the seats are told {t:'ach'} and sync themselves.
   async finishRound(now) {
-    const recs = this.socks().map(w => { const a = this.info(w); return { i: a.i, name: a.name, cos: a.cos, fin: a.fin, s: a.fin ? a.fin.s : (a.st ? a.st[0] : 0), off: false }; });
+    const round = await this.get('round', null);
+    const recs = this.socks().map(w => { const a = this.info(w); return { i: a.i, name: a.name, cos: a.cos, fin: a.fin, vr: a.vr || null, n: a.st ? a.st[3] : 0, s: a.fin ? a.fin.s : (a.st ? a.st[0] : 0), off: false }; });
     for (const g of await this.get('gone', [])) recs.push({ ...g, off: true });
-    const row = x => x.fin ? { i: x.i, name: x.name, s: x.fin.s, ok: x.fin.ok, acc: x.fin.acc, rank: x.fin.rank, mc: x.fin.mc, ...cosOut(x.cos) } : { i: x.i, name: x.name, s: x.s, ok: false, acc: 0, rank: '—', mc: 0, ...cosOut(x.cos) };
-    const grp = x => x.fin ? (x.fin.ok ? 0 : 1) : (x.off ? 3 : 2);   // finished, failed, still-online unfinished, offline unfinished
-    recs.sort((a, b) => grp(a) - grp(b) || b.s - a.s || a.i - b.i);
+    let ord = null; if (round && Array.isArray(round.seats)) { try { ord = ordering(round, recs, now); } catch (e) { ord = null; } }
+    let out;
+    if (ord) out = ord.rows.map(x => ({ i: x.i, name: x.name, s: x.s, ok: x.ok, acc: x.acc, rank: x.rank, mc: x.mc, ...cosOut(x.cos), v: x.v }));
+    else {                                            // no snapshot (should not happen): the old way, nothing counts
+      const row = x => x.fin ? { i: x.i, name: x.name, s: x.fin.s, ok: x.fin.ok, acc: x.fin.acc, rank: x.fin.rank, mc: x.fin.mc, ...cosOut(x.cos), v: 0 } : { i: x.i, name: x.name, s: x.s, ok: false, acc: 0, rank: '—', mc: 0, ...cosOut(x.cos), v: 0 };
+      const grp = x => x.fin ? (x.fin.ok ? 0 : 1) : (x.off ? 3 : 2);   // finished, failed, still-online unfinished, offline unfinished
+      recs.sort((a, b) => grp(a) - grp(b) || b.s - a.s || a.i - b.i); out = recs.map(row);
+    }
     const cfg = await this.get('cfg');
+    if (ord && ord.counts) {
+      const log1 = ord.rows.length ? await this.get('lg:' + ord.rows[0].i, null) : null, pend = await this.get('pend', []);
+      pend.push({ round, recs: recs.map(({ i, name, fin, vr, n, s, off }) => ({ i, name, fin, vr, n, s, off })), now, log1, tries: 0 });
+      await this.ctx.storage.put('pend', pend.slice(-PEND_MAX));
+    }
     await this.ctx.storage.put({ phase: 'lobby', gone: [], round: null });
-    for (const w of this.socks()) { const a = this.info(w); a.ready = false; a.fin = null; a.st = null; a.finAt = 0; a.watch = -1; if (cfg.qm) a.back = false; w.serializeAttachment(a); }
-    this.all({ t: 'res', r: recs.map(row) });
+    await this.ctx.storage.delete(LG_KEYS);
+    for (const w of this.socks()) { const a = this.info(w); a.ready = false; a.fin = null; a.st = null; a.finAt = 0; a.watch = -1; a.vr = null; a.lg = 0; if (cfg.qm) a.back = false; w.serializeAttachment(a); }
+    this.all({ t: 'res', r: out });
     await this.afterChange(now);
+    await this.flushPend(now);
+  }
+  // write the pending rounds to D1 (in order, each once: duels / duelp by INSERT OR IGNORE, so a retry after a half-seen failure is harmless), then tell the valid seats still here
+  async flushPend(now) {
+    if (this.flushing || !this.env.LB) return;
+    this.flushing = true;
+    try {
+      const tried = new Set();
+      for (let pass = 0; pass < 4; pass++) {
+        const todo = (await this.get('pend', [])).filter(p => !tried.has(p.round.id)); if (!todo.length) break;
+        const left = new Map();                       // round id -> the entry to keep (null: written, or given up)
+        for (const p of todo) {
+          tried.add(p.round.id);
+          try {
+            const ord = ordering(p.round, p.recs, p.now), res = settle(p.round, ord, await duelFactsFor(this.env.LB, p.round, ord, p.now), p.now, p.log1);
+            if (res) { await duelWrite(this.env.LB, res); for (const r of res.rows) for (const w of this.socks()) if (this.info(w).pid === r.pid) this.send(w, { t: 'ach' }); }
+            left.set(p.round.id, null);
+          } catch (e) { left.set(p.round.id, p.tries < PEND_TRIES ? { ...p, tries: p.tries + 1 } : null); }
+        }
+        await this.ctx.storage.put('pend', (await this.get('pend', [])).filter(x => left.get(x.round.id) !== null).map(x => left.get(x.round.id) || x));
+      }
+      if ((await this.get('pend', [])).length) await this.ctx.storage.setAlarm(now + PEND_MS);
+    } finally { this.flushing = false; }
   }
   allFin() { const s = this.socks(); return s.length > 0 && s.every(w => this.info(w).fin); }
 
@@ -196,6 +266,38 @@ export class Arena {
     for (const w of to) { try { w.send(out); } catch (e) {} }
   }
 
+  // the seat's beat log {"t":"lg","log":[...],"star":[...],"seq":[...]}, once per round, sent just before 'fin' (docs/multiplayer-protocol.md). Handled before the 512-byte limit
+  // like relayV: up to LG_MAX (characters and bytes; more is a bad message), but it does use the normal token bucket. Only while a round is on, only from a seat that was
+  // signed in when the round started, only the first one; anything else is dropped silently. duelJudge recomputes right here; a log that does not pass leaves the seat
+  // without 'vr' (not valid for this round) and nothing else happens to it. The raw log goes to ctx.storage (the winner's is kept in duels.log1).
+  async relayLg(ws, msg) {
+    const a = this.info(ws); if (a.gone) return;
+    if (msg.length > LG_MAX || new TextEncoder().encode(msg).length > LG_MAX) { await this.drop(ws, 'bad message'); return; }
+    if (!(await this.allow(ws))) return;               // the token bucket comes first: a seat that spams lg (not signed in, or one it already sent) is limited and finally kicked
+    if (a.lg || !a.pid) return;
+    if ((await this.get('phase', 'lobby')) !== 'play') return;
+    const round = await this.get('round', null), seat = round && Array.isArray(round.seats) ? round.seats.find(x => x.i === a.i) : null;
+    if (!seat || !seat.pid || seat.dup || seat.pid !== a.pid) return;
+    a.lg = 1; ws.serializeAttachment(a);
+    const d = parseLg(msg), j = d ? duelJudge(round.song, round.di, d.log, d.star, d.seq) : null; if (!j) return;
+    const b = this.info(ws); if (b.gone) return;
+    b.vr = j; ws.serializeAttachment(b);
+    await this.ctx.storage.put('lg:' + a.i, msg);
+  }
+  // a seat just signed in: did a friend invite it to this room (friends.js told us via /inv) while the inviter is here too? Then the inviter gets 邀約.
+  async checkInv(pid, now) {
+    const invs = await this.get('invs', []); if (!invs.length) return;
+    const live = invs.filter(x => x.exp > now), here = new Set(this.socks().map(w => this.info(w).pid).filter(Boolean));
+    const hit = live.filter(x => x.to === pid && here.has(x.from)), keep = live.filter(x => !hit.includes(x));
+    if (keep.length !== invs.length) await this.ctx.storage.put('invs', keep);
+    for (const x of hit) {
+      try {
+        if (!(await this.env.LB.prepare('SELECT 1 FROM achs WHERE pid = ?1 AND ach = ?2').bind(x.from, '邀約').first())) await achRecalc(this.env.LB, x.from, now, null, false, ['邀約']);
+        for (const w of this.socks()) if (this.info(w).pid === x.from) this.send(w, { t: 'ach' });
+      } catch (e) {}
+    }
+  }
+
   // ---- socket lifecycle ----
   bucket(ws, now) { let b = this.rate.get(ws); if (!b) { b = { tok: BUCKET, t: now, drops: 0, atk: 0, cfg: 0, vtok: V_BURST, vt: now, vx: 0 }; this.rate.set(ws, b); } return b; }
   async allow(ws) {
@@ -211,13 +313,14 @@ export class Arena {
     this.rate.delete(ws); try { ws.close(why ? 1008 : 1000, why || 'bye'); } catch (e) {}
     const now = Date.now(), phase = await this.get('phase', 'lobby');
     if (phase === 'play') {
-      const gone = await this.get('gone', []); gone.push({ i: a.i, name: a.name, cos: a.cos, fin: a.fin || null, s: a.fin ? a.fin.s : (a.st ? a.st[0] : 0) });
+      const gone = await this.get('gone', []); gone.push({ i: a.i, name: a.name, cos: a.cos, fin: a.fin || null, s: a.fin ? a.fin.s : (a.st ? a.st[0] : 0), pid: a.pid || 0, n: a.st ? a.st[3] : 0, vr: a.vr || null });
       await this.ctx.storage.put('gone', gone);
     }
     this.all({ t: 'left', i: a.i });
     this.endWatch(a.i); if (this.watching(ws) >= 0) this.wcnt(this.watching(ws));   // those watching this seat are let go; the seat this one watched has one viewer less
     if (!this.socks().length) {
       await this.ctx.storage.put({ phase: 'lobby', auto: null, gone: [], round: null, resv: now });
+      await this.ctx.storage.delete(LG_KEYS);          // everybody left in the middle of a round: no raw log stays behind
       await this.upsert(); return;
     }
     await this.ctx.storage.put('resv', now);
@@ -233,6 +336,7 @@ export class Arena {
 
   async webSocketMessage(ws, msg) {
     if (typeof msg === 'string' && msg.startsWith('{"t":"v"')) { await this.relayV(ws, msg); return; }   // spectator frames: the client writes t first
+    if (typeof msg === 'string' && msg.startsWith('{"t":"lg"')) { await this.relayLg(ws, msg); return; }   // a seat's beat log (see relayLg)
     if (typeof msg !== 'string' || msg.length > MAX_MSG) { await this.drop(ws, 'bad message'); return; }
     const b = await this.allow(ws); if (!b) return;
     let d; try { d = JSON.parse(msg); } catch (e) { return; }
@@ -259,6 +363,7 @@ export class Arena {
         const b2 = this.info(ws); b2.pid = pl.id; b2.acct = pl.name; b2.cos = cm; ws.serializeAttachment(b2);
         await this.room();                              // the others see what this seat wears
         for (const w of this.socks()) if (w === ws || this.info(w).pid) await this.rels(w);   // everyone signed in gets this seat's relation
+        await this.checkInv(pl.id, now);
         return;
       }
       case 'cos': {                                   // the player changed what they wear: read it again (at most once per COS_GAP)
@@ -369,6 +474,8 @@ export class Arena {
   async alarm() {
     const now = Date.now();
     for (const w of this.socks()) if (now - (this.info(w).seen || 0) > IDLE_MS) await this.drop(w, 'idle');
+    await this.flushPend(now);
+    { const invs = await this.get('invs', []), live = invs.filter(x => x.exp > now); if (live.length !== invs.length) await this.ctx.storage.put('invs', live); }   // expired invites
     const s = this.socks(); if (!s.length) return;
     const phase = await this.get('phase', 'lobby'), auto = await this.get('auto', null), round = await this.get('round', null);
     if (phase === 'lobby' && auto && now >= auto.at - 20 && s.filter(w => this.info(w).back).length >= 2) { await this.startRound(now); }

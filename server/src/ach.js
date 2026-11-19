@@ -4,14 +4,16 @@
 // difficulty, with its beat log), the number of accepted runs (scores.n), running totals (pstats), friends and the items
 // earned so far. A phone can only ask the server to look again (/ach/sync); it cannot say what it has achieved, except for
 // the ones marked "local": those are only recorded, and nothing other players can see is given for them.
-// An achievement, once earned, is never taken back (achs rows stay; a row whose id is no longer in the list, e.g. the removed 四十九, is kept but ignored: no points, never listed), and its rewards are items in ents (src = 'ach').
+// An achievement, once earned, is never taken back (the one exception: the 19 duel achievements a voided round no longer supports, see duelVoid) (achs rows stay; a row whose id is no longer in the list, e.g. the removed 四十九, is kept but ignored: no points, never listed), and its rewards are items in ents (src = 'ach').
 //
 // Achievement id = its name in the design list (achdata.js); the ten "星座完成" ones are <constellation name>完成, e.g. 古老旋律座完成.
 // Run data beyond the beat log: a new single-use ticket (lb.js) also brings the run's star-time ranges and lets the server replay the
 // life, and /lb/end records runs that failed or were quit (tries table: ends, fails per player, song and difficulty). With that the server
 // decides 拾級而上, 試聽, 遍聽 (巡遍星空), 百折不撓, 屢敗屢戰, 一線生機, 不滅, 星光初拾, 星光全收 (星河盡收), 金色時刻 and 新曲嘗鮮.
 // The single-run ones (the life ones, the star ones, 金色時刻, 屢敗屢戰) are only given at the submit of a new-ticket run; a run
-// on a legacy ticket earns nothing. NA (not decidable, never granted) is empty now; "check v" (duel results) is still closed.
+// on a legacy ticket earns nothing. NA (not decidable, never granted) is empty now.
+// The 21 duel and social achievements (DUEL_IDS) come from the rounds the Arena settled (src/duel.js -> duels, duelp: only valid, unvoided rounds count), the friends
+// table (引路人) and the room invites the Arena recorded directly (邀約). See docs/design/ach-duel-spec.md.
 import { ACHDATA } from './achdata.js';
 import { CHARTS, CONS } from './charts.js';
 import { CATALOG } from './catalog.js';
@@ -97,6 +99,84 @@ export function singles(R) {
   add(R.sc >= 1, '星光初拾'); add(R.sg >= 1 && R.sc === R.sg, '星光全收'); add(R.gold, '金色時刻');
   add(R.pfail >= 5, '屢敗屢戰');
   return out;
+}
+
+// ---- duel and social achievements ----
+export const DUEL_IDS = ['初次交手', '熱身賽', '擂台常駐', '百戰', '首勝', '初露鋒芒', '凱旋曲', '常勝樂章', '同台', '再會', '知音', '最終樂章', '八方之冠', '全場最佳',
+  '開張', '指揮家', '引路人', '好夥伴', '合奏團', '八音和鳴', '邀約'];
+export const DUEL_CALC = DUEL_IDS.filter(x => x !== '邀約' && x !== '引路人');       // the ones the duel tables can decide again (邀約 is only recorded by the Arena, 引路人 reads the friends table: a void never takes those back)
+const DUEL_ZERO = { cg: 0, cw: 0, beat: 0, again: 0, same: 0, eq: 0, cb: 0, s8w: 0, s8fc: 0, host: 0, fr1: 0, fr2: 0, f8: 0, guide: 0 };
+// What one player's valid, unvoided rounds add up to (one batch). A database without migration 0011 (or any failure) reads as zeros.
+export async function duelFacts(db, pid, strict) {   // strict: a failure is thrown instead of read as zeros (voiding a round must not take achievements away because of a database error)
+  try {
+    const [a, b, c, g] = await db.batch([
+      db.prepare(`SELECT COALESCE(SUM(p.cg), 0) AS cg, COALESCE(SUM(p.cw), 0) AS cw,
+          COALESCE(MAX(p.cg AND d.valid >= 4), 0) AS same, COALESCE(MAX(p.cg AND p.eq), 0) AS eq, COALESCE(MAX(p.cg AND p.cb), 0) AS cb,
+          COALESCE(MAX(p.cw AND p.s8), 0) AS s8w, COALESCE(MAX(p.cw AND p.s8 AND p.fc), 0) AS s8fc,
+          COALESCE(SUM(p.cg AND d.kind = 'room' AND d.host = p.pid), 0) AS host, COALESCE(SUM(p.cg AND p.fr >= 1), 0) AS fr1,
+          COALESCE(SUM(p.cg AND d.valid >= 4 AND p.fr >= 2), 0) AS fr2, COALESCE(MAX(p.cg AND p.f8), 0) AS f8
+        FROM duelp p JOIN duels d ON d.id = p.did WHERE p.pid = ?1 AND d.void = 0`).bind(pid),
+      db.prepare(`SELECT COUNT(DISTINCT o.pid) AS n FROM duelp p JOIN duels d ON d.id = p.did JOIN duelp o ON o.did = p.did AND o.pid <> p.pid AND o.qual = 1
+        WHERE p.pid = ?1 AND p.cw = 1 AND d.void = 0`).bind(pid),
+      db.prepare(`SELECT COUNT(*) AS n FROM duelp p JOIN duels d ON d.id = p.did JOIN duelp o ON o.did = p.did AND o.pid <> p.pid
+        WHERE p.pid = ?1 AND p.cg = 1 AND d.void = 0 GROUP BY o.pid ORDER BY n DESC LIMIT 1`).bind(pid),
+      db.prepare(`SELECT 1 AS x FROM fships f WHERE f."by" = ?1 AND f.fresh = 1 AND EXISTS (SELECT 1 FROM scores s WHERE s.pid = CASE WHEN f.a = ?1 THEN f.b ELSE f.a END) LIMIT 1`).bind(pid),
+    ]);
+    const r = a.results[0] || {};
+    return { ...DUEL_ZERO, ...r, beat: (b.results[0] || {}).n || 0, again: (c.results[0] || {}).n || 0, guide: g.results.length ? 1 : 0 };
+  } catch (e) { if (strict) throw e; return { ...DUEL_ZERO }; }
+}
+export function duelEval(f) {
+  const E = [], add = (c, id) => { if (c) E.push(id); };
+  add(f.cg >= 1, '初次交手'); add(f.cg >= 10, '熱身賽'); add(f.cg >= 50, '擂台常駐'); add(f.cg >= 200, '百戰');
+  add(f.cw >= 1, '首勝'); add(f.cw >= 10 && f.beat >= 3, '初露鋒芒'); add(f.cw >= 50 && f.beat >= 10, '凱旋曲'); add(f.cw >= 200 && f.beat >= 20, '常勝樂章');
+  add(f.same, '同台'); add(f.again >= 3, '再會'); add(f.eq, '知音'); add(f.cb, '最終樂章'); add(f.s8w, '八方之冠'); add(f.s8fc, '全場最佳');
+  add(f.host >= 1, '開張'); add(f.host >= 30, '指揮家'); add(f.guide, '引路人'); add(f.fr1 >= 20, '好夥伴'); add(f.fr2 >= 10, '合奏團'); add(f.f8, '八音和鳴');
+  return E;
+}
+// Admin (lb.js /lb/admin): 'duels' = the last 200 rounds, 'duel' { did } = one round with its rows and the winner's log, 'duelvoid' { did } = take the round back.
+// Voiding is the only time an achievement is taken back: for every player of that round the 19 DUEL_CALC achievements are decided again from the remaining
+// rounds; the ones no longer supported lose their achs row and the items they gave (ents with src = 'ach' and that achievement as ref); a worn item that is
+// gone goes back to the default. Every other achievement stays.
+export async function duelAdmin(db, body, json) {
+  if (body.op !== 'duels' && body.op !== 'duel' && body.op !== 'duelvoid') return null;
+  try { return await duelAdminRun(db, body, json); }
+  catch (e) { return json({ error: 'nodb' }, 500); }   // no duels / duelp tables (migration 0011 not applied): an error answer, never an exception
+}
+async function duelAdminRun(db, body, json) {
+  if (body.op === 'duels') return json({ rows: (await db.prepare(`SELECT d.id, d.ts, d.song, d.d, d.kind, d.seats, d.valid, d.void, p.pid, n.name, p.q, p.sus
+    FROM duels d LEFT JOIN duelp p ON p.did = d.id AND p.place = 1 LEFT JOIN players n ON n.id = p.pid ORDER BY d.ts DESC LIMIT 200`).all()).results });
+  if (body.op === 'duel' || body.op === 'duelvoid') {
+    if (typeof body.did !== 'string' || body.did.length > 64) return json({ error: 'bad' }, 400);
+    if (body.op === 'duel') {
+      const d = await db.prepare('SELECT * FROM duels WHERE id = ?1').bind(body.did).first(); if (!d) return json({ error: 'nodata' }, 404);
+      const rows = (await db.prepare('SELECT p.*, n.name FROM duelp p LEFT JOIN players n ON n.id = p.pid WHERE p.did = ?1 ORDER BY p.place').bind(body.did).all()).results;
+      return json({ duel: d, rows });
+    }
+    const r = await duelVoid(db, body.did); if (!r) return json({ error: 'nodata' }, 404);
+    return json({ ok: true, ...r });
+  }
+  return null;
+}
+export async function duelVoid(db, did) {
+  if (!(await db.prepare('SELECT 1 FROM duels WHERE id = ?1').bind(did).first())) return null;
+  await db.prepare('UPDATE duels SET void = 1 WHERE id = ?1').bind(did).run();
+  const pids = (await db.prepare('SELECT pid FROM duelp WHERE did = ?1').bind(did).all()).results.map(r => r.pid), revoked = [];
+  for (const pid of pids) {
+    const still = new Set(duelEval(await duelFacts(db, pid, true)));
+    const have = (await db.prepare('SELECT ach FROM achs WHERE pid = ?1 AND loc = 0').bind(pid).all()).results.map(r => r.ach).filter(id => DUEL_CALC.includes(id));
+    const lose = have.filter(id => !still.has(id)); if (!lose.length) continue;
+    const st = [], items = new Set();
+    for (const id of lose) {
+      st.push(db.prepare('DELETE FROM achs WHERE pid = ?1 AND ach = ?2 AND loc = 0').bind(pid, id), db.prepare(`DELETE FROM ents WHERE pid = ?1 AND src = 'ach' AND ref = ?2`).bind(pid, id));
+      for (const it of rewardsOf(id).flatMap(x => CATALOG[x] ? [x, ...CATALOG[x].parts] : [])) items.add(it);
+      revoked.push({ pid, ach: id });
+    }
+    await db.batch(st);
+    for (const it of items) for (const slot of ['avatar', 'plate', 'title'])   // a worn item that is not owned any more: back to the default
+      await db.prepare(`UPDATE players SET ${slot} = '' WHERE id = ?1 AND ${slot} = ?2 AND NOT EXISTS (SELECT 1 FROM ents e WHERE e.pid = ?1 AND e.item = ?2)`).bind(pid, it).run();
+  }
+  return { players: pids.length, revoked };
 }
 
 const splitBoard = b => { const i = b.lastIndexOf('-'); return [b.slice(0, i), +b.slice(i + 1)]; };
@@ -209,17 +289,19 @@ async function loadRows(db, pid) {
 // { song, d, R, first } adds what that single run earned even when it was not the player's best.
 // Returns { fresh: ids newly earned, ids: every server-decided achievement the player has }.
 // ensure = also re-give the rewards of everything already earned (the sync the app sends once at every start; submit only gives new ones).
-export async function achRecalc(db, pid, now, run, ensure) {
-  const [rows, ps, fr, have, own, tr] = await Promise.all([
+// more = ids the caller has already verified (邀約, recorded by the Arena): treated as earned.
+export async function achRecalc(db, pid, now, run, ensure, more) {
+  const [rows, ps, fr, have, own, tr, df] = await Promise.all([
     loadRows(db, pid),
     db.prepare('SELECT hits, perf FROM pstats WHERE pid = ?1').bind(pid).first(),
     db.prepare('SELECT (SELECT COUNT(*) FROM fships WHERE a = ?1) + (SELECT COUNT(*) FROM fships WHERE b = ?1) AS n').bind(pid).first(),
     db.prepare('SELECT ach FROM achs WHERE pid = ?1 AND loc = 0').bind(pid).all(),
     db.prepare(`SELECT item FROM ents WHERE pid = ?1 AND src = 'ach'`).bind(pid).all(),
     db.prepare('SELECT song, ends FROM tries WHERE pid = ?1').bind(pid).all().catch(() => ({ results: [] })),   // (an older database without the table: no records)
+    duelFacts(db, pid),                                 // (an older database without the duel tables: zeros)
   ]);
   const had = new Set(have.results.map(x => x.ach).filter(id => ACHS[id])), owned = new Set(own.results.map(x => x.item));
-  const extra = run ? [...singles(run.R), ...(run.first && (run.d === 2 || run.d === 4) ? ['越級者'] : [])] : [];
+  const extra = [...(run ? [...singles(run.R), ...(run.first && (run.d === 2 || run.d === 4) ? ['越級者'] : [])] : []), ...(more || []), ...duelEval(df)];
   const earned = new Set([...evaluate(rows, ps || { hits: 0, perf: 0 }, fr ? fr.n : 0, extra, tr.results)].filter(isServer));
   for (const x of had) earned.add(x);
   const fresh = [], give = id => {

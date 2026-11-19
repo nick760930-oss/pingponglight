@@ -46,10 +46,23 @@ const hub = async (env, path, body) => {
 
 const friendCount = async (db, id) => (await db.prepare('SELECT (SELECT COUNT(*) FROM fships WHERE a = ?1) + (SELECT COUNT(*) FROM fships WHERE b = ?1) AS n').bind(id).first()).n;
 const areFriends = async (db, x, y) => !!(await db.prepare('SELECT 1 FROM fships WHERE a = ?1 AND b = ?2').bind(Math.min(x, y), Math.max(x, y)).first());
-const becomeFriends = (db, x, y, now) => [
+// The one place a friendship begins (both ways in: friendRequest and /fr/respond). by = who sent the request (the older one when both did); fresh = 1 when the OTHER side
+// has no score at all right now (引路人: src/ach.js duelFacts reads both).
+const becomeFriends = (db, x, y, now, by) => [
   db.prepare('DELETE FROM freqs WHERE (frm = ?1 AND "to" = ?2) OR (frm = ?2 AND "to" = ?1)').bind(x, y),
-  db.prepare('INSERT OR IGNORE INTO fships (a, b, ts) VALUES (?1, ?2, ?3)').bind(Math.min(x, y), Math.max(x, y), now),
+  db.prepare('INSERT OR IGNORE INTO fships (a, b, ts, "by", fresh) VALUES (?1, ?2, ?3, ?4, CASE WHEN EXISTS (SELECT 1 FROM scores WHERE pid = ?5) THEN 0 ELSE 1 END)')
+    .bind(Math.min(x, y), Math.max(x, y), now, by, by === x ? y : x),
 ];
+// a database without migration 0011 has no by / fresh columns: the friendship is still made, the old way
+const makeFriends = async (db, x, y, now, by) => {
+  try { await db.batch(becomeFriends(db, x, y, now, by)); }
+  catch (e) {
+    await db.batch([
+      db.prepare('DELETE FROM freqs WHERE (frm = ?1 AND "to" = ?2) OR (frm = ?2 AND "to" = ?1)').bind(x, y),
+      db.prepare('INSERT OR IGNORE INTO fships (a, b, ts) VALUES (?1, ?2, ?3)').bind(Math.min(x, y), Math.max(x, y), now),
+    ]);
+  }
+};
 const unlink = (db, x, y) => [          // friendship and requests, both directions
   db.prepare('DELETE FROM fships WHERE a = ?1 AND b = ?2').bind(Math.min(x, y), Math.max(x, y)),
   db.prepare('DELETE FROM freqs WHERE (frm = ?1 AND "to" = ?2) OR (frm = ?2 AND "to" = ?1)').bind(x, y),
@@ -65,7 +78,7 @@ export async function friendRequest(db, env, x, y, now) {
   const mutual = await db.prepare('SELECT 1 FROM freqs WHERE frm = ?1 AND "to" = ?2').bind(y, x.id).first();
   if (mutual) {                                      // they already asked me: adding them accepts
     if ((await friendCount(db, x.id)) >= MAX_FRIENDS || (await friendCount(db, y)) >= MAX_FRIENDS) return { error: 'full' };
-    await db.batch(becomeFriends(db, x.id, y, now));
+    await makeFriends(db, x.id, y, now, y);   // y asked first, x answers by asking back
     await hub(env, '/i/push', { to: y, msg: { t: 'friend', id: x.id, name: x.name } });
     return { ok: true, friends: true };
   }
@@ -212,7 +225,7 @@ export async function handleFr(req, env, path, who, origin, H, limited, ctx) {
     if (!q) return json({ error: 'nopending' }, 400);
     if (!body.accept) { await db.prepare('DELETE FROM freqs WHERE frm = ?1 AND "to" = ?2').bind(body.id, me.id).run(); return json({ ok: true }); }
     if ((await friendCount(db, me.id)) >= MAX_FRIENDS || (await friendCount(db, body.id)) >= MAX_FRIENDS) return json({ error: 'full' });
-    await db.batch(becomeFriends(db, me.id, body.id, now));
+    await makeFriends(db, me.id, body.id, now, body.id);   // body.id sent the request
     await hub(env, '/i/push', { to: body.id, msg: { t: 'friend', id: me.id, name: me.name } });
     return json({ ok: true });
   }
@@ -273,6 +286,7 @@ export async function handleFr(req, env, path, who, origin, H, limited, ctx) {
     const r = await hub(env, '/i/invite', { from: mine, to: id, room, song, d, v });
     if (!r) return json({ error: 'busy' }, 503);
     if (r.limited) return json({ error: 'slow' }, 429, { 'Retry-After': '5' });
+    if (r.delivered && env.ARENA) { try { await env.ARENA.get(env.ARENA.idFromName(room)).fetch('https://arena/inv', { method: 'POST', body: JSON.stringify({ from: me.id, to: id }) }); } catch (e) {} }   // the room remembers it (邀約, src/arena.js checkInv)
     return json({ ok: true, delivered: !!r.delivered });
   }
 

@@ -624,7 +624,7 @@ function startRun(from){
   combo=0;maxCombo=0;tierCount=[0,0,0,0];shake=0;exitT=0;easeT=0;starT=0;shield=0;rangeT=0;rangeMul=1;paused=false;resumeCD=0;lifeMax=LIFE0;life=LIFE0;missCount=0;runFrom=from;flash.a=0;edgeGlow=[0,0,0,0];
   bumps=[];items=[];rings=[];floats=[];parts=[];aims=[];hfx=[];spawnT=5;itemT=9;tickQ=[];cutAll();mlv=0;mgrow=0;mlBan=null;
   balls=[];for(let j=0;j<nb;j++)if(from+j<tg.length)balls.push(newBall(from+j));
-  RUN=mode==='normal'&&!from&&ME?{log:new Array(tg.length).fill(null),star:new Uint8Array(tg.length),seq:[],ended:false,ok:true,ticket:null,key:song.key,d:di}:null;   // only full solo runs can enter the leaderboard
+  RUN=(mode==='normal'||mode==='duel')&&!from&&ME?{log:new Array(tg.length).fill(null),star:new Uint8Array(tg.length),seq:[],ended:false,ok:true,ticket:null,key:song.key,d:di,duel:mode==='duel',sent:false}:null;   // only full solo runs can enter the leaderboard; a duel run (duel:true) is only sent to the room (duelLog)
   endAt=mode==='tut'||mode==='try'?timeOf(tg[tg.length-1].t)+2:timeOf(song.dur)+1.2;
   runPaused=false;runMute0=SET.mel===0&&SET.bk===0;
   st='ready';hudShow(true);preloadSong(song);
@@ -655,7 +655,7 @@ async function launch(){
   tickQ=[LEADIN-1.5,LEADIN-1,LEADIN-.5];
   for(const b of balls){planLaps(b);b.vr=0;b.v=ballWant(b);b.vr=b.v}
   st='play';audioStatus();setMedia(true);hud();
-  if(RUN&&!RUN.ticket)RUN.ticket=api('/lb/start',{song:RUN.key,d:RUN.d,pk:pkey()}).then(j=>typeof j.run==='string'?j.run:{e:j.error||'net'});   // the server's signed start time
+  if(RUN&&!RUN.duel&&!RUN.ticket)RUN.ticket=api('/lb/start',{song:RUN.key,d:RUN.d,pk:pkey()}).then(j=>typeof j.run==='string'?j.run:{e:j.error||'net'});   // the server's signed start time
 }
 
 /* ================= input ================= */
@@ -1433,7 +1433,7 @@ const DRANKS=['SSS','SS','S','A','B','C','D','E','F','—'],DATK=['bump','shrink
 const DIN={tok:60,t:0};
 function dAllow(t){if(t!=='board'&&t!=='atk')return true;const now=performance.now();DIN.tok=Math.min(60,DIN.tok+(now-DIN.t)/1000*30);DIN.t=now;if(DIN.tok>=1){DIN.tok--;return true}return false}
 const duelNow=()=>Date.now()+DU.off;
-function dsend(o){try{if(DU.ws&&DU.ws.readyState===1)DU.ws.send(JSON.stringify(o))}catch(e){}}
+function dsend(o){try{if(DU.ws&&DU.ws.readyState===1)DU.ws.send(typeof o==='string'?o:JSON.stringify(o))}catch(e){}}
 function dmsg(t){$('#dMsg').textContent=t||'';$('#rnote').textContent=t||''}
 const mpHost=()=>DU.you===DU.host&&!DU.cfg.qm;
 const mpName=i=>{const p=DU.players.find(q=>q.i===i);return p?p.name:(DU.names&&DU.names[i])||'玩家'};
@@ -1536,6 +1536,7 @@ function duelOn(d){
   if(d.t==='start'){dmClose();if(mode==='duel'&&(st==='play'||st==='ready'))return;
     const at=+d.at,now=duelNow(),k=songIdx(dKey(d.song));
     if(k<0){dsend({t:'fin',s:0,ok:false,acc:0,rank:'—',mc:0});dmsg('房間選的曲目不在您目前的版本中，請更新遊戲後再加入。');return}
+    DU.lg=d.lg===1;   // only a server that says so takes the beat log (an older one would kick a message over 512 bytes)
     duelStart({at:Number.isFinite(at)&&Math.abs(at-now)<15000?at:now+4500,seed:dInt(d.seed,0,4294967295),song:k,di:dInt(d.di,0,DIFFS.length-1)});return}
   if(d.t==='board'){if(mode!=='duel'||!Array.isArray(d.p))return;
     for(const r of d.p.slice(0,MP_MAX)){if(!Array.isArray(r))continue;const i=dInt(r[0],0,MP_MAX-1);if(i===DU.you)continue;
@@ -1550,8 +1551,9 @@ function duelOn(d){
   if(d.t==='res'){if(!Array.isArray(d.r))return;
     if(SP.on)specOff('res');
     const seen=new Set();DU.res=d.r.slice(0,MP_MAX).filter(x=>x&&typeof x==='object').map(x=>({i:dInt(x.i,0,MP_MAX-1),name:dName(x.name)||'玩家',s:dInt(x.s,0,1e8),ok:x.ok===true,
-      acc:Math.max(0,Math.min(100,+x.acc||0)),rank:DRANKS.includes(x.rank)?x.rank:'—',mc:dInt(x.mc,0,1e5),...whoOf(x)})).filter(x=>!seen.has(x.i)&&seen.add(x.i));
+      acc:Math.max(0,Math.min(100,+x.acc||0)),rank:DRANKS.includes(x.rank)?x.rank:'—',mc:dInt(x.mc,0,1e5),v:x.v===1?1:x.v===0?0:-1,...whoOf(x)})).filter(x=>!seen.has(x.i)&&seen.add(x.i));
     if(DU.myFin){duelResult();mpEndNote()}return}
+  if(d.t==='ach'){if(window.PPLA&&typeof window.PPLA.sync==='function'){window.PPLA.sync();setTimeout(()=>{if(st!=='play'&&window.PPLA)window.PPLA.flush()},4500)}return}
   if(d.t==='left'){const i=dInt(d.i,0,MP_MAX-1),b=DU.board.find(x=>x.i===i);delete DU.says[i];if(b)b.gone=true;
     if(mode==='duel'&&st==='play'){mpBanner('info',mpName(i)+' 已離線','','#9aa3c7');mpLad()}specCheck();if(DU.myFin&&!DU.res)duelResult();return}
 }
@@ -1987,8 +1989,16 @@ function spPlace(){
 }
 
 /* ---- results: one screen. Left: my place, score, podium. Right: everyone, my judgments, buttons ---- */
+// my beat log for the room, sent once just before 'fin': the whole log when I finished, else the beats settled so far (life ran out, left the screen).
+// {t:'lg'} must be the first key (the server recognises it by its start); about 5 KB for the longest song, the server accepts 16 KB.
+function duelLog(ok){
+  const R=RUN;if(!R||!R.duel||!R.ok||R.sent||!DU.lg)return;R.sent=true;
+  const len=ok?R.log.length:(R.seq.length?Math.max(...R.seq)+1:0);if(!(len>0&&len<=R.log.length))return;
+  const m=JSON.stringify({t:'lg',log:R.log.slice(0,len),star:starRanges(R.star,len),seq:R.seq.slice()});
+  if(m.length<=16000)dsend(m);
+}
 function duelFinish(ok,rank,acc){
-  DU.myFin={s:score,ok,acc,rank:ok?rank:'—',mc:maxCombo};dsend({t:'fin',...DU.myFin});
+  DU.myFin={s:score,ok,acc,rank:ok?rank:'—',mc:maxCombo};duelLog(ok);dsend({t:'fin',...DU.myFin});
   mpLadOff();DU.wn=0;evq.length=0;spEye();DU.spAuto=0;
   $('#deK').textContent=DU.n+' 人對戰';$('#deS').textContent='《'+song.name+'》 · '+D.n;
   $('#deMe').innerHTML='本局成績　完美<b>'+tierCount[0]+'</b>　極佳<b>'+tierCount[1]+'</b>　良好<b>'+tierCount[2]+'</b>　尚可<b>'+tierCount[3]+'</b>　失誤<b>'+missCount+'</b>　最高連擊<b>'+maxCombo+'</b>';
@@ -2028,9 +2038,11 @@ function duelResult(){
 function mpEndNote(){   // on the result screen: who already went back for another round (quick match counts down once 2 are back)
   if($('#end').classList.contains('hidden')||mode!=='duel'||!DU.res)return;
   const C=DU.cfg,back=C.qm?DU.players.filter(p=>p.back&&p.i!==DU.you):[];   // only quick match tracks who is back
-  if(!DU.ws){$('#deN').textContent='連線已中斷。';return}
+  const mine=DU.res.find(x=>x.i===DU.you),nv=ME&&mine&&mine.v===0?'這一局不計入對戰成就':'';   // the server says this round does not count for me (a guest never gets the line)
+  if(!DU.ws){$('#deN').textContent=(nv?nv+' · ':'')+'連線已中斷。';return}
   const s=DU.auto?Math.max(0,Math.ceil((DU.auto-duelNow())/1000)):0;
-  $('#deN').textContent=back.length?back.map(p=>p.name).slice(0,3).join('、')+(back.length>3?' 等 '+back.length+' 人':'')+' 想再來一局'+(C.qm&&DU.auto?' · '+s+' 秒後開始':''):'';
+  const t=back.length?back.map(p=>p.name).slice(0,3).join('、')+(back.length>3?' 等 '+back.length+' 人':'')+' 想再來一局'+(C.qm&&DU.auto?' · '+s+' 秒後開始':''):'';
+  $('#deN').textContent=nv?(t?nv+' · '+t:nv):t;
 }
 function duelAgain(ready){
   $('#end').classList.add('hidden');$('#end').classList.remove('duel');hudShow(false);st='menu';balls=[];mode='normal';layout();mpLadOff();
@@ -2145,7 +2157,7 @@ function starRanges(a,len){const o=[];let s=-1;for(let i=0;i<=len;i++){const on=
 // a run that did not finish (kind 'fail': life ran out, log up to and including that beat; 'quit': left or restarted). Fire and forget: only with a new-format
 // (6-part) ticket, never waits and never changes the screen; what it earns shows up as notices like a result's.
 function lbEnd(kind){
-  const R=RUN;if(!R||!R.ok||R.ended||!R.ticket)return;
+  const R=RUN;if(!R||R.duel||!R.ok||R.ended||!R.ticket)return;
   const len=kind==='fail'?(R.seq.length?Math.max(...R.seq)+1:0):0;if(kind==='fail'&&!(len>0&&len<=R.log.length))return;   // the log runs up to the highest beat settled so far
   R.ended=true;
   const body=kind==='fail'?{kind,log:R.log.slice(0,len),seq:R.seq.slice(),star:starRanges(R.star,len)}:{kind};

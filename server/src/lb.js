@@ -26,7 +26,7 @@ import { cleanName, nameProblem, nameKey } from './names.js';
 import { friendWipe } from './friends.js';
 import { bugAdmin, bugWipe } from './bugs.js';
 import { withCos, shopWipe } from './cos.js';
-import { achRecalc, logFeats, ftOf, rankOf, statsStmt } from './ach.js';
+import { achRecalc, logFeats, ftOf, rankOf, statsStmt, duelAdmin } from './ach.js';
 
 const DIFFS = 5, TICKET_MAX_MS = 3 * 3600e3, MAX_BODY = 16384, TOP = 100, HIDE_AT = 3, BOARD_CACHE_S = 30;
 const MAX_ERR = 400, MISS = null;                      // ms; a missed beat is null in the log (0 = a miss the shield absorbed)
@@ -35,10 +35,10 @@ const MAX_ERR = 400, MISS = null;                      // ms; a missed beat is n
 const LEGACY_TICKETS = true;
 const END_MIN_MS = 10e3, FAIL_MIN_MS = 3e3, STAR_MAX = 50, RUNS_KEEP_MS = TICKET_MAX_MS;   // /lb/end: a quit must be at least 10 s old, a fail 3 s (missing every beat from the start ends the fastest charts after about 3.4 s); at most 50 star-time ranges per log
 const LIFE0 = 30, DMG = [3, 4, 7, 2, 8], HEAL = [2, 1, 1, 0];   // game.js: opening life (= cap); damage per miss by difficulty index (DIFFS order, same as CHARTS); life a hit of tier 0..3 gives back
-const TIER_MS = [45, 90, 150], TIER_W20 = [20, 16, 10, 5];   // integer tier weights (x20, a miss is 0): the sum does not depend on the order of the hits
+export const TIER_MS = [45, 90, 150], TIER_W20 = [20, 16, 10, 5];   // integer tier weights (x20, a miss is 0): the sum does not depend on the order of the hits
 // game.js bounce(): base = round(100 * TIER_M * speed^1.1 * (1 + .3 * pressure) * (power-up ? 2 : 1)), then + combo * 5;
 // speed factor is clamped to [.3, 8] there, pressure to [0, 1]
-const TIER_M = [3, 2, 1.2, 1], Q_MIN = Math.pow(.3, 1.1) * .99, Q_MAX = Math.pow(8, 1.1) * 1.3 * 2 * 1.01, SCORE_CAP = 999999999;
+export const TIER_M = [3, 2, 1.2, 1], Q_MIN = Math.pow(.3, 1.1) * .99, Q_MAX = Math.pow(8, 1.1) * 1.3 * 2 * 1.01, SCORE_CAP = 999999999;
 const enc = new TextEncoder();
 const hex = buf => Array.from(new Uint8Array(buf), b => b.toString(16).padStart(2, '0')).join('');
 const b64u = s => btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -71,13 +71,14 @@ export function parseStar(star, len) {
 
 // How many power-ups a run can pick up at most (game.js: the first appears at 9 s, then one every 8 s at the earliest, +1 slack). Shields (0 entries) and star ranges
 // each need one pickup, so neither can outnumber this. dur / spd is the song's length in seconds at that difficulty; the run lasts 3.8 s longer.
-const itemCap = (song, d) => Math.max(1, 2 + Math.floor((CHARTS[song].dur / CHARTS[song].spd[d] + 3.8 - 9) / 8));
+export const itemCap = (song, d) => Math.max(1, 2 + Math.floor((CHARTS[song].dur / CHARTS[song].spd[d] + 3.8 - 9) / 8));
 
 // One pass over a beat log (whole or partial). Each entry: null (a miss that cost life), 0 (a miss the shield absorbed: no life lost)
 // or [timing error ms, base points]. Accuracy, score and combo follow the beat order. strict (new tickets): a hit outside star time may earn at most
 // half the largest base; otherwise (legacy tickets, whose phones may not report star time) the full largest base. Returns null when an entry is malformed
 // or earns more than a hit could.
-function scan(d, log, segs, strict) {
+// sp (duel only): from this beat index on, the base limit is doubled (the last-fifth sprint doubles every hit's points, game.js DU.sprint); the lower limit does not change.
+export function scan(d, log, segs, strict, sp) {
   const L = log.length, inStar = new Uint8Array(L);
   for (const [a, b] of segs) for (let i = a; i < b; i++) inStar[i] = 1;
   const tiers = [0, 0, 0, 0]; let miss = 0, w = 0, sumAbs = 0, sum = 0, sum2 = 0, hits = 0, combo = 0, maxCombo = 0, score = 0, gold = 0, zeros = 0;
@@ -90,7 +91,8 @@ function scan(d, log, segs, strict) {
     if (!Number.isInteger(e) || Math.abs(e) > MAX_ERR || !Number.isInteger(base)) return null;
     const a = Math.abs(e), t = a < TIER_MS[0] ? 0 : a < TIER_MS[1] ? 1 : a < TIER_MS[2] ? 2 : 3;
     const q = base / (100 * TIER_M[t]);
-    if (inStar[i] ? (q < Q_MIN * 2 || q > Q_MAX) : (q < Q_MIN || q > outMax)) return null;   // more (or less) than this hit could earn
+    const k = sp !== undefined && i >= sp ? 2 : 1;
+    if (inStar[i] ? (q < Q_MIN * 2 || q > Q_MAX * k) : (q < Q_MIN || q > outMax * k)) return null;   // more (or less) than this hit could earn
     tiers[t]++; w += TIER_W20[t]; hits++; sumAbs += a; sum += e; sum2 += e * e;
     combo = t <= 2 ? combo + 1 : 0; maxCombo = Math.max(maxCombo, combo);
     if (inStar[i] && combo >= 100) gold = 1;
@@ -103,7 +105,7 @@ function scan(d, log, segs, strict) {
 
 // Life, replayed in the order the beats were settled (order = beat indices). Opening 30 (also the cap); a hit heals [2,1,1,0] by tier; a null costs the
 // difficulty's damage; a 0 (shield) nothing. dead = position in the order where life first reached 0 (-1: never).
-function lifeScan(d, log, order) {
+export function lifeScan(d, log, order) {
   let life = LIFE0, lmin = LIFE0, dead = -1;
   for (let k = 0; k < order.length; k++) {
     const x = log[order[k]];
@@ -117,9 +119,9 @@ function lifeScan(d, log, order) {
 // The order beats were settled in (seq), for phones with several balls at once: a list of beat indices. A whole run: a permutation of 0..len-1; a failed run:
 // distinct indices below len (the beats settled so far). Beat k-th settled can only be one of the beats within nb of k (nb = balls at that difficulty, game.js DIFFS).
 // Without seq the order is the beat order. Returns the order, or null when invalid.
-const NB = [1, 2, 2, 1, 3];
+export const NB = [1, 2, 2, 1, 3];
 // how many star power-ups a log shows: with several balls beats can settle out of order, so one power-up may come out as ranges a beat or two apart; ranges closer than the number of balls count as one
-const starCount = (segs, d) => segs.reduce((n, g, i) => n + (i && g[0] - segs[i - 1][1] < NB[d] ? 0 : 1), 0);
+export const starCount = (segs, d) => segs.reduce((n, g, i) => n + (i && g[0] - segs[i - 1][1] < NB[d] ? 0 : 1), 0);
 export function parseSeq(seq, d, len, whole) {
   if (seq === undefined || seq === null) return null;                       // (the caller decides what a missing one means)
   if (!Array.isArray(seq) || seq.length > len || (whole && seq.length !== len)) return false;
@@ -315,6 +317,7 @@ export async function handleLb(req, env, path, who, origin, H, limited) {
     if (!env.LB_ADMIN || !same(body.token, env.LB_ADMIN)) return json({ error: 'forbidden' }, 403);
     const id = body.id;
     const bug = await bugAdmin(db, body, json); if (bug) return bug;   // bug reports: 'bugs', 'bugimg', 'bugdone'
+    const dl = await duelAdmin(db, body, json, now); if (dl) return dl;   // duel results: 'duels', 'duel', 'duelvoid'
     if (body.op === 'flagged') return json({ rows: (await db.prepare(`SELECT s.board, s.pid AS id, p.name, s.acc, s.err, s.pf, s.ts
       FROM scores s JOIN players p ON p.id = s.pid WHERE s.sus = 1 ORDER BY s.ts DESC LIMIT 200`).all()).results });
     if (body.op === 'run') { if (!Number.isInteger(id)) return json({ error: 'bad' }, 400); const x = await db.prepare('SELECT acc, err, combo, score, pf, ts, log FROM scores WHERE board = ?1 AND pid = ?2').bind(String(body.board), id).first(); return json({ run: x }); }
@@ -354,7 +357,9 @@ async function wipe(db, id) {                         // a player and everything
   const bs = (await db.prepare('SELECT board FROM scores WHERE pid = ?1').bind(id).all()).results;
   await db.batch([db.prepare('DELETE FROM scores WHERE pid = ?1').bind(id), db.prepare('DELETE FROM reports WHERE pid = ?1').bind(id),
     ...friendWipe(db, id), ...bugWipe(db, id), ...shopWipe(db, id), db.prepare('DELETE FROM players WHERE id = ?1').bind(id)]);
-  for (const t of ['runs', 'tries']) { try { await db.prepare('DELETE FROM ' + t + ' WHERE pid = ?1').bind(id).run(); } catch (e) {} }   // (each on its own: a database without migration 0010 must still delete the account)
+  try { await db.prepare('UPDATE duels SET log1 = NULL WHERE id IN (SELECT did FROM duelp WHERE pid = ?1 AND place = 1)').bind(id).run(); } catch (e) {}   // the beat log kept of a round this player won goes with the account
+  try { await db.prepare('UPDATE duels SET host = NULL WHERE host = ?1').bind(id).run(); } catch (e) {}   // rounds this player hosted keep no trace of the account
+  for (const t of ['runs', 'tries', 'duelp']) { try { await db.prepare('DELETE FROM ' + t + ' WHERE pid = ?1').bind(id).run(); } catch (e) {} }   // (each on its own: a database without migrations 0010 / 0011 must still delete the account)
   for (const r of bs) await dropCache(r.board);
 }
 async function setHidden(db, id, v) {

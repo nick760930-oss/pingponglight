@@ -162,5 +162,5 @@ addEventListener('resize',()=>{if(pageOn())render()});
 
 // boot: one /ach/sync per start: sends up what this device decided earlier and lets the server give any reward that is new or moved (silent when it cannot be reached)
 if(G.ME)setTimeout(upload,4000);                          // once per start (also with nothing local, e.g. after a reinstall)
-window.PPLA={ev,fresh,setServer,grant,flush:showNotes,open:openPage,render,earned,points,list:D.list,get loc(){return LOC},get srv(){return SRV}};
+window.PPLA={ev,fresh,setServer,grant,sync:()=>{if(G.ME)flush()},flush:showNotes,open:openPage,render,earned,points,list:D.list,get loc(){return LOC},get srv(){return SRV}};
 })();
