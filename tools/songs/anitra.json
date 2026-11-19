@@ -5,13 +5,15 @@
   "year": "1875",
   "inst": {
     "lead": "violin",
-    "bk": "strings"
+    "bk": "pizz",
+    "ctr": "strings"
   },
   "credit": {
     "source": "Mutopia Project",
     "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=281",
     "licence": "Public Domain",
-    "by": "Deborah Lowrey"
+    "by": "Deborah Lowrey",
+    "note": "對照 G. Schirmer 1900 年鋼琴版核對：反覆不演奏，兩處第一結尾（原譜第 22、104 小節）略去；第 19～20、101～102 小節的旋律在 MIDI 的另一音軌，已併回旋律"
   },
   "midi": {
     "file": "tools/midi/anitrasdance.mid",
@@ -20,6 +22,8 @@
     "drop": [
       8
     ],
-    "minMel": 0.05
+    "minMel": 0.05,
+    "cut": [[23.61, 24.735], [98.985, 100.11]],
+    "melFrom": [[2, 20.2, 22.49], [2, 95.6, 97.87]]
   }
 }

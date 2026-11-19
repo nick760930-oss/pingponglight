@@ -4,7 +4,7 @@
   "composer": "皮爾彭特",
   "year": "1857",
   "inst": { "lead": "flute", "bk": "piano" },
-  "credit": { "source": "依原曲旋律手寫（本遊戲製作）", "url": "", "licence": "公有領域" },
+  "credit": { "source": "依原曲旋律手寫（本遊戲製作）", "url": "https://archive.org/details/heartsongs0000nati", "licence": "公有領域", "note": "旋律已對照《Heart Songs》（Boston: The Chapple Publishing Company, 1909）第 148–149 頁；三處照通行唱法，與該版略有不同。" },
   "tune": {
     "bpm": 132, "meter": 4, "style": "march",
     "parts": {

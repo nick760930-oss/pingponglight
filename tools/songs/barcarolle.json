@@ -4,7 +4,7 @@
   "composer": "奧芬巴哈",
   "year": "1881",
   "inst": { "lead": "violin", "bk": "pizz" },
-  "credit": { "source": "依原曲旋律手寫", "licence": "Public Domain" },
+  "credit": { "source": "依原曲旋律手寫", "licence": "Public Domain", "note": "取船歌主旋律的前兩個樂句，移到 G 大調，奏兩遍；第一遍照原曲停在屬音，最後一遍收在主音是本遊戲的收尾。" },
   "tune": {
     "bpm": 180, "meter": 3, "style": "waltz",
     "parts": {
@@ -21,6 +21,6 @@
         "chords": "G:3 C:3 D7:3 G:3 D7:3 C:3 G:6"
       }
     },
-    "form": ["A", "A", "B", "B1", "A", "A", "B", "B1"]
+    "form": ["A", "A", "B", "B", "A", "A", "B", "B1"]
   }
 }

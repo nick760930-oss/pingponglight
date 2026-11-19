@@ -17,6 +17,7 @@
   "midi": {
     "file": "tools/src2/mollymalone/Molly_Malone.mid",
     "mel": 1,
+    "transpose": 2,
     "crop": [
       0.2,
       29

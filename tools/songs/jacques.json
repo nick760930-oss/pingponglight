@@ -9,8 +9,9 @@
   },
   "credit": {
     "source": "依原曲旋律手寫（本遊戲製作）",
-    "url": "",
-    "licence": "公有領域"
+    "url": "https://archive.org/details/chansonsetronde00weck",
+    "licence": "公有領域",
+    "note": "旋律已對照 J.-B. Weckerlin 編《Chansons et rondes enfantines》（Paris: Garnier Frères）第 85 頁。"
   },
   "tune": {
     "bpm": 120,

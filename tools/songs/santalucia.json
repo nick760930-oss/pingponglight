@@ -9,7 +9,9 @@
  },
  "credit": {
   "source": "依原曲旋律手寫",
-  "licence": "Public Domain"
+  "url": "https://archive.org/details/songsofitalysixt00unse",
+  "licence": "Public Domain",
+  "note": "旋律已對照 Eduardo Marzo 編《Songs of Italy》（New York: G. Schirmer, 1904）第 44 首（第 124–125 頁）。"
  },
  "tune": {
   "bpm": 108,

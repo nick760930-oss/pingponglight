@@ -9,10 +9,12 @@
  },
  "credit": {
   "source": "依原曲旋律手寫",
-  "licence": "Public Domain"
+  "url": "https://archive.org/details/heartsongs0000nati",
+  "licence": "Public Domain",
+  "note": "旋律已對照《Heart Songs》（Boston: The Chapple Publishing Company, 1909）第 399 頁，移到 G 大調；副歌後半依該版，主歌第 4 小節略有簡化。"
  },
  "tune": {
-  "bpm": 76,
+  "bpm": 51,
   "meter": 2,
   "style": "march",
   "parts": {
@@ -21,8 +23,8 @@
     "chords": "G:2 D7:2 G:2 G:2 G:2 D7:2 G:2 G:2"
    },
    "B": {
-    "mel": "B4:0.75 B4:0.25 B4:1 | B4:0.75 B4:0.25 B4:1 | B4:0.5 A4:0.5 G4:0.5 A4:0.5 | B4:2 | B4:0.5 B4:0.5 C5:0.5 B4:0.5 | A4:0.5 E4:0.5 A4:0.75 G4:0.25 | G4:0.5 F#4:0.5 B4:0.75 A4:0.25 | G4:2",
-    "chords": "G:2 G:2 G:2 G:2 C:2 D7:2 G:1 D7:1 G:2"
+    "mel": "B4:0.75 B4:0.25 B4:1 | B4:0.75 B4:0.25 B4:1 | B4:0.5 A4:0.5 G4:0.5 A4:0.5 | B4:2 | B4:0.5 B4:0.5 C5:0.75 B4:0.25 | A4:0.75 E4:0.25 A4:0.5 G4:0.5 | F#4:0.25 F#4:0.75 B4:0.5 A4:0.5 | G4:2",
+    "chords": "G:2 G:2 G:2 G:2 G:1 C:1 A7:2 D7:1 G:0.5 D7:0.5 G:2"
    }
   },
   "form": [

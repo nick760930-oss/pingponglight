@@ -9,10 +9,11 @@
   },
   "credit": {
     "source": "依原曲旋律手寫",
-    "licence": "Public Domain"
+    "licence": "Public Domain",
+    "note": "第二樂章的英國管主題；時值加倍記譜，速度約等於每分鐘 42 個四分音符。"
   },
   "tune": {
-    "bpm": 76,
+    "bpm": 84,
     "meter": 4,
     "style": "pad",
     "parts": {
