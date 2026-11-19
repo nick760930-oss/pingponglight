@@ -11,7 +11,8 @@
     "test:iap": "node test/iap.mjs",
     "test:shop": "node test/shop.mjs",
     "test:spectate": "node test/spectate.js",
-    "test:rank": "node test/rank.mjs"
+    "test:rank": "node test/rank.mjs",
+    "test:names": "node test/names.mjs"
   },
   "devDependencies": {
     "wrangler": "^4"

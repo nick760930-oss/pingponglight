@@ -2,7 +2,7 @@
 // reporting and removal). Names are normalised before matching so spacing, symbols, full-width letters
 // and simple digit swaps cannot hide a blocked word.
 // Chinese words and long English words match anywhere in the name; short English words only as a whole
-// word, so names like "classic" or "Scunthorpe" are not caught by accident.
+// word, so names like "classic" or "Scunthorpe" are not caught by accident. Japanese: see JA below.
 const ZH = ['幹你', '幹妳', '操你', '肏', '屌', '靠北', '靠杯', '機掰', '雞掰', '機八', '雞巴', '鸡巴', '屄', '婊', '賤人', '贱人',
   '妓', '援交', '約炮', '约炮', '做愛', '做爱', '性交', '強姦', '强奸', '輪姦', '陰莖', '阴茎', '陰道', '阴道', '奶子', '色情',
   '去死', '殺了你', '杀了你', '自殺', '自杀', '王八蛋', '混蛋', '智障', '白痴', '白癡', '腦殘', '脑残', '低能', '廢物', '废物',
@@ -15,6 +15,26 @@ const EN_NAME = ['admin', 'moderator', 'official', 'support'];
 const EN_WORD = ['ass', 'dick', 'cock', 'fag', 'sex', 'cum', 'gay', 'kkk', 'kys', 'wtf', 'stfu'];
 const EN_WORD_NAME = ['gm', 'dev', 'staff', 'apple'];
 const LEET = { 0: 'o', 1: 'i', 3: 'e', 4: 'a', 5: 's', 7: 't', 8: 'b', '@': 'a', '$': 's', '!': 'i' };
+// Japanese: a first draft, to be read by a native speaker before the Japanese version goes live.
+// JA is matched after katakana is folded to hiragana, so one spelling covers both scripts. Japanese has no spaces, so a kana
+// word is only in JA when it does not turn up inside everyday phrases (ばか is in やばかった, あほ in まあほんと, まんこ in すまんこれ,
+// なちす in みなちす); JA_KATA has those, matched as typed in katakana only, with what may not follow (バカンス, ロマンコース,
+// ポルノグラフィティ). Threats are the direct forms, as in Chinese (殺すぞ, not 殺: 初見殺し is how players talk about a hard chart).
+// Kanji words are left out when they sit inside everyday Chinese (射精 in 反射精準, 買春 in 買春聯, 穢多 in 汙穢多年).
+// What this misses is left to reports and the AI review (moderate.js).
+const JA = ['死ね', 'たひね', 'くたばれ', 'ぶっ殺', 'ぶっころ', '殺すぞ', '殺してや', '馬鹿', '雑魚', '気違い', '知恵遅れ',
+  '売春', '中出し', '陰茎', '膣', 'せっくす', 'ちんこ', 'ちんぽ', 'おっぱい', 'れいぷ', 'おなにー',
+  'くろんぼ', 'ひとらー', '覚醒剤', '覚せい剤', '麻薬', 'へろいん', 'こかいん'];
+const JA_KATA = /バカ(?!ンス)|アホ(?!ウドリ)|クズ|ザコ|マンコ(?!ース|[\u30a1-\u30f6])|コロス(?!ケ)|ポルノ(?!グラフィ)|ナチス/;
+const JA_NAME = ['運営', '公式', '管理者', '管理人', '開発者', 'うんえい', 'さぽーと', 'すたっふ'];   // impersonation: names only
+// everyday words that contain a JA word, after folding: 死ねない / 死ねる (cannot die), パチンコ, and レイプ across two words (プレイ プロ, オーバーレイ プラグイン)
+const JA_OK = ['死ねない', '死ねなか', '死ねなく', '死ねる', 'ぱちんこ', 'れいぷら', 'れいぷり', 'れいぷる', 'れいぷれ', 'れいぷろ'];
+const kana = s => s.replace(/[\u30a1-\u30f6]/g, c => String.fromCharCode(c.charCodeAt(0) - 0x60));   // katakana -> hiragana
+function jaBad(flat, name) {   // flat: lower case, letters and digits only
+  let h = kana(flat);
+  for (const w of JA_OK) h = h.split(w).join(' ');
+  return JA_KATA.test(flat) || JA.some(w => h.includes(w)) || (name && JA_NAME.some(w => h.includes(w)));
+}
 
 // same character rules as the duel lobby: no control characters, no markup characters, at most 12 characters
 export const cleanName = v => Array.from(String(v == null ? '' : v).normalize('NFKC')
@@ -24,7 +44,7 @@ export const cleanName = v => Array.from(String(v == null ? '' : v).normalize('N
 function badWords(text, zh, any, word) {
   const low = text.toLowerCase();
   const flat = low.replace(/[0134578@$!]/g, c => LEET[c]).replace(/[^\p{L}\p{N}]/gu, '');   // "f.u c k" -> "fuck"
-  if (zh.some(w => flat.includes(w)) || any.some(w => flat.includes(w))) return true;
+  if (zh.some(w => flat.includes(w)) || any.some(w => flat.includes(w)) || jaBad(flat, true)) return true;
   const words = low.replace(/[0134578@$!]/g, c => LEET[c]).split(/[^a-z]+/).filter(Boolean);
   return words.some(w => word.includes(w));
 }
@@ -46,14 +66,15 @@ const EN_OK = ['grape', 'grapes', 'scrape', 'scraped', 'scrapes', 'drape', 'drap
 const MSG_OK = ['大麻煩', '媽媽', '我媽的', '賴床', '信賴', '依賴', '還不賴', '不賴'];   // everyday words that contain a blocked one
 export function msgProblem(text) {
   if (!text) return 'empty';
-  // full-width letters match like plain ones; accents are dropped ("fück")
-  let n = text.normalize('NFKD').replace(/\p{M}/gu, '').normalize('NFKC')
+  // full-width letters match like plain ones; accents are dropped ("fück"); a kana voicing mark stays on its kana (バ is not ハ)
+  // and goes when it is on anything else (left in, it would split "fuck", a link or a phone number)
+  let n = text.normalize('NFKD').replace(/(?![\u3099\u309a])\p{M}/gu, '').normalize('NFKC').replace(/[\u3099\u309a]/g, '')
     .replace(/[\p{Cf}\u180e\u115f\u1160\u3164\uffa0]/gu, '');   // invisible characters (ZWJ, tags...) only for matching: "fu\u200dck" is "fuck"
   for (const w of MSG_OK) n = n.split(w).join(' ');
   const low = n.toLowerCase();
   // Chinese words anywhere; English inside one word only (a whole sentence squashed together makes "this hit" into "shit")
   const flat = low.replace(/[^\p{L}\p{N}]/gu, '');
-  if (ZH.some(w => flat.includes(w))) return 'blocked';
+  if (ZH.some(w => flat.includes(w)) || jaBad(flat, false)) return 'blocked';
   const raw = low.split(/[^a-z0-9@$!]+/).filter(Boolean), toks = [];
   for (const t of raw) { const one = /^[a-z@$!]$/.test(t); if (one && toks.length && toks[toks.length - 1].one) toks[toks.length - 1].t += t; else toks.push({ t, one }); }   // "f.u.c.k" -> "fuck" (letters only: "4 5 5" stays numbers)
   const words = toks.map(x => x.t.replace(/[0134578@$!]/g, c => LEET[c])).filter(t => !EN_OK.includes(t));
