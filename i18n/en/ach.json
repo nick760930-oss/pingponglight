@@ -1,1 +1,634 @@
-{}
+{
+ "新星": {
+  "name": "Rising Star",
+  "desc": "Clear any song (any difficulty).",
+  "reward": "Title “Rising Star”"
+ },
+ "起程": {
+  "name": "Setting Out",
+  "desc": "Clear 3 songs in total."
+ },
+ "暖身": {
+  "name": "Warm-Up",
+  "desc": "Clear 5 songs in total."
+ },
+ "拾音": {
+  "name": "Note Collector",
+  "desc": "Clear 10 songs in total."
+ },
+ "小有心得": {
+  "name": "Finding the Groove",
+  "desc": "Clear 20 songs in total."
+ },
+ "再來一次": {
+  "name": "Encore",
+  "desc": "Clear the same song 3 times."
+ },
+ "星軌": {
+  "name": "Celestial Path",
+  "desc": "Clear 30 songs in total."
+ },
+ "半程": {
+  "name": "Halfway",
+  "desc": "Clear 36 of the 71 songs.",
+  "reward": "Title “Halfway” + Nameplate “Glow”"
+ },
+ "追光人": {
+  "name": "Light Chaser",
+  "desc": "Clear 50 songs in total."
+ },
+ "迴聲": {
+  "name": "Echo",
+  "desc": "Clear the same song 20 times.",
+  "reward": "Title “Echo”"
+ },
+ "百回": {
+  "name": "Century",
+  "desc": "Clear songs 100 times in total (repeats of the same song count).",
+  "reward": "Title “Century”"
+ },
+ "新曲嘗鮮": {
+  "name": "Fresh Tracks",
+  "desc": "Clear 5 newly released songs (catching up later counts too)."
+ },
+ "七十一夜": {
+  "name": "Seventy-One Nights",
+  "desc": "Clear all 71 songs.",
+  "reward": "Title “Seventy-One Nights” + Limited Background “My Star Map” (a night sky drawn from your own clear records) + Limited Nameplate “Star Trail”"
+ },
+ "千回百轉": {
+  "name": "Thousand Turns",
+  "desc": "Clear songs 1,000 times in total.",
+  "reward": "Title “Thousand Turns” + Avatar “Comet”"
+ },
+ "普通入門": {
+  "name": "Through the Door",
+  "desc": "Clear your first song on Normal."
+ },
+ "初探困難": {
+  "name": "Into the Wind",
+  "desc": "Clear your first song on Hard."
+ },
+ "換個難度": {
+  "name": "Variation",
+  "desc": "Clear the same song on 2 different difficulties."
+ },
+ "入門結業": {
+  "name": "Beginner Graduate",
+  "desc": "Clear 10 songs on Beginner."
+ },
+ "簡單上手": {
+  "name": "Easy Does It",
+  "desc": "Clear 10 songs on Easy."
+ },
+ "三光初現": {
+  "name": "Triple Light",
+  "desc": "Clear your first song on Expert (three orbs).",
+  "reward": "Title “Triple Light”"
+ },
+ "五階遊歷": {
+  "name": "Five Realms",
+  "desc": "Clear 5 songs on each of the 5 difficulties."
+ },
+ "五弦俱全": {
+  "name": "Fully Strung",
+  "desc": "Clear the same song on all 5 difficulties.",
+  "reward": "Title “Fully Strung”"
+ },
+ "逆風": {
+  "name": "Headwind",
+  "desc": "Clear 10 songs on Hard.",
+  "reward": "Title “Headwind”"
+ },
+ "穩拍": {
+  "name": "Inner Chamber",
+  "desc": "Clear 20 songs on Normal.",
+  "reward": "Title “Disciple”"
+ },
+ "拾級而上": {
+  "name": "Step by Step",
+  "desc": "Get an A or better on the same song on 3 different difficulties."
+ },
+ "越級者": {
+  "name": "Leapfrog",
+  "desc": "Clear a song you have never cleared before on Hard or higher the first time."
+ },
+ "三光並行": {
+  "name": "Triple Orbit",
+  "desc": "Clear 10 songs on Expert.",
+  "reward": "Title “Triple Orbit” + Share Card Frame “Aurora”"
+ },
+ "五線全能": {
+  "name": "Full Staff",
+  "desc": "Clear 20 songs on each of the 5 difficulties.",
+  "reward": "Title “Full Staff” + Background “Nebula”"
+ },
+ "疾風勁草": {
+  "name": "Steadfast",
+  "desc": "Clear 40 songs on Hard.",
+  "reward": "Title “Steadfast” + Trail “Comet Tail”"
+ },
+ "第一顆星": {
+  "name": "First Star",
+  "desc": "Clear 3 songs in the same constellation."
+ },
+ "半座": {
+  "name": "Half-Lit",
+  "desc": "Clear at least half the songs in any constellation."
+ },
+ "連星": {
+  "name": "Star Cluster",
+  "desc": "Light up 3 constellations."
+ },
+ "觀星": {
+  "name": "Stargazer",
+  "desc": "Open 5 unknown constellations that still show “???” on the Night Sky map."
+ },
+ "古老旋律座完成": {
+  "name": "Old Melodies Complete",
+  "desc": "Clear every song in the Old Melodies constellation.",
+  "reward": "Limited: that constellation’s badge avatar"
+ },
+ "巴洛克座完成": {
+  "name": "Baroque Complete",
+  "desc": "Clear every song in the Baroque constellation.",
+  "reward": "Limited: that constellation’s badge avatar"
+ },
+ "古典座完成": {
+  "name": "Classical Complete",
+  "desc": "Clear every song in the Classical constellation.",
+  "reward": "Limited: that constellation’s badge avatar"
+ },
+ "浪漫座完成": {
+  "name": "Romantic Complete",
+  "desc": "Clear every song in the Romantic constellation.",
+  "reward": "Limited: that constellation’s badge avatar"
+ },
+ "歌劇與名歌座完成": {
+  "name": "Opera & Song Complete",
+  "desc": "Clear every song in the Opera & Song constellation.",
+  "reward": "Limited: that constellation’s badge avatar"
+ },
+ "晚浪漫與印象座完成": {
+  "name": "Late Romantic Complete",
+  "desc": "Clear every song in the Late Romantic constellation.",
+  "reward": "Limited: that constellation’s badge avatar"
+ },
+ "聖誕座完成": {
+  "name": "Christmas Complete",
+  "desc": "Clear every song in the Christmas constellation.",
+  "reward": "Limited: that constellation’s badge avatar"
+ },
+ "聖詩座完成": {
+  "name": "Hymns Complete",
+  "desc": "Clear every song in the Hymns constellation.",
+  "reward": "Limited: that constellation’s badge avatar"
+ },
+ "童謠民謠座完成": {
+  "name": "Nursery & Folk Complete",
+  "desc": "Clear every song in the Nursery & Folk constellation.",
+  "reward": "Limited: that constellation’s badge avatar"
+ },
+ "霓虹座完成": {
+  "name": "Neon Complete",
+  "desc": "Clear every song in the Neon constellation.",
+  "reward": "Limited: that constellation’s badge avatar"
+ },
+ "星座旅人": {
+  "name": "Star Traveler",
+  "desc": "Fully clear 5 constellations.",
+  "reward": "Title “Star Traveler”"
+ },
+ "初聲": {
+  "name": "First Voice",
+  "desc": "Clear all 71 songs on Beginner → the bonus constellation “First Voice · Aquila” emerges, unlocking 5 bonus songs.",
+  "reward": "Title “First Voice”"
+ },
+ "鄉謠": {
+  "name": "Folk Roads",
+  "desc": "Clear all 71 songs on Easy → the bonus constellation “Folk Roads · Gemini” emerges, unlocking 5 bonus songs.",
+  "reward": "Title “Folk Roads”"
+ },
+ "墨上聽潮": {
+  "name": "Ink Tides",
+  "desc": "Clear every song in the Romantic constellation on Hard or higher.",
+  "reward": "Limited Ink Wash theme set, all 5 items + Ink Wash share card frame + Title “Ink Tides”"
+ },
+ "摘星者": {
+  "name": "Star Catcher",
+  "desc": "Clear every song in all 10 constellations on Normal or higher.",
+  "reward": "Title “Star Catcher” + Limited Golden Constellation theme set, all items + Gold share card frame"
+ },
+ "名曲": {
+  "name": "Masterpieces",
+  "desc": "Clear all 71 songs on Normal → the bonus constellation “Masterpieces · Pegasus” emerges, unlocking 5 bonus songs.",
+  "reward": "Title “Masterpieces”"
+ },
+ "疾風": {
+  "name": "Gale",
+  "desc": "Clear all 71 songs on Hard → the bonus constellation “Gale · Sagittarius” emerges, unlocking 5 bonus songs.",
+  "reward": "Title “Gale”"
+ },
+ "超新星": {
+  "name": "Supernova",
+  "desc": "Clear every song in any one regular constellation on Expert.",
+  "reward": "Title “Supernova” + Limited Orb “Star Core” + Limited Hit Effect “Supernova”"
+ },
+ "炫技": {
+  "name": "Virtuoso",
+  "desc": "Clear all 71 songs on Expert → the bonus constellation “Virtuoso · Canis Major” emerges, unlocking 3 bonus songs.",
+  "reward": "Title “Virtuoso”"
+ },
+ "至高": {
+  "name": "Summit",
+  "desc": "Get rank S on all 71 songs on Expert → the bonus constellation “Summit · Southern Cross” emerges, unlocking 2 bonus songs.",
+  "reward": "Title “Summit”"
+ },
+ "拾遺": {
+  "name": "Gleaner",
+  "desc": "Clear all 25 bonus songs (each on its own difficulty).",
+  "reward": "Title “Gleaner”"
+ },
+ "天籟": {
+  "name": "Celestial Voice",
+  "desc": "Complete all 10 regular constellations and reveal all 6 bonus constellations (First Voice, Folk Roads, Masterpieces, Gale, Virtuoso and Summit all achieved) → the golden Musical Note appears.",
+  "reward": "Title “Celestial Voice” + Limited Legendary Avatar “Star Crown” (with a flowing halo ring)"
+ },
+ "起步 A": {
+  "name": "Making the Grade",
+  "desc": "Get an A or better on any song."
+ },
+ "第一顆 S": {
+  "name": "Star in Hand",
+  "desc": "Get rank S on any song."
+ },
+ "五顆 A": {
+  "name": "Honor Roll",
+  "desc": "Earn 5 A-or-better ranks in total (each difficulty counts separately)."
+ },
+ "百次完美": {
+  "name": "Perfect Hundred",
+  "desc": "Land 100 Perfect judgments in total."
+ },
+ "九成準": {
+  "name": "Sharpshooter",
+  "desc": "Reach 95% accuracy or higher on any song."
+ },
+ "九成九": {
+  "name": "Nearly Flawless",
+  "desc": "Reach 99% accuracy or higher on any song."
+ },
+ "零誤差": {
+  "name": "Flawless Song",
+  "desc": "Reach 100% accuracy on any song (any difficulty).",
+  "reward": "Title “Flawless Song”"
+ },
+ "拾星": {
+  "name": "Star Gatherer",
+  "desc": "Earn 10 S ranks in total (each difficulty counts separately).",
+  "reward": "Title “Star Gatherer” + Hit Effect “Starburst”"
+ },
+ "繁星滿袖": {
+  "name": "Starlit Sleeves",
+  "desc": "Earn 30 S ranks in total.",
+  "reward": "Orb “Faceted Star” + Title “Starlit Sleeves”"
+ },
+ "百發百中": {
+  "name": "Bullseye",
+  "desc": "Land 100 Perfect judgments in a row in one song.",
+  "reward": "Title “Bullseye”"
+ },
+ "分毫不差": {
+  "name": "Spot On",
+  "desc": "Reach 100% accuracy on any song on Hard or higher.",
+  "reward": "Title “Spot On” + Limited Hit Effect “Precision Dial”"
+ },
+ "滿天星斗": {
+  "name": "Starfield",
+  "desc": "Earn 100 S ranks in total.",
+  "reward": "Title “Starfield” + Orb “Spiral Galaxy”"
+ },
+ "一座皆 S": {
+  "name": "Brilliant Stars",
+  "desc": "Get rank S on every song in a constellation on the same difficulty."
+ },
+ "絕對音準": {
+  "name": "Perfect Pitch",
+  "desc": "Reach 100% accuracy on 10 songs on Hard or higher.",
+  "reward": "Title “Perfect Pitch” + Limited Legendary Avatar “Crosshair”"
+ },
+ "不朽樂章": {
+  "name": "Immortal Opus",
+  "desc": "Get rank S on all 71 songs on Hard or higher.",
+  "reward": "Title “Immortal Opus” + Legendary Avatar “Laurel” + Limited Nameplate “Immortal” (a flowing music staff)"
+ },
+ "二十連": {
+  "name": "Pearl Chain",
+  "desc": "Reach a 20 combo in one song."
+ },
+ "五十連": {
+  "name": "Pearl Strand",
+  "desc": "Reach a 50 combo in one song."
+ },
+ "一氣呵成": {
+  "name": "In One Breath",
+  "desc": "Get a full combo on any song (no misses)."
+ },
+ "千擊": {
+  "name": "Thousand Hits",
+  "desc": "Hit 1,000 times in total."
+ },
+ "星光初拾": {
+  "name": "Starlight Catch",
+  "desc": "Catch a whole Star Time segment for the first time."
+ },
+ "彩虹橋": {
+  "name": "Rainbow Bridge",
+  "desc": "Reach a 100 combo in one song (the orb turns rainbow).",
+  "reward": "Title “Rainbow Bridge”"
+ },
+ "十全": {
+  "name": "Perfect Ten",
+  "desc": "Get a full combo on 10 songs in total.",
+  "reward": "Title “Perfect Ten” + Trail “Spark”"
+ },
+ "萬擊": {
+  "name": "Ten Thousand Hits",
+  "desc": "Hit 10,000 times in total.",
+  "reward": "Title “Ten Thousand Hits”"
+ },
+ "長虹": {
+  "name": "Rainbow Arc",
+  "desc": "Reach a 200 combo in one song.",
+  "reward": "Title “Rainbow Arc”"
+ },
+ "全連擊大師": {
+  "name": "Full Combo Master",
+  "desc": "Get a full combo on 10 songs on Hard or higher.",
+  "reward": "Title “Full Combo Master”"
+ },
+ "流星雨": {
+  "name": "Meteor Shower",
+  "desc": "Get a full combo on 30 songs in total.",
+  "reward": "Title “Meteor Shower” + Limited Trail “Meteor”"
+ },
+ "金色時刻": {
+  "name": "Golden Hour",
+  "desc": "Break a 100 combo during Star Time.",
+  "reward": "Title “Golden Hour”"
+ },
+ "星光全收": {
+  "name": "Galaxy Keeper",
+  "desc": "Catch every Star Time segment in a song without a miss."
+ },
+ "十萬光年": {
+  "name": "Light-Years",
+  "desc": "Hit 100,000 times in total.",
+  "reward": "Title “Light-Years”"
+ },
+ "千鈞一線": {
+  "name": "Sunpiercer",
+  "desc": "Reach a 400 combo in one song.",
+  "reward": "Title “Rainbow Rider”"
+ },
+ "三光無缺": {
+  "name": "Flawless Trio",
+  "desc": "Get a full combo on 10 songs on Expert.",
+  "reward": "Title “Flawless Trio”"
+ },
+ "初次交手": {
+  "name": "First Match",
+  "desc": "Finish 1 Online Match.",
+  "reward": "Emotes “Hype Pack”"
+ },
+ "首勝": {
+  "name": "First Win",
+  "desc": "Win 1 match."
+ },
+ "同台": {
+  "name": "Shared Stage",
+  "desc": "Finish 1 match with 4 or more players."
+ },
+ "再會": {
+  "name": "Rematch",
+  "desc": "Play 3 matches against the same player."
+ },
+ "熱身賽": {
+  "name": "Exhibition",
+  "desc": "Finish 10 Online Matches (win or lose)."
+ },
+ "初露鋒芒": {
+  "name": "Sharp Debut",
+  "desc": "Win 10 matches (beating at least 3 different opponents).",
+  "reward": "Title “Sharp Debut”"
+ },
+ "擂台常駐": {
+  "name": "Arena Regular",
+  "desc": "Finish 50 matches (win or lose).",
+  "reward": "Title “Arena Regular”"
+ },
+ "知音": {
+  "name": "Kindred Spirit",
+  "desc": "End a match with exactly the same accuracy as your opponent (both of you clear the song)."
+ },
+ "最終樂章": {
+  "name": "Finale Comeback",
+  "desc": "Go from last place to first in the final 10% of a match."
+ },
+ "凱旋曲": {
+  "name": "Triumphal March",
+  "desc": "Win 50 matches (beating at least 10 different opponents).",
+  "reward": "Title “Triumphal March”"
+ },
+ "百戰": {
+  "name": "Battle-Hardened",
+  "desc": "Finish 200 matches (win or lose).",
+  "reward": "Title “Battle-Hardened”"
+ },
+ "八方之冠": {
+  "name": "Crown of Eight",
+  "desc": "Take 1st place in a room that started with 8 players (at least 6 valid opponents).",
+  "reward": "Title “Crown of Eight” + Nameplate “Neon Flow”"
+ },
+ "全場最佳": {
+  "name": "Star of the Show",
+  "desc": "Take 1st place with a full combo in a room that started with 8 players (at least 6 valid opponents).",
+  "reward": "Title “Star of the Show”"
+ },
+ "常勝樂章": {
+  "name": "Winning Refrain",
+  "desc": "Win 200 matches (beating at least 20 different opponents).",
+  "reward": "Title “Winning Refrain”"
+ },
+ "雙星相遇": {
+  "name": "Stars Align",
+  "desc": "Add your first friend."
+ },
+ "打招呼": {
+  "name": "Friendly Nod",
+  "desc": "Send your first emote during a match."
+ },
+ "開張": {
+  "name": "Downbeat",
+  "desc": "Host and start 1 match in a private room."
+ },
+ "邀約": {
+  "name": "Invitation",
+  "desc": "Invite a friend to a room once."
+ },
+ "三五好友": {
+  "name": "Small Circle",
+  "desc": "Reach 3 friends."
+ },
+ "引路人": {
+  "name": "Pathfinder",
+  "desc": "A player you sent a friend request to had no records when you became friends, and later cleared their first song."
+ },
+ "朋友圈": {
+  "name": "Wide Circle",
+  "desc": "Reach 10 friends.",
+  "reward": "Title “Connector” + Avatar “Twin Stars”"
+ },
+ "好夥伴": {
+  "name": "Good Partner",
+  "desc": "Play 20 matches against friends.",
+  "reward": "Title “Good Partner”"
+ },
+ "指揮家": {
+  "name": "Conductor",
+  "desc": "Host and start 30 matches in a private room.",
+  "reward": "Title “Conductor”"
+ },
+ "八音和鳴": {
+  "name": "Full Octet",
+  "desc": "Fill an 8-player room with 7 friends and finish 1 match.",
+  "reward": "Title “Full Octet”"
+ },
+ "合奏團": {
+  "name": "Ensemble",
+  "desc": "Finish 10 matches in a room of 4 or more players (at least 2 friends in the room).",
+  "reward": "Title “Ensemble”"
+ },
+ "換新裝": {
+  "name": "New Look",
+  "desc": "Change any cosmetic for the first time."
+ },
+ "初得": {
+  "name": "First Reward",
+  "desc": "Equip an achievement reward item for the first time."
+ },
+ "署名": {
+  "name": "Signature",
+  "desc": "Equip a title for the first time."
+ },
+ "試穿": {
+  "name": "Window Shopper",
+  "desc": "Preview 5 different items in the Shop."
+ },
+ "戰利品": {
+  "name": "Spoils",
+  "desc": "Clear 10 songs with an achievement reward item equipped."
+ },
+ "混搭": {
+  "name": "Mix & Match",
+  "desc": "Clear 1 song with an orb, trail and hit effect from three different themes."
+ },
+ "小有收藏": {
+  "name": "Budding Collector",
+  "desc": "Earn 5 items through achievements."
+ },
+ "徽章半冊": {
+  "name": "Badge Hunter",
+  "desc": "Collect 8 constellation badge avatars."
+ },
+ "秘藏": {
+  "name": "Hidden Trove",
+  "desc": "Own 5 achievement reward items marked “Limited” (constellation badge avatars don’t count).",
+  "reward": "Title “Hidden Trove”"
+ },
+ "珍藏家": {
+  "name": "Connoisseur",
+  "desc": "Earn 25 items through achievements.",
+  "reward": "Title “Connoisseur”"
+ },
+ "萬象": {
+  "name": "Myriad",
+  "desc": "Own every Limited achievement item.",
+  "reward": "Title “Myriad”"
+ },
+ "入門完成": {
+  "name": "Tutorial Graduate",
+  "desc": "Complete the Tutorial."
+ },
+ "精準調校": {
+  "name": "Fine-Tuned",
+  "desc": "Complete a latency calibration once."
+ },
+ "分享喜悅": {
+  "name": "Shared Joy",
+  "desc": "Share a score card once.",
+  "reward": "Emotes “Music Pack”"
+ },
+ "仰望": {
+  "name": "Look Up",
+  "desc": "Open the Night Sky map for the first time."
+ },
+ "調音台": {
+  "name": "Mixing Desk",
+  "desc": "Adjust the volume or display settings for the first time."
+ },
+ "翻閱": {
+  "name": "Page Turner",
+  "desc": "Open all 10 pages of the Achievements screen."
+ },
+ "試聽": {
+  "name": "Sampler",
+  "desc": "Start playing 10 different songs."
+ },
+ "溫故": {
+  "name": "Revisited",
+  "desc": "Replay a song you haven’t played in 30 days or more and clear it."
+ },
+ "遍聽": {
+  "name": "Sky Wanderer",
+  "desc": "Start playing all 71 songs at least once."
+ },
+ "喘口氣": {
+  "name": "Intermission",
+  "desc": "Hint: “Take a break” → pause during a game, resume, and still clear the song."
+ },
+ "出師不利": {
+  "name": "Rough Start",
+  "desc": "Hint: “It’s okay” → miss the very first judgment and still clear the song."
+ },
+ "心中有歌": {
+  "name": "Inner Song",
+  "desc": "Hint: “Listen with your heart” → clear 1 song with the music volume turned off."
+ },
+ "一線生機": {
+  "name": "Lifeline",
+  "desc": "Hint: “That was close” → clear a song with less than 10% life left."
+ },
+ "屢敗屢戰": {
+  "name": "Fight On",
+  "desc": "Hint: “Failure is the mother of…” → clear a song after failing it 5 times on the same difficulty."
+ },
+ "百折不撓": {
+  "name": "Unyielding",
+  "desc": "Hint: “One more time” → attempt the same song 30 times in total."
+ },
+ "完美開場": {
+  "name": "Perfect Opening",
+  "desc": "Hint: “A good start” → get Perfect on the first 50 judgments of a song.",
+  "reward": "Avatar “Moon & Note”"
+ },
+ "完美收尾": {
+  "name": "Perfect Finish",
+  "desc": "Hint: “Afterglow” → get Perfect on the last 50 judgments of a song."
+ },
+ "不滅": {
+  "name": "Against the Odds",
+  "desc": "Hint: “It isn’t over yet” → drop to just 1 life point at some moment, and still finish with an A or better.",
+  "reward": "Title “Against the Odds”"
+ }
+}

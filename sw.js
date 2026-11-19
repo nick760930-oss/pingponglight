@@ -20,6 +20,7 @@ const PRECACHE = [
   'icon-512.png',
   'credits.html',
   'privacy.html',
+  'credits.en.html', 'privacy.en.html', 'credits.ja.html', 'privacy.ja.html',
   'ai_stars.webp', 'ai_aurora.webp', 'ai_sea.webp', 'ai_sakura.webp', 'ai_lava.webp',
   'ai_snow.webp', 'ai_candy.webp', 'ai_nebula.webp', 'ai_paper.webp', 'ai_mysky.webp',
 ];

@@ -1,13 +1,13 @@
 (()=>{
 'use strict';
-const $=s=>document.querySelector(s);
+const $=s=>document.querySelector(s);const FF=PPLI18N.font;
 let errShown=0,LASTERR='';   // LASTERR: the latest error text, offered with a bug report
 function showErr(e){
   try{console.error(e)}catch(_){}
   try{LASTERR=String((e&&(e.message||e))||e).slice(0,300)}catch(_){}
   if(errShown++>0)return;
   const el=$('#err');if(!el)return;
-  $('#errT').textContent='發生錯誤，請截圖回報：'+String((e&&(e.message||e))||e).slice(0,160);el.style.display='block';
+  $('#errT').textContent=TX('發生錯誤，請截圖回報：')+String((e&&(e.message||e))||e).slice(0,160);el.style.display='block';
   $('#errR').onclick=()=>location.reload();
 }
 addEventListener('error',ev=>{if(ev&&ev.message&&!/ResizeObserver/.test(ev.message))showErr(ev.error||ev.message)});
@@ -82,7 +82,7 @@ function audioStatus(){
   if(!AC){el.textContent='';return}
   el.textContent='';
   // instrument samples that failed to load: say so here too (the failure toast is held back during a run)
-  if(Object.keys(INSTOK).some(k=>!INSTOK[k])){el.textContent='樂器音色載入失敗：'+instErrText().slice(0,140);el.style.color='#ffb86b'}
+  if(Object.keys(INSTOK).some(k=>!INSTOK[k])){el.textContent=TX('樂器音色載入失敗：')+instErrText().slice(0,140);el.style.color='#ffb86b'}
 }
 let acStale=false,acWatch={t:-1,w:0};
 // iOS: after switching apps / an interruption the context can report "running" yet stay silent;
@@ -188,7 +188,7 @@ function instScript(name){   // app only: inst/<name>.js sets PPLI[name] = {midi
 }
 function b64AB(b){const s=atob(b),u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u.buffer}
 function instFail(){if(instWarned||busyNow())return;instWarned=true;   // during a run it waits: the home screen line shows it
-  try{toast('樂器音色載入失敗，先用合成音播放（'+instErrText().slice(0,80)+'）')}catch(e){}}
+  try{toast(TX('樂器音色載入失敗，先用合成音播放（{err}）',{err:instErrText().slice(0,80)}))}catch(e){}}
 function loadInst(name){
   if(SAMP[name])return SAMP[name].p;
   const I=INST[name],S=SAMP[name]={buf:{},n:0,total:0,ready:false};
@@ -370,12 +370,12 @@ function tick(when,vol){
 }
 // timing error (seconds, negative = early) -> detune in cents: early = flat, late = sharp
 function centsOf(e){const a=Math.abs(e);return a<.035?0:Math.sign(e)*Math.min(18,(a-.035)/.115*18)}   // subtle: the tune must stay pleasant
-const pitchTxt=c=>Math.abs(c)<6?'音準正確':(c<0?'♭ ':'♯ ')+Math.abs(Math.round(c))+'¢';
+const pitchTxt=c=>Math.abs(c)<6?TX('音準正確'):(c<0?'♭ ':'♯ ')+Math.abs(Math.round(c))+'¢';
 
 /* ================= songs ================= */
 const SD=window.SONGDATA||{};
 const ORDER=window.SONGORDER||Object.keys(SD);
-const SONGS=ORDER.filter(k=>SD[k]).map(k=>Object.assign({key:k},SD[k]));
+const SONGS=ORDER.filter(k=>SD[k]).map(k=>Object.assign({key:k},SD[k],PPLI18N.song(k)||{}));
 // constellations: groups of songs in play order. They shape the star map and the song list, and songs unlock
 // within each constellation. A song listed nowhere joins the last constellation.
 const CONS_DEF=window.SONGCONS||[
@@ -396,7 +396,7 @@ const CONS=(()=>{
   return out;
 })();
 const CON_OF=[];CONS.forEach((c,k)=>c.ii.forEach((i,j)=>{CON_OF[i]=[k,j]}));
-if(!SONGS.length)setTimeout(()=>showErr('曲目資料載入失敗，請確認網路後重新載入。'),0);
+if(!SONGS.length)setTimeout(()=>showErr(TX('曲目資料載入失敗，請確認網路後重新載入。')),0);
 const songHue=i=>(i*53+200)%360;
 let song=SONGS[0],melList=[],bkList=[],bkV=[],tg=[];
 // beat picking: within [gap, 1.6*gap] after the previous target prefer long notes, local peaks and phrase onsets
@@ -473,7 +473,7 @@ const DU={ws:null,rel:{},says:{},relIds:'',code:'',you:0,host:0,players:[],cfg:{
 let mode='normal',D=null,life=30,lifeMax=30,resumeCD=0,lastRes=null,freezeG=0;
 const LIFE0=30;   // every run opens with 30 HP; lifeMax = 30 + level (levels come later)
 const lifeP=()=>Math.round(life/lifeMax*100);   // percent, as the room and spectator protocol expects
-const TRYN=40,TUTN=20,TUTD={n:'教學',nb:1,gap:1.25,spd:.9,dmg:0,bm:1.4,hm:1.4,wm:1.3,ob:.5,noSmall:1};
+const TRYN=40,TUTN=20,TUTD={n:TX('教學'),nb:1,gap:1.25,spd:.9,dmg:0,bm:1.4,hm:1.4,wm:1.3,ob:.5,noSmall:1};
 let st='home',si=0,offset=0,nt=0,resolved=0,nb=1,bi=0,tickQ=[],endAt=0,paused=false,exitT=0;
 let score=0,combo=0,maxCombo=0,tierCount=[0,0,0,0],time=0,ts=1,gAC=0,gT=0,cp={ti:0,score:0},lastCents=0,lastP=.5,pSrc='none';
 let balls=[],bumps=[],items=[],rings=[],floats=[],parts=[],aims=[],missCount=0,runFrom=0;
@@ -485,15 +485,15 @@ const LEADIN=2.6,CPN=25;
 //   ob: obstacle amount, noSmall: no "smaller touch range" item. Tuned with an analysis of every song on an iPhone in landscape.
 //   Keep it on one line: server/scripts/charts.mjs reads it from here.
 const DIFFS=[{n:'簡單',nb:1,gap:1.0,spd:1.0,dmg:3,bm:1.4,hm:1.6,wm:1.5,ob:.5,noSmall:1},{n:'普通',nb:2,gap:.6,spd:1.0,dmg:4,bm:1.25,hm:1.25,wm:1.15,ob:1},{n:'困難',nb:2,gap:.45,spd:1.1,dmg:7,bm:1.1,hm:1.1,wm:1.05,ob:1},{n:'入門',nb:1,gap:1.3,spd:.9,dmg:2,bm:1.5,hm:1.3,wm:1.7,side:1,ob:0,noSmall:1},{n:'專家',nb:3,gap:.3,spd:1.25,dmg:8,ob:1}];
-const DORD=[3,0,1,2,4],LVL=[1,2,3,0,4],BALLS=['','單球','雙球','三球'];
+const DORD=[3,0,1,2,4],LVL=[1,2,3,0,4],BALLS=['',TX('單球'),TX('雙球'),TX('三球')],DN_ZH=DIFFS.map(d=>d.n);TXA(['簡單','普通','困難','入門','專家']).forEach((n,i)=>{DIFFS[i].n=n});   // the DIFFS line above stays plain data: server/scripts/charts.mjs and tools/stars.mjs run it on its own, without TX. DN_ZH: the names as the server and the bug reports know them (never shown)
 /* music layers: the accompaniment grows with unbroken good hits; a miss drops one layer */
-const ML_STEP=[10,15,25],ML_NAME=['微光','明亮','輝映','星耀'],ML_HUE=[225,185,265,48],ML_TIP=['','和聲與鼓組加入','加入副旋律','主旋律加入高八度鐘聲'];
+const ML_STEP=[10,15,25],ML_NAME=TXA(['微光','明亮','輝映','星耀']),ML_HUE=[225,185,265,48],ML_TIP=['',TX('和聲與鼓組加入'),TX('加入副旋律'),TX('主旋律加入高八度鐘聲')];
 let mlv=0,mgrow=0,mlBan=null,mlFx=-1;
 const mlOn=()=>SET.ml!==false&&mode!=='tut';
 const mlFull=()=>SP.on?SP.m<0:(!mlOn()||st!=='play');        // layering off (or not playing): the full accompaniment, as before; a spectator follows the watched player's layer
 function mlSet(v,up){
   mlv=v;mgrow=0;
-  mlBan={text:'音樂層次 · '+ML_NAME[v],tip:up?ML_TIP[v]:'',hue:ML_HUE[v],up,t:1.5,max:1.5};
+  mlBan={text:TX('音樂層次 · {name}',{name:ML_NAME[v]}),tip:up?ML_TIP[v]:'',hue:ML_HUE[v],up,t:1.5,max:1.5};
   if(up){edgeGlow[1]=edgeGlow[3]=1;edgeHue[1]=edgeHue[3]=ML_HUE[v];flash.a=Math.max(flash.a,.12);flash.hue=ML_HUE[v]}
   hud();
 }
@@ -527,8 +527,8 @@ const conCleared=k=>CONS[k].ii.reduce((a,i)=>a+(cleared(i)?1:0),0);
 // cleared at exactly their level (each difficulty separately: a harder clear does not count for an easier one); once found they are kept, so new regular songs added later never hide them again
 const isRw=i=>!!CON_OF[i]&&CONS[CON_OF[i][0]].rw!=null;
 const REG=SONGS.map((_,i)=>i).filter(i=>CON_OF[i]&&!isRw(i));
-const RW_LV=['入門','簡單','普通','困難','專家'];
-const rwNeed=c=>c.rw==='S'?'所有正式曲目以「專家」拿到 S 以上':'所有正式曲目以「'+RW_LV[c.rw]+'」難度通關';
+const RW_LV=TXA(['入門','簡單','普通','困難','專家']);
+const rwNeed=c=>c.rw==='S'?TX('所有正式曲目以「專家」拿到 S 以上'):TX('所有正式曲目以「{lv}」難度通關',{lv:RW_LV[c.rw]});
 let rwDirty=true;
 function rwRefresh(){   // returns the reward constellations found just now
   rwDirty=false;const got=[];if(!CONS.some(c=>c.rw!=null&&!c.open))return got;const vs=REG.map(starOf);
@@ -543,14 +543,14 @@ let diPref=null;   // the player's own difficulty, kept while a reward song hold
 function diSync(){const f=fixDi(si);if(f!=null){if(diPref==null)diPref=di;di=f}else if(diPref!=null){di=diPref;diPref=null}}
 // the full-version lock: outside the free test period, each regular constellation plays only its first 30% (rounded up) until the full version is owned (shop.js: PPLSHOP.mode / ownsFull, read at call time)
 const fullLocked=i=>{const S=window.PPLSHOP;if(!S||isRw(i)||!CON_OF[i]||!S.lockOn()||S.ownsFull())return false;const c=CON_OF[i];return c[1]>=Math.ceil(CONS[c[0]].ii.length*.3)};
-const openFullShop=()=>{if(RSEL.on){toast('這首是完整版曲目，離開房間後可以在商城取得完整版');return}   // in a room: stay in it (leaving the screen without duelLeave would keep the connection open)
+const openFullShop=()=>{if(RSEL.on){toast(TX('這首是完整版曲目，離開房間後可以在商城取得完整版'));return}   // in a room: stay in it (leaving the screen without duelLeave would keep the connection open)
   if(window.PPLSHOP){showHome();window.PPLSHOP.openCat('full')}};
 const unlocked=i=>{if(isRw(i))return rwOpen(CONS[CON_OF[i][0]]);if(fullLocked(i))return false;if(!LOCKS)return true;const c=CON_OF[i];return !c||cleared(i)||c[1]<3+conCleared(c[0])};   // first 3 of each constellation are open; each song cleared there opens one more; a cleared song stays open if the order changes
 const TIERS=[
-  {n:'完美',hue:48,m:3,ring:3,part:28,shake:5,vol:.4},
-  {n:'極佳',hue:185,m:2,ring:2,part:15,shake:3,vol:.37},
-  {n:'良好',hue:125,m:1.2,ring:1,part:6,shake:1.5,vol:.34},
-  {n:'尚可',hue:225,m:1,ring:1,part:0,shake:0,vol:.3}
+  {n:TX('完美'),hue:48,m:3,ring:3,part:28,shake:5,vol:.4},
+  {n:TX('極佳'),hue:185,m:2,ring:2,part:15,shake:3,vol:.37},
+  {n:TX('良好'),hue:125,m:1.2,ring:1,part:6,shake:1.5,vol:.34},
+  {n:TX('尚可'),hue:225,m:1,ring:1,part:0,shake:0,vol:.3}
 ];
 const tierOf=a=>a<.045?0:a<.09?1:a<.15?2:3;      // |seconds| away from the beat
 const G=()=>useAC?AC.currentTime-gAC:gT;
@@ -603,7 +603,7 @@ function hud(){
   if(mode==='duel'){const top=Math.max(score,...DU.board.map(b=>b.s)),o=DU.board[0],tot=score+(o?o.s:0);$('#pf').style.width=(top?score/top*100:100)+'%';duelSub()}   // 2 players: tug of war; more: share of the leader's score
   else $('#pf').style.width=(tg.length?resolved/tg.length*100:0)+'%';
   const lf=$('#life');lf.style.width=life/lifeMax*100+'%';lf.classList.toggle('low',life<lifeMax*.35);
-  $('#combo').innerHTML=(mlOn()&&st==='play'?'<span class="mlv" style="--c:hsl('+ML_HUE[mlv]+',90%,'+(mlv?68:62)+'%)">'+[0,1,2,3].map(i=>'<i'+(i<=mlv?' class="on"':'')+'></i>').join('')+'</span>'+ML_NAME[mlv]+' · ':'')+(combo>1?'連擊 '+combo+' · ':'')+resolved+' / '+tg.length+(rangeT>0?(rangeMul>1?' · 範圍放大':' · 範圍縮小'):'')+(starT>0?' · 分數×2':'')+(shield?' · 護盾'+(shield>1?' ×'+shield:''):'');
+  $('#combo').innerHTML=(mlOn()&&st==='play'?'<span class="mlv" style="--c:hsl('+ML_HUE[mlv]+',90%,'+(mlv?68:62)+'%)">'+[0,1,2,3].map(i=>'<i'+(i<=mlv?' class="on"':'')+'></i>').join('')+'</span>'+ML_NAME[mlv]+' · ':'')+(combo>1?TX('連擊 {n}',{n:combo})+' · ':'')+resolved+' / '+tg.length+(rangeT>0?(rangeMul>1?' · '+TX('範圍放大'):' · '+TX('範圍縮小')):'')+(starT>0?' · '+TX('分數×2'):'')+(shield?' · '+TX('護盾')+(shield>1?' ×'+shield:''):'');
 }
 function newBall(ti){
   const s=sideOf(ti),dy=srand(-.35,.35),l=Math.hypot(1,dy);
@@ -628,7 +628,7 @@ function startRun(from){
   endAt=mode==='tut'||mode==='try'?timeOf(tg[tg.length-1].t)+2:timeOf(song.dur)+1.2;
   runPaused=false;runMute0=SET.mel===0&&SET.bk===0;
   st='ready';hudShow(true);preloadSong(song);
-  $('#sub').textContent=(mode==='tut'?'新手教學':mode==='try'?'外觀試玩':'第 '+(si+1)+' 關')+' · 《'+song.name+'》 · '+D.n+' · '+tg.length+' 拍'+(nb>1?' · '+BALLS[nb]:'')+(from?' · 自第 '+(from+1)+' 拍':'');
+  $('#sub').textContent=(mode==='tut'?TX('新手教學'):mode==='try'?TX('外觀試玩'):TX('第 {n} 關',{n:si+1}))+' · '+TX('《{song}》',{song:song.name})+' · '+D.n+' · '+TX('{n} 拍',{n:tg.length})+(nb>1?' · '+BALLS[nb]:'')+(from?' · '+TX('自第 {n} 拍',{n:from+1}):'');
   hud();
   for(const o of['#home','#menu','#end','#pause','#set','#cal','#shop'])$(o).classList.add('hidden');
 }
@@ -693,7 +693,7 @@ cv.addEventListener('click',()=>{if(mode==='duel'){initAudio();return}if(st==='r
 function setMedia(on){
   try{
     if(!navigator.mediaSession)return;
-    if(on&&window.MediaMetadata){navigator.mediaSession.metadata=new MediaMetadata({title:'PingPongLight',artist:'節奏彈球遊戲',artwork:[{src:'icon-512.png',sizes:'512x512',type:'image/png'}]});navigator.mediaSession.playbackState='playing'}
+    if(on&&window.MediaMetadata){navigator.mediaSession.metadata=new MediaMetadata({title:'PingPongLight',artist:TX('節奏彈球遊戲'),artwork:[{src:'icon-512.png',sizes:'512x512',type:'image/png'}]});navigator.mediaSession.playbackState='playing'}
     else{navigator.mediaSession.playbackState='none';navigator.mediaSession.metadata=null}
     navigator.mediaSession.setActionHandler('pause',pauseGame);
     navigator.mediaSession.setActionHandler('play',resumeGame);
@@ -712,7 +712,7 @@ function pauseGame(){
   if(AC&&AC.state==='running'&&AC.suspend){try{const q=AC.suspend();if(q&&q.catch)q.catch(()=>{})}catch(e){}}
   showPauseMenu();
 }
-function showPauseMenu(){$('#bQuit').textContent=mode==='tut'?'離開教學':mode==='try'?'結束試玩':'離開';$('#pause').classList.remove('hidden')}
+function showPauseMenu(){$('#bQuit').textContent=mode==='tut'?TX('離開教學'):mode==='try'?TX('結束試玩'):TX('離開');$('#pause').classList.remove('hidden')}
 function resumeGame(){   // audio resumes inside the tap (iOS needs a gesture); the game clock stays frozen during the count-in
   if(!paused||resumeCD)return;
   if(!$('#bugv').classList.contains('hidden'))return;   // not while the bug report is open over the pause menu (lock-screen play button)
@@ -722,7 +722,7 @@ function resumeGame(){   // audio resumes inside the tap (iOS needs a gesture); 
 }
 function doResume(){resumeCD=0;paused=false;unlockAudio();if(AC&&AC.resume){const p=AC.resume();if(p&&p.catch)p.catch(()=>{})}}
 function hushAll(){
-  if(mode==='duel'&&st==='play'){over('離開遊戲');}
+  if(mode==='duel'&&st==='play'){over(TX('離開遊戲'));}
   if(st==='play'){if(!paused||resumeCD)holdMusic();paused=true;resumeCD=0;showPauseMenu()}
   cutAll();stopSilent();
   if(AC&&AC.state==='running'&&master){const now=AC.currentTime;try{master.gain.cancelScheduledValues(now);master.gain.setValueAtTime(master.gain.value,now);master.gain.setTargetAtTime(0,now,.02)}catch(e){}}
@@ -747,16 +747,21 @@ addEventListener('pageshow',gainBack);   // back from that page (page cache)
 let docFrom=null,docHref='';const DOCS={};
 function docText(u){return fetch(u).then(r=>r.ok?r.text():Promise.reject(r.status)).catch(()=>new Promise((res,rej)=>{const x=new XMLHttpRequest();x.open('GET',u);
   x.onload=()=>(x.status>=200&&x.status<300||x.status===0)&&x.responseText?res(x.responseText):rej(x.status);x.onerror=()=>rej('xhr');x.send()}))}
+// the page in the player's language: credits.html -> credits.en.html (tools/i18n.mjs build writes those from the Chinese page)
+const docZh=h=>h.replace(/\.(?:en|ja)\.html(?=$|[?#])/,'.html'),docLoc=h=>PPLI18N.lang==='zh'?h:docZh(h).replace(/\.html(?=$|[?#])/,'.'+PPLI18N.lang+'.html');
+document.querySelectorAll('.foot a[href$=".html"]').forEach(a=>a.setAttribute('href',docLoc(a.getAttribute('href'))));   // also right for "open in a new tab"
 function docOpen(href,from){
-  const v=$('#docv'),b=$('#docB'),t=(from&&from.textContent.trim())||'說明';docFrom=from||null;docHref=href;
+  href=docLoc(href);
+  const v=$('#docv'),b=$('#docB'),t=(from&&from.textContent.trim())||TX('說明');docFrom=from||null;docHref=href;
   $('#docT').textContent=t;v.classList.remove('hidden');$('#home').inert=true;$('#docv .card').scrollTop=0;$('#docv .card').focus();
   const show=h=>{if(docHref===href)b.innerHTML=h};
   if(DOCS[href]){show(DOCS[href]);return}
-  b.innerHTML='<p class="dim">載入中⋯</p>';
-  docText(href).then(s=>{const m=new DOMParser().parseFromString(s,'text/html').querySelector('main');if(!m)throw 0;
+  b.innerHTML='<p class="dim">'+TX('載入中⋯')+'</p>';
+  // a language's page that is not there: the Chinese one rather than nothing
+  docText(href).catch(e=>docZh(href)===href?Promise.reject(e):docText(docZh(href))).then(s=>{const m=new DOMParser().parseFromString(s,'text/html').querySelector('main');if(!m)throw 0;
     m.querySelectorAll('a[href^="http"]').forEach(a=>{a.target='_blank';a.rel='noopener noreferrer'});
     DOCS[href]=m.innerHTML;show(DOCS[href])})
-    .catch(()=>show('<p>無法載入內容，請確認網路後再試一次。</p>'));
+    .catch(()=>show('<p>'+TX('無法載入內容，請確認網路後再試一次。')+'</p>'));
 }
 function docClose(){const v=$('#docv');if(v.classList.contains('hidden'))return;v.classList.add('hidden');$('#home').inert=false;
   if(docFrom&&docFrom.isConnected)docFrom.focus({preventScroll:true});docFrom=null}
@@ -840,7 +845,7 @@ function bounce(b,tx,ty,p){
   score+=pts;
   const hue=T.hue,fx=b.x+nx*40,fy=b.y;
   floats.push({x:fx,y:fy-6,text:T.n,hue,life:.9,max:.9,size:ti===0?1.5:ti===1?1.25:1});
-  floats.push({x:fx,y:fy+14,text:'+'+pts+' · '+pitchTxt(cents)+' · 力道 '+Math.round(p*100)+'%',hue,life:.9,max:.9,size:.7});
+  floats.push({x:fx,y:fy+14,text:'+'+pts+' · '+pitchTxt(cents)+' · '+TX('力道 {n}%',{n:Math.round(p*100)}),hue,life:.9,max:.9,size:.7});
   if(COS&&!COS.look().hit.def)cosHit(b,lineX,nx);   // equipped hit effect replaces the default rings and sparks
   else{for(let i=0;i<T.ring;i++)rings.push({x:b.x,y:b.y,r0:BR*(1+i*.4),life:.5+i*.12,max:.5+i*.12,hue:hue+i*20,w:4-i*.8});
   burst(b.x,b.y,hue,T.part,BR*16,.8)}
@@ -860,11 +865,11 @@ function miss(b){
   if(RUN&&b.ti>=0&&b.ti<RUN.log.length){RUN.star[b.ti]=starT>0?1:0;RUN.seq.push(b.ti);if(sh)RUN.log[b.ti]=0}   // a miss the shield absorbed is 0 in the log (null = a miss that cost life)
   if(sh)shield--;else life=Math.max(0,life-(D.dmg||0))   // a plain miss stays silent
   vib(sh?20:[40,30,40]);
-  floats.push({x:b.x+nx*40,y:b.y,text:sh?'護盾抵銷':'失誤',hue:sh?190:350,life:1,max:1,size:1.2});
+  floats.push({x:b.x+nx*40,y:b.y,text:sh?TX('護盾抵銷'):TX('失誤'),hue:sh?190:350,life:1,max:1,size:1.2});
   const hue=sh?190:350;
   rings.push({x:b.x,y:b.y,r0:BR,life:.7,max:.7,hue,w:5});burst(b.x,b.y,hue,24,BR*14,.8);
   if(mode==='duel')duelHit(4);
-  if(life<=0){hud();vib(120);lbEnd('fail');over('生命值歸零');return}
+  if(life<=0){hud();vib(120);lbEnd('fail');over(TX('生命值歸零'));return}
   if(!sh){shake=Math.max(shake,6);flash.a=.14;flash.hue=350}
   const lineX=old===1?FR.x+FR.w:FR.x,a=rand(-.5,.5);       // the ball comes back into play
   b.x=lineX+nx*BR*.3;b.dx=nx*Math.cos(a);b.dy=Math.sin(a);b.win=null;b.ct=[];
@@ -909,9 +914,9 @@ function rankOf(bp,miss,good,ok){
 function rankGap(bp,miss,good,ok,great){
   const r=rankOf(bp,miss,good,ok);
   if(r==='SSS')return'';
-  if(r==='SS')return great>0?'差 1 級：有 '+great+' 個極佳':'';
-  if(r==='S')return good>0?'差 1 級：有 '+good+' 個良好':great>0?'差 1 級：極佳偏多，精準度需 98%':'';
-  if(bp>=9500){const a=[];if(miss>0)a.push('有 '+miss+' 次失誤');if(ok>0)a.push((miss>0?'':'有 ')+ok+' 個尚可');return a.length?'差 1 級：'+a.join('、'):''}
+  if(r==='SS')return great>0?TX('差 1 級：有 {n} 個極佳',{n:great}):'';
+  if(r==='S')return good>0?TX('差 1 級：有 {n} 個良好',{n:good}):great>0?TX('差 1 級：極佳偏多，精準度需 98%'):'';
+  if(bp>=9500){const a=[];if(miss>0)a.push(TX('有 {n} 次失誤',{n:miss}));if(ok>0)a.push(miss>0?TX('{n} 個尚可',{n:ok}):TX('有 {n} 個尚可',{n:ok}));return a.length?TX('差 1 級：{list}',{list:a.join(TX('、'))}):''}
   return''}
 /*RANK-END*/
 const rsssCls=r=>r==='SSS'?' rsss':'';   // SSS is a platinum gradient text (class .rsss), the other ranks a plain colour
@@ -959,33 +964,33 @@ function showResult(ok,msg){
     rwDirty=true;
   }
   const found=rwDirty?rwRefresh():[];if(found.length)SKY=null;   // a reward constellation just appeared: the sky is drawn again with it
-  $('#rk').textContent=mode==='tut'?'教學完成':(ok?'通關':'失敗');
-  $('#rt').textContent=(mode==='tut'?'新手教學':'第 '+(si+1)+' 關')+' · 《'+song.name+'》 · '+D.n;
+  $('#rk').textContent=mode==='tut'?TX('教學完成'):(ok?TX('通關'):TX('失敗'));
+  $('#rt').textContent=(mode==='tut'?TX('新手教學'):TX('第 {n} 關',{n:si+1}))+' · '+TX('《{song}》',{song:song.name})+' · '+D.n;
   lastRes={ok,rank,score,acc,bp,maxCombo,name:song.name,label:$('#rt').textContent};
-  const rk=$('#rank');rk.textContent=ok?rank:'失敗';rk.className=ok&&rank==='SSS'?'rsss':'';rk.style.color=ok?(rank==='SSS'?'':RANK_COL[rank]):'#ff7a93';rk.style.fontSize=ok?(rank.length===3?'clamp(44px,12.5vh,76px)':rank.length===2?'clamp(50px,14vh,86px)':''):'clamp(40px,11vh,64px)';
+  const rk=$('#rank');rk.textContent=ok?rank:TX('失敗');rk.className=ok&&rank==='SSS'?'rsss':'';rk.style.color=ok?(rank==='SSS'?'':RANK_COL[rank]):'#ff7a93';rk.style.fontSize=ok?(rank.length===3?'clamp(44px,12.5vh,76px)':rank.length===2?'clamp(50px,14vh,86px)':''):'clamp(40px,11vh,64px)';
   {const gp=$('#rgap');gp.textContent=ok&&mode==='normal'?rankGap(bp,missCount,tierCount[2],tierCount[3],tierCount[1]):'';gp.hidden=!gp.textContent}
-  $('#rnew').innerHTML=newBest?'<span class="badge">新紀錄</span>':(ok?'':'<span class="sub">'+(msg||'')+'</span>');
+  $('#rnew').innerHTML=newBest?'<span class="badge">'+TX('新紀錄')+'</span>':(ok?'':'<span class="sub">'+(msg||'')+'</span>');
   const row=(l,v,c)=>'<tr><td style="color:'+(c||'inherit')+'">'+l+'</td><td>'+v+'</td></tr>';
-  $('#rtab').innerHTML=row('完美',tierCount[0],'#ffd36b')+row('極佳',tierCount[1],'#7cf0ff')+row('良好',tierCount[2],'#8fe388')+row('尚可',tierCount[3],'#9aa3c7')+row('失誤',missCount,'#ff7a93')
-    +row('最高連擊',maxCombo)+row('精準度',pct(bp))+row('完成度',Math.min(resolved,tg.length)-runFrom+' / '+N);
+  $('#rtab').innerHTML=row(TX('完美'),tierCount[0],'#ffd36b')+row(TX('極佳'),tierCount[1],'#7cf0ff')+row(TX('良好'),tierCount[2],'#8fe388')+row(TX('尚可'),tierCount[3],'#9aa3c7')+row(TX('失誤'),missCount,'#ff7a93')
+    +row(TX('最高連擊'),maxCombo)+row(TX('精準度'),pct(bp))+row(TX('完成度'),Math.min(resolved,tg.length)-runFrom+' / '+N);
   if(ok&&mode==='normal'&&!runFrom){const kA=KEY_AC(si,di);if(bp>(parseInt(lsGet(kA)||'0',10)||0))lsSet(kA,String(bp))}
   const rs=$('#rsky');rs.hidden=true;rs.textContent='';
   if(skyB){const a=starOf(si),full=!!skyC&&!skyCB&&skyDone(skyC);
     const note=!noteB&&regDone();
-    rs.textContent=found.length?'✦ 新的星座現身了：'+found.map(c=>c.name).join('、')+(note?'；星空中也浮現了音符座':''):note?'✦ 所有星座都點亮了，星空中浮現了音符座':full?'✦ '+skyC.name+' 完成':!skyB.lit?'✦ 《'+song.name+'》在星空中亮起了':(a.d>skyB.d||a.r>skyB.r)?'✦ 《'+song.name+'》在星空中更亮了':'';
+    rs.textContent=found.length?(note?TX('✦ 新的星座現身了：{list}；星空中也浮現了音符座',{list:found.map(c=>c.name).join(TX('、'))}):TX('✦ 新的星座現身了：{list}',{list:found.map(c=>c.name).join(TX('、'))})):note?TX('✦ 所有星座都點亮了，星空中浮現了音符座'):full?TX('✦ {name} 完成',{name:skyC.name}):!skyB.lit?TX('✦ 《{song}》在星空中亮起了',{song:song.name}):(a.d>skyB.d||a.r>skyB.r)?TX('✦ 《{song}》在星空中更亮了',{song:song.name}):'';
     rs.hidden=!rs.textContent;
     if(full||note||found.length)setTimeout(()=>{if(AC&&!$('#end').classList.contains('hidden'))[62,66,69,74].forEach((p,k)=>voice(p,k*.06,1.6,.12,0,true,busFx))},1500)}
   countUp($('#rscore'),score);
   const hasNext=mode==='tut'||(mode==='normal'&&ok&&si+1<SONGS.length&&unlocked(si+1));
-  $('#bNext').style.display=hasNext?'':'none';$('#bNext').textContent=mode==='tut'?'開始第 1 關':'下一關';
+  $('#bNext').style.display=hasNext?'':'none';$('#bNext').textContent=mode==='tut'?TX('開始第 1 關'):TX('下一關');
   $('#bShare').style.display=mode==='tut'||!ok||!shareOK()?'none':'';
-  const cb=$('#bCont');if(!ok&&cp.ti>0){cb.style.display='';cb.textContent='從第 '+(cp.ti+1)+' 拍繼續'}else cb.style.display='none';
+  const cb=$('#bCont');if(!ok&&cp.ti>0){cb.style.display='';cb.textContent=TX('從第 {n} 拍繼續',{n:cp.ti+1})}else cb.style.display='none';
   $('#end').classList.toggle('duel',mode==='duel');
   if(mode==='duel')duelFinish(ok,rank,acc);
   else for(const id of['bRetry','bSel'])$('#'+id).style.display='';
   $('#end').classList.remove('hidden');
   const rl=$('#rlb');rl.hidden=true;
-  if(ok&&mode==='normal'&&!runFrom){if(RUN&&RUN.ok)lbSubmit(RUN);else if(!ME){rl.hidden=false;$('#rlbT').textContent='設定暱稱後，通關成績將列入排行榜';const b=$('#rlbB');b.textContent='設定暱稱';b.hidden=false}}
+  if(ok&&mode==='normal'&&!runFrom){if(RUN&&RUN.ok)lbSubmit(RUN);else if(!ME){rl.hidden=false;$('#rlbT').textContent=TX('設定暱稱後，通關成績將列入排行榜');const b=$('#rlbB');b.textContent=TX('設定暱稱');b.hidden=false}}
   RUN=null;
   if(ok)jingleWin(rank);else jingleLose();
   if(window.PPLA)window.PPLA.flush();   // achievements earned during the run show up with the result
@@ -1053,10 +1058,10 @@ function updateBall(b,dt){
     const it=items[i];
     if(Math.hypot(b.x-it.x,b.y-it.y)<BR+17){
       items.splice(i,1);const hue=ITEM_HUE[it.type];let txt;
-      if(it.type==='big'){rangeT=9;rangeMul=1.7;txt='點擊範圍放大'}
-      else if(it.type==='small'){rangeT=9;rangeMul=.6;txt='點擊範圍縮小'}
-      else if(it.type==='star'){starT=8;txt='分數 ×2'}
-      else{shield++;txt='護盾 +1'}
+      if(it.type==='big'){rangeT=9;rangeMul=1.7;txt=TX('點擊範圍放大')}
+      else if(it.type==='small'){rangeT=9;rangeMul=.6;txt=TX('點擊範圍縮小')}
+      else if(it.type==='star'){starT=8;txt=TX('分數 ×2')}
+      else{shield++;txt=TX('護盾 +1')}
       hud();burst(it.x,it.y,hue,22,BR*16,.9);flash.a=.2;flash.hue=hue;
       rings.push({x:it.x,y:it.y,r0:8,life:.6,max:.6,hue,w:4},{x:it.x,y:it.y,r0:6,life:.8,max:.8,hue:hue+25,w:3});
       floats.push({x:it.x,y:it.y-18,text:txt,hue,life:1,max:1,size:1.2});
@@ -1096,7 +1101,7 @@ function update(dt){
       else voice(n[2],Math.max(0,w),n[1]/100/SPD,.16*bkV[bi-1]*(full||mlv>=1||n[2]<52?1:.45),0,false)}}   // layer 0: harmony soft, bass full
   if(rangeT>0){rangeT-=dt;if(rangeT<=0){rangeMul=1;hud()}}
   if(mode==='duel'){if(DU.fogT>0)DU.fogT-=dt;if(DU.shrinkT>0){DU.shrinkT-=dt;if(DU.shrinkT<=0)hud()}
-    if(!DU.sprint&&tg.length&&resolved>=tg.length*.8){DU.sprint=true;mpBanner('info','最後衝刺','分數 ×2','#ffd36b',true);flash.a=.25;flash.hue=48;hud()}}
+    if(!DU.sprint&&tg.length&&resolved>=tg.length*.8){DU.sprint=true;mpBanner('info',TX('最後衝刺'),TX('分數 ×2'),'#ffd36b',true);flash.a=.25;flash.hue=48;hud()}}
   if(starT>0){starT-=dt;if(starT<=0)hud()}
   const prog=tg.length?resolved/tg.length:0;
   const bm=D&&D.ob!=null?D.ob:1,tut=mode==='tut';
@@ -1337,7 +1342,7 @@ function drawFx(x){
   x.textAlign='center';x.textBaseline='middle';
   for(const f of floats){
     const a=f.life/f.max;x.globalAlpha=Math.min(1,a*1.6);x.fillStyle=`hsl(${f.hue},100%,75%)`;
-    x.font='800 '+Math.round(Math.max(13,BR*1.6)*(f.size||1))+'px "Noto Sans TC",sans-serif';
+    x.font='800 '+Math.round(Math.max(13,BR*1.6)*(f.size||1))+'px '+FF;
     x.fillText(f.text,clamp(f.x,FR.x+70,FR.x+FR.w-70),clamp(f.y,FR.y+16,FR.y+FR.h-16)-(1-a)*26);
   }
   x.globalAlpha=1;
@@ -1355,9 +1360,9 @@ function drawAttract(x){
 function drawTut(ctx){
   if(!(mode==='tut'&&(st==='play'||st==='ready')))return;
   ctx.save();ctx.textAlign='center';ctx.textBaseline='alphabetic';
-    const r=resolved,msg=r<4?'光球抵達亮起的框線時，觸碰光球。外圈縮到光球上的瞬間就是節拍。':r<8?'觸碰光球上方，球往下彈；觸碰光球下方，球往上彈。':r<12?'按得越用力（或指腹接觸面積越大），轉向越大。':r<16?'場中障礙只改變方向，光球會自動加速，準時抵達框線。':'教學中失誤不扣生命值；正式關卡失誤會扣生命值。';
+    const r=resolved,msg=r<4?TX('光球抵達亮起的框線時，觸碰光球。外圈縮到光球上的瞬間就是節拍。'):r<8?TX('觸碰光球上方，球往下彈；觸碰光球下方，球往上彈。'):r<12?TX('按得越用力（或指腹接觸面積越大），轉向越大。'):r<16?TX('場中障礙只改變方向，光球會自動加速，準時抵達框線。'):TX('教學中失誤不扣生命值；正式關卡失誤會扣生命值。');
     ctx.fillStyle='rgba(4,5,13,.45)';
-    ctx.font='700 15px "Noto Sans TC",sans-serif';const mw=Math.min(FR.w-16,ctx.measureText(msg).width+28);
+    ctx.font='700 15px '+FF;const mw=Math.min(FR.w-16,ctx.measureText(msg).width+28);
     rr(ctx,W/2-mw/2,FR.y+8,mw,30,15);ctx.fill();ctx.fillStyle='#ffd36b';ctx.fillText(msg,W/2,FR.y+28,mw-16);
     ctx.restore();
 }
@@ -1370,21 +1375,21 @@ function draw(){
   else if(st!=='menu'){drawField(ctx);drawTut(ctx);drawBumps(ctx);drawItems(ctx);if(SP.on){const c0=combo;combo=SP.c;drawBalls(ctx);combo=c0}else drawBalls(ctx);drawFx(ctx)}
   ctx.restore();
   ctx.textAlign='center';ctx.textBaseline='alphabetic';
-  if(st==='ready'&&mode==='duel'){const left=Math.max(0,(DU.startAt-duelNow())/1000);ctx.fillStyle='#e8ecff';ctx.font='800 22px "Noto Sans TC",sans-serif';ctx.fillText(DU.n+' 人對戰'+'　即將開始 '+Math.ceil(left),FR.x+FR.w/2,FR.y+FR.h/2+BR*6);
-    if(instLoad.busy){ctx.fillStyle='#8a93c0';ctx.font='400 13px "Noto Sans TC",sans-serif';ctx.fillText('載入樂器音色⋯ '+(instLoad.total?Math.round(instLoad.n/instLoad.total*100):0)+'%',W/2,FR.y+FR.h/2+BR*6+24)}}
-  else if(st==='ready'&&instLoad.busy){ctx.fillStyle='#e8ecff';ctx.font='700 19px "Noto Sans TC",sans-serif';ctx.fillText('載入樂器音色⋯ '+(instLoad.total?Math.round(instLoad.n/instLoad.total*100):0)+'%',W/2,FR.y+FR.h/2+BR*6)}
-  else if(st==='ready'){ctx.fillStyle='#e8ecff';ctx.font='700 19px "Noto Sans TC",sans-serif';ctx.fillText('點擊畫面開始（含 3 拍預備）',W/2,FR.y+FR.h/2+BR*6);ctx.fillStyle='#8a93c0';ctx.font='400 13px "Noto Sans TC",sans-serif';ctx.fillText('光球將於節拍抵達亮起的框線，請於節拍觸碰光球。',W/2,FR.y+FR.h/2+BR*6+24)}
-  if(st==='play'&&G()<LEADIN&&!paused){const n=Math.ceil((LEADIN-G())/.5);if(n<=3&&n>=1){ctx.fillStyle='rgba(232,236,255,.55)';ctx.font='800 '+Math.round(Math.min(FR.h*.3,90))+'px "Noto Sans TC",sans-serif';ctx.fillText(String(n),W/2,FR.y+FR.h*.62)}}
-  if(st==='play'&&AC&&AC.state!=='running'&&!paused){ctx.fillStyle='#ffb86b';ctx.font='700 15px "Noto Sans TC",sans-serif';ctx.fillText('聲音未啟用：請點擊畫面，並確認裝置未開啟靜音。',W/2,FR.y+FR.h-12)}
+  if(st==='ready'&&mode==='duel'){const left=Math.max(0,(DU.startAt-duelNow())/1000);ctx.fillStyle='#e8ecff';ctx.font='800 22px '+FF;ctx.fillText(TX('{n} 人對戰　即將開始 {sec}',{n:DU.n,sec:Math.ceil(left)}),FR.x+FR.w/2,FR.y+FR.h/2+BR*6);
+    if(instLoad.busy){ctx.fillStyle='#8a93c0';ctx.font='400 13px '+FF;ctx.fillText(TX('載入樂器音色⋯ {pct}%',{pct:(instLoad.total?Math.round(instLoad.n/instLoad.total*100):0)}),W/2,FR.y+FR.h/2+BR*6+24)}}
+  else if(st==='ready'&&instLoad.busy){ctx.fillStyle='#e8ecff';ctx.font='700 19px '+FF;ctx.fillText(TX('載入樂器音色⋯ {pct}%',{pct:(instLoad.total?Math.round(instLoad.n/instLoad.total*100):0)}),W/2,FR.y+FR.h/2+BR*6)}
+  else if(st==='ready'){ctx.fillStyle='#e8ecff';ctx.font='700 19px '+FF;ctx.fillText(TX('點擊畫面開始（含 3 拍預備）'),W/2,FR.y+FR.h/2+BR*6);ctx.fillStyle='#8a93c0';ctx.font='400 13px '+FF;ctx.fillText(TX('光球將於節拍抵達亮起的框線，請於節拍觸碰光球。'),W/2,FR.y+FR.h/2+BR*6+24)}
+  if(st==='play'&&G()<LEADIN&&!paused){const n=Math.ceil((LEADIN-G())/.5);if(n<=3&&n>=1){ctx.fillStyle='rgba(232,236,255,.55)';ctx.font='800 '+Math.round(Math.min(FR.h*.3,90))+'px '+FF;ctx.fillText(String(n),W/2,FR.y+FR.h*.62)}}
+  if(st==='play'&&AC&&AC.state!=='running'&&!paused){ctx.fillStyle='#ffb86b';ctx.font='700 15px '+FF;ctx.fillText(TX('聲音未啟用：請點擊畫面，並確認裝置未開啟靜音。'),W/2,FR.y+FR.h-12)}
   if(mode==='duel'&&(st==='play'||st==='over'||st==='done'))drawDuel(ctx);
   if(mlBan&&st==='play'){const b=mlBan,k=b.t/b.max,fs=Math.round(Math.min(b.up?24:18,FR.h*(b.up?.08:.06))),y=FR.y+FR.h*.44-(1-k)*10;   // music layer change
-    ctx.globalAlpha=Math.min(1,k*2.5)*(b.up?1:.7);ctx.font=(b.up?'700 ':'400 ')+fs+'px "Noto Sans TC",sans-serif';
+    ctx.globalAlpha=Math.min(1,k*2.5)*(b.up?1:.7);ctx.font=(b.up?'700 ':'400 ')+fs+'px '+FF;
     ctx.fillStyle=b.up?`hsl(${b.hue},100%,80%)`:'#8a93c0';if(b.up&&!SET.lowFx){ctx.shadowColor=`hsl(${b.hue},100%,60%)`;ctx.shadowBlur=14}
     ctx.fillText(b.text,W/2,y);ctx.shadowBlur=0;
-    if(b.tip){ctx.fillStyle='#8a93c0';ctx.font='400 '+Math.round(fs*.55)+'px "Noto Sans TC",sans-serif';ctx.fillText(b.tip,W/2,y+fs*.95)}
+    if(b.tip){ctx.fillStyle='#8a93c0';ctx.font='400 '+Math.round(fs*.55)+'px '+FF;ctx.fillText(b.tip,W/2,y+fs*.95)}
     ctx.globalAlpha=1}
   if(paused){ctx.fillStyle='rgba(4,5,13,.6)';ctx.fillRect(0,0,W,H);
-    if(resumeCD>0){ctx.fillStyle='#e8ecff';ctx.font='800 '+Math.round(Math.min(FR.h*.3,90))+'px "Noto Sans TC",sans-serif';ctx.fillText(String(Math.ceil(resumeCD/.5)),W/2,FR.y+FR.h*.62)}}
+    if(resumeCD>0){ctx.fillStyle='#e8ecff';ctx.font='800 '+Math.round(Math.min(FR.h*.3,90))+'px '+FF;ctx.fillText(String(Math.ceil(resumeCD/.5)),W/2,FR.y+FR.h*.62)}}
 }
 let last=performance.now(),lastIdle=0,costEMA=0,fc=0,lastGs=0,lastNow=performance.now(),simG=null;
 function frame(now){
@@ -1423,7 +1428,7 @@ const DUEL_URL=(()=>{if(location.protocol!=='http:'||!/^(localhost|127\.0\.0\.1)
 // Everything from the network is untrusted: escape before HTML, clamp numbers, whitelist enums.
 const esc=s=>String(s==null?'':s).replace(/[&<>"'`]/g,c=>'&#'+c.charCodeAt(0)+';');
 const dInt=(v,lo,hi)=>{v=Math.floor(Number(v));return Number.isFinite(v)?Math.max(lo,Math.min(hi,v)):lo};
-const dName=v=>String(v==null?'':v).replace(/[\u0000-\u001f\u007f-\u009f<>&"'`\\]/g,'').trim().slice(0,12);
+const dName=v=>String(v==null?'':v).replace(/[\u0000-\u001f\u007f-\u009f<>&"'`\\]/g,'').trim().slice(0,12);const dNameG=v=>{const s=dName(v),m=/^玩家([1-8])$/.exec(s);return m?TX('玩家{n}',{n:m[1]}):s};   // a name the server gave a guest in a room, for showing only (nicknames, leaderboards and friends keep dName; a room player's name as sent is nm0)
 const dKey=v=>typeof v==='string'&&/^[a-z0-9]{2,16}$/.test(v)?v:'';
 const dCode=v=>String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);
 const songIdx=k=>k?SONGS.findIndex(s=>s.key===k):-1;
@@ -1436,12 +1441,12 @@ const duelNow=()=>Date.now()+DU.off;
 function dsend(o){try{if(DU.ws&&DU.ws.readyState===1)DU.ws.send(typeof o==='string'?o:JSON.stringify(o))}catch(e){}}
 function dmsg(t){$('#dMsg').textContent=t||'';$('#rnote').textContent=t||''}
 const mpHost=()=>DU.you===DU.host&&!DU.cfg.qm;
-const mpName=i=>{const p=DU.players.find(q=>q.i===i);return p?p.name:(DU.names&&DU.names[i])||'玩家'};
+const mpName=i=>{const p=DU.players.find(q=>q.i===i);return p?p.name:(DU.names&&DU.names[i])||TX('玩家')};
 async function mget(path){
   const c=new AbortController(),t=setTimeout(()=>c.abort(),8000);let r;try{r=await fetch(DUEL_URL+path,{signal:c.signal})}finally{clearTimeout(t)}if(r.status===429)throw new Error('slow');if(!r.ok)throw new Error('http');
   const j=await r.json();if(!j||typeof j!=='object')throw new Error('bad');return j;
 }
-const mpErr=e=>dmsg(e&&e.message==='slow'?'操作太頻繁，請稍等 1 分鐘後再次嘗試。':'無法連線到對戰伺服器，請稍後再試。');
+const mpErr=e=>dmsg(e&&e.message==='slow'?TX('操作太頻繁，請稍等 1 分鐘後再次嘗試。'):TX('無法連線到對戰伺服器，請稍後再試。'));
 
 /* ---- lobby: quick match + public rooms ---- */
 function duelOpen(){if(!ME){nickOpen('duel');return}initAudio();$('#home').classList.add('hidden');$('#duel').classList.remove('hidden');$('#dName').value=ME.name;duelView()}
@@ -1450,50 +1455,50 @@ function duelView(){
   if(DU.ws&&DU.code&&DU.joined){mpSelOpen();return}
   mpLobbyUI();mpRooms();DU.roomsIv=setInterval(()=>{if(!$('#duel').classList.contains('hidden')&&!DU.ws&&!document.hidden)mpRooms()},10000);
 }
-const Q_MAX=[[4,'4 人'],[6,'6 人'],[8,'8 人']];
+const Q_MAX=[[4,TX('{n} 人',{n:4})],[6,TX('{n} 人',{n:6})],[8,TX('{n} 人',{n:8})]];
 function mpLobbyUI(){
   const L=DU.lob;
-  $('#qDi').innerHTML=[-1,...DORD].map(d=>'<button class="chip'+(d===L.di?' sel':'')+'" data-d="'+d+'">'+(d<0?'不限':DIFFS[d].n)+'</button>').join('');
+  $('#qDi').innerHTML=[-1,...DORD].map(d=>'<button class="chip'+(d===L.di?' sel':'')+'" data-d="'+d+'">'+(d<0?TX('不限'):DIFFS[d].n)+'</button>').join('');
   QMAX.set(Q_MAX.map(([v,text])=>({v,text})),L.max);
-  $('#qGo').textContent=DU.matching?'配對中⋯':'開始配對';$('#qGo').disabled=!!DU.matching;
+  $('#qGo').textContent=DU.matching?TX('配對中⋯'):TX('開始配對');$('#qGo').disabled=!!DU.matching;
 }
 async function mpRooms(){
   const box=$('#dRooms'),t=++DU.roomsTok;
   try{
     const j=await mget('/m/rooms?space=1&di='+DU.lob.di);if(t!==DU.roomsTok)return;
-    const R=(Array.isArray(j.rooms)?j.rooms:[]).slice(0,30).filter(r=>r&&typeof r==='object').map(r=>({code:dCode(r.code),host:dName(r.host)||'玩家',song:songIdx(dKey(r.song)),
+    const R=(Array.isArray(j.rooms)?j.rooms:[]).slice(0,30).filter(r=>r&&typeof r==='object').map(r=>({code:dCode(r.code),host:dNameG(r.host)||TX('玩家'),song:songIdx(dKey(r.song)),
       di:dInt(r.di,0,DIFFS.length-1),n:dInt(r.n,0,MP_MAX),max:dInt(r.max,2,MP_MAX),play:r.phase==='play',qm:r.qm===true})).filter(r=>r.code.length===4);
-    box.innerHTML=R.length?R.map(r=>'<button class="rm'+(r.play||r.n>=r.max?' off':'')+'" data-code="'+r.code+'"><span class="nm">'+esc(r.qm?'快速配對房':r.host+' 的房間')+'</span>'
-      +'<span class="mt">'+(r.play?'比賽中':r.song>=0?'《'+esc(SONGS[r.song].name)+'》':'選曲中')+'</span><b style="color:'+SKY_C[LVL[r.di]]+'">'+DIFFS[r.di].n+'</b><span class="n">'+r.n+'/'+r.max+'</span></button>').join('')
-      :'<div class="lbmsg">目前沒有符合條件的公開房間。可以按「開始配對」，或自己建立房間。</div>';
-  }catch(e){if(t===DU.roomsTok&&!(e&&e.message==='slow'&&box.querySelector('.rm')))box.innerHTML='<div class="lbmsg">'+(e&&e.message==='slow'?'查詢太頻繁，稍後會自動更新。':'目前無法連線至對戰伺服器。')+'</div>'}
+    box.innerHTML=R.length?R.map(r=>'<button class="rm'+(r.play||r.n>=r.max?' off':'')+'" data-code="'+r.code+'"><span class="nm">'+esc(r.qm?TX('快速配對房'):TX('{name} 的房間',{name:r.host}))+'</span>'
+      +'<span class="mt">'+(r.play?TX('比賽中'):r.song>=0?TX('《{song}》',{song:esc(SONGS[r.song].name)}):TX('選曲中'))+'</span><b style="color:'+SKY_C[LVL[r.di]]+'">'+DIFFS[r.di].n+'</b><span class="n">'+r.n+'/'+r.max+'</span></button>').join('')
+      :'<div class="lbmsg">'+TX('目前沒有符合條件的公開房間。可以按「開始配對」，或自己建立房間。')+'</div>';
+  }catch(e){if(t===DU.roomsTok&&!(e&&e.message==='slow'&&box.querySelector('.rm')))box.innerHTML='<div class="lbmsg">'+(e&&e.message==='slow'?TX('查詢太頻繁，稍後會自動更新。'):TX('目前無法連線至對戰伺服器。'))+'</div>'}
 }
 async function mpMatch(){
-  initAudio();if(DU.matching)return;DU.matching=true;mpLobbyUI();dmsg('尋找房間中⋯');
+  initAudio();if(DU.matching)return;DU.matching=true;mpLobbyUI();dmsg(TX('尋找房間中⋯'));
   try{const j=await mget('/m/match?di='+DU.lob.di+'&max='+DU.lob.max);const c=dCode(j.code);if(c.length!==4)throw new Error('bad');duelJoin(c)}
   catch(e){mpErr(e)}
   DU.matching=false;mpLobbyUI();
 }
 async function duelCreate(){
-  initAudio();if(DU.creating)return;DU.creating=true;dmsg('建立房間中⋯');   // one request at a time: a double tap would make two rooms
+  initAudio();if(DU.creating)return;DU.creating=true;dmsg(TX('建立房間中⋯'));   // one request at a time: a double tap would make two rooms
   try{const j=await mget('/m/new?pub=1&max=6&di='+(diPref??di));const c=dCode(j.code);if(c.length!==4)throw new Error('bad');duelJoin(c)}
   catch(e){mpErr(e)}
   DU.creating=false;
 }
 function duelJoin(code,onOpen){
   initAudio();code=dCode(code);
-  if(code.length!==4){dmsg('請輸入 4 碼房號。');return}
-  duelClose(true);dmsg('連線中⋯');
-  let ws;try{ws=new WebSocket(DUEL_URL.replace(/^http/,'ws')+'/m/ws/'+code)}catch(e){dmsg('無法連線到對戰伺服器。');return}
+  if(code.length!==4){dmsg(TX('請輸入 4 碼房號。'));return}
+  duelClose(true);dmsg(TX('連線中⋯'));
+  let ws;try{ws=new WebSocket(DUEL_URL.replace(/^http/,'ws')+'/m/ws/'+code)}catch(e){dmsg(TX('無法連線到對戰伺服器。'));return}
   DU.ws=ws;DU.code=code;DU.left=false;DU.pings=[];DU.joined=false;
   ws.onopen=()=>{dmsg('');DU.rel={};DU.says={};DU.relIds='';dsend({t:'hello',name:ME?ME.name:''});if(ME)dsend({t:'auth',pk:pkey()});for(let k=0;k<6;k++)setTimeout(()=>dsend({t:'ping',c:Date.now()}),k*250);if(onOpen)onOpen()};
   ws.onmessage=e=>{if(DU.ws!==ws||typeof e.data!=='string'||e.data.length>8192)return;
     let d;try{d=JSON.parse(e.data)}catch(_){return}if(!d||typeof d!=='object'||Array.isArray(d)||typeof d.t!=='string'||!dAllow(d.t))return;
     try{duelOn(d)}catch(err){}};
   ws.onclose=ev=>{if(DU.ws!==ws)return;DU.ws=null;ddClose();mpCfgDrop();
-    if(mode==='duel'&&st==='play'){DU.left=true;clearInterval(DU.pingIv);clearInterval(DU.autoIv);mpBanner('info','與伺服器的連線中斷','','#ff6f95',true);return}
+    if(mode==='duel'&&st==='play'){DU.left=true;clearInterval(DU.pingIv);clearInterval(DU.autoIv);mpBanner('info',TX('與伺服器的連線中斷'),'','#ff6f95',true);return}
     const was=DU.joined;DU.code='';DU.players=[];DU.joined=false;clearInterval(DU.pingIv);clearInterval(DU.autoIv);
-    const m=!was?'無法加入：房間不存在、已滿、比賽進行中，或操作太頻繁。':'與房間的連線已中斷。';
+    const m=!was?TX('無法加入：房間不存在、已滿、比賽進行中，或操作太頻繁。'):TX('與房間的連線已中斷。');
     if(RSEL.on){mpSelBack(m);return}
     if(!$('#end').classList.contains('hidden')){if(mode==='duel'){duelResult();mpEndNote()}return}
     if(!$('#duel').classList.contains('hidden'))duelView();
@@ -1512,7 +1517,7 @@ function duelOn(d){
     const best=DU.pings.slice(0,3);DU.off=best.reduce((a,p)=>a+p.off,0)/best.length;return}   // clock offset from the fastest round trips
   if(d.t==='room'){if(!Array.isArray(d.players))return;DU.joined=true;
     DU.you=dInt(d.you,0,MP_MAX-1);DU.host=dInt(d.host,0,MP_MAX-1);
-    const seen=new Set();DU.players=d.players.slice(0,MP_MAX).filter(p=>p&&typeof p==='object').map(p=>({i:dInt(p.i,0,MP_MAX-1),name:dName(p.name)||'玩家',ready:p.ready===true,back:p.back===true,vote:dKey(p.vote),av:dCos(p.avatar),pl:dCos(p.plate),ti:dCos(p.title),cmc:dInt(p.cmc,0,100000)}))
+    const seen=new Set();DU.players=d.players.slice(0,MP_MAX).filter(p=>p&&typeof p==='object').map(p=>({i:dInt(p.i,0,MP_MAX-1),name:dNameG(p.name)||TX('玩家'),nm0:dName(p.name),ready:p.ready===true,back:p.back===true,vote:dKey(p.vote),av:dCos(p.avatar),pl:dCos(p.plate),ti:dCos(p.title),cmc:dInt(p.cmc,0,100000)}))
       .filter(p=>!seen.has(p.i)&&seen.add(p.i)).sort((a,b)=>a.i-b.i);
     const cf=d.cfg&&typeof d.cfg==='object'?d.cfg:{};
     DU.cfg={song:dKey(cf.song),di:dInt(cf.di,0,DIFFS.length-1),pub:cf.pub===true,max:dInt(cf.max,2,MP_MAX),vote:cf.vote===true,qm:cf.qm===true};DU.srv={...DU.cfg};
@@ -1530,12 +1535,12 @@ function duelOn(d){
     mpEndNote();return}
   if(d.t==='rel'){const r=d.r&&typeof d.r==='object'&&!Array.isArray(d.r)?d.r:{};DU.rel={};for(const k of Object.keys(r).slice(0,MP_MAX))if(['f','o','i','b','n'].includes(r[k]))DU.rel[dInt(k,0,MP_MAX-1)]=r[k];mpSeats();return}
   if(d.t==='fadd'){clearTimeout(DU.faddT);const i=dInt(d.i,0,MP_MAX-1),p=DU.players.find(x=>x.i===i);
-    if(d.r==='f'||d.r==='o'){DU.rel[i]=d.r;toast(d.r==='f'?'您已和 '+(p?p.name:'對方')+' 成為好友':'已送出好友邀請')}else toast('目前無法送出好友邀請，請稍後再試');mpSeats();return}
+    if(d.r==='f'||d.r==='o'){DU.rel[i]=d.r;toast(d.r==='f'?TX('您已和 {name} 成為好友',{name:p?p.name:TX('對方')}):TX('已送出好友邀請'))}else toast(TX('目前無法送出好友邀請，請稍後再試'));mpSeats();return}
   if(d.t==='say'){if(!Number.isInteger(d.k)||d.k<0||d.k>=SAY.length)return;const i=dInt(d.i,0,MP_MAX-1);
     DU.says[i]={k:d.k,until:Date.now()+3200};mpSeats();saysTick();return}
   if(d.t==='start'){dmClose();if(mode==='duel'&&(st==='play'||st==='ready'))return;
     const at=+d.at,now=duelNow(),k=songIdx(dKey(d.song));
-    if(k<0){dsend({t:'fin',s:0,ok:false,acc:0,rank:'—',mc:0});dmsg('房間選的曲目不在您目前的版本中，請更新遊戲後再加入。');return}
+    if(k<0){dsend({t:'fin',s:0,ok:false,acc:0,rank:'—',mc:0});dmsg(TX('房間選的曲目不在您目前的版本中，請更新遊戲後再加入。'));return}
     DU.lg=d.lg===1;   // only a server that says so takes the beat log (an older one would kick a message over 512 bytes)
     duelStart({at:Number.isFinite(at)&&Math.abs(at-now)<15000?at:now+4500,seed:dInt(d.seed,0,4294967295),song:k,di:dInt(d.di,0,DIFFS.length-1)});return}
   if(d.t==='board'){if(mode!=='duel'||!Array.isArray(d.p))return;
@@ -1550,12 +1555,12 @@ function duelOn(d){
   if(d.t==='atk'){const now=performance.now();if(!DATK.includes(d.k)||now-(DU.atkT||0)<1500)return;DU.atkT=now;duelAttacked(d.k,mpName(dInt(d.from,0,MP_MAX-1)));return}
   if(d.t==='res'){if(!Array.isArray(d.r))return;
     if(SP.on)specOff('res');
-    const seen=new Set();DU.res=d.r.slice(0,MP_MAX).filter(x=>x&&typeof x==='object').map(x=>({i:dInt(x.i,0,MP_MAX-1),name:dName(x.name)||'玩家',s:dInt(x.s,0,1e8),ok:x.ok===true,
+    const seen=new Set();DU.res=d.r.slice(0,MP_MAX).filter(x=>x&&typeof x==='object').map(x=>({i:dInt(x.i,0,MP_MAX-1),name:dNameG(x.name)||TX('玩家'),s:dInt(x.s,0,1e8),ok:x.ok===true,
       acc:Math.max(0,Math.min(100,+x.acc||0)),rank:DRANKS.includes(x.rank)?x.rank:'—',mc:dInt(x.mc,0,1e5),v:x.v===1?1:x.v===0?0:-1,...whoOf(x)})).filter(x=>!seen.has(x.i)&&seen.add(x.i));
     if(DU.myFin){duelResult();mpEndNote()}return}
   if(d.t==='ach'){if(window.PPLA&&typeof window.PPLA.sync==='function'){window.PPLA.sync();setTimeout(()=>{if(st!=='play'&&window.PPLA)window.PPLA.flush()},4500)}return}
   if(d.t==='left'){const i=dInt(d.i,0,MP_MAX-1),b=DU.board.find(x=>x.i===i);delete DU.says[i];if(b)b.gone=true;
-    if(mode==='duel'&&st==='play'){mpBanner('info',mpName(i)+' 已離線','','#9aa3c7');mpLad()}specCheck();if(DU.myFin&&!DU.res)duelResult();return}
+    if(mode==='duel'&&st==='play'){mpBanner('info',TX('{name} 已離線',{name:mpName(i)}),'','#9aa3c7');mpLad()}specCheck();if(DU.myFin&&!DU.res)duelResult();return}
 }
 
 /* ---- room: the single-player song page in "room mode" ---- */
@@ -1574,44 +1579,44 @@ function mpSelOpen(){
   const C=DU.cfg,mine=(DU.players.find(p=>p.i===DU.you)||{}).vote,k=songIdx(C.vote&&mine?mine:mpLead());
   RSEL.on=true;RSEL.song=C.song;if(DU.prevDi==null){DU.prevDi=di;DU.prevSi=si}di=C.di;if(k>=0)si=k;
   $('#duel').classList.add('hidden');clearInterval(DU.roomsIv);$('#menu').classList.add('room');
-  $('#bBack').textContent='‹ 離開房間';showSelect();mpRoomUI();
+  $('#bBack').textContent=TX('‹ 離開房間');showSelect();mpRoomUI();
 }
 function mpRoomUI(){
   if(!RSEL.on)return;const C=DU.cfg,n=DU.players.length,host=mpHost();
   if(di!==C.di){di=C.di}
   if(!C.vote&&C.song!==RSEL.song){const k=songIdx(C.song);if(k>=0)si=k}   // the host picked a song: everyone's page follows
   RSEL.song=C.song;
-  $('#selT').textContent=C.qm?'快速配對':C.vote?'投票選曲':host?'選擇遊玩曲目':'遊玩曲目';
-  $('#rhd').innerHTML='房號<b>'+esc(DU.code)+'</b>'+(C.qm?'快速配對':C.pub?'公開':'私人')+' · '+n+' / '+C.max+' 人';
+  $('#selT').textContent=C.qm?TX('快速配對'):C.vote?TX('投票選曲'):host?TX('選擇遊玩曲目'):TX('遊玩曲目');
+  $('#rhd').innerHTML=TX('房號<b>{code}</b>',{code:esc(DU.code)})+(C.qm?TX('快速配對'):C.pub?TX('公開'):TX('私人'))+' · '+TX('{n} / {max} 人',{n:n,max:C.max});
   for(const id of['dMax','dPub','dVote'])$('#'+id).hidden=!host;
-  if(host){DMAX.set([2,3,4,5,6,7,8].filter(m=>m>=Math.max(2,n)).map(m=>({v:m,text:'上限 '+m+' 人'})),C.max);
-    $('#dPub').textContent='公開';$('#dPub').classList.toggle('on',C.pub);$('#dVote').textContent='投票選曲';$('#dVote').classList.toggle('on',C.vote)}
+  if(host){DMAX.set([2,3,4,5,6,7,8].filter(m=>m>=Math.max(2,n)).map(m=>({v:m,text:TX('上限 {n} 人',{n:m})})),C.max);
+    $('#dPub').textContent=TX('公開');$('#dPub').classList.toggle('on',C.pub);$('#dVote').textContent=TX('投票選曲');$('#dVote').classList.toggle('on',C.vote)}
   mpSeats();
-  const b=$('#bGo');b.hidden=C.qm;b.disabled=false;b.textContent=DU.ready?'取消準備':'準備';b.classList.toggle('pri',!DU.ready);
+  const b=$('#bGo');b.hidden=C.qm;b.disabled=false;b.textContent=DU.ready?TX('取消準備'):TX('準備');b.classList.toggle('pri',!DU.ready);
   buildChips();mpRoomMsg();
   const k=songIdx(C.song);if(k>=0)preloadSong(SONGS[k]);
 }
 function mpDetail(){   // extra line on the song details: what the room is going to play
-  const C=DU.cfg,L=mpLeadInfo(),k=songIdx(L.k),nm=k>=0?'《'+esc(SONGS[k].name)+'》':'尚未選曲',me=(DU.players.find(p=>p.i===DU.you)||{}).vote;
+  const C=DU.cfg,L=mpLeadInfo(),k=songIdx(L.k),nm=k>=0?TX('《{song}》',{song:esc(SONGS[k].name)}):TX('尚未選曲'),me=(DU.players.find(p=>p.i===DU.you)||{}).vote;
   let t;
-  if(C.vote)t=L.tie.length?'目前同票：'+L.tie.map(x=>esc(SONGS[songIdx(x)].name)).join('、')+'（開始時抽選）':L.n?'目前領先：'+nm+'（'+L.n+' 票）':'尚無人投票，未投票時以房主的曲目開始：'+nm;
-  else t=SONGS[si]&&SONGS[si].key===C.song?'':'遊玩曲目：'+nm;   // on the song itself the list tag already says so
-  $('#sK').textContent+=C.vote&&SONGS[si]&&SONGS[si].key===me?' · 您投的曲目':'';
+  if(C.vote)t=L.tie.length?TX('目前同票：{songs}（開始時抽選）',{songs:L.tie.map(x=>esc(SONGS[songIdx(x)].name)).join(TX('、'))}):L.n?TX('目前領先：{song}（{n} 票）',{song:nm,n:L.n}):TX('尚無人投票，未投票時以房主的曲目開始：{song}',{song:nm});
+  else t=SONGS[si]&&SONGS[si].key===C.song?'':TX('遊玩曲目：{song}',{song:nm});   // on the song itself the list tag already says so
+  $('#sK').textContent+=C.vote&&SONGS[si]&&SONGS[si].key===me?' · '+TX('您投的曲目'):'';
   if(t)$('#sM').insertAdjacentHTML('beforeend','<br><span style="color:#ffd36b">'+t+'</span>');
 }
 function mpTag(k){const v=DU.votes[k]||0,L=mpLeadInfo();
-  return(k===DU.cfg.song&&!DU.cfg.vote?'<em class="rt">遊玩曲目</em>':'')+(DU.cfg.vote&&v?'<em class="rt">'+v+' 票'+(k===L.k&&!L.tie.length?' · 領先':L.tie.includes(k)?' · 同票':'')+'</em>':'')}
-function mpVoters(k){if(!DU.cfg.vote)return'';const v=DU.players.filter(p=>p.vote===k).map(p=>esc(p.name));return v.length?'<span class="vt">'+v.join('、')+'</span>':''}
+  return(k===DU.cfg.song&&!DU.cfg.vote?'<em class="rt">'+TX('遊玩曲目')+'</em>':'')+(DU.cfg.vote&&v?'<em class="rt">'+TX('{n} 票',{n:v})+(k===L.k&&!L.tie.length?' · '+TX('領先'):L.tie.includes(k)?' · '+TX('同票'):'')+'</em>':'')}
+function mpVoters(k){if(!DU.cfg.vote)return'';const v=DU.players.filter(p=>p.vote===k).map(p=>esc(p.name));return v.length?'<span class="vt">'+v.join(TX('、'))+'</span>':''}
 // ---- seats: friend tags, phrase bubbles, and a tap menu to add a player as a friend ----
 // Room phrases: the server only relays an index, so this list is append-only (never reorder or delete; add new ones at the end).
-const SAY=['大家好 👋','哈囉哈囉','新手報到 🙋','好久不見！',
+const SAY=TXA(['大家好 👋','哈囉哈囉','新手報到 🙋','好久不見！',
   '換一首？','這首可以！','選難一點 🔥','選簡單的啦','我都可以 👌','投我一票 🙏',
   '我準備好了','等我一下 ⏳','快按準備啦','衝了衝了 🚀',
   '笑死 🤣','好扯！','太神啦 🙌','真的假的','傻眼貓咪 😹','我破防了 😭','Orz','被這首硬控了','手殘了 🫠','節奏感拉滿 🎵','要確欸',
   'GG 👏','再一局！','你最頂 👍','下次一定贏','謝謝邀請','加個好友吧','先閃了 👋',
-  '就這？😏','看我的 😎','不服來戰','這把我帶飛','是在緊張什麼','輸的請喝飲料 🧋','手速跟上好嗎','別眨眼 👀'];
-const SAY_G=[['打招呼',[0,1,2,3]],['選曲',[4,5,6,7,8,9]],['準備',[10,11,12,13]],['反應',[14,15,16,17,18,19,20,21,22,23,24]],['小嗆一下',[32,33,34,35,36,37,38,39]],['結束',[25,26,27,28,29,30,31]]];
-const REL_TAG={f:['f','好友'],o:['p','已邀請'],i:['i','邀請您']};
+  '就這？😏','看我的 😎','不服來戰','這把我帶飛','是在緊張什麼','輸的請喝飲料 🧋','手速跟上好嗎','別眨眼 👀']);
+const SAY_G=[[TX('打招呼'),[0,1,2,3]],[TX('選曲'),[4,5,6,7,8,9]],[TX('準備'),[10,11,12,13]],[TX('反應'),[14,15,16,17,18,19,20,21,22,23,24]],[TX('小嗆一下'),[32,33,34,35,36,37,38,39]],[TX('結束'),[25,26,27,28,29,30,31]]];
+const REL_TAG={f:['f',TX('好友@@tag')],o:['p',TX('已邀請@@friend')],i:['i',TX('邀請您')]};
 const dCos=v=>typeof v==='string'&&/^[a-z]+\.[a-z0-9]+$/.test(v)&&v.length<=40?v:'';   // an equipped item id from the server (avatar / plate / title), or '' for the default
 function seatCos(p){   // avatar (default one: coloured by the player's best combo), plate tint and title of one seat
   if(!COS)return{pl:' pl0',st:'',av:'',tl:''};
@@ -1624,10 +1629,10 @@ const whoOf=x=>({av:dCos(x&&x.avatar),pl:dCos(x&&x.plate),ti:dCos(x&&x.title),cm
 function mpSeats(){
   if(!RSEL.on)return;const C=DU.cfg,now=Date.now();let h='';
   for(let k=0;k<C.max;k++){const p=DU.players[k];
-    if(!p){h+='<div class="seat empty">空位</div>';continue}
+    if(!p){h+='<div class="seat empty">'+TX('空位')+'</div>';continue}
     const rl=p.i!==DU.you&&REL_TAG[DU.rel[p.i]],sy=DU.says[p.i]&&DU.says[p.i].until>now?SAY[DU.says[p.i].k]:'';
     const sc=seatCos(p);
-    h+='<div class="seat'+(p.i===DU.you?' me':'')+(p.ready&&!C.qm?' ok':'')+sc.pl+(p.i!==DU.you&&DU.rel[p.i]&&DU.rel[p.i]!=='b'?' tap':'')+'" data-i="'+p.i+'"'+(sc.st?' style="'+sc.st+'"':'')+'>'+sc.av+'<span class="nm">'+esc(p.name)+'</span>'+sc.tl+(p.i===DU.host&&!C.qm?'<i>房主</i>':'')
+    h+='<div class="seat'+(p.i===DU.you?' me':'')+(p.ready&&!C.qm?' ok':'')+sc.pl+(p.i!==DU.you&&DU.rel[p.i]&&DU.rel[p.i]!=='b'?' tap':'')+'" data-i="'+p.i+'"'+(sc.st?' style="'+sc.st+'"':'')+'>'+sc.av+'<span class="nm">'+esc(p.name)+'</span>'+sc.tl+(p.i===DU.host&&!C.qm?'<i>'+TX('房主')+'</i>':'')
       +(rl?'<span class="ft '+rl[0]+'">'+rl[1]+'</span>':'')+(sy?'<span class="bub">'+esc(sy)+'</span>':'')+'</div>'}
   $('#rseats').innerHTML=h;
 }
@@ -1648,17 +1653,17 @@ $('#rseats').onclick=e=>{
   const i=+s.dataset.i,rl=DU.rel[i],p=DU.players.find(x=>x.i===i);if(i===DU.you||!rl||!p||rl==='b')return;
   const m=document.createElement('div');m.className='frpop';
   const nm='<b>'+esc(p.name)+'</b>';
-  if(rl==='f')m.innerHTML=nm+'<div class="hint">您與對方已是好友</div>';
-  else if(rl==='o')m.innerHTML=nm+'<div class="hint">已送出好友邀請，請等候對方確認</div>';
-  else{m.innerHTML=nm+'<div class="r"><button class="pri" data-a="add">'+(rl==='i'?'接受邀請':'加為好友')+'</button><button data-a="no">取消</button></div><div class="hint">'+(rl==='i'?'對方已向您送出好友邀請':'對方接受後，將加入您的好友名單')+'</div>';
-    m.querySelector('[data-a="add"]').onclick=()=>{dsend({t:'fadd',i});popClose();clearTimeout(DU.faddT);DU.faddT=setTimeout(()=>toast('沒有收到回應，請再試一次'),4000)};m.querySelector('[data-a="no"]').onclick=popClose}
+  if(rl==='f')m.innerHTML=nm+'<div class="hint">'+TX('您與對方已是好友')+'</div>';
+  else if(rl==='o')m.innerHTML=nm+'<div class="hint">'+TX('已送出好友邀請，請等候對方確認')+'</div>';
+  else{m.innerHTML=nm+'<div class="r"><button class="pri" data-a="add">'+(rl==='i'?TX('接受邀請'):TX('加為好友'))+'</button><button data-a="no">'+TX('取消')+'</button></div><div class="hint">'+(rl==='i'?TX('對方已向您送出好友邀請'):TX('對方接受後，將加入您的好友名單'))+'</div>';
+    m.querySelector('[data-a="add"]').onclick=()=>{dsend({t:'fadd',i});popClose();clearTimeout(DU.faddT);DU.faddT=setTimeout(()=>toast(TX('沒有收到回應，請再試一次')),4000)};m.querySelector('[data-a="no"]').onclick=popClose}
   popAt(m,s,true);
 };
 function sayOpen(){
-  const q=document.createElement('div');q.className='qp';q.setAttribute('role','menu');q.setAttribute('aria-label','快速發言');
+  const q=document.createElement('div');q.className='qp';q.setAttribute('role','menu');q.setAttribute('aria-label',TX('快速發言'));
   q.innerHTML=SAY_G.map(([g,ks])=>'<div class="qh">'+g+'</div>'+ks.map(k=>'<button data-k="'+k+'" role="menuitem">'+esc(SAY[k])+'</button>').join('')).join('');
   q.onclick=e=>{const b=e.target.closest('button[data-k]');if(!b)return;const k=+b.dataset.k,now=Date.now();popClose();
-    if(now-(DU.saidAt||0)<2700){toast('發言過於頻繁，請稍候再試');return}DU.saidAt=now;dsend({t:'say',k});evA('say')};
+    if(now-(DU.saidAt||0)<2700){toast(TX('發言過於頻繁，請稍候再試'));return}DU.saidAt=now;dsend({t:'say',k});evA('say')};
   popAt(q,$('#bSay'),true);
 }
 $('#bSay').onclick=e=>{e.stopPropagation();if(document.querySelector('.qp'))popClose();else sayOpen()};
@@ -1671,12 +1676,12 @@ function mpPick(i){   // a tap on a song row in a room
 }
 function mpRoomMsg(){
   if(!RSEL.on)return;const C=DU.cfg,n=DU.players.length;
-  if(DU.phase==='play'){dmsg('比賽進行中，等其他玩家完成後一起開始下一局。');return}
-  if(C.qm){const s=DU.auto?Math.max(0,Math.ceil((DU.auto-duelNow())/1000)):0,nb=DU.players.filter(p=>p.back).length;dmsg(DU.auto?(nb>=C.max?'人數到齊，':'已有 '+nb+' 人，')+s+' 秒後開始':n>nb?'等待其他玩家回到房間（'+nb+' / '+n+'）⋯':'快速配對中，等待其他玩家加入⋯');return}
+  if(DU.phase==='play'){dmsg(TX('比賽進行中，等其他玩家完成後一起開始下一局。'));return}
+  if(C.qm){const s=DU.auto?Math.max(0,Math.ceil((DU.auto-duelNow())/1000)):0,nb=DU.players.filter(p=>p.back).length;dmsg(DU.auto?(nb>=C.max?TX('人數到齊，{sec} 秒後開始',{sec:s}):TX('已有 {n} 人，{sec} 秒後開始',{n:nb,sec:s})):n>nb?TX('等待其他玩家回到房間（{nb} / {n}）⋯',{nb:nb,n:n}):TX('快速配對中，等待其他玩家加入⋯'));return}
   const notReady=DU.players.filter(p=>!p.ready).length;
-  dmsg(n<2?(DU.note||'等待其他玩家加入⋯ 可以按「邀請好友」邀請在線上的好友，或讓別人從公開房間加入。')
-    :notReady?'還有 '+notReady+' 人未準備'+(DU.ready?' · 已準備，點選其他曲目僅供試聽':C.vote?' · 按下準備以投票':mpHost()?' · 點左側曲目即可更換':'')
-    :'全員準備，即將開始⋯');
+  dmsg(n<2?(DU.note||TX('等待其他玩家加入⋯ 可以按「邀請好友」邀請在線上的好友，或讓別人從公開房間加入。'))
+    :notReady?TX('還有 {n} 人未準備',{n:notReady})+(DU.ready?' · '+TX('已準備，點選其他曲目僅供試聽'):C.vote?' · '+TX('按下準備以投票'):mpHost()?' · '+TX('點左側曲目即可更換'):'')
+    :TX('全員準備，即將開始⋯'));
 }
 // the host's change shows at once (DU.cfgP over the room's settings until the server echoes it back); sends are spaced
 // past the server's 400 ms limit, the latest choice wins, and one more send goes out if the room has not changed after 1.5 s
@@ -1693,7 +1698,7 @@ function mpCfg(o,again){
   clearTimeout(DU.cfgT);if(!again)DU.cfgT=setTimeout(()=>{const P=DU.cfgP;if(DU.ws&&P&&Object.keys(P).some(k=>DU.srv&&DU.srv[k]!==P[k]))mpCfg({},true)},1500)}
 $('#dPub').onclick=()=>mpCfg({pub:!DU.cfg.pub});
 $('#dVote').onclick=()=>mpCfg({vote:!DU.cfg.vote});
-function mpSelOff(){popClose();RSEL.on=false;$('#menu').classList.remove('room');$('#bGo').hidden=false;$('#bGo').classList.add('pri');$('#bGo').textContent='開始';$('#selT').textContent='選擇曲目';$('#bBack').textContent='‹ 返回';$('#rnote').textContent='';pvEnd()}
+function mpSelOff(){popClose();RSEL.on=false;$('#menu').classList.remove('room');$('#bGo').hidden=false;$('#bGo').classList.add('pri');$('#bGo').textContent=TX('開始');$('#selT').textContent=TX('選擇曲目');$('#bBack').textContent=TX('‹ 返回');$('#rnote').textContent='';pvEnd()}
 function mpRestore(){if(DU.prevDi!=null){di=DU.prevDi;DU.prevDi=null}if(DU.prevSi!=null){si=DU.prevSi;DU.prevSi=null}}
 function mpSelBack(msg){   // room closed under us: back to the lobby
   mpSelOff();$('#menu').classList.add('hidden');mpRestore();
@@ -1719,33 +1724,33 @@ function mpStand(){const me={i:DU.you,name:mpName(DU.you),s:score,c:combo,l:life
 function mpRankCheck(){
   if(mode!=='duel')return;const S=mpStand(),r=S.findIndex(x=>x.me)+1;
   if(DU.rank&&r!==DU.rank&&st==='play'&&G()>LEADIN+2&&performance.now()-DU.rankT>1200){DU.rankT=performance.now();
-    if(r<DU.rank){mpBanner('up','第 '+r+' 名','','#ffd36b');mpBurst();vib(15)}else mpBanner('down','第 '+r+' 名','','#8fb2ff')}
+    if(r<DU.rank){mpBanner('up',TX('第 {n} 名',{n:r}),'','#ffd36b');mpBurst();vib(15)}else mpBanner('down',TX('第 {n} 名',{n:r}),'','#8fb2ff')}
   DU.rank=r;mpLad();
 }
-const ATKN={bump:'障礙',shrink:'觸碰範圍縮小',fog:'迷霧'},ATKS={bump:' · 4 秒',shrink:' · 5 秒',fog:' · 3 秒'};
+const ATKN=TXO({bump:'障礙',shrink:'觸碰範圍縮小',fog:'迷霧'}),ATKS={bump:' · '+TX('{n} 秒',{n:4}),shrink:' · '+TX('{n} 秒',{n:5}),fog:' · '+TX('{n} 秒',{n:3})};
 function duelHit(j){   // j: 0-3 tier, 4 miss
   const d=score-(DU.lastS||0);DU.lastS=score;
   dsend({t:'st',s:score,c:combo,l:lifeP(),r:resolved,j});
   mpLadHit(DU.you,j,d);
   if(j===0){if(++DU.pstreak>=10){DU.pstreak=0;const k=['bump','shrink','fog'][Math.floor(Math.random()*3)];dsend({t:'atk',k});
     const S=mpStand().filter(x=>x.me||!x.fin&&!x.gone),r=S.findIndex(x=>x.me),tg2=r>0?S[r-1]:S[1];   // the server sends it to the player just ahead (or 2nd when leading)
-    mpBanner('atk',tg2?'牽制 '+(tg2.name||'玩家'):'牽制',ATKN[k],'#7cf0ff')}}
+    mpBanner('atk',tg2?TX('牽制 {name}',{name:tg2.name||TX('玩家')}):TX('牽制'),ATKN[k],'#7cf0ff')}}
   else DU.pstreak=0;
   mpRankCheck();hud();
 }
 function duelAttacked(k,from){
   if(mode!=='duel'||st!=='play')return;
-  if(shield>0){shield--;hud();mpBanner('info','護盾擋下牽制',from?'來自 '+from:'','#7cf0ff');return}
+  if(shield>0){shield--;hud();mpBanner('info',TX('護盾擋下牽制'),from?TX('來自 {name}',{name:from}):'','#7cf0ff');return}
   vib([30,40,30]);flash.a=.2;flash.hue=320;
   if(k==='bump'){for(let t=0;t<12;t++){const x=FR.x+FR.w*rand(.3,.7),y=FR.y+FR.h*rand(.2,.8);if(balls.every(b=>Math.hypot(b.x-x,b.y-y)>FR.h*.3)){bumps.push({x,y,Rm:Math.min(FR.w,FR.h)*.11,age:0,life:4});if(DU.wn>0)spEv('bump',{x,y});break}}}
   else if(k==='shrink'){DU.shrinkT=5;if(DU.wn>0)evq.push('shrink')}else{DU.fogT=3.5;if(DU.wn>0)evq.push('fog')}
-  mpBanner('atk',from?'來自 '+from+' 的牽制':'受到牽制',ATKN[k]+ATKS[k],'#ff5fa2');
+  mpBanner('atk',from?TX('來自 {name} 的牽制',{name:from}):TX('受到牽制'),ATKN[k]+ATKS[k],'#ff5fa2');
   const f=$('#mpFr');if(f.animate)f.animate([{opacity:1},{opacity:0}],{duration:600,easing:'ease-out'});hud();
 }
 function duelSub(){
   const S=mpStand(),r=S.findIndex(x=>x.me),me=S[r];let t;
-  t='第 '+(r+1)+' 名 / '+S.length+(r>0?'　前一名差 '+(S[r-1].s-me.s).toLocaleString():S[1]?'　領先 '+(me.s-S[1].s).toLocaleString():'');
-  $('#sub').textContent=t+(DU.shrinkT>0?'　［範圍縮小］':'');
+  t=TX('第 {n} 名 / {total}',{n:r+1,total:S.length})+(r>0?TX('　前一名差 {diff}',{diff:(S[r-1].s-me.s).toLocaleString()}):S[1]?TX('　領先 {diff}',{diff:(me.s-S[1].s).toLocaleString()}):'');
+  $('#sub').textContent=t+(DU.shrinkT>0?TX('　［範圍縮小］'):'');
 }
 /* ---- live standings (DOM, right of the field): energy bars with a sparkler tip, rank swaps, neighbour gaps ---- */
 const MPC=['#ff9ad1','#8fb2ff','#7cffaa','#c58bff','#ffa86b','#7cf0ff','#ff6f95','#e6ecff'],RMO=matchMedia('(prefers-reduced-motion: reduce)');
@@ -1780,7 +1785,7 @@ function mpLadPlace(){   // follows the field: called from layout()
   mpLad();
 }
 // the compact ladder has room for one gap only: the chaser closing in matters most, then the gap to the one ahead
-function mpGapOne(me,a,b,near){const sp=(c,t)=>'<span class="'+c+'">'+t+'</span>';return near?sp('hot','逼近 '+(me.s-b.s).toLocaleString()):a?sp('cool','差 '+(a.s-me.s).toLocaleString()):b?sp('cool','後 '+(me.s-b.s).toLocaleString()):''}
+function mpGapOne(me,a,b,near){const sp=(c,t)=>'<span class="'+c+'">'+t+'</span>';return near?sp('hot',TX('逼近 {diff}',{diff:(me.s-b.s).toLocaleString()})):a?sp('cool',TX('差 {diff}',{diff:(a.s-me.s).toLocaleString()})):b?sp('cool',TX('後 {diff}',{diff:(me.s-b.s).toLocaleString()})):''}
 // bar position: in the compact ladder (8 seats) the combo text sits left of the bar and the judgement right of it (index.html .mplad.cmp)
 function mpTipX(o){const g=LAD.geo;if(!g.cmp)return 30+g.BW*o.pct/100;const l=o.el.classList.contains('me')?86:78;return l+(g.w-l-56)*o.pct/100}
 function mpLad(){
@@ -1792,24 +1797,24 @@ function mpLad(){
     o.pct=out?0:top>lo?Math.max(4,(e.s-lo)/(top-lo)*100):4;
     r.querySelector('.bar i').style.width=o.pct+'%';r.querySelector('.tip').style.left=mpTipX(o)+'px';
     r.classList.toggle('out',out);r.classList.toggle('fire',e.c>=20&&!out);r.classList.toggle('spw',SP.on&&e.i===SP.i);
-    const cb=e.c>=10&&!out?e.c:0;if(cb!==o.cb){o.cb=cb;r.querySelector('.cb').textContent=cb?'連擊 '+cb:''}
-    if(out)r.querySelector('.ss').textContent=e.gone?'離線':'出局';
+    const cb=e.c>=10&&!out?e.c:0;if(cb!==o.cb){o.cb=cb;r.querySelector('.cb').textContent=cb?TX('連擊 {n}',{n:cb}):''}
+    if(out)r.querySelector('.ss').textContent=e.gone?TX('離線@@gone'):TX('出局');
     if(o.prev>=0&&k!==o.prev&&r.animate&&!RMO.matches){const up=k<o.prev;
       r.animate([{boxShadow:up?'inset 0 0 0 2px #fff,0 0 22px 4px #ffcc4d':'inset 0 0 0 2px #ff4d7a,0 0 18px 3px #ff4d7a'},{boxShadow:'none'}],{duration:800,easing:'ease-out'});
       if(up)mpSparks(o,10)}
     o.prev=k});
   const me=S[mi],a=S[mi-1],b=S[mi+1]&&!S[mi+1].out&&!S[mi+1].gone?S[mi+1]:null,near=!!b&&!me.out&&me.s-b.s<800;
   const gp=LAD.rows[DU.you]&&LAD.rows[DU.you].el.querySelector('.gp');
-  if(gp)gp.innerHTML=me.out?'':LAD.geo.cmp?mpGapOne(me,a,b,near):(a?'<span class="cool">差 '+(a.s-me.s).toLocaleString()+'</span>':'')+(b?'<span class="'+(near?'hot':'cool')+'">'+(near?'逼近 ':'後 ')+(me.s-b.s).toLocaleString()+'</span>':'');
+  if(gp)gp.innerHTML=me.out?'':LAD.geo.cmp?mpGapOne(me,a,b,near):(a?'<span class="cool">'+TX('差 {diff}',{diff:(a.s-me.s).toLocaleString()})+'</span>':'')+(b?'<span class="'+(near?'hot':'cool')+'">'+(near?TX('逼近 {diff}',{diff:(me.s-b.s).toLocaleString()}):TX('後 {diff}',{diff:(me.s-b.s).toLocaleString()}))+'</span>':'');
   LAD.link.classList.toggle('on',near);if(near){LAD.link.style.top=(Y0+mi*RH+rh/2)+'px';LAD.link.style.height=RH+'px'}
-  $('#mpHot').textContent=near?'· 纏鬥中':'';
+  $('#mpHot').textContent=near?TX('· 纏鬥中'):'';
 }
 function mpLadFrame(){   // rolling numbers, every frame while racing
   if(!LAD.on)return;
   for(const o of Object.values(LAD.rows)){if(o.el.classList.contains('out')||o.v===o.s)continue;
     o.v+=(o.s-o.v)*.25;if(Math.abs(o.s-o.v)<1)o.v=o.s;o.ss.textContent=Math.round(o.v).toLocaleString()}
 }
-const JN=['完美','極佳','良好','尚可','失誤'],JC=['#ffd36b','#7cf0ff','#7cffaa','#9aa3c7','#ff6f95'];
+const JN=TXA(['完美','極佳','良好','尚可','失誤']),JC=['#ffd36b','#7cf0ff','#7cffaa','#9aa3c7','#ff6f95'];
 function mpLadHit(i,j,d){
   const o=LAD.rows[i];if(!LAD.on||!o||j<0||j>4||!o.el.animate)return;
   const jd=o.el.querySelector('.jd');jd.textContent=j<4&&d>0&&!(LAD.geo&&LAD.geo.cmp)?'+'+d.toLocaleString()+' '+JN[j]:JN[j];jd.style.color=JC[j];
@@ -1897,7 +1902,7 @@ function specEv(e){
   const j=e[0],nx=x>FR.x+FR.w/2?-1:1,old=nx<0?1:3,lineX=old===1?FR.x+FR.w:FR.x;
   let b=null,bd=1e9;for(const q of balls){const dd=Math.abs(q.y-y);if(dd<bd){bd=dd;b=q}}
   if(b){b.sq=1;b.sqn=old}
-  if(j===4){floats.push({x:x+nx*40,y,text:'失誤',hue:350,life:1,max:1,size:1.2});rings.push({x,y,r0:BR,life:.7,max:.7,hue:350,w:5});burst(x,y,350,24,BR*14,.8);
+  if(j===4){floats.push({x:x+nx*40,y,text:TX('失誤'),hue:350,life:1,max:1,size:1.2});rings.push({x,y,r0:BR,life:.7,max:.7,hue:350,w:5});burst(x,y,350,24,BR*14,.8);
     if(!SET.lowFx){shake=Math.max(shake,4);flash.a=.1;flash.hue=350}return}
   const T=TIERS[j];floats.push({x:x+nx*40,y:y-6,text:T.n,hue:T.hue,life:.9,max:.9,size:j===0?1.5:j===1?1.25:1});
   if(e.length===5&&e[3]<tg.length&&AC&&AC.state==='running')playMel(e[3],e[4],T.vol,SP.rg);   // the watched player's melody note, same voice and loudness as in their own game
@@ -1937,11 +1942,11 @@ function specStep(dt){   // called from update() while spectating
 }
 function spStat(){
   const b=DU.board.find(x=>x.i===SP.i),f=SP.fr.length>0,s=f?SP.s:b?b.s:0,c=f?SP.c:b?b.c:0,l=f?SP.l:b?b.l:100;
-  const t=s.toLocaleString()+(f?'　連擊 '+c+'　生命 '+l+'%':'');if(t!==SP.txt){SP.txt=t;$('#spSt').textContent=t}
+  const t=s.toLocaleString()+(f?TX('　連擊 {combo}　生命 {life}%',{combo:c,life:l}):'');if(t!==SP.txt){SP.txt=t;$('#spSt').textContent=t}
 }
 function spUI(){
   if(!SP.on)return;const S=mpStand(),k=S.findIndex(x=>x.i===SP.i),al=specAlive();
-  $('#spBar').hidden=false;$('#spNm').textContent=mpName(SP.i);$('#spRk').textContent=k>=0?'第 '+(k+1)+' 名':'';
+  $('#spBar').hidden=false;$('#spNm').textContent=mpName(SP.i);$('#spRk').textContent=k>=0?TX('第 {n} 名',{n:k+1}):'';
   $('#spPrev').hidden=$('#spNext').hidden=al.length<2;spStat();
 }
 function specGo(i){
@@ -2000,8 +2005,8 @@ function duelLog(ok){
 function duelFinish(ok,rank,acc){
   DU.myFin={s:score,ok,acc,rank:ok?rank:'—',mc:maxCombo};duelLog(ok);dsend({t:'fin',...DU.myFin});
   mpLadOff();DU.wn=0;evq.length=0;spEye();DU.spAuto=0;
-  $('#deK').textContent=DU.n+' 人對戰';$('#deS').textContent='《'+song.name+'》 · '+D.n;
-  $('#deMe').innerHTML='本局成績　完美<b>'+tierCount[0]+'</b>　極佳<b>'+tierCount[1]+'</b>　良好<b>'+tierCount[2]+'</b>　尚可<b>'+tierCount[3]+'</b>　失誤<b>'+missCount+'</b>　最高連擊<b>'+maxCombo+'</b>';
+  $('#deK').textContent=TX('{n} 人對戰',{n:DU.n});$('#deS').textContent=TX('《{song}》',{song:song.name})+' · '+D.n;
+  $('#deMe').innerHTML=TX('本局成績　完美<b>{t0}</b>　極佳<b>{t1}</b>　良好<b>{t2}</b>　尚可<b>{t3}</b>　失誤<b>{miss}</b>　最高連擊<b>{combo}</b>',{t0:tierCount[0],t1:tierCount[1],t2:tierCount[2],t3:tierCount[3],miss:missCount,combo:maxCombo});
   duelResult();
 }
 const mpPl=x=>{if(x.av||x.pl||x.ti)return x;const p=DU.players.find(q=>q.i===x.i);return p||x};   // the result rows carry what each one wears; others fall back to the room's seats
@@ -2010,27 +2015,27 @@ function mpEndBtns(on){$('#bAgain').disabled=!on;$('#bRoom').disabled=!on}
 function duelResult(){
   const me=DU.myFin;if(!me)return;const R=DU.res,res=$('#deR'),sc=$('#deSc');
   const tr=(k,x,cls,c4,c5,c6)=>'<div class="dtr'+cls+'"><b>'+k+'</b><span>'+mpNm(x)+'</span><span class="r">'+x.s.toLocaleString()+'</span><span class="c">'+c4+'</span><span class="r">'+c5+'</span><span class="x">'+c6+'</span></div>';
-  const hd='<div class="dtr hd"><span></span><span>玩家</span><span class="r">分數</span><span class="c">評級</span><span class="r">最高連擊</span><span class="x">差距</span></div>';
+  const hd='<div class="dtr hd"><span></span><span>'+TX('玩家')+'</span><span class="r">'+TX('分數')+'</span><span class="c">'+TX('評級')+'</span><span class="r">'+TX('最高連擊@@col')+'</span><span class="x">'+TX('差距')+'</span></div>';
   if(!R){
     const lost=DU.left||!DU.ws,done=1+DU.board.filter(b=>b.fin||b.gone).length;
-    res.className='dres sm';res.style.setProperty('--c',lost?'#ff6f95':'#7cf0ff');res.textContent=lost?'連線中斷':'等待其他玩家';
-    sc.innerHTML='<b>'+me.s.toLocaleString()+'</b>'+(me.ok?'評級 '+esc(me.rank):'出局');$('#dePod').innerHTML='';
+    res.className='dres sm';res.style.setProperty('--c',lost?'#ff6f95':'#7cf0ff');res.textContent=lost?TX('連線中斷'):TX('等待其他玩家');
+    sc.innerHTML='<b>'+me.s.toLocaleString()+'</b>'+(me.ok?TX('評級 {rank}',{rank:esc(me.rank)}):TX('出局'));$('#dePod').innerHTML='';
     const S=mpStand();
-    $('#deT').innerHTML=hd+S.map((x,k)=>tr(k+1,x,(x.me?' me':'')+(x.gone||x.out?' out':''),x.me?(me.ok?esc(me.rank):'出局'):x.gone?'離線':x.fin?(x.out?'出局':'完成'):'比賽中',x.me?me.mc:x.fin?'':'—','')).join('');
-    $('#deN').textContent=lost?'與伺服器的連線中斷，無法取得最終名次。':'其他玩家完成後顯示最終名次（'+done+' / '+DU.n+'）';
+    $('#deT').innerHTML=hd+S.map((x,k)=>tr(k+1,x,(x.me?' me':'')+(x.gone||x.out?' out':''),x.me?(me.ok?esc(me.rank):TX('出局')):x.gone?TX('離線@@gone'):x.fin?(x.out?TX('出局'):TX('完成')):TX('比賽中@@row'),x.me?me.mc:x.fin?'':'—','')).join('');
+    $('#deN').textContent=lost?TX('與伺服器的連線中斷，無法取得最終名次。'):TX('其他玩家完成後顯示最終名次（{done} / {n}）',{done:done,n:DU.n});
     mpEndBtns(false);spBtn();
     // if the results never arrive, allow going back to the room after a while (the server accepts it after 20 s)
     clearTimeout(DU.waitT);if(!lost)DU.waitT=setTimeout(()=>{if(DU.myFin===me&&!DU.res&&DU.ws)mpEndBtns(true)},22000);return}
   const pos=R.findIndex(x=>x.i===DU.you)+1,m=R.find(x=>x.i===DU.you)||{s:me.s,ok:me.ok,acc:me.acc,rank:me.rank};
   let t;
-  t=pos===1?'冠軍！':pos>0?'第 '+pos+' 名':'—';
-  const col=t.startsWith('勝')||t==='冠軍！'?'#ffd36b':t==='平手'?'#7cf0ff':pos===2||pos===3?'#cfe6ff':'#8fb2ff';
+  t=pos===1?TX('冠軍！'):pos>0?TX('第 {n} 名',{n:pos}):'—';
+  const col=pos===1?'#ffd36b':pos===2||pos===3?'#cfe6ff':'#8fb2ff';
   res.className='dres';res.style.setProperty('--c',col);res.textContent=t;
-  sc.innerHTML='<b>'+m.s.toLocaleString()+'</b>'+(m.ok?'評級 '+esc(m.rank)+' · 精準 '+pct(Math.round(m.acc*10000)):'出局');
+  sc.innerHTML='<b>'+m.s.toLocaleString()+'</b>'+(m.ok?TX('評級 {rank}',{rank:esc(m.rank)})+' · '+TX('精準 {acc}',{acc:pct(Math.round(m.acc*10000))}):TX('出局'));
   const top=[R[1],R[0],R[2]];
   $('#dePod').innerHTML=top.map((x,k)=>x?'<div class="pc p'+[2,1,3][k]+'">'+whoAv(mpPl(x),56)+'<span class="pn">'+whoNm(mpPl(x),x.name)+'</span><div class="bk">'+[2,1,3][k]+'</div></div>':'<div class="pc"></div>').join('');
   const gone=new Set(DU.board.filter(b=>b.gone&&!b.fin).map(b=>b.i));
-  $('#deT').innerHTML=hd+R.map((x,k)=>{const off=gone.has(x.i)&&!x.ok;return tr(k+1,x,(x.i===DU.you?' me':'')+(x.ok?'':' out'),off?'離線':x.ok?esc(x.rank):'出局',x.mc,x.i===DU.you?(x.ok?pct(Math.round(x.acc*10000)):''):x.ok?(x.s-m.s>0?'+':'')+(x.s-m.s).toLocaleString():'')}).join('');
+  $('#deT').innerHTML=hd+R.map((x,k)=>{const off=gone.has(x.i)&&!x.ok;return tr(k+1,x,(x.i===DU.you?' me':'')+(x.ok?'':' out'),off?TX('離線@@gone'):x.ok?esc(x.rank):TX('出局'),x.mc,x.i===DU.you?(x.ok?pct(Math.round(x.acc*10000)):''):x.ok?(x.s-m.s>0?'+':'')+(x.s-m.s).toLocaleString():'')}).join('');
   $('#deN').textContent='';mpEndNote();
   mpEndBtns(!!DU.ws);$('#bWatch').hidden=true;
   if(pos===1)vib([20,40,20,40,60]);
@@ -2038,10 +2043,10 @@ function duelResult(){
 function mpEndNote(){   // on the result screen: who already went back for another round (quick match counts down once 2 are back)
   if($('#end').classList.contains('hidden')||mode!=='duel'||!DU.res)return;
   const C=DU.cfg,back=C.qm?DU.players.filter(p=>p.back&&p.i!==DU.you):[];   // only quick match tracks who is back
-  const mine=DU.res.find(x=>x.i===DU.you),nv=ME&&mine&&mine.v===0?'這一局不計入對戰成就':'';   // the server says this round does not count for me (a guest never gets the line)
-  if(!DU.ws){$('#deN').textContent=(nv?nv+' · ':'')+'連線已中斷。';return}
+  const mine=DU.res.find(x=>x.i===DU.you),nv=ME&&mine&&mine.v===0?TX('這一局不計入對戰成就'):'';   // the server says this round does not count for me (a guest never gets the line)
+  if(!DU.ws){$('#deN').textContent=(nv?nv+' · ':'')+TX('連線已中斷。');return}
   const s=DU.auto?Math.max(0,Math.ceil((DU.auto-duelNow())/1000)):0;
-  const t=back.length?back.map(p=>p.name).slice(0,3).join('、')+(back.length>3?' 等 '+back.length+' 人':'')+' 想再來一局'+(C.qm&&DU.auto?' · '+s+' 秒後開始':''):'';
+  const t=back.length?(back.length>3?TX('{names} 等 {n} 人 想再來一局',{names:back.map(p=>p.name).slice(0,3).join(TX('、')),n:back.length}):TX('{names} 想再來一局',{names:back.map(p=>p.name).slice(0,3).join(TX('、'))}))+(C.qm&&DU.auto?' · '+TX('{sec} 秒後開始',{sec:s}):''):'';
   $('#deN').textContent=nv?(t?nv+' · '+t:nv):t;
 }
 function duelAgain(ready){
@@ -2064,7 +2069,7 @@ function makeDD(host,label){
   btn.type='button';btn.className='ddb';btn.setAttribute('aria-haspopup','listbox');btn.setAttribute('aria-expanded','false');
   ar.textContent='▼';ar.setAttribute('aria-hidden','true');btn.append(txt,ar);host.appendChild(btn);
   const D={value:0,items:[],disabled:false,onchange:null,label,btn,
-    set(items,v){D.items=items;D.value=v;const it=items.find(o=>o.v===v);txt.textContent=it?it.text:'';btn.setAttribute('aria-label',label+'，'+(it?it.text:''));
+    set(items,v){D.items=items;D.value=v;const it=items.find(o=>o.v===v);txt.textContent=it?it.text:'';btn.setAttribute('aria-label',label+TX('，')+(it?it.text:''));
       if(DDopen&&DDopen.D===D)ddPlace()},   // the card layout may have moved (e.g. the opponent joined)
     setDisabled(x){D.disabled=!!x;btn.disabled=!!x;if(x&&DDopen&&DDopen.D===D)ddClose()}};
   btn.onclick=()=>{if(DDopen&&DDopen.D===D)ddClose();else ddOpen(D)};
@@ -2076,7 +2081,7 @@ function ddOpen(D){
   const p=document.createElement('div');p.className='ddp';p.setAttribute('role','listbox');p.setAttribute('aria-label',D.label);
   for(const o of D.items){const b=document.createElement('div'),t=document.createElement('span');
     b.className='ddo'+(o.v===D.value?' on':'');b.setAttribute('role','option');b.setAttribute('aria-selected',String(o.v===D.value));b.tabIndex=-1;b.dataset.v=o.v;
-    t.textContent=o.text;b.appendChild(t);if(o.note){const s=document.createElement('small');s.textContent=o.note;s.setAttribute('aria-label','最佳評級 '+o.note);b.appendChild(s)}
+    t.textContent=o.text;b.appendChild(t);if(o.note){const s=document.createElement('small');s.textContent=o.note;s.setAttribute('aria-label',TX('最佳評級 {rank}',{rank:o.note}));b.appendChild(s)}
     b.onclick=()=>ddPick(o.v);p.appendChild(b)}
   p.addEventListener('keydown',ddKey);document.body.appendChild(p);
   D.btn.classList.add('open');D.btn.setAttribute('aria-expanded','true');DDopen={D,p};ddPlace();
@@ -2101,35 +2106,35 @@ function ddKey(e){
 document.addEventListener('pointerdown',e=>{if(DDopen&&!DDopen.p.contains(e.target)&&!DDopen.D.btn.contains(e.target))ddClose()},true);
 addEventListener('resize',ddClose);
 document.addEventListener('scroll',e=>{if(DDopen&&!DDopen.p.contains(e.target))ddClose()},true);   // the card scrolled: the panel would drift off its button
-const DMAX=makeDD($('#dMax'),'人數上限');   // in the song page's top bar while in a room
+const DMAX=makeDD($('#dMax'),TX('人數上限'));   // in the song page's top bar while in a room
 DMAX.onchange=v=>mpCfg({max:v});
-const QMAX=makeDD($('#qMax'),'人數上限');   // quick match in the lobby
+const QMAX=makeDD($('#qMax'),TX('人數上限'));   // quick match in the lobby
 QMAX.onchange=v=>{if(![4,6,8].includes(v))return;DU.lob.max=v;lsSet('ppl-qmax',String(v));mpLobbyUI()};
 // room: invite friends who are online (an in-game invite, not a share sheet)
 DU.invited={code:'',ids:{}};
 async function roomInviteOpen(){
   if(document.querySelector('.qp.iv')){popClose();return}
-  const q=document.createElement('div');q.className='qp iv';q.setAttribute('role','menu');q.setAttribute('aria-label','邀請好友');
+  const q=document.createElement('div');q.className='qp iv';q.setAttribute('role','menu');q.setAttribute('aria-label',TX('邀請好友'));
   const draw=()=>{
-    if(!ME){q.innerHTML='<div class="qh">邀請好友</div><div class="em">設定暱稱並加入好友後，就能邀請在線上的好友。</div>';return}
-    const L=FD.list;if(!L){q.innerHTML='<div class="qh">邀請好友</div><div class="em">載入中⋯</div>';return}
-    const inRoom=new Set(DU.players.map(p=>p.name)),busy=f=>f.st==='play'||f.st==='duel';
+    if(!ME){q.innerHTML='<div class="qh">'+TX('邀請好友')+'</div><div class="em">'+TX('設定暱稱並加入好友後，就能邀請在線上的好友。')+'</div>';return}
+    const L=FD.list;if(!L){q.innerHTML='<div class="qh">'+TX('邀請好友')+'</div><div class="em">'+TX('載入中⋯')+'</div>';return}
+    const inRoom=new Set(DU.players.map(p=>p.nm0||p.name)),busy=f=>f.st==='play'||f.st==='duel';
     const fs=L.friends.slice().sort((a,b)=>(b.on-a.on)||(busy(a)-busy(b))||a.name.localeCompare(b.name,'zh-Hant'));
-    let h='<div class="qh">邀請好友</div>';
-    if(!fs.length)h+='<div class="em">還沒有好友。可以在房間裡點其他玩家加為好友，或到「好友」頁面輸入好友碼。</div>';
-    else if(!fs.some(f=>f.on))h+='<div class="em">目前沒有好友在線上。</div>';
+    let h='<div class="qh">'+TX('邀請好友')+'</div>';
+    if(!fs.length)h+='<div class="em">'+TX('還沒有好友。可以在房間裡點其他玩家加為好友，或到「好友」頁面輸入好友碼。')+'</div>';
+    else if(!fs.some(f=>f.on))h+='<div class="em">'+TX('目前沒有好友在線上。')+'</div>';
     for(const f of fs){
-      const here=inRoom.has(f.name),sub=!f.on?'離線':here?'已在房間':busy(f)?(f.st==='duel'?'對戰中':'遊戲中'):'在線上',sent=DU.invited.code===DU.code&&DU.invited.ids[f.id];
+      const here=inRoom.has(f.name),sub=!f.on?TX('離線@@status'):here?TX('已在房間'):busy(f)?(f.st==='duel'?TX('對戰中'):TX('遊戲中')):TX('在線上'),sent=DU.invited.code===DU.code&&DU.invited.ids[f.id];
       h+='<div class="fi"><i class="dot'+(f.on?' on':'')+'"></i><span><b>'+esc(f.name)+'</b><small>'+esc(sub)+'</small></span>'
-        +(f.on&&!here&&!busy(f)?'<button class="'+(sent?'':'pri')+'" data-iv="'+f.id+'"'+(sent?' disabled':'')+'>'+(sent?'已邀請':'邀請')+'</button>':'')+'</div>';
+        +(f.on&&!here&&!busy(f)?'<button class="'+(sent?'':'pri')+'" data-iv="'+f.id+'"'+(sent?' disabled':'')+'>'+(sent?TX('已邀請'):TX('邀請'))+'</button>':'')+'</div>';
     }
     q.innerHTML=h;
   };
   draw();q.onclick=async e=>{const b=e.target.closest('button[data-iv]');if(!b||b.disabled)return;const id=+b.dataset.iv,f=FD.list&&FD.list.friends.find(x=>x.id===id);
-    b.disabled=true;b.textContent='傳送中⋯';const C=DU.cfg;
+    b.disabled=true;b.textContent=TX('傳送中⋯');const C=DU.cfg;
     const j=await api('/fr/invite',{pk:pkey(),id,room:DU.code,song:C.song||SONGS[si].key,d:C.di|0,v:2});
-    if(j.ok&&j.delivered){if(DU.invited.code!==DU.code)DU.invited={code:DU.code,ids:{}};DU.invited.ids[id]=1;toast('已邀請 '+(f?f.name:'好友'))}
-    else toast(j.ok?(f?f.name:'對方')+' 目前離線':j.error==='slow'?'邀請過於頻繁，請稍候再試':j.error==='notfriend'?'您與對方已非好友':'邀請未送出，請稍後再試');
+    if(j.ok&&j.delivered){if(DU.invited.code!==DU.code)DU.invited={code:DU.code,ids:{}};DU.invited.ids[id]=1;toast(TX('已邀請 {name}',{name:f?f.name:TX('好友@@person')}))}
+    else toast(j.ok?TX('{name} 目前離線',{name:f?f.name:TX('對方')}):j.error==='slow'?TX('邀請過於頻繁，請稍候再試'):j.error==='notfriend'?TX('您與對方已非好友'):TX('邀請未送出，請稍後再試'));
     if(q.isConnected)draw()};
   popAt(q,$('#dShare'),false);q.style.left=Math.max(8,$('#dShare').getBoundingClientRect().right-q.offsetWidth)+'px';
   if(ME){await frLoad();if(q.isConnected){draw();q.style.left=Math.max(8,$('#dShare').getBoundingClientRect().right-q.offsetWidth)+'px'}}
@@ -2179,27 +2184,27 @@ function capCall(pl,m,o){return window.Capacitor&&Capacitor.nativePromise?Capaci
 async function shareText(text,url,say){
   if(APP){capCall('Share','share',{title:'PingPongLight',text,url}).catch(()=>{});return}   // a cancelled share sheet is not an error worth showing
   try{if(navigator.share){await navigator.share({title:'PingPongLight',text,url});return}}catch(e){if(e&&e.name==='AbortError')return}
-  try{await navigator.clipboard.writeText(text+' '+url);if(say)say('已複製，可貼上分享。')}catch(e){if(say)say(text+' '+url)}
+  try{await navigator.clipboard.writeText(text+' '+url);if(say)say(TX('已複製，可貼上分享。'))}catch(e){if(say)say(text+' '+url)}
 }
 
 /* ---- nickname: required before anything online; unique and filtered by the server ---- */
 let nickMode='';
 function nickOpen(m){
   nickMode=m||'first';$('#nkIn').value=ME?ME.name:(lsGet('ppl-name')||'');$('#nkMsg').textContent='';
-  $('#nkK').textContent=nickMode==='first'?'歡迎來到 PingPongLight':'暱稱';
-  $('#nkT').textContent=nickMode==='rename'?'變更暱稱':'請設定暱稱';
-  const sk=$('#nkSkip');sk.hidden=false;sk.textContent=nickMode==='first'?'暫不設定，離線遊玩':'取消';
+  $('#nkK').textContent=nickMode==='first'?TX('歡迎來到 PingPongLight'):TX('暱稱');
+  $('#nkT').textContent=nickMode==='rename'?TX('變更暱稱'):TX('請設定暱稱');
+  const sk=$('#nkSkip');sk.hidden=false;sk.textContent=nickMode==='first'?TX('暫不設定，離線遊玩'):TX('取消');
   $('#nick').classList.remove('hidden');setTimeout(()=>{try{$('#nkIn').focus({preventScroll:true})}catch(e){}},60);
 }
 async function nickGo(){
   const v=dName($('#nkIn').value).replace(/\s+/g,' '),msg=$('#nkMsg');
-  if(!v){msg.textContent='請輸入暱稱。';return}
-  const b=$('#nkGo');b.disabled=true;msg.textContent='確認中⋯';
+  if(!v){msg.textContent=TX('請輸入暱稱。');return}
+  const b=$('#nkGo');b.disabled=true;msg.textContent=TX('確認中⋯');
   const j=await api('/lb/name',{pk:pkey(),name:v});b.disabled=false;
   if(j.ok){setMe({id:dInt(j.id,1,1e12),name:dName(j.name)||v});msg.textContent='';nickClose(true);return}
-  if(j.error==='name')msg.textContent=j.why==='taken'?'此暱稱已有人使用，請更換。'+(IOS&&!standalone?'若這是您在主畫面遊戲使用的暱稱，請改從主畫面開啟遊戲。':''):j.why==='empty'?'暱稱須包含至少一個文字或數字。':'暱稱含有不當字詞，請更換。';
-  else if(j.error==='slow')msg.textContent='操作太頻繁，請稍等 1 分鐘後再次嘗試。';
-  else{msg.textContent=nickMode==='first'?'目前無法連線至伺服器。您可以先離線遊玩單人模式，下次開啟時再設定暱稱。':'目前無法連線至伺服器，請稍後再試。';$('#nkSkip').hidden=false}
+  if(j.error==='name')msg.textContent=j.why==='taken'?(IOS&&!standalone?TX('此暱稱已有人使用，請更換。若這是您在主畫面遊戲使用的暱稱，請改從主畫面開啟遊戲。'):TX('此暱稱已有人使用，請更換。')):j.why==='empty'?TX('暱稱須包含至少一個文字或數字。'):TX('暱稱含有不當字詞，請更換。');
+  else if(j.error==='slow')msg.textContent=TX('操作太頻繁，請稍等 1 分鐘後再次嘗試。');
+  else{msg.textContent=nickMode==='first'?TX('目前無法連線至伺服器。您可以先離線遊玩單人模式，下次開啟時再設定暱稱。'):TX('目前無法連線至伺服器，請稍後再試。');$('#nkSkip').hidden=false}
 }
 function nickClose(done){
   $('#nick').classList.add('hidden');const m=nickMode;nickMode='';syncSet();
@@ -2225,7 +2230,7 @@ async function netBoot(){
 /* ---- leaderboard ---- */
 const LBC=new Map();   // board -> {t, v}; kept 30 s so browsing songs does not hit the server on every tap
 function lbClean(j){
-  const row=r=>({r:dInt(r.r,0,1e9),id:dInt(r.id,0,1e12),name:dName(r.name)||'玩家',acc:dInt(r.acc,0,10000),err:dInt(r.err,0,999),combo:dInt(r.combo,0,1e5),score:dInt(r.score,0,1e9),hidden:r.hidden===true,...whoOf(r)});
+  const row=r=>({r:dInt(r.r,0,1e9),id:dInt(r.id,0,1e12),name:dName(r.name)||TX('玩家'),acc:dInt(r.acc,0,10000),err:dInt(r.err,0,999),combo:dInt(r.combo,0,1e5),score:dInt(r.score,0,1e9),hidden:r.hidden===true,...whoOf(r)});
   return{top:Array.isArray(j.top)?j.top.slice(0,100).filter(r=>r&&typeof r==='object').map(row):[],total:dInt(j.total,0,1e9),me:j.me&&typeof j.me==='object'?row(j.me):null};
 }
 async function lbGet(key,d,fresh){
@@ -2234,39 +2239,39 @@ async function lbGet(key,d,fresh){
   const v=lbClean(j);LBC.set(k,{t:performance.now(),v});return v;
 }
 async function lbSubmit(R){
-  const t=$('#rlbT'),b=$('#rlbB'),tok=lastRes;$('#rlb').hidden=false;b.hidden=true;t.textContent='成績上傳中⋯';
+  const t=$('#rlbT'),b=$('#rlbB'),tok=lastRes;$('#rlb').hidden=false;b.hidden=true;t.textContent=TX('成績上傳中⋯');
   const run=R.ticket?await R.ticket:{e:'net'};
   const j=typeof run==='string'?await api('/lb/submit',{run,pk:pkey(),log:R.log,seq:R.seq,star:starRanges(R.star,R.log.length),pf:PF}):{error:run.e};
   if(lastRes!==tok)return;
   if(j.ok&&Array.isArray(j.ach)&&window.PPLA)window.PPLA.fresh(j.ach.filter(x=>typeof x==='string').slice(0,40));   // what this run earned on the server: shown as notices
   if(j.ok&&j.me&&typeof j.me==='object'&&!j.me.hidden){
     const k='ppl-lr-'+R.key+'-'+R.d,prev=dInt(lsGet(k),0,1e9),r=dInt(j.me.r,1,1e9);lsSet(k,String(r));LBC.delete(R.key+'-'+R.d);
-    t.innerHTML='排行榜 <b>第 '+r+' 名</b>／共 '+dInt(j.total,1,1e9)+' 人'+(prev&&r<prev?'<em>↑ 上升 '+(prev-r)+' 名</em>':'')+(j.improved===false?' <span class="dim">（未超越您的最佳紀錄）</span>':'');
-    b.textContent='查看排行榜';b.hidden=false;
-  }else if(j.ok)t.textContent='您的暱稱遭多人檢舉，暫時不會顯示於排行榜';
+    t.innerHTML=TX('排行榜 <b>第 {r} 名</b>／共 {n} 人',{r:r,n:dInt(j.total,1,1e9)})+(prev&&r<prev?TX('<em>↑ 上升 {n} 名</em>',{n:prev-r}):'')+(j.improved===false?' '+TX('<span class="dim">（未超越您的最佳紀錄）</span>'):'');
+    b.textContent=TX('查看排行榜');b.hidden=false;
+  }else if(j.ok)t.textContent=TX('您的暱稱遭多人檢舉，暫時不會顯示於排行榜');
   else{if(j.error==='noname')setMe(null);
-    t.textContent=j.error==='noname'?'找不到您的暱稱，請至「設定」重新設定暱稱':j.error==='slow'?'操作太頻繁，本次成績未上傳':j.error==='net'||j._s===0||j._s>=500?'目前無法連線至伺服器，本次成績未列入排行榜':'本次成績無法驗證，未列入排行榜'}
+    t.textContent=j.error==='noname'?TX('找不到您的暱稱，請至「設定」重新設定暱稱'):j.error==='slow'?TX('操作太頻繁，本次成績未上傳'):j.error==='net'||j._s===0||j._s>=500?TX('目前無法連線至伺服器，本次成績未列入排行榜'):TX('本次成績無法驗證，未列入排行榜')}
 }
 $('#rlbB').onclick=()=>{if(!ME)nickOpen('result');else lbOpen(si,di)};
 const LBV={i:0,d:0,open:-1,v:null};let lbTok=0;
-function lbOpen(i,d){LBV.i=i;LBV.d=d;LBV.open=-1;$('#lbT').textContent='《'+SONGS[i].name+'》';lbSeg();$('#lbv').classList.remove('hidden');lbLoad()}
+function lbOpen(i,d){LBV.i=i;LBV.d=d;LBV.open=-1;$('#lbT').textContent=TX('《{song}》',{song:SONGS[i].name});lbSeg();$('#lbv').classList.remove('hidden');lbLoad()}
 function lbSeg(){$('#lbD').innerHTML=DORD.map(k=>'<button data-d="'+k+'" class="'+(k===LBV.d?'on':'')+'">'+DIFFS[k].n+'</button>').join('')}
 async function lbLoad(){
-  const t=++lbTok,L=$('#lbL');L.innerHTML='<div class="lbmsg">載入中⋯</div>';$('#lbMe').hidden=true;
+  const t=++lbTok,L=$('#lbL');L.innerHTML='<div class="lbmsg">'+TX('載入中⋯')+'</div>';$('#lbMe').hidden=true;
   const v=await lbGet(SONGS[LBV.i].key,LBV.d);if(t!==lbTok)return;
-  if(!v){L.innerHTML='<div class="lbmsg">目前無法連線至伺服器，請稍後再試。</div>';return}
+  if(!v){L.innerHTML='<div class="lbmsg">'+TX('目前無法連線至伺服器，請稍後再試。')+'</div>';return}
   LBV.v=v;lbRender();
 }
-const lbCells=(r,mine)=>'<span class="'+(r.r<=3?'m'+r.r:'')+'"><b>'+r.r+'</b></span><span class="nmc"><span class="who">'+whoAv(r,24)+(mine?'<span class="wn">您（'+esc(r.name)+'）</span>':whoNm(r,r.name))+'</span></span><span><b>'+pct(r.acc)+'</b></span><span>'+r.score.toLocaleString()+'</span><span>'+r.combo+'</span>';
+const lbCells=(r,mine)=>'<span class="'+(r.r<=3?'m'+r.r:'')+'"><b>'+r.r+'</b></span><span class="nmc"><span class="who">'+whoAv(r,24)+(mine?'<span class="wn">'+TX('您（{name}）',{name:esc(r.name)})+'</span>':whoNm(r,r.name))+'</span></span><span><b>'+pct(r.acc)+'</b></span><span>'+r.score.toLocaleString()+'</span><span>'+r.combo+'</span>';
 function lbRender(){
   const v=LBV.v,L=$('#lbL'),rows=v.top.filter(r=>!HIDE.has(r.id)||(ME&&r.id===ME.id));
   L.innerHTML=rows.length?rows.map(r=>{const mine=ME&&r.id===ME.id;
-    return '<div class="lbrow">'+lbCells(r,mine)+(mine?'<span></span>':'<button class="more" data-id="'+r.id+'" aria-label="檢舉或隱藏 '+esc(r.name)+'">⋯</button>')+'</div>'
-      +(LBV.open===r.id?'<div class="opt"><button data-rep="'+r.id+'">檢舉不雅暱稱</button><button data-hide="'+r.id+'">隱藏這位玩家</button><button data-x="1">取消</button></div>':'')}).join('')
-    :'<div class="lbmsg">目前尚無紀錄。</div>';
+    return '<div class="lbrow">'+lbCells(r,mine)+(mine?'<span></span>':'<button class="more" data-id="'+r.id+'" aria-label="'+TX('檢舉或隱藏 {name}',{name:esc(r.name)})+'">⋯</button>')+'</div>'
+      +(LBV.open===r.id?'<div class="opt"><button data-rep="'+r.id+'">'+TX('檢舉不雅暱稱')+'</button><button data-hide="'+r.id+'">'+TX('隱藏這位玩家')+'</button><button data-x="1">'+TX('取消')+'</button></div>':'')}).join('')
+    :'<div class="lbmsg">'+TX('目前尚無紀錄。')+'</div>';
   const M=$('#lbMe'),note=t=>'<span></span><span class="nmc" style="font-weight:400;color:#8a93c0">'+t+'</span><span></span><span></span><span></span><span></span>';
   M.hidden=false;
-  M.innerHTML=!ME?note('設定暱稱後，通關成績將列入排行榜'):!v.me?note('通關此難度後，即會列入排行榜'):v.me.hidden?note('您的暱稱遭多人檢舉，暫時不會顯示'):lbCells(v.me,true)+'<span style="font-size:11px;color:#8a93c0">/'+v.total+'</span>';
+  M.innerHTML=!ME?note(TX('設定暱稱後，通關成績將列入排行榜')):!v.me?note(TX('通關此難度後，即會列入排行榜')):v.me.hidden?note(TX('您的暱稱遭多人檢舉，暫時不會顯示')):lbCells(v.me,true)+'<span style="font-size:11px;color:#8a93c0">/'+v.total+'</span>';
 }
 $('#lbD').onclick=e=>{const b=e.target.closest('button[data-d]');if(!b)return;LBV.d=+b.dataset.d;LBV.open=-1;lbSeg();lbLoad()};
 $('#lbL').onclick=async e=>{
@@ -2274,7 +2279,7 @@ $('#lbL').onclick=async e=>{
   if(D.id){const id=+D.id;LBV.open=LBV.open===id?-1:id;lbRender();return}
   if(D.x){LBV.open=-1;lbRender();return}
   if(D.hide){HIDE.add(+D.hide);saveHide();LBV.open=-1;lbRender();return}
-  if(D.rep){const id=+D.rep;if(!ME){b.textContent='設定暱稱後才能檢舉';return}b.disabled=true;b.textContent='送出中⋯';const j=await api('/lb/report',{id,pk:pkey()});b.textContent=j.ok?'已送出檢舉，感謝回報':'送出失敗';
+  if(D.rep){const id=+D.rep;if(!ME){b.textContent=TX('設定暱稱後才能檢舉');return}b.disabled=true;b.textContent=TX('送出中⋯');const j=await api('/lb/report',{id,pk:pkey()});b.textContent=j.ok?TX('已送出檢舉，感謝回報'):TX('送出失敗');
     setTimeout(()=>{if(LBV.open===id){LBV.open=-1;lbRender()}},1300)}
 };
 function lbClose(){$('#lbv').classList.add('hidden');if(!$('#menu').classList.contains('hidden'))selDetail()}
@@ -2284,7 +2289,7 @@ $('#lbv').addEventListener('click',e=>{if(e.target.id==='lbv')lbClose()});
 /* ---- song select ---- */
 let selF=0,selTok=0,selTm=0;
 const rkOf=(i,d)=>{const r=lsGet(KEY_RK(i,d));return RANKS.includes(r)?r:''};
-const durTxt=s=>{const t=Math.round(s.dur||0);return Math.floor(t/60)+' 分 '+String(t%60).padStart(2,'0')+' 秒'};
+const durTxt=s=>{const t=Math.round(s.dur||0);return TX('{m} 分 {s} 秒',{m:Math.floor(t/60),s:String(t%60).padStart(2,'0')})};
 function buildChips(){
   if(!(RSEL&&RSEL.on))diSync();
   const vis=SONGS.map((_,i)=>shown(i)),nv=vis.filter(Boolean).length,done=SONGS.map((_,i)=>vis[i]&&!!rkOf(i,di)),n2=done.filter(Boolean).length,cnt=[nv,nv-n2,n2];
@@ -2293,37 +2298,37 @@ function buildChips(){
   for(const C of CONS){
     if(!rwOpen(C))continue;
     const ii=C.ii.filter(i=>!selF||(RSEL&&RSEL.on)||(selF===2)===done[i]);if(!ii.length)continue;
-    h+='<div class="era">'+esc(C.name)+(C.rw!=null?'<em class="rwt">獎勵 · '+DIFFS[C.rdi].n+'</em>':'')+'<small>'+C.ii.filter(i=>done[i]).length+' / '+C.ii.length+'</small><span class="eh"><span class="ehd">難度</span>評級</span></div>';
+    h+='<div class="era">'+esc(C.name)+(C.rw!=null?'<em class="rwt">'+TX('獎勵 · {d}',{d:DIFFS[C.rdi].n})+'</em>':'')+'<small>'+C.ii.filter(i=>done[i]).length+' / '+C.ii.length+'</small><span class="eh"><span class="ehd">'+TX('難度')+'</span>'+TX('評級')+'</span></div>';
     for(const i of ii){const s=SONGS[i];
     const ul=unlocked(i),rk=rkOf(i,di);
     h+='<button class="sr'+(i===si?' on':'')+(fullLocked(i)||!ul&&!(RSEL&&RSEL.on)?' lock':'')+'" data-i="'+i+'"><span class="no">'+(CON_OF[i][1]+1)+'</span>'
       +'<span class="tx"><span class="nm">'+esc(s.name)+'</span><span class="mt">'+esc(s.year+' · '+s.composer)+'<i>'+starTxt(STARS[i])+'</i>'+(RSEL&&RSEL.on?mpTag(s.key):'')+'</span></span>'
-      +(RSEL&&RSEL.on?mpVoters(s.key):'')+'<span class="pips" aria-label="已通關難度">'+DORD.map(d=>'<i class="'+(rkOf(i,d)?'l'+LVL[d]:'')+'"></i>').join('')+'</span>'
-      +(fullLocked(i)?'<span class="rk fl">完整版</span>':'<span class="rk'+rsssCls(rk)+'"'+(rk?rkColorAttr(rk):'')+'>'+(rk||'—')+'</span>')+'</button>';
+      +(RSEL&&RSEL.on?mpVoters(s.key):'')+'<span class="pips" aria-label="'+TX('已通關難度')+'">'+DORD.map(d=>'<i class="'+(rkOf(i,d)?'l'+LVL[d]:'')+'"></i>').join('')+'</span>'
+      +(fullLocked(i)?'<span class="rk fl">'+TX('完整版')+'</span>':'<span class="rk'+rsssCls(rk)+'"'+(rk?rkColorAttr(rk):'')+'>'+(rk||'—')+'</span>')+'</button>';
   }}
-  $('#chips').innerHTML=h||'<div class="sempty">'+(selF===1?'此難度的曲目皆已通關，可改選其他難度挑戰。':'此難度尚無已通關的曲目。')+'</div>';
+  $('#chips').innerHTML=h||'<div class="sempty">'+(selF===1?TX('此難度的曲目皆已通關，可改選其他難度挑戰。'):TX('此難度尚無已通關的曲目。'))+'</div>';
   selDetail();
 }
 function selScroll(){const on=$('#chips .sr.on');if(on)try{on.scrollIntoView({block:'center'})}catch(e){}}
 function selDetail(){
   const i=si,s=SONGS[i];if(!s)return;
   const room=RSEL&&RSEL.on;if(!room)diSync();const fx=room?null:fixDi(i);
-  $('#sK').textContent=CONS[CON_OF[i][0]].name+' · 第 '+(CON_OF[i][1]+1)+' 首 · '+s.year;$('#sN').textContent=s.name;
+  $('#sK').textContent=CONS[CON_OF[i][0]].name+' · '+TX('第 {n} 首',{n:CON_OF[i][1]+1})+' · '+s.year;$('#sN').textContent=s.name;
   $('#sM').innerHTML=esc(s.composer+' · '+durTxt(s))+'<i>'+starTxt(STARS[i])+'</i>';
   $('#sT').textContent=s.tip||'';$('#sT').hidden=!s.tip;
-  $('#diffs').innerHTML=DORD.map(k=>{const df=DIFFS[k];return'<button data-d="'+k+'" class="'+(k===di?'on':'')+'"'+(fx!=null&&k!==fx?' disabled title="獎勵曲固定難度"':'')+'>'+df.n+'<small>'+BALLS[df.nb]+(df.spd>1?'·快':df.spd<1?'·慢':'')+'</small></button>'}).join('');
+  $('#diffs').innerHTML=DORD.map(k=>{const df=DIFFS[k];return'<button data-d="'+k+'" class="'+(k===di?'on':'')+'"'+(fx!=null&&k!==fx?' disabled title="'+TX('獎勵曲固定難度')+'"':'')+'>'+df.n+'<small>'+BALLS[df.nb]+(df.spd>1?TX('·快'):df.spd<1?TX('·慢'):'')+'</small></button>'}).join('');
   const rk=rkOf(i,di),sc=parseInt(lsGet(KEY_SC(i,di))||'0',10)||0,ac=parseInt(lsGet(KEY_AC(i,di))||'0',10)||0;
-  $('#sB').innerHTML=rk?'<span class="bk'+rsssCls(rk)+'"'+rkColorAttr(rk)+'>'+rk+'</span><span>'+(ac?'精準度 <b>'+pct(ac)+'</b> · ':'')+'最高分 <b>'+sc.toLocaleString()+'</b><br><span id="sRank"></span></span>'
-    :'<span class="bk" style="color:#3c4370">—</span><span>此難度尚未通關<br><span id="sRank"></span></span>';
+  $('#sB').innerHTML=rk?'<span class="bk'+rsssCls(rk)+'"'+rkColorAttr(rk)+'>'+rk+'</span><span>'+(ac?TX('精準度 <b>{acc}</b>',{acc:pct(ac)})+' · ':'')+TX('最高分 <b>{score}</b>',{score:sc.toLocaleString()})+'<br><span id="sRank"></span></span>'
+    :'<span class="bk" style="color:#3c4370">—</span><span>'+TX('此難度尚未通關')+'<br><span id="sRank"></span></span>';
   if(RSEL&&RSEL.on){mpDetail();return}   // a room plays any song: no lock, no personal leaderboard here
   $('#bGo').disabled=!unlocked(i);
-  const t=++selTok,mini=$('#sMini');mini.innerHTML='<p>排行榜載入中⋯</p>';
+  const t=++selTok,mini=$('#sMini');mini.innerHTML='<p>'+TX('排行榜載入中⋯')+'</p>';
   clearTimeout(selTm);selTm=setTimeout(async()=>{   // wait for the player to settle on a song
     const v=await lbGet(s.key,di);if(t!==selTok)return;const r=$('#sRank');
-    if(!v){mini.innerHTML='<p>離線中，暫時無法顯示排行榜</p>';return}
+    if(!v){mini.innerHTML='<p>'+TX('離線中，暫時無法顯示排行榜')+'</p>';return}
     const top=v.top.filter(x=>!HIDE.has(x.id)).slice(0,3);
-    mini.innerHTML=top.length?top.map(x=>'<div><b class="m'+x.r+'">'+x.r+'</b><span>'+esc(x.name)+'</span><span>'+pct(x.acc)+'</span></div>').join(''):'<p>目前尚無紀錄</p>';
-    if(r)r.innerHTML=v.me&&!v.me.hidden?'排行榜 <b style="color:#ffd36b">第 '+v.me.r+' 名</b>／共 '+v.total+' 人':'';
+    mini.innerHTML=top.length?top.map(x=>'<div><b class="m'+x.r+'">'+x.r+'</b><span>'+esc(x.name)+'</span><span>'+pct(x.acc)+'</span></div>').join(''):'<p>'+TX('目前尚無紀錄')+'</p>';
+    if(r)r.innerHTML=v.me&&!v.me.hidden?TX('排行榜 <b style="color:#ffd36b">第 {r} 名</b>／共 {n} 人',{r:v.me.r,n:v.total}):'';
   },250);
 }
 $('#chips').onclick=e=>{const b=e.target.closest('.sr');if(!b)return;const i=+b.dataset.i,room=RSEL&&RSEL.on;if(fullLocked(i)){openFullShop();return}
@@ -2362,28 +2367,28 @@ setInterval(()=>{frSend({t:'ping'})},30000);
 setInterval(()=>{frStatus();if(FD.inv)invShow();else if($('#invT').dataset.k==='inv')$('#invT').hidden=true;if(!$('#home').classList.contains('hidden'))frBadge()},1000);
 function frOn(d){
   if(d.t==='hi'){FD.back=0;frStatus(true);return}
-  const who=f=>dName(f&&typeof f==='object'?f.name:'')||'好友';
-  if(d.t==='inv'){if(d.v!==2){const f=d.from&&typeof d.from==='object'?d.from:{};toast(who(f)+' 邀請您對戰，但對方的遊戲版本較舊，請對方更新後再邀請');return}const room=String(d.room||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);if(room.length!==4)return;
+  const who=f=>dName(f&&typeof f==='object'?f.name:'')||TX('好友');
+  if(d.t==='inv'){if(d.v!==2){const f=d.from&&typeof d.from==='object'?d.from:{};toast(TX('{name} 邀請您對戰，但對方的遊戲版本較舊，請對方更新後再邀請',{name:who(f)}));return}const room=String(d.room||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);if(room.length!==4)return;
     const f=d.from&&typeof d.from==='object'?d.from:{};
     FD.inv={id:dInt(f.id,0,1e12),name:who(f),room,song:SONGS.findIndex(x=>x.key===d.song),d:dInt(d.d,0,DIFFS.length-1),exp:Date.now()+55000};invShow();return}
-  if(d.t==='invno'){toast(who(d.from)+' 目前無法接受邀請');return}
-  if(d.t==='req'){toast(who(d.from)+' 想加您為好友');frBadge(true);if(frIsOpen())frLoad();if(RSEL&&RSEL.on)mpRelAsk();return}
+  if(d.t==='invno'){toast(TX('{name} 目前無法接受邀請',{name:who(d.from)}));return}
+  if(d.t==='req'){toast(TX('{name} 想加您為好友',{name:who(d.from)}));frBadge(true);if(frIsOpen())frLoad();if(RSEL&&RSEL.on)mpRelAsk();return}
   if(d.t==='fmsg'){dmGot(d);return}
   if(d.t==='fsay'){fsayGot(d);return}
-  if(d.t==='friend'){toast('您已和 '+dName(d.name)+' 成為好友');frBadge(true);if(frIsOpen())frLoad();if(RSEL&&RSEL.on)mpRelAsk();return}
+  if(d.t==='friend'){toast(TX('您已和 {name} 成為好友',{name:dName(d.name)}));frBadge(true);if(frIsOpen())frLoad();if(RSEL&&RSEL.on)mpRelAsk();return}
 }
 let toastTm=0;
 function toast(text){
-  if(FD.inv)return;const T=$('#invT');T.dataset.k='note';$('#invA').textContent=text;$('#invB').textContent='';$('#invNo').hidden=true;$('#invOk').textContent='確定';
+  if(FD.inv)return;const T=$('#invT');T.dataset.k='note';$('#invA').textContent=text;$('#invB').textContent='';$('#invNo').hidden=true;$('#invOk').textContent=TX('確定');
   T.hidden=busyNow();clearTimeout(toastTm);toastTm=setTimeout(()=>{if(T.dataset.k==='note')T.hidden=true},4500);
 }
 function invShow(){   // never over a run in progress: it appears when the run ends
   const v=FD.inv,T=$('#invT');if(!v)return;
   if(Date.now()>v.exp){FD.inv=null;T.hidden=true;return}
   if(busyNow()){if(T.dataset.k==='inv')T.hidden=true;return}
-  T.dataset.k='inv';$('#invA').innerHTML='<b>'+esc(v.name)+'</b> 邀請您對戰';
-  $('#invB').textContent=(v.song>=0?'《'+SONGS[v.song].name+'》 · '+DIFFS[v.d].n+' · ':'')+'還有 '+Math.ceil((v.exp-Date.now())/1000)+' 秒';
-  $('#invNo').hidden=false;$('#invOk').textContent='加入';T.hidden=false;
+  T.dataset.k='inv';$('#invA').innerHTML=TX('<b>{name}</b> 邀請您對戰',{name:esc(v.name)});
+  $('#invB').textContent=(v.song>=0?TX('《{song}》',{song:SONGS[v.song].name})+' · '+DIFFS[v.d].n+' · ':'')+TX('還有 {n} 秒',{n:Math.ceil((v.exp-Date.now())/1000)});
+  $('#invNo').hidden=false;$('#invOk').textContent=TX('加入');T.hidden=false;
 }
 $('#invOk').onclick=()=>{const T=$('#invT');T.hidden=true;if(T.dataset.k!=='inv')return;const v=FD.inv;FD.inv=null;if(v&&Date.now()<=v.exp)frJoin(v)};
 $('#invNo').onclick=()=>{const v=FD.inv;FD.inv=null;$('#invT').hidden=true;if(v)api('/fr/decline',{pk:pkey(),id:v.id})};
@@ -2393,31 +2398,31 @@ function frJoin(v){
   if(DU.ws)duelClose(true);showHome();duelOpen();duelJoin(v.room);
 }
 const fcode=c=>c.slice(0,4)+'-'+c.slice(4);
-const ago=ms=>{if(!ms)return '';const s=(Date.now()-ms)/1000;return s<3600?Math.max(1,Math.round(s/60))+' 分鐘前':s<86400?Math.round(s/3600)+' 小時前':Math.round(s/86400)+' 天前'};
+const ago=ms=>{if(!ms)return '';const s=(Date.now()-ms)/1000;return s<3600?TX('{n} 分鐘前',{n:Math.max(1,Math.round(s/60))}):s<86400?TX('{n} 小時前',{n:Math.round(s/3600)}):TX('{n} 天前',{n:Math.round(s/86400)})};
 function frOpen(){
   if(!ME){nickOpen('friends');return}
   initAudio();$('#home').classList.add('hidden');$('#frv').classList.remove('hidden');$('#frMsg').textContent='';FD.open=-1;
   $('#frCode').textContent=FD.code?fcode(FD.code):'⋯';
-  api('/fr/me',{pk:pkey()}).then(j=>{if(typeof j.code==='string'&&/^[A-Z0-9]{8}$/.test(j.code)){FD.code=j.code;lsSet('ppl-fc',j.code);$('#frCode').textContent=fcode(j.code)}else if(!FD.code)$('#frCode').textContent=j.error==='noname'?'請先設定暱稱':'離線中'});
-  if(FD.pend){$('#frIn').value=fcode(FD.pend);FD.pend='';$('#frMsg').textContent='已帶入好友碼，請按「送出」。'}
+  api('/fr/me',{pk:pkey()}).then(j=>{if(typeof j.code==='string'&&/^[A-Z0-9]{8}$/.test(j.code)){FD.code=j.code;lsSet('ppl-fc',j.code);$('#frCode').textContent=fcode(j.code)}else if(!FD.code)$('#frCode').textContent=j.error==='noname'?TX('請先設定暱稱'):TX('離線中')});
+  if(FD.pend){$('#frIn').value=fcode(FD.pend);FD.pend='';$('#frMsg').textContent=TX('已帶入好友碼，請按「送出」。')}
   frLoad();clearInterval(FD.poll);FD.poll=setInterval(()=>{if(frIsOpen()&&!document.hidden)frLoad()},15000);
 }
 function frClose(){clearInterval(FD.poll);dmClose();showHome()}
 async function frLoad(){
   const j=await api('/fr/list',{pk:pkey()});
-  if(j.error){if(frIsOpen()&&!FD.list)$('#frList').innerHTML='<div class="lbmsg">'+(j.error==='noname'?'請先設定暱稱。':'目前無法連線至伺服器，請稍後再試。')+'</div>';return}
-  const P=a=>Array.isArray(a)?a.slice(0,300).filter(x=>x&&typeof x==='object').map(x=>({...whoOf(x),id:dInt(x.id,0,1e12),name:dName(x.name)||'玩家',on:x.on===1||x.on===true,
+  if(j.error){if(frIsOpen()&&!FD.list)$('#frList').innerHTML='<div class="lbmsg">'+(j.error==='noname'?TX('請先設定暱稱。'):TX('目前無法連線至伺服器，請稍後再試。'))+'</div>';return}
+  const P=a=>Array.isArray(a)?a.slice(0,300).filter(x=>x&&typeof x==='object').map(x=>({...whoOf(x),id:dInt(x.id,0,1e12),name:dName(x.name)||TX('玩家'),on:x.on===1||x.on===true,
     st:['home','menu','play','duel'].includes(x.st)?x.st:null,song:typeof x.song==='string'?x.song:null,seen:Number.isFinite(+x.seen)?+x.seen:0,lm:dmMsg(x.lm)})):[];
   for(const f of P(j.friends))if(f.lm&&(!FD.dm[f.id]||FD.dm[f.id].id<=f.lm.id))FD.dm[f.id]=f.lm;
   FD.list={friends:P(j.friends),incoming:P(j.incoming),outgoing:P(j.outgoing),blocked:P(j.blocked)};frBadgeSet();if(frIsOpen())frRender();
 }
 function frBadge(force){if(!ME)return;if(!force&&performance.now()-FD.bt<30000)return;FD.bt=performance.now();frLoad()}
 function frBadgeSet(){const L=FD.list;if(!L)return;const on=L.friends.filter(f=>f.on).length,inc=L.incoming.length,nw=L.friends.filter(f=>dmUnread(f.id)).length;
-  $('#frN').textContent=[on?String(on):'',inc?inc+' 個邀請':'',nw?nw+' 則新訊息':''].filter(Boolean).join(' · ')}
+  $('#frN').textContent=[on?String(on):'',inc?TX('{n} 個邀請',{n:inc}):'',nw?TX('{n} 則新訊息',{n:nw}):''].filter(Boolean).join(' · ')}
 // ---- friend chat: free text, friends only, filtered and kept 7 days by the server; reports keep a copy for review ----
 // FSAY: the old preset phrases. Older app versions still send them (as 'fsay' with an index), so the list stays append-only;
 // here they are the quick chips above the input.
-const FSAY=['要一起玩嗎？','現在有空嗎？','開房等你 🎮','好啊來！','等我 5 分鐘 ⏳','今天不行 🙏','再一局？','晚點再約','剛剛那把好強 👍','先下線囉 👋'];
+const FSAY=['要一起玩嗎？','現在有空嗎？','開房等你 🎮','好啊來！','等我 5 分鐘 ⏳','今天不行 🙏','再一局？','晚點再約','剛剛那把好強 👍','先下線囉 👋'];const fsayT=t=>FSAY.includes(t)?TX(t):t;   // FSAY stays Chinese (it is what the server stores and what old versions send); a message that is one of the phrases is shown translated
 const DM_MAX=60,CHAT_SVG='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4.5h14a2 2 0 0 1 2 2v8.5a2 2 0 0 1-2 2h-8l-4.5 3.5V17H5a2 2 0 0 1-2-2V6.5a2 2 0 0 1 2-2z"/><path d="M8 10.8h.01M12 10.8h.01M16 10.8h.01" stroke-width="2.6"/></svg>';
 FD.dm={};   // last message with each friend: {id:{id, me, text, ts}}
 function dmMsg(x){if(!x||typeof x!=='object'||typeof x.text!=='string')return null;
@@ -2427,20 +2432,20 @@ function dmMarkRead(fid){const l=FD.dm[fid];if(!l||!l.id)return;const o=dmReadMa
   const k=Object.keys(o);if(k.length>200)delete o[k.reduce((a,b)=>o[a]<=o[b]?a:b)];lsSet('ppl-dmr',JSON.stringify(o));frBadgeSet()}
 function dmUnread(fid){const l=FD.dm[fid];return !!(l&&!l.me&&l.id&&l.id>(+dmReadMap()[fid]||0))}
 function dmFriend(id){return FD.list&&FD.list.friends.find(x=>x.id===id)}
-function dmSub(f){if(!f)return '';if(!f.on)return '離線';return f.st==='play'?'遊戲中':f.st==='duel'?'對戰中':f.st==='menu'?'選曲中':'在線上'}
+function dmSub(f){if(!f)return '';if(!f.on)return TX('離線@@status');return f.st==='play'?TX('遊戲中'):f.st==='duel'?TX('對戰中'):f.st==='menu'?TX('選曲中'):TX('在線上')}
 const hm=t=>{const d=new Date(t);return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0')};
 function dmDay(t){const d=new Date(t),n=new Date(),z=x=>new Date(x.getFullYear(),x.getMonth(),x.getDate()).getTime(),k=Math.round((z(n)-z(d))/864e5);
-  return k===0?'今天':k===1?'昨天':(d.getMonth()+1)+' 月 '+d.getDate()+' 日'}
+  return k===0?TX('今天'):k===1?TX('昨天'):PPLI18N.lang==='en'?d.toLocaleDateString(PPLI18N.locale,{month:'short',day:'numeric'}):TX('{m} 月 {d} 日',{m:d.getMonth()+1,d:d.getDate()})}   // English: 'Nov 19' or '19 Nov', as the reader's own locale writes it
 function dmClose(){const w=document.querySelector('.dmw');if(w)w.remove();FD.chat=null;popClose()}
 function dmNote(t,id){const C=FD.chat;if(C&&(id===undefined||C.id===id)){C.msgs.push({sys:t});dmDraw()}else toast(t)}   // inside the chat: a line in the chat (a toast would be under it)
 function dmOpen(id,name){
   dmClose();popClose();const f=dmFriend(id);
   const w=document.createElement('div');w.className='dmw';
-  w.innerHTML='<div class="dmv" role="dialog" tabindex="-1" aria-modal="true" aria-label="與 '+esc(name)+' 的訊息"><div class="dh"><button class="bk" aria-label="返回">‹</button>'+(COS?whoAv(f,24,!!(f&&f.on)):'<span class="dot'+(f&&f.on?' on':'')+'"></span>')+'<b>'+esc(name)+'</b><small>'+esc(dmSub(f))+'</small><button class="mo" aria-label="檢舉或封鎖" aria-haspopup="menu">⋯</button></div>'
-    +'<div class="dl"><div class="dd">載入中⋯</div></div><div class="sr" aria-live="polite"></div>'
-    +'<div class="qs">'+FSAY.map((t,k)=>'<button data-q="'+k+'">'+esc(t)+'</button>').join('')+'</div>'
-    +'<div class="di"><input placeholder="輸入訊息" enterkeyhint="send" autocomplete="off" aria-label="輸入訊息"><span class="cn">0/'+DM_MAX+'</span><button class="pri">送出</button></div>'
-    +'<div class="dn">僅限好友傳送 · 訊息保存 7 天 · 系統將過濾不當用語 · 點選 ⚑ 可檢舉訊息</div></div>';
+  w.innerHTML='<div class="dmv" role="dialog" tabindex="-1" aria-modal="true" aria-label="'+TX('與 {name} 的訊息',{name:esc(name)})+'"><div class="dh"><button class="bk" aria-label="'+TX('返回')+'">‹</button>'+(COS?whoAv(f,24,!!(f&&f.on)):'<span class="dot'+(f&&f.on?' on':'')+'"></span>')+'<b>'+esc(name)+'</b><small>'+esc(dmSub(f))+'</small><button class="mo" aria-label="'+TX('檢舉或封鎖')+'" aria-haspopup="menu">⋯</button></div>'
+    +'<div class="dl"><div class="dd">'+TX('載入中⋯')+'</div></div><div class="sr" aria-live="polite"></div>'
+    +'<div class="qs">'+FSAY.map((t,k)=>'<button data-q="'+k+'">'+esc(TX(t))+'</button>').join('')+'</div>'
+    +'<div class="di"><input placeholder="'+TX('輸入訊息')+'" enterkeyhint="send" autocomplete="off" aria-label="'+TX('輸入訊息')+'"><span class="cn">0/'+DM_MAX+'</span><button class="pri">'+TX('送出')+'</button></div>'
+    +'<div class="dn">'+TX('僅限好友傳送 · 訊息保存 7 天 · 系統將過濾不當用語 · 點選 ⚑ 可檢舉訊息')+'</div></div>';
   document.body.appendChild(w);
   const C=FD.chat={id,name,msgs:[],w,warned:0},inp=w.querySelector('input'),cn=w.querySelector('.cn');
   w.addEventListener('click',e=>{if(e.target===w)dmClose()});
@@ -2456,9 +2461,9 @@ function dmOpen(id,name){
   w.querySelector('.dmv').focus({preventScroll:true});
   if(lsGet('ppl-dmok')!=='1'){   // community rules, agreed once before the first chat (App Store guideline 1.2)
     const k=document.createElement('div');k.className='dmok';
-    k.innerHTML='<b>聊天前請先閱讀社群規範</b><ul><li>禁止辱罵、人身攻擊或騷擾</li><li>禁止仇恨、歧視、性相關或暴力內容</li><li>禁止詐騙、索取個人資料或引導至其他平台</li><li>禁止廣告與洗版</li></ul>'
-      +'<p>不當用語會被自動過濾。被檢舉的訊息由 AI 審查，確認違規時會刪除該訊息，並暫停傳送訊息 1 天、7 天或 30 天（依違規次數）。對本遊戲違規內容零容忍。</p>'
-      +'<div class="r"><button class="pri" data-a="y">同意並開始聊天</button><button data-a="n">取消</button></div>';
+    k.innerHTML='<b>'+TX('聊天前請先閱讀社群規範')+'</b><ul><li>'+TX('禁止辱罵、人身攻擊或騷擾')+'</li><li>'+TX('禁止仇恨、歧視、性相關或暴力內容')+'</li><li>'+TX('禁止詐騙、索取個人資料或引導至其他平台')+'</li><li>'+TX('禁止廣告與洗版')+'</li></ul>'
+      +'<p>'+TX('不當用語會被自動過濾。被檢舉的訊息由 AI 審查，確認違規時會刪除該訊息，並暫停傳送訊息 1 天、7 天或 30 天（依違規次數）。對本遊戲違規內容零容忍。')+'</p>'
+      +'<div class="r"><button class="pri" data-a="y">'+TX('同意並開始聊天')+'</button><button data-a="n">'+TX('取消')+'</button></div>';
     k.querySelector('[data-a="y"]').onclick=()=>{lsSet('ppl-dmok','1');k.remove()};
     k.querySelector('[data-a="n"]').onclick=dmClose;
     w.querySelector('.dmv').appendChild(k);
@@ -2466,7 +2471,7 @@ function dmOpen(id,name){
   w.querySelector('.dl').onclick=e=>{const b=e.target.closest('button[data-rp]');if(b){e.stopPropagation();dmReportAsk(b,+b.dataset.rp)}};
   w.addEventListener('keydown',e=>{if(e.key==='Escape')dmClose()});
   api('/fr/msgs',{pk:pkey(),id}).then(j=>{if(FD.chat!==C)return;
-    if(j.error==='notfriend'){dmClose();toast('您與對方已非好友，無法傳送');return}
+    if(j.error==='notfriend'){dmClose();toast(TX('您與對方已非好友，無法傳送'));return}
     const got=Array.isArray(j.msgs)?j.msgs.map(dmMsg).filter(Boolean):[],live=C.msgs;if(j.error)C.err=1;
     C.msgs=got.concat(live.filter(m=>m.sys||!m.id||!got.some(x=>x.id===m.id)));   // pushes that arrived while loading
     const ids=C.msgs.filter(m=>m.id);if(ids.length){const l=ids[ids.length-1];if(!FD.dm[id]||FD.dm[id].id<=l.id)FD.dm[id]=l}
@@ -2474,69 +2479,69 @@ function dmOpen(id,name){
 }
 function dmDraw(){
   const C=FD.chat;if(!C)return;const L=C.w.querySelector('.dl');let h='',day='';
-  if(C.err&&!C.msgs.length)h='<div class="dd">目前無法載入訊息，請稍後再試</div>';
-  else if(!C.msgs.length)h='<div class="dd">還沒有訊息，打聲招呼吧</div>';
+  if(C.err&&!C.msgs.length)h='<div class="dd">'+TX('目前無法載入訊息，請稍後再試')+'</div>';
+  else if(!C.msgs.length)h='<div class="dd">'+TX('還沒有訊息，打聲招呼吧')+'</div>';
   for(const m of C.msgs){
     if(m.sys){h+='<div class="sys">'+esc(m.sys)+'</div>';continue}
     const dy=dmDay(m.ts);if(dy!==day){day=dy;h+='<div class="dd">'+dy+'</div>'}
-    h+='<div class="m '+(m.me?'me':'o')+'"><span>'+esc(m.text)+'</span>'+(!m.me&&m.id?'<button class="rp" data-rp="'+m.id+'" aria-label="檢舉這則訊息">⚑</button>':'')+'<time>'+hm(m.ts)+'</time></div>';
+    h+='<div class="m '+(m.me?'me':'o')+'"><span>'+esc(fsayT(m.text))+'</span>'+(!m.me&&m.id?'<button class="rp" data-rp="'+m.id+'" aria-label="'+TX('檢舉這則訊息')+'">⚑</button>':'')+'<time>'+hm(m.ts)+'</time></div>';
   }
   L.innerHTML=h;L.scrollTop=L.scrollHeight;
 }
 function dmMenu(anchor){
   const C=FD.chat;if(!C)return;if(document.querySelector('.frpop.dmm')){popClose();return}
   const m=document.createElement('div');m.className='frpop dmm';m.setAttribute('role','menu');
-  const main=()=>{m.innerHTML='<button class="ln" data-a="rp" role="menuitem">⚑ 檢舉 '+esc(C.name)+'</button><button class="ln warn" data-a="bl" role="menuitem">⛔ 封鎖 '+esc(C.name)+'</button><div class="hint">封鎖後，對方將無法傳送訊息或對戰邀請給您</div>'};
+  const main=()=>{m.innerHTML='<button class="ln" data-a="rp" role="menuitem">'+TX('⚑ 檢舉 {name}',{name:esc(C.name)})+'</button><button class="ln warn" data-a="bl" role="menuitem">'+TX('⛔ 封鎖 {name}',{name:esc(C.name)})+'</button><div class="hint">'+TX('封鎖後，對方將無法傳送訊息或對戰邀請給您')+'</div>'};
   main();
   m.onclick=e=>{const b=e.target.closest('button[data-a]');if(!b)return;const a=b.dataset.a;
     if(a==='rp'){popClose();dmReport(C.id,0);return}
-    if(a==='bl'){m.innerHTML='<b>確定封鎖 '+esc(C.name)+'？</b><div class="r"><button class="pri" data-a="bly">封鎖</button><button data-a="no">取消</button></div><div class="hint">好友關係將移除，聊天紀錄將無法再查看；可在好友頁面解除封鎖</div>';return}
+    if(a==='bl'){m.innerHTML='<b>'+TX('確定封鎖 {name}？',{name:esc(C.name)})+'</b><div class="r"><button class="pri" data-a="bly">'+TX('封鎖')+'</button><button data-a="no">'+TX('取消')+'</button></div><div class="hint">'+TX('好友關係將移除，聊天紀錄將無法再查看；可在好友頁面解除封鎖')+'</div>';return}
     if(a==='no'){popClose();return}
-    if(a==='bly'){popClose();const id=C.id;api('/fr/block',{pk:pkey(),id}).then(j=>{if(j.ok){dmClose();delete FD.dm[id];toast('已封鎖');frLoad()}else toast('目前無法封鎖，請稍後再試')})}};
+    if(a==='bly'){popClose();const id=C.id;api('/fr/block',{pk:pkey(),id}).then(j=>{if(j.ok){dmClose();delete FD.dm[id];toast(TX('已封鎖'));frLoad()}else toast(TX('目前無法封鎖，請稍後再試'))})}};
   popAt(m,anchor,false);m.style.left=Math.max(8,anchor.getBoundingClientRect().right-m.offsetWidth)+'px';
 }
 function dmReportAsk(anchor,mid){
   const C=FD.chat;if(!C)return;const m=document.createElement('div');m.className='frpop';
-  m.innerHTML='<b>檢舉這則訊息？</b><div class="r"><button class="pri" data-a="y">檢舉</button><button data-a="n">取消</button></div><div class="hint">訊息內容將提供給管理人員審查</div>';
+  m.innerHTML='<b>'+TX('檢舉這則訊息？')+'</b><div class="r"><button class="pri" data-a="y">'+TX('檢舉')+'</button><button data-a="n">'+TX('取消')+'</button></div><div class="hint">'+TX('訊息內容將提供給管理人員審查')+'</div>';
   m.querySelector('[data-a="y"]').onclick=()=>{popClose();dmReport(C.id,mid)};m.querySelector('[data-a="n"]').onclick=popClose;
   popAt(m,anchor,true);
 }
 async function dmReport(id,mid){
   let j=await api('/fr/report',mid?{pk:pkey(),id,mid}:{pk:pkey(),id});
   if(j.error==='nomsg'&&mid)j=await api('/fr/report',{pk:pkey(),id});   // that message has expired: report the player instead
-  dmNote(j.ok?'已收到您的檢舉，我們將盡快處理':j.error==='nomsg'?'沒有可檢舉的內容':'目前無法送出檢舉，請稍後再試',id);
+  dmNote(j.ok?TX('已收到您的檢舉，我們將盡快處理'):j.error==='nomsg'?TX('沒有可檢舉的內容'):TX('目前無法送出檢舉，請稍後再試'),id);
 }
 async function dmSend(id,name,text,k){
   const C=FD.chat&&FD.chat.id===id?FD.chat:null;
-  if(k===undefined&&lsGet('ppl-dmok')!=='1'){dmNote('請先同意社群規範',id);return false}
-  if(Array.from(text).length>DM_MAX){dmNote('訊息最多 '+DM_MAX+' 個字',id);return false}
+  if(k===undefined&&lsGet('ppl-dmok')!=='1'){dmNote(TX('請先同意社群規範'),id);return false}
+  if(Array.from(text).length>DM_MAX){dmNote(TX('訊息最多 {n} 個字',{n:DM_MAX}),id);return false}
   if(FD.sending)return false;FD.sending=1;let j;try{j=await api('/fr/msg',k===undefined?{pk:pkey(),id,text}:{pk:pkey(),id,text,k})}finally{FD.sending=0}
   if(j.ok){const m=dmMsg(j.m)||{id:0,me:1,text,ts:Date.now()};m.me=1;FD.dm[id]=m;
-    if(C){if(!C.msgs.some(x=>x.id&&x.id===m.id))C.msgs.push(m);if(!j.delivered&&!C.warned){C.warned=1;C.msgs.push({sys:'對方目前離線，將於上線後傳送'})}dmDraw()}
-    else toast(j.delivered?'訊息已送達 '+name:'對方目前離線，將於上線後傳送');
+    if(C){if(!C.msgs.some(x=>x.id&&x.id===m.id))C.msgs.push(m);if(!j.delivered&&!C.warned){C.warned=1;C.msgs.push({sys:TX('對方目前離線，將於上線後傳送')})}dmDraw()}
+    else toast(j.delivered?TX('訊息已送達 {name}',{name:name}):TX('對方目前離線，將於上線後傳送'));
     if(frIsOpen())frRender();return true}
-  if(j.error==='muted'){const u=new Date(+j.until||Date.now());dmNote('您因違反社群規範，暫時無法傳送訊息（至 '+(u.getMonth()+1)+'/'+u.getDate()+' '+hm(u)+'）。如有疑問，請來信隱私權政策所列信箱',id);return false}
-  if(j.error==='filtered'){dmNote(j.why==='link'?'訊息不可包含連結或聯絡方式':'訊息含有不當用語',id);return false}
-  if(j.error==='notfriend'){if(C)dmClose();delete FD.dm[id];toast('您與對方已非好友，無法傳送');frLoad();return false}
-  dmNote(j.error==='slow'?'傳送過於頻繁，請稍候再試':'目前無法傳送，請稍後再試',id);return false;
+  if(j.error==='muted'){const u=new Date(+j.until||Date.now());dmNote(TX('您因違反社群規範，暫時無法傳送訊息（至 {date}）。如有疑問，請來信隱私權政策所列信箱',{date:(u.getMonth()+1)+'/'+u.getDate()+' '+hm(u)}),id);return false}
+  if(j.error==='filtered'){dmNote(j.why==='link'?TX('訊息不可包含連結或聯絡方式'):TX('訊息含有不當用語'),id);return false}
+  if(j.error==='notfriend'){if(C)dmClose();delete FD.dm[id];toast(TX('您與對方已非好友，無法傳送'));frLoad();return false}
+  dmNote(j.error==='slow'?TX('傳送過於頻繁，請稍候再試'):TX('目前無法傳送，請稍後再試'),id);return false;
 }
 function dmGot(d){   // a message pushed by the server
-  const f=d.from&&typeof d.from==='object'?d.from:{},id=dInt(f.id,0,1e12),name=dName(f.name)||'好友',m=dmMsg(d.m);
+  const f=d.from&&typeof d.from==='object'?d.from:{},id=dInt(f.id,0,1e12),name=dName(f.name)||TX('好友'),m=dmMsg(d.m);
   if(!id||!m||!m.text)return;m.me=0;dmShow(id,name,m);
 }
 function fsayGot(d){   // a preset phrase from an older app version (not stored, nothing to report by message)
-  const f=d.from&&typeof d.from==='object'?d.from:{},id=dInt(f.id,0,1e12),name=dName(f.name)||'好友';
+  const f=d.from&&typeof d.from==='object'?d.from:{},id=dInt(f.id,0,1e12),name=dName(f.name)||TX('好友');
   if(!Number.isInteger(d.k)||d.k<0||d.k>=FSAY.length||!id)return;
   dmShow(id,name,{id:0,me:0,text:FSAY[d.k],ts:Date.now()});
 }
 function dmShow(id,name,m){
   if(!FD.dm[id]||!m.id||FD.dm[id].id<=m.id)FD.dm[id]=m;   // an old app's phrase has no id: still the last thing said
   const C=FD.chat;
-  if(C&&C.id===id){if(!m.id||!C.msgs.some(x=>x.id===m.id)){C.msgs.push(m);dmDraw();const sr=C.w.querySelector('.sr');if(sr)sr.textContent=name+'：'+m.text}dmMarkRead(id);return}
+  if(C&&C.id===id){if(!m.id||!C.msgs.some(x=>x.id===m.id)){C.msgs.push(m);dmDraw();const sr=C.w.querySelector('.sr');if(sr)sr.textContent=name+TX('：')+fsayT(m.text)}dmMarkRead(id);return}
   frBadgeSet();if(frIsOpen())frRender();
-  if(st==='play'||st==='ready'||st==='starting'){toast(name+'：'+m.text);return}   // during a run: a plain toast, no buttons
+  if(st==='play'||st==='ready'||st==='starting'){toast(name+TX('：')+fsayT(m.text));return}   // during a run: a plain toast, no buttons
   const p=document.createElement('div');p.className='frpop fin';p.setAttribute('role','alert');
-  p.innerHTML='<b><span class="dot on"></span>'+esc(name)+'</b><div class="say">'+esc(m.text)+'</div><div class="r"><button class="pri" data-a="re">回覆</button><button data-a="ok">'+esc(FSAY[3])+'</button></div><button class="xbtn" data-a="x" aria-label="關閉">✕</button>';
+  p.innerHTML='<b><span class="dot on"></span>'+esc(name)+'</b><div class="say">'+esc(fsayT(m.text))+'</div><div class="r"><button class="pri" data-a="re">'+TX('回覆')+'</button><button data-a="ok">'+esc(TX(FSAY[3]))+'</button></div><button class="xbtn" data-a="x" aria-label="'+TX('關閉')+'">✕</button>';
   p.querySelector('[data-a="re"]').onclick=()=>{popClose();dmOpen(id,name)};
   p.querySelector('[data-a="ok"]').onclick=()=>{popClose();dmSend(id,name,FSAY[3],3)};
   p.querySelector('[data-a="x"]').onclick=popClose;
@@ -2546,26 +2551,26 @@ function dmShow(id,name,m){
 function frAv(f,cls){return '<span class="fav">'+(COS?whoAv(f,28,cls==='on'||cls==='busy').replace('class="on"','class="on'+(cls==='busy'?' busy':'')+'"'):'<span class="dot '+cls+'"></span>')+'</span>'}
 function frRender(){
   const L=FD.list;if(!L)return;const busy=f=>f.st==='play'||f.st==='duel';
-  const on=L.friends.filter(f=>f.on).length;$('#frOn').textContent=on?on+' 位在線上':'';
+  const on=L.friends.filter(f=>f.on).length;$('#frOn').textContent=on?TX('{n} 位在線上',{n:on}):'';
   const fs=L.friends.slice().sort((a,b)=>(b.on-a.on)||(busy(a)-busy(b))||a.name.localeCompare(b.name,'zh-Hant'));
-  let h=fs.length?'':'<div class="lbmsg">尚無好友。請將左側的好友碼提供給朋友，或輸入朋友的好友碼。</div>';
+  let h=fs.length?'':'<div class="lbmsg">'+TX('尚無好友。請將左側的好友碼提供給朋友，或輸入朋友的好友碼。')+'</div>';
   for(const f of fs){
     const sn=f.song?SONGS.find(x=>x.key===f.song):null,cls=!f.on?'':busy(f)?'busy':'on';
-    const sub=!f.on?'離線'+(f.seen?' · '+ago(f.seen):''):f.st==='duel'?'對戰中 · 結束後即可邀請':f.st==='play'?'遊戲中'+(sn?' · 《'+sn.name+'》':'')+' · 結束後即可邀請':f.st==='menu'?'在線上 · 選曲中':'在線上';
-    const ls=FD.dm[f.id],nw=dmUnread(f.id),lt=ls&&Date.now()-ls.ts<7*864e5?'<span class="last'+(nw?' nw':'')+'">'+(ls.me?'您':esc(f.name))+'：'+esc(ls.text)+' · '+esc(ago(ls.ts))+'</span>':'';
+    const sub=!f.on?TX('離線@@status')+(f.seen?' · '+ago(f.seen):''):f.st==='duel'?TX('對戰中 · 結束後即可邀請'):f.st==='play'?TX('遊戲中')+(sn?' · '+TX('《{song}》',{song:sn.name}):'')+' · '+TX('結束後即可邀請'):f.st==='menu'?TX('在線上 · 選曲中'):TX('在線上');
+    const ls=FD.dm[f.id],nw=dmUnread(f.id),lt=ls&&Date.now()-ls.ts<7*864e5?'<span class="last'+(nw?' nw':'')+'">'+(ls.me?TX('您'):esc(f.name))+TX('：')+esc(fsayT(ls.text))+' · '+esc(ago(ls.ts))+'</span>':'';
     h+='<div class="fr'+(f.on?'':' off')+'">'+frAv(f,cls)+'<span class="tx"><span class="nm">'+whoNm(f,f.name)+'</span><span class="mt '+cls+'">'+esc(sub)+'</span>'+lt+'</span>'
-      +(f.on&&!busy(f)?'<button class="pri inv" data-inv="'+f.id+'">邀請對戰</button>':'')
-      +'<button class="dm'+(nw?' nw':'')+'" data-dm="'+f.id+'" aria-label="'+(nw?'有新訊息，':'')+'傳訊息給 '+esc(f.name)+'">'+CHAT_SVG+'</button>'
-      +'<button class="more" data-more="'+f.id+'" aria-label="'+esc(f.name)+' 的更多選項">⋯</button></div>';
-    if(FD.open===f.id)h+='<div class="fopt"><button data-rm="'+f.id+'">刪除好友</button><button class="warn" data-bl="'+f.id+'">封鎖</button><button data-x="1">取消</button></div>';
+      +(f.on&&!busy(f)?'<button class="pri inv" data-inv="'+f.id+'">'+TX('邀請對戰')+'</button>':'')
+      +'<button class="dm'+(nw?' nw':'')+'" data-dm="'+f.id+'" aria-label="'+(nw?TX('有新訊息，傳訊息給 {name}',{name:esc(f.name)}):TX('傳訊息給 {name}',{name:esc(f.name)}))+'">'+CHAT_SVG+'</button>'
+      +'<button class="more" data-more="'+f.id+'" aria-label="'+TX('{name} 的更多選項',{name:esc(f.name)})+'">⋯</button></div>';
+    if(FD.open===f.id)h+='<div class="fopt"><button data-rm="'+f.id+'">'+TX('刪除好友')+'</button><button class="warn" data-bl="'+f.id+'">'+TX('封鎖')+'</button><button data-x="1">'+TX('取消')+'</button></div>';
   }
-  if(L.outgoing.length){h+='<div class="fsec">等待對方接受</div>';for(const f of L.outgoing)h+='<div class="fr off">'+frAv(f,'')+'<span class="tx"><span class="nm">'+whoNm(f,f.name)+'</span><span class="mt">已送出好友邀請</span></span><button data-rm="'+f.id+'">取消</button></div>'}
-  if(L.blocked.length){h+='<div class="fsec">已封鎖</div>';for(const f of L.blocked)h+='<div class="fr"><span class="dot"></span><span class="tx"><span class="nm">'+esc(f.name)+'</span></span><button data-ub="'+f.id+'">解除封鎖</button></div>'}
+  if(L.outgoing.length){h+='<div class="fsec">'+TX('等待對方接受')+'</div>';for(const f of L.outgoing)h+='<div class="fr off">'+frAv(f,'')+'<span class="tx"><span class="nm">'+whoNm(f,f.name)+'</span><span class="mt">'+TX('已送出好友邀請')+'</span></span><button data-rm="'+f.id+'">'+TX('取消')+'</button></div>'}
+  if(L.blocked.length){h+='<div class="fsec">'+TX('已封鎖')+'</div>';for(const f of L.blocked)h+='<div class="fr"><span class="dot"></span><span class="tx"><span class="nm">'+esc(f.name)+'</span></span><button data-ub="'+f.id+'">'+TX('解除封鎖')+'</button></div>'}
   $('#frList').innerHTML=h;
   const R=$('#frReq');R.hidden=!L.incoming.length;
-  R.innerHTML=L.incoming.map(f=>'<div><span>'+whoAv(f,24)+' <b>'+esc(f.name)+'</b> 想加您為好友</span><button class="pri" data-acc="'+f.id+'">接受</button><button data-dec="'+f.id+'">略過</button></div>').join('');
+  R.innerHTML=L.incoming.map(f=>'<div><span>'+whoAv(f,24)+' '+TX('<b>{name}</b> 想加您為好友',{name:esc(f.name)})+'</span><button class="pri" data-acc="'+f.id+'">'+TX('接受')+'</button><button data-dec="'+f.id+'">'+TX('略過')+'</button></div>').join('');
 }
-async function frAct(path,body){const j=await api(path,Object.assign({pk:pkey()},body));$('#frMsg').textContent=j.error?(j.error==='net'?'目前無法連線至伺服器。':'操作失敗，請稍後再試。'):'';FD.open=-1;await frLoad()}
+async function frAct(path,body){const j=await api(path,Object.assign({pk:pkey()},body));$('#frMsg').textContent=j.error?(j.error==='net'?TX('目前無法連線至伺服器。'):TX('操作失敗，請稍後再試。')):'';FD.open=-1;await frLoad()}
 $('#frList').onclick=e=>{const b=e.target.closest('button');if(!b)return;const D=b.dataset;
   if(D.dm){e.stopPropagation();const f=FD.list&&FD.list.friends.find(x=>x.id===+D.dm);if(f)dmOpen(f.id,f.name);return}
   if(D.more){const id=+D.more;FD.open=FD.open===id?-1:id;frRender();return}
@@ -2577,32 +2582,32 @@ $('#frList').onclick=e=>{const b=e.target.closest('button');if(!b)return;const D
 $('#frReq').onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.acc)frAct('/fr/respond',{id:+b.dataset.acc,accept:true});else if(b.dataset.dec)frAct('/fr/respond',{id:+b.dataset.dec,accept:false})};
 $('#frAdd').onclick=async()=>{
   const c=$('#frIn').value.toUpperCase().replace(/[^A-Z0-9]/g,''),m=$('#frMsg');
-  if(c.length!==8){m.textContent='好友碼是 8 個英文字母和數字。';return}
-  m.textContent='送出中⋯';const j=await api('/fr/add',{pk:pkey(),code:c});
-  m.textContent=j.friends?'已成為好友。':j.pending?'已送出邀請，等待對方接受。':({nocode:'找不到這個好友碼。',self:'這是您自己的好友碼。',already:'雙方已是好友。',full:'好友或待確認的邀請已達上限。',slow:'操作太頻繁，請稍等 1 分鐘後再次嘗試。',net:'目前無法連線至伺服器。'})[j.error]||'送出失敗，請稍後再試。';
+  if(c.length!==8){m.textContent=TX('好友碼是 8 個英文字母和數字。');return}
+  m.textContent=TX('送出中⋯');const j=await api('/fr/add',{pk:pkey(),code:c});
+  m.textContent=j.friends?TX('已成為好友。'):j.pending?TX('已送出邀請，等待對方接受。'):TXO({nocode:'找不到這個好友碼。',self:'這是您自己的好友碼。',already:'雙方已是好友。',full:'好友或待確認的邀請已達上限。',slow:'操作太頻繁，請稍等 1 分鐘後再次嘗試。',net:'目前無法連線至伺服器。'})[j.error]||TX('送出失敗，請稍後再試。');
   if(j.ok){$('#frIn').value='';frLoad()}
 };
 $('#frIn').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('#frAdd').click()}});
 // feedback on the button itself, at once: the message line below can be off screen, and the share sheet takes a moment to open
 function btnSay(b,t){b=$(b);clearTimeout(b._sayT);if(b._txt==null)b._txt=b.textContent;b.textContent=t;b._sayT=setTimeout(()=>{b.textContent=b._txt},1600)}
-navTap('#frCopy',async()=>{if(!FD.code){btnSay('#frCopy','載入中⋯');return}const t=fcode(FD.code);btnSay('#frCopy','複製中⋯');try{await navigator.clipboard.writeText(t);btnSay('#frCopy','已複製 ✓');$('#frMsg').textContent='已複製好友碼。'}catch(e){btnSay('#frCopy','無法複製');$('#frMsg').textContent='無法複製，請直接提供給朋友：'+t}});
-navTap('#frSend',()=>{if(!FD.code){btnSay('#frSend','載入中⋯');return}btnSay('#frSend','開啟分享⋯');shareText('邀請您在 PingPongLight 加我為好友，好友碼：'+fcode(FD.code),SITE+'?fc='+FD.code,t=>{$('#frMsg').textContent=t})});
+navTap('#frCopy',async()=>{if(!FD.code){btnSay('#frCopy',TX('載入中⋯'));return}const t=fcode(FD.code);btnSay('#frCopy',TX('複製中⋯'));try{await navigator.clipboard.writeText(t);btnSay('#frCopy',TX('已複製 ✓'));$('#frMsg').textContent=TX('已複製好友碼。')}catch(e){btnSay('#frCopy',TX('無法複製'));$('#frMsg').textContent=TX('無法複製，請直接提供給朋友：{code}',{code:t})}});
+navTap('#frSend',()=>{if(!FD.code){btnSay('#frSend',TX('載入中⋯'));return}btnSay('#frSend',TX('開啟分享⋯'));shareText(TX('邀請您在 PingPongLight 加我為好友，好友碼：{code}',{code:fcode(FD.code)}),SITE+'?fc='+FD.code,t=>{$('#frMsg').textContent=t})});
 $('#frPaste').hidden=!(navigator.clipboard&&navigator.clipboard.readText);
-$('#frPaste').onclick=async()=>{const m=$('#frMsg');let t='';try{t=await navigator.clipboard.readText()}catch(e){m.textContent='無法讀取剪貼簿，請手動輸入好友碼。';return}
-  const c=(String(t).toUpperCase().match(/\b([A-Z0-9]{4})-?([A-Z0-9]{4})\b/)||[]);if(!c[0]){m.textContent='剪貼簿中沒有好友碼。';return}
-  $('#frIn').value=c[1]+'-'+c[2];m.textContent='已貼上好友碼，請按「送出」。'};
-navTap('#fcCopy',async()=>{const t=fcode(FD.pend||'');try{await navigator.clipboard.writeText(t);$('#fcM').textContent='已複製。請從主畫面開啟遊戲，至「好友」頁按「貼上」。'}catch(e){$('#fcM').textContent='無法複製，請記下好友碼：'+t}});
+$('#frPaste').onclick=async()=>{const m=$('#frMsg');let t='';try{t=await navigator.clipboard.readText()}catch(e){m.textContent=TX('無法讀取剪貼簿，請手動輸入好友碼。');return}
+  const c=(String(t).toUpperCase().match(/\b([A-Z0-9]{4})-?([A-Z0-9]{4})\b/)||[]);if(!c[0]){m.textContent=TX('剪貼簿中沒有好友碼。');return}
+  $('#frIn').value=c[1]+'-'+c[2];m.textContent=TX('已貼上好友碼，請按「送出」。')};
+navTap('#fcCopy',async()=>{const t=fcode(FD.pend||'');try{await navigator.clipboard.writeText(t);$('#fcM').textContent=TX('已複製。請從主畫面開啟遊戲，至「好友」頁按「貼上」。')}catch(e){$('#fcM').textContent=TX('無法複製，請記下好友碼：{code}',{code:t})}});
 $('#fcWeb').onclick=()=>{$('#fcv').classList.add('hidden');if(ME)frOpen();else nickOpen('friends')};
 $('#frX').onclick=frClose;
 $('#bFr').onclick=frOpen;
 async function frInvite(id,b){
-  const f=FD.list&&FD.list.friends.find(x=>x.id===id),name=f?f.name:'好友';b.disabled=true;b.textContent='建立房間⋯';
+  const f=FD.list&&FD.list.friends.find(x=>x.id===id),name=f?f.name:TX('好友@@person');b.disabled=true;b.textContent=TX('建立房間⋯');
   let code=null;try{const j=await mget('/m/new?pub=0&max=6&di='+(diPref??di));code=dCode(j.code);if(code.length!==4)code=null}catch(e){}
-  if(!code){b.disabled=false;b.textContent='邀請對戰';$('#frMsg').textContent='無法建立房間，請稍後再試。';return}
+  if(!code){b.disabled=false;b.textContent=TX('邀請對戰');$('#frMsg').textContent=TX('無法建立房間，請稍後再試。');return}
   clearInterval(FD.poll);$('#frv').classList.add('hidden');duelOpen();
-  duelJoin(code,()=>{dsend({t:'cfg',song:SONGS[si].key,di,pub:false,max:6,vote:false});DU.note='邀請送出中⋯';
+  duelJoin(code,()=>{dsend({t:'cfg',song:SONGS[si].key,di,pub:false,max:6,vote:false});DU.note=TX('邀請送出中⋯');
     api('/fr/invite',{pk:pkey(),id,room:code,song:SONGS[si].key,d:di,v:2}).then(j=>{
-      DU.note=j.ok?(j.delivered?'已邀請 '+name+'，等待對方加入⋯':name+' 目前離線，請將房號提供給對方。'):j.error==='notfriend'?'雙方已不是好友。':'邀請未送出，請將房號提供給對方。';
+      DU.note=j.ok?(j.delivered?TX('已邀請 {name}，等待對方加入⋯',{name:name}):TX('{name} 目前離線，請將房號提供給對方。',{name:name})):j.error==='notfriend'?TX('雙方已不是好友。'):TX('邀請未送出，請將房號提供給對方。');
       if(DU.ws)duelView()})});
 }
 /* ================= star map ================= */
@@ -2610,7 +2615,7 @@ async function frInvite(id,b){
 // magnitude]); its songs sit on the pattern's brightest stars, first song on the brightest, so the shape reads by
 // brightness alone and players see it themselves. Drag to pan, pinch or wheel to zoom, tap a constellation to fly in,
 // tap a star for its song. Star sizes are in screen pixels and grow only a little when zooming, like a real sky.
-const SKY_SHORT={auld:'驪歌',k545:'K.545',nocturne:'夜曲'};
+const SKY_SHORT=Object.assign({k545:'K.545'},TXO({auld:'驪歌',nocturne:'夜曲'}));
 const SKY_C=['#7ee89a','#5fa8ff','#b07cff','#ff8a3d','#ff4d5e'];   // by difficulty rank (LVL): 入門 簡單 普通 困難 專家 (green blue purple orange red); a star's colour is always its difficulty's
 const SKY_RA=[.5,.58,.66,.74,.82,.9,1,1,1],SKY_AMP=[.12,.18,.24,.3,.36];   // brightness by rank F..SSS; how far an SSS star's glow swells, by difficulty
 const skySprs=new Map();
@@ -2626,7 +2631,7 @@ function skySpr(kind,col,ha){
 function skyRay(g,x,y,r,n,l1,l2,c,lw){g.strokeStyle=c;g.lineWidth=lw;g.beginPath();for(let q=0;q<n;q++){const a=q*6.2832/n,L=q%2&&l2?l2:l1,ca=Math.cos(a),sa=Math.sin(a);g.moveTo(x+ca*r*.7,y+sa*r*.7);g.lineTo(x+ca*L,y+sa*L)}g.stroke()}
 const skyHsl=(h,a)=>'hsla('+(((h%360)+360)%360)+',100%,72%,'+(a==null?1:a)+')';
 function skyRR(g,x,y,w,h,r){g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
-const SKY_BADGE=['','S','SS','SSS','專家 SSS'];
+const SKY_BADGE=['','S','SS','SSS',TX('專家 SSS')];
 const SKY_SHAPE={
   lyra:[[18.62,38.78,0],[18.98,32.69,3.2],[18.83,33.36,3.5],[18.91,36.9,4.3],[18.75,37.6,4.4],[18.74,39.67,4.7]],
   orion:[[5.24,-8.2,.1],[5.92,7.4,.5],[5.42,6.35,1.6],[5.6,-1.2,1.7],[5.68,-1.94,1.8],[5.8,-9.67,2.1],[5.53,-.3,2.2],[5.59,-5.9,2.8],[4.83,6.96,3.2],[5.59,9.93,3.4],[4.85,5.6,3.7],[6.04,9.65,4.1]],
@@ -2647,12 +2652,12 @@ const SKY_SHAPE={
 // which real pattern each constellation borrows; a name not listed takes the smallest free pattern that fits its songs
 const SKY_PICK={'古老旋律座':'lyra','巴洛克座':'orion','古典座':'uma','浪漫座':'sco','晚浪漫與印象座':'leo','鋼琴詩人座':'leo','歌劇座':'gem','芭蕾座':'cyg','管弦樂座':'sgr','進行曲座':'cma','圓舞曲座':'cas','初聲座':'aql','鄉謠座':'gem','名曲座':'peg','疾風座':'sgr','炫技座':'cma','至高座':'cru','聖誕座':'tau','聖詩座':'cyg','歌劇與名歌座':'cas','童謠座':'boo','童謠民謠座':'boo','世界民謠座':'peg','亞洲座':'aql','霓虹座':'del'};
 // the real constellation each theme borrows, and its name: '古老旋律座' becomes '古老旋律 天琴座' wherever it is shown
-const SKY_REAL={lyra:'天琴座',orion:'獵戶座',uma:'大熊座',sco:'天蠍座',leo:'獅子座',gem:'雙子座',cyg:'天鵝座',sgr:'人馬座',cma:'大犬座',cas:'仙后座',tau:'金牛座',cru:'南十字座',boo:'牧夫座',peg:'飛馬座',aql:'天鷹座',del:'海豚座'};
+const SKY_REAL=TXO({lyra:'天琴座',orion:'獵戶座',uma:'大熊座',sco:'天蠍座',leo:'獅子座',gem:'雙子座',cyg:'天鵝座',sgr:'人馬座',cma:'大犬座',cas:'仙后座',tau:'金牛座',cru:'南十字座',boo:'牧夫座',peg:'飛馬座',aql:'天鷹座',del:'海豚座'});
 (()=>{const used=new Set();for(const c of CONS){
   let s=SKY_PICK[c.name];
   if(!s||used.has(s)){const free=Object.keys(SKY_SHAPE).filter(k=>!used.has(k)),L=k=>SKY_SHAPE[k].length;
     s=free.filter(k=>L(k)>=c.ii.length).sort((a,b)=>L(a)-L(b))[0]||free.sort((a,b)=>L(b)-L(a))[0]||'uma'}
-  used.add(s);c.sky=s;c.theme=c.name;c.name=c.name.replace(/座$/,'')+' '+SKY_REAL[s]}})();
+  used.add(s);c.sky=s;c.theme=c.name;c.name=PPLI18N.lang==='zh'?c.name.replace(/座$/,'')+' '+SKY_REAL[s]:TX('{theme} {sky}@@constellation',{theme:TX(c.theme),sky:SKY_REAL[s]})}})();
 const SKY_OUT=3;   // how many times farther than the overview the player may pull back
 let SKY=null,skyBack='home';
 function skyBuild(){
@@ -2693,7 +2698,7 @@ function skyBuild(){
     // the lines of a finished constellation: the minimum spanning tree of its song stars
     const E=[];if(SP.length>1){const used=new Set([SP[0]]);while(used.size<SP.length){let bst=null;for(const a of used)for(const b of SP)if(!used.has(b)){const dd=Math.hypot(a.x-b.x,a.y-b.y);if(!bst||dd<bst[2])bst=[a,b,dd]}E.push(bst);used.add(bst[1])}}
     const px=P.map(p=>p.x),py=P.map(p=>p.y),b0=Math.min(...px),b1=Math.max(...px),t0=Math.min(...py),t1=Math.max(...py);
-    return{k:c.unk?-1:k,unk:!!c.unk,E,st:0,hint:c.hint||'',name:c.unk?'？？？':c.name,th:c.unk?'？？？':c.theme.replace(/座$/,''),rl:c.unk?'':SKY_REAL[c.sky],P,x:(b0+b1)/2,y:(t0+t1)/2,top:t0,bw:b1-b0,bh:t1-t0,R};
+    return{k:c.unk?-1:k,unk:!!c.unk,E,st:0,hint:c.hint||'',name:c.unk?'？？？':c.name,th:c.unk?'？？？':PPLI18N.lang==='zh'?c.theme.replace(/座$/,''):TX(c.theme),rl:c.unk?'':SKY_REAL[c.sky],P,x:(b0+b1)/2,y:(t0+t1)/2,top:t0,bw:b1-b0,bh:t1-t0,R};
   });
   const W=Math.max(...C.map(c=>c.x+c.bw/2))+PAD,H=Math.max(...C.map(c=>c.y+c.bh/2))+PAD;
   // the 音符座 (shown once every regular constellation is complete) takes the emptiest spot among them
@@ -2760,9 +2765,9 @@ function skyHead(){
   const S=SKY,zl=S.s/S.fitS;let f=-1;
   if(zl>=2){const wx=(S.vw/2-S.ox)/S.s,wy=(S.vh/2-S.oy)/S.s;let bd=1e9;for(const C of S.C){const d=Math.hypot(C.x-wx,C.y-wy);if(d<C.R*1.4&&d<bd){bd=d;f=C.unk?'u':C.k}}}
   if(f===S.focus)return;S.focus=f;
-  if(f==='u'){$('#skyT').textContent='？？？';$('#skyStat').textContent='尚未發現的星座';return}
-  if(f<0){const n=skyCount();$('#skyT').textContent='星空';$('#skyStat').innerHTML='點亮 <em>'+n.lit+'</em> / '+n.n+' · 完整星座 <em>'+n.full+'</em> / '+n.cn+' · <em>S</em> '+n.s+' · <em style="color:#e8f8ff">SS</em> '+n.ss+' · <em class="rsss">SSS</em> '+n.sss}
-  else{const c=CONS[f],lit=c.ii.filter(i=>starOf(i).lit).length;$('#skyT').textContent=c.name;$('#skyStat').innerHTML='點亮 <em>'+lit+'</em> / '+c.ii.length+(lit===c.ii.length?' · <em>星座完成</em>':'')}
+  if(f==='u'){$('#skyT').textContent='？？？';$('#skyStat').textContent=TX('尚未發現的星座');return}
+  if(f<0){const n=skyCount();$('#skyT').textContent=TX('星空');$('#skyStat').innerHTML=TX('點亮 <em>{lit}</em> / {n}',{lit:n.lit,n:n.n})+' · '+TX('完整星座 <em>{full}</em> / {n}',{full:n.full,n:n.cn})+' · <em>S</em> '+n.s+' · <em style="color:#e8f8ff">SS</em> '+n.ss+' · <em class="rsss">SSS</em> '+n.sss}
+  else{const c=CONS[f],lit=c.ii.filter(i=>starOf(i).lit).length;$('#skyT').textContent=c.name;$('#skyStat').innerHTML=TX('點亮 <em>{lit}</em> / {n}',{lit:lit,n:c.ii.length})+(lit===c.ii.length?' · '+TX('<em>星座完成</em>'):'')}
 }
 const skyKE=LVL.indexOf(4);   // the difficulty index of 專家
 // how far a constellation is done, for its lines and badge: 0 lit (or not all) · 1 every song S+ · 2 SS+ · 3 SSS · 4 every song SSS at 專家
@@ -2776,7 +2781,10 @@ const skyNameFs=(s,zl)=>(zl<1?10+4*clamp((zl-.6)/.4,0,1):14)/s;   // a fixed siz
 // where each name goes: above its stars, or below them when it would cover a name already placed (real positions put
 // some constellations side by side). Sets C.nt, the line the name sits on top of, for drawing and tapping alike.
 // names are two lines (the theme, then the real constellation), with the count of lit stars under them
-const skyNameW=(C,fs)=>Math.max(C.th.length*1.3-.3,C.rl.length*.72*1.3)*fs/2;
+const SKY_LEN=PPLI18N.lang==='ja'?10:8;
+const skyWord=(h,nx)=>{if(nx!==' '){const k=h.lastIndexOf(' ');if(k>=6)h=h.slice(0,k)}return h.replace(/[\s,.:;'’(&–-]+$/,'')};   // English: stop at the end of a word, not in the middle of one
+const skyCut=s=>{const a=Array.from(s);return PPLI18N.lang==='en'?(a.length>18?skyWord(a.slice(0,17).join(''),a[17])+'…':s):a.length>SKY_LEN?a.slice(0,SKY_LEN-1).join('')+'…':s};   // a song's name under its star: 8 Chinese characters, 10 kana, or 18 Latin letters (a language may give its own short name: "sky" in songs.json)
+const skySp=s=>PPLI18N.lang==='en'?s:s.split('').join(' ');const skyNameW=(C,fs)=>(PPLI18N.lang==='en'?Math.max(C.th.length,C.rl.length*.72)*.6:Math.max(C.th.length*1.3-.3,C.rl.length*.72*1.3))*fs/2;   // English: Latin letters, no spacing
 function skyNamePlace(s,zl){const fs=skyNameFs(s,zl),done=[];
   for(const C of SKY.C){const hw=skyNameW(C,fs)+6/s,hit=(x,y)=>done.some(o=>Math.abs(o.x-x)<o.hw+hw&&Math.abs(o.y-y)<fs*3.1);
     const b=C.top+C.bh+fs*3.4,m=C.y+fs*1.4,sd=C.bw/2+hw+14/s;
@@ -2801,7 +2809,7 @@ function skyPaint(t){
   if(S.noteOn&&vis(S.NT.x,S.NT.y,S.NT.r*1.5)){const N=S.NT,gl=motion?.75+.25*Math.sin(t/1400):.9;   // the 音符座: a golden eighth note
     g.save();g.font='700 '+(N.r*2)+'px system-ui';g.textAlign='center';g.textBaseline='middle';g.shadowColor='rgba(255,211,107,.8)';g.shadowBlur=N.r*.35*s;
     g.globalAlpha=.85*gl;g.fillStyle='#ffd36b';g.fillText('♪',N.x,N.y);g.restore();
-    const na=clamp((zl-.4)/.35,0,1);if(na>0){const fs=skyNameFs(s,zl);g.globalAlpha=na*gl;g.font='600 '+fs+'px system-ui';g.textAlign='center';g.fillStyle='rgba(255,211,107,.95)';g.fillText('音 符 座',N.x,N.y+N.r*1.15+fs);g.globalAlpha=1}}
+    const na=clamp((zl-.4)/.35,0,1);if(na>0){const fs=skyNameFs(s,zl);g.globalAlpha=na*gl;g.font='600 '+fs+'px system-ui';g.textAlign='center';g.fillStyle='rgba(255,211,107,.95)';g.fillText(skySp(TX('音符座')),N.x,N.y+N.r*1.15+fs);g.globalAlpha=1}}
   const k=Math.pow(Math.max(zl,.6),.3)/s;   // pulled back, constellation stars keep their size so they stand out from the field
   for(const C of S.C){
     if(!vis(C.x,C.y,C.R*1.6))continue;
@@ -2838,7 +2846,7 @@ function skyPaint(t){
         g.drawImage(skySpr('u'),p.x-R,p.y-R,R*2,R*2);
         g.fillStyle='rgba(248,250,255,.95)';g.beginPath();g.arc(p.x,p.y,r*.75,0,6.28);g.fill();g.globalAlpha=1}
       const la=clamp((p.nn*s-40)/12,0,1)*clamp((zl-1.5)/.5,0,1);   // a song's name appears once its star has room around it on screen
-      if(la>0){let lab=SKY_SHORT[SONGS[p.i].key]||SONGS[p.i].name;if(Array.from(lab).length>8)lab=Array.from(lab).slice(0,7).join('')+'…';
+      if(la>0){const tr=PPLI18N.song(SONGS[p.i].key);let lab=tr&&tr.sky?tr.sky:skyCut(SKY_SHORT[SONGS[p.i].key]||SONGS[p.i].name);
         g.globalAlpha=la*(ul?1:.6);g.font=(11/s)+'px system-ui';g.textAlign='center';g.fillStyle=v.lit?'rgba(220,228,255,.92)':'rgba(160,170,215,.85)';g.fillText(lab,p.x,p.y+18/s);g.globalAlpha=1}
     }
     // pulled back past the overview the names shrink, then fade out, so the groups of stars read as tiny in a wide sky
@@ -2847,7 +2855,7 @@ function skyPaint(t){
     g.globalAlpha=na;let fc=done?'rgba(255,211,107,.95)':'rgba(200,208,245,'+(zl>2.2?.55:.9)+')';
     if(cs===2)fc='#eaf8ff';else if(cs===3)fc='#ffffff';
     else if(cs===4){const hw=skyNameW(C,fs),gr=g.createLinearGradient(C.nx-hw,0,C.nx+hw,0),hu=motion?t*.06:0;gr.addColorStop(0,skyHsl(hu));gr.addColorStop(.5,skyHsl(hu+120));gr.addColorStop(1,skyHsl(hu+240));fc=gr}
-    g.fillStyle=fc;g.fillText(C.th.split('').join(' '),C.nx,C.nt-fs*1.95);g.font='600 '+(fs*.72)+'px system-ui';g.fillText(C.rl.split('').join(' '),C.nx,C.nt-fs*1.05);
+    g.fillStyle=fc;g.fillText(skySp(C.th),C.nx,C.nt-fs*1.95);g.font='600 '+(fs*.72)+'px system-ui';g.fillText(skySp(C.rl),C.nx,C.nt-fs*1.05);
     if(cs>0){   // the badge under the name: a fixed size on screen like the name, fading out with it
       const lab=SKY_BADGE[cs];g.font='900 '+(fs*.6)+'px system-ui';const bw=g.measureText(lab).width+fs*.7,bh=fs*.76,bx=C.nx-bw/2,by=C.nt-fs*.92;let bc;
       if(cs===1)bc='#ffd36b';else if(cs===2)bc='#eaf8ff';
@@ -2868,7 +2876,7 @@ function skyLoop(t){
 // screen readers and keyboards: an invisible list of every song; focusing one flies the view to its star
 function skyA11y(){
   const box=$('#skyList');box.textContent='';
-  for(const C of SKY.C)for(const p of C.P){if(p.i<0)continue;const b=document.createElement('button');b.textContent=C.name+'：'+SONGS[p.i].name;
+  for(const C of SKY.C)for(const p of C.P){if(p.i<0)continue;const b=document.createElement('button');b.textContent=TX('{con}：{song}',{con:C.name,song:SONGS[p.i].name});
     b.addEventListener('focus',()=>{const ns=Math.max(skyZoomFor(C),SKY.fitS*3);skyFly(p.x,p.y,ns)});b.onclick=e=>{e.stopPropagation();skyCardShow(p.i,C.name);const f=$('#skyCard button');if(f){f.focus();$('#skyCard').dataset.back=String(p.i)}};box.appendChild(b)}
 }
 (()=>{   // gestures: one finger pans, two fingers pinch around their midpoint, wheel zooms, a tap picks a star or a constellation
@@ -2889,8 +2897,8 @@ function skyA11y(){
     if(best&&S.s>=skyZoomFor(best[1])*.7){e.stopPropagation();skyCardShow(best[0].i,best[1].name)}
     else if(C&&S.s<skyZoomFor(C)*.7){e.stopPropagation();$('#skyCard').hidden=true;skyFlyTo(C)}
     else if(best){e.stopPropagation();skyCardShow(best[0].i,best[1].name)}
-    else if(S.noteOn&&Math.hypot(wx-S.NT.x,wy-S.NT.y)<S.NT.r*1.2){e.stopPropagation();toast('音符座：所有星座都點亮了，謝謝你一路彈到這裡')}
-    else if(C&&C.unk){e.stopPropagation();evA('skyq',{id:S.C.indexOf(C)});toast('這裡還有一個尚未發現的星座'+(C.hint?'。'+C.hint+'後現身':''))}});
+    else if(S.noteOn&&Math.hypot(wx-S.NT.x,wy-S.NT.y)<S.NT.r*1.2){e.stopPropagation();toast(TX('音符座：所有星座都點亮了，謝謝你一路彈到這裡'))}
+    else if(C&&C.unk){e.stopPropagation();evA('skyq',{id:S.C.indexOf(C)});toast(C.hint?TX('這裡還有一個尚未發現的星座。{hint}後現身',{hint:C.hint}):TX('這裡還有一個尚未發現的星座'))}});
   cv.addEventListener('wheel',e=>{if(!SKY)return;e.preventDefault();const r=cv.getBoundingClientRect();skyZoomAt(Math.exp(-e.deltaY*.0015),e.clientX-r.left,e.clientY-r.top)},{passive:false});
   addEventListener('resize',()=>{if(SKY&&skyOn())skyFit()});
 })();
@@ -2909,18 +2917,18 @@ function skyCardShow(i,cname){
   add('div','sub',cname);add('h3','',s.name);add('div','sub',s.composer+' · '+s.year);
   if(ul){
     const tb=add('table');
-    DORD.forEach(k=>{const df=DIFFS[k],tr=add('tr','',null,tb),p=v.per[k];add('td','',df.n,tr);const td=add('td','',p?p.r+' · '+p.s.toLocaleString():v.old&&!k?'已通關':'未通關',tr);td.style.color=p?(p.r==='SSS'?'':RANK_COL[p.r]):v.old&&!k?'#cfe6ff':'#8a93c0';if(p&&p.r==='SSS')td.className='rsss'});
+    DORD.forEach(k=>{const df=DIFFS[k],tr=add('tr','',null,tb),p=v.per[k];add('td','',df.n,tr);const td=add('td','',p?p.r+' · '+p.s.toLocaleString():v.old&&!k?TX('已通關'):TX('未通關'),tr);td.style.color=p?(p.r==='SSS'?'':RANK_COL[p.r]):v.old&&!k?'#cfe6ff':'#8a93c0';if(p&&p.r==='SSS')td.className='rsss'});
   }else if(fullLocked(i)){
-    add('p','','這首是完整版曲目。').style.margin='10px 0';
-    const row=add('div','row');add('button','pri','取得完整版',row).onclick=()=>{skyClose(true);openFullShop()};
+    add('p','',TX('這首是完整版曲目。')).style.margin='10px 0';
+    const row=add('div','row');add('button','pri',TX('取得完整版'),row).onclick=()=>{skyClose(true);openFullShop()};
   }else{
     const c=CON_OF[i],need=c[1]-2-conCleared(c[0]);
-    add('p','','在「'+CONS[c[0]].name+'」再通過 '+need+' 首曲目後開放。').style.margin='10px 0';
+    add('p','',TX('在「{con}」再通過 {n} 首曲目後開放。',{con:CONS[c[0]].name,n:need})).style.margin='10px 0';
   }
-  if(ul){const row=add('div','row');add('button','pri','挑戰這首',row).onclick=()=>{
+  if(ul){const row=add('div','row');add('button','pri',TX('挑戰這首'),row).onclick=()=>{
     const top=DORD.reduce((a,k,j)=>v.per[k]||(v.old&&!k)?j:a,-1),nd=DORD[Math.min(DORD.length-1,top+1)];if(fixDi(i)==null){di=nd;diPref=null;lsSet('pmb6-di',String(nd))}   // the level just above the hardest one cleared
     si=i;skyClose(true);initAudio();preloadSong(s);showSelect()}}
-  const x=add('button','xbtn','✕');x.setAttribute('aria-label','關閉');x.onclick=e=>{e.stopPropagation();c.hidden=true};
+  const x=add('button','xbtn','✕');x.setAttribute('aria-label',TX('關閉'));x.onclick=e=>{e.stopPropagation();c.hidden=true};
   c.hidden=false;
 }
 function skyOpen(from){
@@ -2958,14 +2966,15 @@ $('#bQuit').onclick=()=>{if(mode==='tut'){skipTut();return}if(mode==='try'){$('#
 /* ---- settings ---- */
 function audioDiag(){
   const el=$('#aDiag');if(!el)return;
-  let ses='';try{ses=navigator.audioSession?navigator.audioSession.type:'無'}catch(e){}
-  el.textContent=AC?'音訊狀態：'+AC.state+' · '+Math.round(AC.sampleRate/100)/10+' kHz · 工作階段 '+ses:'音訊尚未啟動';
+  let ses='';try{ses=navigator.audioSession?navigator.audioSession.type:TX('無')}catch(e){}
+  el.textContent=AC?TX('音訊狀態：{state} · {khz} kHz · 工作階段 {session}',{state:AC.state,khz:Math.round(AC.sampleRate/100)/10,session:ses}):TX('音訊尚未啟動');
 }
 function syncSet(){
-  audioDiag();$('#sNick').textContent=ME?ME.name:'（尚未設定暱稱）';$('#bNick').textContent=ME?'變更暱稱':'設定暱稱';
+  audioDiag();$('#sNick').textContent=ME?ME.name:TX('（尚未設定暱稱）');$('#bNick').textContent=ME?TX('變更暱稱'):TX('設定暱稱');
   for(const[k,id]of[['mel','vMel'],['bk','vBk'],['fx','vFx']]){$('#'+id).value=SET[k];$('#'+id+'V').textContent=SET[k]}
   const tg2=(id,on)=>{const b=$('#'+id);b.setAttribute('aria-checked',String(!!on));b.classList.toggle('on',on)};tg2('tFx',SET.lowFx);tg2('tVib',SET.vib);tg2('tMl',SET.ml!==false);
-  const ms=Math.round(latS()*1000);$('#calV').textContent=(ms>=0?'+':'')+ms+' ms'+(SET.lat==null?'（自動）':'');$('#calCur').textContent=(ms>=0?'+':'')+ms+' ms'+(SET.lat==null?'（自動）':'');
+  const ms=Math.round(latS()*1000),lt=(SET.lat==null&&!AC?'':(ms>=0?'+':'')+ms+' ms')+(SET.lat==null?TX('（自動）'):'');   // before the audio has started the device's own delay is not known: no number
+  $('#calV').textContent=lt;$('#calCur').textContent=lt;
 }
 for(const[k,id]of[['mel','vMel'],['bk','vBk'],['fx','vFx']])$('#'+id).oninput=e=>{SET[k]=+e.target.value;applyVol();saveSet();syncSet();evA('set')};
 $('#tFx').onclick=()=>{SET.lowFx=!SET.lowFx;saveSet();syncSet();evA('set')};
@@ -2973,15 +2982,28 @@ $('#tMl').onclick=()=>{SET.ml=SET.ml===false;saveSet();syncSet();evA('set')};
 if(!navigator.vibrate)$('#tVib').closest('.sw').style.display='none';   // iPhone browsers and apps have no vibration API
 $('#tVib').onclick=()=>{SET.vib=!SET.vib;saveSet();syncSet();vib(30);evA('set')};
 $('#bNick').onclick=()=>nickOpen(ME?'rename':'set');
+// language: one button per language that can be shown, each named in its own language. Choosing another one saves it and loads the page again,
+// which then comes back to the settings (see 'ppl-reopen' at the end of this file)
+(function(){const ls=PPLI18N.langs,seg=$('#langSeg');
+  if(ls.length<2){$('#langRow').style.display='none';return}
+  const draw=cur=>{seg.innerHTML=ls.map(l=>'<button role="radio" lang="'+l.html+'" data-l="'+l.id+'" aria-checked="'+(l.id===cur)+'"'+(l.id===cur?' class="on"':'')+'>'+esc(l.name)+'</button>').join('')};
+  draw(PPLI18N.lang);
+  let going=false;   // a choice is loading the page: a later tap would not count
+  seg.onclick=e=>{const b=e.target.closest('button[data-l]');if(!b||going)return;const id=b.dataset.l;
+    if(id!==PPLI18N.lang){going=true;draw(id);try{sessionStorage.setItem('ppl-reopen','set')}catch(e){}
+      // a room link that brought the player here has done its work: without it the page comes back to the settings, not to the lobby again
+      try{const u=new URL(location.href);if(u.searchParams.has('room')){u.searchParams.delete('room');history.replaceState(history.state,'',u.toString())}}catch(e){}}
+    PPLI18N.set(id)};
+})();
 let wipeT=-1e9;
 $('#bWipe').onclick=async()=>{   // two taps: the first one only arms it
-  const b=$('#bWipe'),idle='刪除我的線上資料';
-  if(performance.now()-wipeT>4000){wipeT=performance.now();b.textContent='再按一次以永久刪除暱稱、排行榜成績與好友資料';setTimeout(()=>{if(performance.now()-wipeT>=4000)b.textContent=idle},4100);return}
-  wipeT=-1e9;b.disabled=true;b.textContent='刪除中⋯';
+  const b=$('#bWipe'),idle=TX('刪除我的線上資料');
+  if(performance.now()-wipeT>4000){wipeT=performance.now();b.textContent=TX('再按一次以永久刪除暱稱、排行榜成績與好友資料');setTimeout(()=>{if(performance.now()-wipeT>=4000)b.textContent=idle},4100);return}
+  wipeT=-1e9;b.disabled=true;b.textContent=TX('刪除中⋯');
   const j=await api('/lb/delete',{pk:pkey()});b.disabled=false;
-  if(!j.ok){b.textContent='刪除失敗，請連線後再次嘗試';setTimeout(()=>{b.textContent=idle},3000);return}
+  if(!j.ok){b.textContent=TX('刪除失敗，請連線後再次嘗試');setTimeout(()=>{b.textContent=idle},3000);return}
   frDisconnect();try{for(const k of Object.keys(localStorage))if(/^ppl-(pk|me|hide|lr-)/.test(k))localStorage.removeItem(k)}catch(e){}
-  HIDE.clear();setMe(null);LBC.clear();FD.list=null;FD.code='';lsSet('ppl-fc','');dmClose();FD.dm={};try{localStorage.removeItem('ppl-dmr')}catch(e){}$('#frN').textContent='';b.textContent='已刪除。單人模式的進度仍保留於此裝置';setTimeout(()=>{b.textContent=idle},4000);syncSet();
+  HIDE.clear();setMe(null);LBC.clear();FD.list=null;FD.code='';lsSet('ppl-fc','');dmClose();FD.dm={};try{localStorage.removeItem('ppl-dmr')}catch(e){}$('#frN').textContent='';b.textContent=TX('已刪除。單人模式的進度仍保留於此裝置');setTimeout(()=>{b.textContent=idle},4000);syncSet();
 };
 $('#bSet').onclick=()=>{initAudio();syncSet();$('#home').classList.add('hidden');$('#set').classList.remove('hidden')};
 function closeSet(){$('#set').classList.add('hidden');showHome()}
@@ -2989,11 +3011,11 @@ $('#bSetC').onclick=closeSet;
 $('#set').addEventListener('click',e=>{if(e.target.id==='set')closeSet()});   // tap outside the panel closes it
 /* ---- latency calibration: clicks on the audio clock, player taps along; offset = median(tap - click) ---- */
 let calClicks=[],calTaps=[],calEnd=0;
-$('#bCal').onclick=()=>{initAudio();$('#set').classList.add('hidden');$('#cal').classList.remove('hidden');$('#calMsg').textContent='按「開始」後會出現 8 拍節拍聲，請跟著聲音點擊下方區塊。';syncSet()};
+$('#bCal').onclick=()=>{initAudio();$('#set').classList.add('hidden');$('#cal').classList.remove('hidden');$('#calMsg').textContent=TX('按「開始」後會出現 8 拍節拍聲，請跟著聲音點擊下方區塊。');syncSet()};
 $('#calGo').onclick=()=>{
   initAudio();if(!AC)return;calTaps=[];const t0=AC.currentTime+.6;calClicks=[];
   for(let k=0;k<10;k++){const c=t0+k*.5;calClicks.push(c);tick(c-AC.currentTime,k%4?.12:.2)}
-  calEnd=t0+10*.5;$('#calMsg').textContent='跟著節拍點擊下方區塊⋯';
+  calEnd=t0+10*.5;$('#calMsg').textContent=TX('跟著節拍點擊下方區塊⋯');
   setTimeout(calDone,(calEnd-AC.currentTime+.3)*1000);
 };
 $('#calPad').addEventListener('pointerdown',e=>{
@@ -3005,10 +3027,10 @@ $('#calPad').addEventListener('pointerdown',e=>{
 });
 function calDone(){
   calClicks=[];
-  if(calTaps.length<4){$('#calMsg').textContent='有效點擊不足，請再試一次。';return}
+  if(calTaps.length<4){$('#calMsg').textContent=TX('有效點擊不足，請再試一次。');return}
   const a=calTaps.slice().sort((x,y)=>x-y),m=a[Math.floor(a.length/2)];
   SET.lat=Math.round(clamp(m*1000,-100,400));saveSet();syncSet();
-  $('#calMsg').textContent='校準完成：'+(SET.lat>=0?'+':'')+SET.lat+' ms（'+calTaps.length+' 次有效點擊）。';evA('cal');
+  $('#calMsg').textContent=TX('校準完成：{ms} ms（{n} 次有效點擊）。',{ms:(SET.lat>=0?'+':'')+SET.lat,n:calTaps.length});evA('cal');
 }
 $('#calM').onclick=()=>{SET.lat=Math.round(latS()*1000)-10;saveSet();syncSet()};
 $('#calP').onclick=()=>{SET.lat=Math.round(latS()*1000)+10;saveSet();syncSet()};
@@ -3022,12 +3044,12 @@ function shareImg(){
   const g=x.createLinearGradient(0,0,1200,630);g.addColorStop(0,'#10173a');g.addColorStop(1,'#04050d');x.fillStyle=g;x.fillRect(0,0,1200,630);
   const b=x.createRadialGradient(950,315,0,950,315,420);b.addColorStop(0,'rgba(124,240,255,.18)');b.addColorStop(1,'transparent');x.fillStyle=b;x.fillRect(0,0,1200,630);
   const lg=x.createLinearGradient(70,0,560,0);lg.addColorStop(0,'#7cf0ff');lg.addColorStop(.5,'#b794ff');lg.addColorStop(1,'#ff8fd1');
-  const F='"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif';
+  const F=PPLI18N.lang==='zh'?'"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif':FF;
   x.fillStyle=lg;x.font='800 64px '+F;x.fillText('PingPongLight',70,120);
   x.fillStyle='#e8ecff';x.font='700 40px '+F;x.fillText(r.label,70,210,700);
   x.font='800 86px '+F;x.fillText(r.score.toLocaleString(),70,340);
-  x.fillStyle='#b9c1ea';x.font='500 32px '+F;x.fillText('精準度 '+pct(r.bp)+'　最高連擊 '+r.maxCombo,70,410);
-  x.fillStyle='#8a93c0';x.font='400 26px '+F;x.fillText((APP?new URL(SITE).host:location.host)+'　'+new Date().toLocaleDateString('zh-TW'),70,560);
+  x.fillStyle='#b9c1ea';x.font='500 32px '+F;x.fillText(TX('精準度 {acc}　最高連擊 {combo}',{acc:pct(r.bp),combo:r.maxCombo}),70,410);
+  x.fillStyle='#8a93c0';x.font='400 26px '+F;x.fillText((APP?new URL(SITE).host:location.host)+'　'+new Date().toLocaleDateString(PPLI18N.locale),70,560);
   x.textAlign='center';x.shadowColor=RANK_COL[r.rank];x.shadowBlur=40;
   if(r.rank==='SSS'){const pg=x.createLinearGradient(700,0,1200,0);pg.addColorStop(0,'#ffe8a8');pg.addColorStop(.35,'#ffffff');pg.addColorStop(.65,'#ffe8a8');pg.addColorStop(1,'#ffd36b');x.fillStyle='#ffe8a8';x.font='800 190px '+F;x.fillText(r.rank,950,390);x.shadowBlur=0;x.fillStyle=pg}else x.fillStyle=RANK_COL[r.rank];
   x.font='800 '+(r.rank.length===3?190:r.rank.length===2?250:300)+'px '+F;x.fillText(r.rank,950,r.rank.length===3?390:420);
@@ -3035,7 +3057,7 @@ function shareImg(){
 }
 $('#bShare').onclick=()=>{
   const c=shareImg();if(!c)return;evA('share');
-  const text='我在 PingPongLight '+lastRes.label+' 拿到 '+lastRes.rank+'（'+lastRes.score.toLocaleString()+' 分）';
+  const text=TX('我在 PingPongLight {label} 拿到 {rank}（{score} 分）',{label:lastRes.label,rank:lastRes.rank,score:lastRes.score.toLocaleString()});
   if(APP){const data=c.toDataURL('image/png').split(',')[1];   // the app: save to the cache folder, then the system share sheet
     capCall('Filesystem','writeFile',{path:'pingponglight-result.png',data,directory:'CACHE'}).then(r=>capCall('Share','share',{title:'PingPongLight',text,files:[r.uri]})).catch(()=>{});return}
   c.toBlob(bl=>{
@@ -3049,11 +3071,11 @@ $('#bShare').onclick=()=>{
    The text is optional, but a report needs text or an image. Images are shrunk to JPEG here (long side 1280 px, < 400 KB).
    The device details sent along (bugMeta) are all listed in the dialog before sending. A report that fails to send stays as a draft. */
 const BUILD='2026-11-13c';
-const BUGK=[['bug','遊戲錯誤'],['gfx','畫面異常'],['audio','聲音／節奏不準'],['net','連線／對戰'],['friend','好友／訊息'],['idea','建議'],['other','其他']];
+const BUGK=[['bug',TX('遊戲錯誤')],['gfx',TX('畫面異常')],['audio',TX('聲音／節奏不準')],['net',TX('連線／對戰')],['friend',TX('好友／訊息')],['idea',TX('建議')],['other',TX('其他')]];
 const BUG={kind:'bug',imgs:[],from:'',busy:false,conv:false,auto:null,shut:0};   // auto: the pause screenshot now in imgs
 const bugDev=()=>{const u=navigator.userAgent;return /iPad/.test(u)?'iPad':/iPhone/.test(u)?'iPhone':/Android/.test(u)?'Android':/Windows/.test(u)?'Windows':/Mac/.test(u)?'Mac':'其他'};
 function bugMeta(){return{v:BUILD,pf:APP?'ios':'web',ua:navigator.userAgent,scr:innerWidth+'x'+innerHeight,dpr:String(devicePixelRatio||1),lat:Math.round(latS()*1000)+'ms',
-  song:SONGS[si]?SONGS[si].name:'',d:DIFFS[di]?DIFFS[di].n:'',st:String(st),err:LASTERR,lang:navigator.language||'',sa:bugSa()}}
+  song:SONGS[si]?(SD[SONGS[si].key]||SONGS[si]).name:'',d:DIFFS[di]?DN_ZH[di]:'',st:String(st),err:LASTERR,lang:(PPLI18N.lang==='zh'?'':PPLI18N.lang+' · ')+(navigator.language||''),sa:bugSa()}}
 function bugSa(){const a=safeIns();return[a.l,a.r,a.t,a.b].map(v=>Math.round(v)).join(',')+' 框'+Math.round(FR.w||0)}   // screen safe areas (left,right,top,bottom) and the play frame's width
 function bugShrink(src){   // a File, or the game canvas -> JPEG data URL small enough for the server
   return new Promise((res,rej)=>{
@@ -3071,11 +3093,11 @@ function bugShrink(src){   // a File, or the game canvas -> JPEG data URL small 
 function bugSay(t,warn){const s=$('#bugS');s.textContent=t;s.style.color=warn?'#ffb86b':''}
 function bugRender(){
   $('#bugK').innerHTML=BUGK.map(([k,n])=>'<button role="radio" aria-checked="'+(k===BUG.kind)+'" data-k="'+k+'">'+n+'</button>').join('');
-  $('#bugI').innerHTML=BUG.imgs.map((d,i)=>'<div class="th" style="background-image:url('+d+')"><button data-rm="'+i+'" aria-label="移除第 '+(i+1)+' 張圖片">✕</button></div>').join('')
-    +(BUG.imgs.length<3?'<button class="add" id="bugAdd"'+(BUG.conv?' disabled>處理圖片中⋯':'>＋ 加入圖片')+'<br>'+BUG.imgs.length+' / 3</button>':'');
-  const m=bugMeta(),it=[ME?'暱稱 '+esc(ME.name):'未設定暱稱','版本 '+m.v+(APP?'（App）':'（網頁）'),'裝置 '+bugDev()+'（含瀏覽器與系統版本）','畫面 '+m.scr+'、像素比 '+esc(m.dpr)+'、安全邊距 '+esc(m.sa),
-    '語言 '+esc(m.lang||'—'),'目前畫面 '+({home:'主畫面',menu:'選曲',ready:'準備開始',starting:'準備開始',play:'遊戲中',over:'結算',done:'結算'}[m.st]||esc(m.st||'—')),'延遲校正 '+m.lat];
-  if(m.song)it.push('最近遊玩：'+esc(m.song)+'／'+esc(m.d));if(m.err)it.push('最近錯誤訊息：'+esc(m.err.slice(0,60)));
+  $('#bugI').innerHTML=BUG.imgs.map((d,i)=>'<div class="th" style="background-image:url('+d+')"><button data-rm="'+i+'" aria-label="'+TX('移除第 {n} 張圖片',{n:i+1})+'">✕</button></div>').join('')
+    +(BUG.imgs.length<3?'<button class="add" id="bugAdd"'+(BUG.conv?' disabled>'+TX('處理圖片中⋯'):'>'+TX('＋ 加入圖片'))+'<br>'+BUG.imgs.length+' / 3</button>':'');
+  const m=bugMeta(),it=[ME?TX('暱稱 {name}',{name:esc(ME.name)}):TX('未設定暱稱'),TX('版本 {v}',{v:m.v})+(APP?TX('（App）'):TX('（網頁）')),TX('裝置 {dev}（含瀏覽器與系統版本）',{dev:bugDev()==='其他'?TX('其他'):bugDev()}),TX('畫面 {scr}、像素比 {dpr}、安全邊距 {sa}',{scr:m.scr,dpr:esc(m.dpr),sa:esc(m.sa.replace(/ 框(\d+)$/,(_,w)=>' '+TX('框{w}',{w:w})))}),
+    TX('語言 {lang}',{lang:esc(m.lang||'—')}),TX('目前畫面 {st}',{st:TXO({home:'主畫面',menu:'選曲',ready:'準備開始',starting:'準備開始',play:'遊戲中',over:'結算',done:'結算'})[m.st]||esc(m.st||'—')}),TX('延遲校正 {lat}',{lat:m.lat})];
+  if(m.song)it.push(TX('最近遊玩：{song}／{d}',{song:esc(SONGS[si]?SONGS[si].name:m.song),d:esc(DIFFS[di]?DIFFS[di].n:m.d)}));if(m.err)it.push(TX('最近錯誤訊息：{err}',{err:esc(m.err.slice(0,60))}));
   $('#bugM').innerHTML=it.map(s=>'<b>'+s+'</b>').join(' · ');
   $('#bugC').textContent=$('#bugT').value.length+' / 1000';
 }
@@ -3083,7 +3105,7 @@ function bugOn(){return!$('#bugv').classList.contains('hidden')}
 function bugOpen(from){
   if(AC&&master){try{const now=AC.currentTime;master.gain.cancelScheduledValues(now);master.gain.setValueAtTime(master.gain.value,now);master.gain.setTargetAtTime(0,now,.08)}catch(e){}}   // quiet while typing or dictating
   BUG.from=from;BUG.shut++;$('#bugv').classList.remove('hidden');$(from==='pause'?'#pause':'#home').inert=true;$('#err').style.visibility='hidden';   // the error bar would cover the send button
-  bugSay(BUG.busy?'送出中⋯':'我們會看每一則回報，但不會逐一回覆');bugRender();$('#bugv .card').focus();
+  bugSay(BUG.busy?TX('送出中⋯'):TX('我們會看每一則回報，但不會逐一回覆'));bugRender();$('#bugv .card').focus();
   if(from==='pause'){   // a fresh shot of the paused game each time, replacing the one taken at an earlier pause
     const old=BUG.imgs.indexOf(BUG.auto);if(old>=0)BUG.imgs.splice(old,1);BUG.auto=null;
     if(BUG.imgs.length<3)bugShrink(cv).then(d=>{if(BUG.imgs.length>=3)return;BUG.auto=d;BUG.imgs.unshift(d);bugRender()}).catch(()=>bugRender());else bugRender()}
@@ -3094,16 +3116,16 @@ function bugClose(){const v=$('#bugv');if(v.classList.contains('hidden'))return;
   const b=$(BUG.from==='pause'?'#bBugP':'#bBug');if(b)b.focus({preventScroll:true})}
 async function bugSend(){
   if(BUG.busy)return;const text=$('#bugT').value.trim();
-  if(!text&&!BUG.imgs.length){bugSay('請寫一點說明，或加入至少一張圖片',1);return}
-  BUG.busy=true;$('#bugGo').disabled=true;bugSay('送出中⋯');
+  if(!text&&!BUG.imgs.length){bugSay(TX('請寫一點說明，或加入至少一張圖片'),1);return}
+  BUG.busy=true;$('#bugGo').disabled=true;bugSay(TX('送出中⋯'));
   const j=await api('/bug/send',{pk:pkey(),kind:BUG.kind,body:text,meta:bugMeta(),imgs:BUG.imgs},45000);
   BUG.busy=false;$('#bugGo').disabled=false;
-  if(j.ok){BUG.imgs=[];BUG.auto=null;BUG.kind='bug';$('#bugT').value='';bugRender();bugSay('已送出回報，感謝協助！');
-    const n=BUG.shut;setTimeout(()=>{if(n!==BUG.shut)return;bugClose();if(!busyNow())toast('已送出回報，感謝協助！')},1200);return}   // not if it was closed and reopened meanwhile
-  const E={daily:'今天已送出 5 則回報，請明天再試',slow:'操作太頻繁，請稍後再試',img:'有圖片無法使用，請換一張再試',big:'圖片太大，請減少張數再試',
+  if(j.ok){BUG.imgs=[];BUG.auto=null;BUG.kind='bug';$('#bugT').value='';bugRender();bugSay(TX('已送出回報，感謝協助！'));
+    const n=BUG.shut;setTimeout(()=>{if(n!==BUG.shut)return;bugClose();if(!busyNow())toast(TX('已送出回報，感謝協助！'))},1200);return}   // not if it was closed and reopened meanwhile
+  const E=TXO({daily:'今天已送出 5 則回報，請明天再試',slow:'操作太頻繁，請稍後再試',img:'有圖片無法使用，請換一張再試',big:'圖片太大，請減少張數再試',
     empty:'請寫一點說明，或加入至少一張圖片',full:'回報的圖片空間暫時滿了，請移除圖片、只送文字',busy:'今天的回報太多了，請明天再試',
-    bad:'回報內容有誤，請重新開啟遊戲再試',store:'儲存失敗，內容已保留，請稍後再試'};
-  bugSay(E[j.error]||'目前無法連線，內容已保留，請稍後再試',1);
+    bad:'回報內容有誤，請重新開啟遊戲再試',store:'儲存失敗，內容已保留，請稍後再試'});
+  bugSay(E[j.error]||TX('目前無法連線，內容已保留，請稍後再試'),1);
 }
 $('#bBug').onclick=()=>bugOpen('home');
 $('#bBugP').onclick=()=>bugOpen('pause');
@@ -3120,7 +3142,7 @@ $('#bugF').addEventListener('change',async e=>{
   if(BUG.conv)return;const fs=[...(e.target.files||[])].slice(0,3-BUG.imgs.length);e.target.value='';let bad=0;
   BUG.conv=true;bugRender();
   try{for(const f of fs){try{const d=await bugShrink(f);if(BUG.imgs.length<3)BUG.imgs.push(d)}catch(_){bad++}}}finally{BUG.conv=false}
-  bugRender();if(bad)bugSay('有 '+bad+' 張圖片無法讀取，請換一張（JPG 或 PNG）',1);
+  bugRender();if(bad)bugSay(TX('有 {n} 張圖片無法讀取，請換一張（JPG 或 PNG）',{n:bad}),1);
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#bugv').classList.contains('hidden'))bugClose()});
 // How-to opens as a card over the home screen; ✕, the dimmed backdrop or Esc closes it.
@@ -3171,6 +3193,10 @@ if(APP){$('#bFs').style.display='none';
 else if('serviceWorker' in navigator&&location.protocol==='https:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));hudShow(false);$('#fsHint').style.display=(!(DE.requestFullscreen||DE.webkitRequestFullscreen)&&!standalone)?'block':'none';
 requestAnimationFrame(frame);
 try{netBoot()}catch(e){}
+// a language chosen in the settings loaded the page again: back to the settings, where the player was (not when a room or friend link is waiting).
+// The audio has not started yet (menuWake starts it on the first touch): once it has, the panel is filled in again, for the delay it could not show.
+try{if(sessionStorage.getItem('ppl-reopen')){sessionStorage.removeItem('ppl-reopen');if(st==='home'&&!DU.pend&&!FD.pend){syncSet();$('#home').classList.add('hidden');$('#set').classList.remove('hidden');
+  const E=['pointerup','click'],up=()=>{if(!AC)return;syncSet();for(const t of E)$('#set').removeEventListener(t,up,true)};for(const t of E)$('#set').addEventListener(t,up,true)}}}catch(e){}
 // hooks for shop.js (shop, collection, trial run); the game itself never depends on it
 window.PPLG={api,pkey,APP,PF,SET,saveSet,lsGet,lsSet,toast,initAudio,esc,get ME(){return ME},showHome,onTryEnd:null,onMe:null,roomSend(o){if(DU.joined)dsend(o)},busy:()=>st==='play'||st==='ready'||st==='over'||st==='done'||mode==='duel',
   startTry(tr){if(!COS)return;initAudio();tryKeep={si,di};COS.state.trial=tr||null;COS.bump();mode='try';startRun(0)}};

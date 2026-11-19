@@ -1,1 +1,622 @@
-{}
+{
+ "full": {
+  "name": "Full Version",
+  "desc": "Removes the 30% cap on every constellation; later songs still unlock when you clear them. One-time purchase: no subscription, no ads."
+ },
+ "sponsor.30": {
+  "name": "Buy Me a Coffee",
+  "desc": "Supporter title “Lamplighter”"
+ },
+ "sponsor.90": {
+  "name": "Buy a Record",
+  "desc": "Title “Lamplighter” + avatar “Gold Crown”"
+ },
+ "sponsor.300": {
+  "name": "Gift a Piano",
+  "desc": "Title “Lamplighter” + avatar “Gold Crown” + nameplate “Beacon”"
+ },
+ "bg.stars": {
+  "name": "Night Sky",
+  "desc": "How the game looks now: a dark night sky whose tint drifts slowly with the song."
+ },
+ "bg.aurora": {
+  "name": "Aurora",
+  "desc": "Green-blue aurora curtains flow across the night sky, with a still lake reflecting the light below snowy ridges."
+ },
+ "bg.city": {
+  "name": "Neon City",
+  "desc": "A retro striped sunset, two layers of skyline and flickering neon signs, with the ground grid rolling ever forward."
+ },
+ "bg.sakura": {
+  "name": "Cherry Blossom Night",
+  "desc": "Cherry blossoms under the moon; petals drift down and settle on the ground."
+ },
+ "bg.sea": {
+  "name": "Deep Sea",
+  "desc": "Light beams from the surface, stingrays, schools of fish, glowing jellyfish and coral, with bubbles slowly rising."
+ },
+ "bg.lava": {
+  "name": "Lava",
+  "desc": "Dark red magma and rising embers, a smoking volcano and glowing cracks in the rock."
+ },
+ "bg.snow": {
+  "name": "Snowfield",
+  "desc": "A snowy night sky with snow-capped peaks, a frozen lake, a little cabin and falling snow."
+ },
+ "bg.grid": {
+  "name": "Pixel Grid",
+  "desc": "An 8-bit pixel night sky, scrolling pixel mountains and arcade scanlines."
+ },
+ "bg.candy": {
+  "name": "Glow Candy",
+  "desc": "A deep plum night, a doughnut moon, frosted hills and falling sprinkles."
+ },
+ "bg.nebula": {
+  "name": "Nebula",
+  "desc": "Layers of glowing gas, dark pillars of dust and newborn stars."
+ },
+ "bg.paper": {
+  "name": "Ink Landscape",
+  "desc": "An ink-wash night scene with layered distant mountains and a little boat."
+ },
+ "bg.gold": {
+  "name": "Golden Constellation",
+  "desc": "A slowly turning zodiac ring and golden constellation lines."
+ },
+ "bg.mysky": {
+  "name": "My Star Map",
+  "desc": "A night sky drawn from your own clear records: every song you have cleared becomes a star."
+ },
+ "frame.glow": {
+  "name": "Glow",
+  "desc": "How the game looks now: two bright thumb lines."
+ },
+ "frame.neon": {
+  "name": "Neon Tube",
+  "desc": "Thick, bright neon tubes with a white core."
+ },
+ "frame.gold": {
+  "name": "Gilded",
+  "desc": "A shimmering metal frame with a star set in each corner."
+ },
+ "frame.ice": {
+  "name": "Icicle",
+  "desc": "A frosted frame with icicles hanging from the top edge."
+ },
+ "frame.rainbow": {
+  "name": "Rainbow Flow",
+  "desc": "Rainbow colors flow along the frame."
+ },
+ "frame.pixel": {
+  "name": "Pixel Line",
+  "desc": "A frame made of dotted pixel blocks."
+ },
+ "frame.ink": {
+  "name": "Ink Line",
+  "desc": "Lines drawn with a brush and ink."
+ },
+ "orb.circle": {
+  "name": "Light Dot",
+  "desc": "How the game looks now; changes color with your combo."
+ },
+ "orb.star": {
+  "name": "Faceted Star",
+  "desc": "Each point of the five-pointed star is split into a light and a dark face; the tips flash as it spins."
+ },
+ "orb.heart": {
+  "name": "Heartbeat",
+  "desc": "Beats with a double thump, with two little hearts circling around it."
+ },
+ "orb.note": {
+  "name": "Double Notes",
+  "desc": "Bold beamed sixteenth notes that bob up and down with the beat, with sound waves rippling out on both sides."
+ },
+ "orb.gem": {
+  "name": "Octahedron",
+  "desc": "A spinning 3D octahedron, each face shaded differently."
+ },
+ "orb.pixel": {
+  "name": "Pixel Sprite",
+  "desc": "An 8-bit two-frame animation surrounded by pixel sparkles."
+ },
+ "orb.moon": {
+  "name": "Crescent",
+  "desc": "The moon shifts between a new moon and a half moon, with a little star swinging below."
+ },
+ "orb.ring": {
+  "name": "Banded Planet",
+  "desc": "A wide double ring with flowing stripes that spins faster when you hit the ball; the moon circles behind the planet."
+ },
+ "orb.petal": {
+  "name": "Double Blossom",
+  "desc": "Inner and outer petals spin in opposite directions around a center of stamens."
+ },
+ "orb.bubble": {
+  "name": "Rainbow Bubble",
+  "desc": "The rainbow sheen on the bubble film flows and wobbles slightly."
+ },
+ "orb.vinyl": {
+  "name": "Vinyl Record",
+  "desc": "A spinning record: grooves, a colorful label and glints of light."
+ },
+ "orb.disco": {
+  "name": "Disco Ball",
+  "desc": "Little mirror tiles take turns catching the light and shooting out beams."
+ },
+ "orb.pinwheel": {
+  "name": "Pinwheel",
+  "desc": "Four curled blades in two alternating colors."
+ },
+ "orb.gear": {
+  "name": "Gear",
+  "desc": "A ten-tooth gear with spokes in the middle."
+ },
+ "orb.shuriken": {
+  "name": "Shuriken",
+  "desc": "A four-bladed metal throwing star with gleaming edges."
+ },
+ "orb.propeller": {
+  "name": "Electric Fan",
+  "desc": "Blades spin inside a fixed guard; hit it and it spins faster and blows out a breeze."
+ },
+ "orb.galaxy": {
+  "name": "Spiral Galaxy",
+  "desc": "Two spiral arms made of star dots."
+ },
+ "orb.snowstar": {
+  "name": "Snow Crystal",
+  "desc": "A six-armed snowflake crystal with branching tips."
+ },
+ "orb.boomerang": {
+  "name": "Boomerang",
+  "desc": "A three-blade boomerang with bright edge lines."
+ },
+ "orb.clover": {
+  "name": "Four-Leaf Clover",
+  "desc": "Four heart-shaped leaves with veins."
+ },
+ "orb.ink": {
+  "name": "Ink Bead",
+  "desc": "An ink-bead orb with your combo color showing through the outer ring."
+ },
+ "orb.core": {
+  "name": "Star Core",
+  "desc": "The higher your combo, the fuller its form: dot → ring → four-point → eight-point → frame → flare → rainbow crystal → golden crown, 8 forms in all."
+ },
+ "trail.ribbon": {
+  "name": "Light Ribbon",
+  "desc": "How the game looks now; changes color with your combo."
+ },
+ "trail.braid": {
+  "name": "Triple Braid",
+  "desc": "Three fine strands twisting around each other."
+ },
+ "trail.spark": {
+  "name": "Spark",
+  "desc": "Sparks fly outward and fall with gravity, leaving only a thin line."
+ },
+ "trail.flame": {
+  "name": "Flame Tongue",
+  "desc": "A flickering flame shape with drifting embers."
+ },
+ "trail.comet": {
+  "name": "Comet Tail",
+  "desc": "A tail of gold-white dust stretching straight back from the orb’s direction of travel, with a blue ion streak drifting behind it."
+ },
+ "trail.lightning": {
+  "name": "Lightning",
+  "desc": "A jagged, forking electric arc redrawn every frame."
+ },
+ "trail.ghost": {
+  "name": "Afterimage",
+  "desc": "The orb’s outline is left behind ring by ring, then fades."
+ },
+ "trail.bubble": {
+  "name": "Bubbles",
+  "desc": "No ribbon, only bubbles that wobble upward."
+ },
+ "trail.petal": {
+  "name": "Flower Vine",
+  "desc": "Vines grow along the path, with blooms getting bigger toward the back and the odd petal falling."
+ },
+ "trail.snow": {
+  "name": "Frost Crystal",
+  "desc": "Curved frost feathers grow along the path, tips glinting softly as ice dust drifts down."
+ },
+ "trail.pixel": {
+  "name": "Pixel Stairs",
+  "desc": "Grid-aligned blocks stepping along in a staircase."
+ },
+ "trail.note": {
+  "name": "Music Staff",
+  "desc": "A music staff that bends with the orb, with notes sitting on the lines."
+ },
+ "trail.ink": {
+  "name": "Ink Trace",
+  "desc": "Brush-like ink strokes."
+ },
+ "trail.meteor": {
+  "name": "Meteor",
+  "desc": "A golden comet tail."
+ },
+ "hit.ring": {
+  "name": "Halo",
+  "desc": "How the game looks now: two rings of light and a burst of sparks."
+ },
+ "hit.starburst": {
+  "name": "Starburst",
+  "desc": "A cross of light flashes and turns, with a ring of little stars circling the hit point."
+ },
+ "hit.firework": {
+  "name": "Fireworks",
+  "desc": "A main burst followed by three delayed small ones."
+ },
+ "hit.splash": {
+  "name": "Splash",
+  "desc": "A ring of droplets, two ripples and a fine mist."
+ },
+ "hit.petal": {
+  "name": "Bloom & Fall",
+  "desc": "A flower blooms on the wall, then its petals flip and drift down one by one."
+ },
+ "hit.shatter": {
+  "name": "Ice Shatter",
+  "desc": "A cluster of ice crystals grows at the wall, cracks, and the shards fall."
+ },
+ "hit.pixel": {
+  "name": "Pixel Blast",
+  "desc": "A square shockwave spreads cell by cell as pixels scatter."
+ },
+ "hit.flame": {
+  "name": "Flame Burst",
+  "desc": "A tongue of fire shoots into the field and curls upward, leaving embers and smoke."
+ },
+ "hit.heart": {
+  "name": "Rising Hearts",
+  "desc": "A big heart pops out and little hearts float upward."
+ },
+ "hit.wave": {
+  "name": "Sound Wave",
+  "desc": "Arcs of sound push outward ring by ring, with an equalizer popping up at the wall."
+ },
+ "hit.bolt": {
+  "name": "Lightning Strike",
+  "desc": "Two forking bolts crack down from the wall."
+ },
+ "hit.notes": {
+  "name": "Note Fountain",
+  "desc": "A stretch of staff is drawn from the wall, and notes are written onto it one by one, then float away."
+ },
+ "hit.inkdrop": {
+  "name": "Ink Drop",
+  "desc": "Ink splatters, its edges bleeding into your combo color, then a brush draws a circle (ensō) beside it."
+ },
+ "hit.tick": {
+  "name": "Precision Dial",
+  "desc": "Every hit pops up a 60-tick dial with a needle sweeping around it."
+ },
+ "hit.nova": {
+  "name": "Supernova",
+  "desc": "Starburst plus fireworks plus two shockwave rings."
+ },
+ "theme.stars": {
+  "name": "Starlight",
+  "desc": "How the game looks now: night sky, glow frame, light ribbon trail and halo hit effect."
+ },
+ "theme.aurora": {
+  "name": "Aurora",
+  "desc": "Green-blue aurora curtains flow across the night sky; rainbow bubble orb, triple braid trail, starburst."
+ },
+ "theme.city": {
+  "name": "Neon City",
+  "desc": "A retro striped sunset, two layers of skyline and flickering neon signs; disco ball, lightning trail, lightning strike."
+ },
+ "theme.sakura": {
+  "name": "Cherry Blossom Night",
+  "desc": "Cherry blossoms under the moon; double blossom orb, flower vine trail, bloom & fall on every hit."
+ },
+ "theme.sea": {
+  "name": "Deep Sea",
+  "desc": "Light beams from the surface and rising bubbles; bubble orb and splash."
+ },
+ "theme.lava": {
+  "name": "Lava",
+  "desc": "Dark red magma and rising embers; vinyl record orb, flame tongue trail."
+ },
+ "theme.ice": {
+  "name": "Ice Crystal",
+  "desc": "A snowy night sky; icicle frame, crystal orb, ice shatter."
+ },
+ "theme.arcade": {
+  "name": "Pixel Arcade",
+  "desc": "An 8-bit grid background; block orb and pixel blast."
+ },
+ "theme.candy": {
+  "name": "Candy",
+  "desc": "A deep plum night and candy hills; rainbow frame, heartbeat orb and triple braid."
+ },
+ "theme.galaxy": {
+  "name": "Galaxy Symphony",
+  "desc": "A nebula background; double notes orb trailing a music staff, with notes fountaining on every hit."
+ },
+ "theme.ink": {
+  "name": "Ink Wash",
+  "desc": "An ink-wash night scene with layered distant mountains; ink bead orb, ink trace trail, spreading ink drop."
+ },
+ "theme.gold": {
+  "name": "Golden Constellation",
+  "desc": "Golden constellation lines, a gold frame, faceted star orb, comet tail and starburst."
+ },
+ "plate.basic": {
+  "name": "Basic",
+  "desc": "The default nameplate."
+ },
+ "plate.glow": {
+  "name": "Glow",
+  "desc": "A soft blue glow."
+ },
+ "plate.neonflow": {
+  "name": "Neon Flow",
+  "desc": "A flowing neon gradient."
+ },
+ "plate.sakura": {
+  "name": "Cherry Blossom",
+  "desc": "Pink cherry blossoms."
+ },
+ "plate.ice": {
+  "name": "Ice Crystal",
+  "desc": "An icy blue gradient."
+ },
+ "plate.pixel": {
+  "name": "Pixel",
+  "desc": "An 8-bit box frame."
+ },
+ "plate.beacon": {
+  "name": "Beacon",
+  "desc": "A golden nameplate from the NT$300 supporter pack."
+ },
+ "plate.ink": {
+  "name": "Ink Wash",
+  "desc": "Rice-paper background with a black border."
+ },
+ "plate.orbit": {
+  "name": "Star Trail",
+  "desc": "A frame with colorful star trails flowing around it."
+ },
+ "plate.immortal": {
+  "name": "Immortal",
+  "desc": "Staff lines and notes keep flowing inside the frame."
+ },
+ "avatar.orb": {
+  "name": "Light Dot",
+  "desc": "The default avatar: its glow color is your career-best combo tier (verified by the server)."
+ },
+ "avatar.comet": {
+  "name": "Comet",
+  "desc": "Clear 1,000 songs in total."
+ },
+ "avatar.twin": {
+  "name": "Twin Stars",
+  "desc": "Reach 10 friends."
+ },
+ "avatar.moonnote": {
+  "name": "Moon & Note",
+  "desc": "Hidden achievement “Perfect Opening”."
+ },
+ "avatar.planet": {
+  "name": "Banded Planet",
+  "desc": "Neon City series."
+ },
+ "avatar.jelly": {
+  "name": "Jellyfish",
+  "desc": "Deep Sea series."
+ },
+ "avatar.sakura": {
+  "name": "Cherry Blossom",
+  "desc": "Cherry Blossom Night series."
+ },
+ "avatar.flame": {
+  "name": "Flame",
+  "desc": "Lava series."
+ },
+ "avatar.crystal": {
+  "name": "Ice Crystal",
+  "desc": "Ice Crystal series."
+ },
+ "avatar.pixel": {
+  "name": "Pixel Sprite",
+  "desc": "Pixel Arcade series."
+ },
+ "avatar.vinyl": {
+  "name": "Vinyl Record",
+  "desc": "Sold separately."
+ },
+ "avatar.disco": {
+  "name": "Disco Ball",
+  "desc": "Sold separately."
+ },
+ "avatar.crown": {
+  "name": "Star Crown",
+  "desc": "Legendary avatar with a ring of light that never stops flowing."
+ },
+ "avatar.reticle": {
+  "name": "Crosshair",
+  "desc": "Legendary avatar with a ring of light that never stops flowing."
+ },
+ "avatar.laurel": {
+  "name": "Laurel",
+  "desc": "Legendary avatar with a ring of light that never stops flowing."
+ },
+ "avatar.gold": {
+  "name": "Gold Crown",
+  "desc": "From a supporter pack of NT$90 or more."
+ },
+ "avatar.cons0": {
+  "name": "Old Melodies Badge",
+  "desc": "Clear every song in the Old Melodies constellation."
+ },
+ "avatar.cons1": {
+  "name": "Baroque Badge",
+  "desc": "Clear every song in the Baroque constellation."
+ },
+ "avatar.cons2": {
+  "name": "Classical Badge",
+  "desc": "Clear every song in the Classical constellation."
+ },
+ "avatar.cons3": {
+  "name": "Romantic Badge",
+  "desc": "Clear every song in the Romantic constellation."
+ },
+ "avatar.cons4": {
+  "name": "Opera & Song Badge",
+  "desc": "Clear every song in the Opera & Song constellation."
+ },
+ "avatar.cons5": {
+  "name": "Late Romantic Badge",
+  "desc": "Clear every song in the Late Romantic constellation."
+ },
+ "avatar.cons6": {
+  "name": "Christmas Badge",
+  "desc": "Clear every song in the Christmas constellation."
+ },
+ "avatar.cons7": {
+  "name": "Hymns Badge",
+  "desc": "Clear every song in the Hymns constellation."
+ },
+ "avatar.cons8": {
+  "name": "Nursery & Folk Badge",
+  "desc": "Clear every song in the Nursery & Folk constellation."
+ },
+ "avatar.cons9": {
+  "name": "Neon Badge",
+  "desc": "Clear every song in the Neon constellation."
+ },
+ "emote.basic": {
+  "name": "Basic Pack",
+  "list": [
+   "👍 Nice hit!",
+   "😮 Wow!",
+   "🤝 GG",
+   "🔁 Rematch?"
+  ]
+ },
+ "emote.hot": {
+  "name": "Hype Pack",
+  "list": [
+   "🔥 On fire!",
+   "💪 Watch this!",
+   "😤 No way",
+   "⚡ Too fast!"
+  ]
+ },
+ "emote.cute": {
+  "name": "Cute Pack",
+  "list": [
+   "🥰 So good",
+   "🙈 Oops, missed",
+   "🎉 Yay~",
+   "🍵 Break time"
+  ]
+ },
+ "emote.music": {
+  "name": "Music Pack",
+  "list": [
+   "🎵 Nice rhythm",
+   "🎹 Sounds great",
+   "🥁 Got the beat",
+   "🎼 One more song"
+  ]
+ },
+ "share.basic": {
+  "name": "Basic",
+  "desc": "The default score share card frame."
+ },
+ "share.aurora": {
+  "name": "Aurora",
+  "desc": "Score share card frame."
+ },
+ "share.sakura": {
+  "name": "Cherry Blossom",
+  "desc": "Score share card frame."
+ },
+ "share.ink": {
+  "name": "Ink Wash",
+  "desc": "Score share card frame."
+ },
+ "share.gold": {
+  "name": "Gold",
+  "desc": "Score share card frame."
+ },
+ "title.chaser": {
+  "name": "Light Chaser",
+  "desc": "Clear 50 songs in total."
+ },
+ "title.steady": {
+  "name": "Steady Beat",
+  "desc": "Clear 20 songs on Normal."
+ },
+ "title.leapfrog": {
+  "name": "Leapfrog",
+  "desc": "Clear a song you have never cleared before on Hard or higher the first time."
+ },
+ "title.heaven": {
+  "desc": "Complete all 10 constellations and reveal all 6 bonus constellations, and the golden Musical Note appears."
+ },
+ "title.hair": {
+  "name": "Rainbow Rider",
+  "desc": "Reach a 400 combo in one song."
+ },
+ "title.debut": {
+  "desc": "Win 10 matches."
+ },
+ "title.triumph": {
+  "desc": "Win 50 matches."
+ },
+ "title.champion": {
+  "desc": "Win 200 matches."
+ },
+ "title.octacrown": {
+  "desc": "Take 1st place in an 8-player room."
+ },
+ "title.bestfield": {
+  "desc": "Take 1st place in an 8-player room with a full combo."
+ },
+ "title.finale": {
+  "name": "Finale Comeback",
+  "desc": "Go from last place to first in the final 10% of a match."
+ },
+ "title.kindred": {
+  "name": "Kindred Spirit",
+  "desc": "End a match with exactly the same accuracy as your opponent."
+ },
+ "title.conductor": {
+  "desc": "Host 30 matches."
+ },
+ "title.guide": {
+  "name": "Pathfinder",
+  "desc": "A friend you invited clears their first song."
+ },
+ "title.ensemble": {
+  "desc": "Finish 10 matches in a room of 4 or more players with friends."
+ },
+ "title.lifeline": {
+  "name": "Lifeline",
+  "desc": "Hint: “That was close” → clear a song with less than 10% life left."
+ },
+ "title.persist": {
+  "name": "Fight On",
+  "desc": "Hint: “Failure is the mother of…” → clear a song after failing it 5 times."
+ },
+ "title.disciple": {
+  "name": "Disciple",
+  "desc": "Clear 20 songs on Normal."
+ },
+ "title.bond": {
+  "name": "Connector",
+  "desc": "Reach 10 friends."
+ },
+ "title.lamplighter": {
+  "name": "Lamplighter",
+  "desc": "Any supporter pack; light a lamp for this night sky."
+ }
+}

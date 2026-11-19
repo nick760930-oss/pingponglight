@@ -7,18 +7,37 @@ The game is written in Traditional Chinese (Taiwan). English and Japanese are tr
 - The Chinese text in the code is the key. In Chinese nothing is looked up, so the Chinese game is exactly what the code says.
 - `i18n.js` picks the language once per page load (`?lang=en`, then the saved choice, then the browser language; someone who
   already has save data stays in Chinese until they choose). Changing the language reloads the page.
+- Players change it in the settings (the row 語言 Language, `#langSeg` in index.html, built in game.js from `PPLI18N.langs`):
+  one button per finished language plus the one on screen, each named in its own language and never translated.
+  `PPLI18N.set(id)` saves the choice and loads the page again; game.js leaves `ppl-reopen` in sessionStorage so the
+  page comes back to the settings. With fewer than two languages to offer the row is hidden.
 - `lang-en.js` / `lang-ja.js` are generated from `i18n/<lang>/*.json` by `node tools/i18n.mjs build`. Never edit them by hand.
 - `node tools/i18n.mjs check` fails when a translation is missing, stale, or its placeholders do not match.
+  It runs before every server deploy (`predeploy` in server/package.json), and the server goes out before the web page.
 - `?i18n=debug` shows every string that has no translation inside ⟦ ⟧.
 
 | file | holds | keyed by |
 | --- | --- | --- |
 | `ui.json` | interface text | the Chinese text (the first argument of `TX`, or a text node of index.html) |
-| `songs.json` | `name`, `composer`, `tip`, and `year` when the Chinese year has Chinese characters | song key |
+| `songs.json` | `name`, `composer`, `tip`, and `year` when the Chinese year has Chinese characters; optional `sky`: a short name for the star map when `name` is too long there (over 18 Latin letters or 10 kana) | song key |
 | `ach.json` | `name`, `desc`, and `reward` when the reward is more than points | achievement id (Chinese, never changes) |
 | `cos.json` | `name`, `desc` (emote packs: `name`, `list`) | item id |
+| `docs.json` | the text of credits.html and privacy.html | the Chinese text of a paragraph, list item, heading or table cell, with its HTML tags |
 
 `i18n/keys.json` (written by `node tools/i18n.mjs keys`) lists everything that needs a translation, with the Chinese text.
+
+## The two documents
+
+`credits.html` and `privacy.html` are the Chinese source. `node tools/i18n.mjs build` writes `credits.en.html`, `privacy.en.html`,
+`credits.ja.html` and `privacy.ja.html` next to them (never edit those by hand); the game opens the one in the player's language.
+
+- Song names, composers and years in the credits table come from `songs.json`: they are not in `docs.json`.
+- Everything else is listed in `i18n/docs-keys.json` (written by `keys`). A key is a whole block; a table cell that has no
+  translation as a whole is cut at " · " and `<br>`, and each piece is looked up by itself.
+- A translation keeps the HTML tags and every link of the Chinese text: `check` fails when they differ.
+- After the Chinese page changes (a new song's row, a new sentence in the policy): run `keys`, translate what `check` lists as
+  `missing doc`, remove what it lists as no longer in the documents, run `build`.
+- The four generated pages are in the service worker's list (sw.js) and in the app's file list (app/build.mjs).
 
 ## Writing code
 
@@ -126,3 +145,73 @@ General:
 
 Songs: use the title English-speaking listeners know (Für Elise; Twinkle, Twinkle, Little Star; Eine kleine Nachtmusik; Canon in D).
 Composers by surname as the Chinese does (Beethoven, J. S. Bach when needed to tell the Bachs apart). 約1761 → c. 1761. 傳統 → Traditional.
+
+### 日本語
+
+- です・ます体で簡潔に。「あなた」は基本的に省く。ボタン・タブ・見出しは体言止め（「設定」「フレンドを招待」）。
+- 外来語はカタカナ、判定名とランクは英字のまま（Perfect / Great / Good / OK / Miss、S・SS・SSS）。
+- 記号：曲名は『　』、引用やボタン名は「　」。数字と単位は半角（3 曲、10 ms）、数字の前後に半角スペースは入れない（「3曲」「第3位」）。⋯ は「…」。
+- 中国語の漢字をそのまま流用しない（通關→クリア、暱稱→ニックネーム）。日本で通じる漢語だけ残す。
+
+| 中文 | 日本語 |
+| --- | --- |
+| 光球 | 光球 |
+| 框線 | フレーム（光っている側：「光っているライン」） |
+| 尾跡 | 軌跡 |
+| 打擊特效 | ヒットエフェクト |
+| 背景 | 背景 |
+| 名牌框 | ネームプレート |
+| 頭像 | アイコン |
+| 稱號 | 称号 |
+| 對戰表情 | エモート |
+| 分享圖外框 | シェア画像フレーム |
+| 主題套組 | テーマセット |
+| 單件外觀 | 単品 |
+| 外觀 | スキン |
+| 完整版 | 完全版 |
+| 商城 | ショップ |
+| 收藏 | コレクション |
+| 成就 / 成就點數 | 実績 / 実績ポイント |
+| 銅 銀 金 傳說 | ブロンズ、シルバー、ゴールド、レジェンド |
+| 限定 | 限定 |
+| 星空 | 星空 |
+| 星座 | 星座（テーマ名は「座」を付けない：古典座→古典派、巴洛克座→バロック） |
+| 獎勵星座 / 獎勵曲 | ボーナス星座 / ボーナス曲 |
+| 音符座 | 音符座 |
+| 入門 簡單 普通 困難 專家 | ビギナー、イージー、ノーマル、ハード、エキスパート |
+| 教學 / 新手教學 | チュートリアル |
+| 完美 極佳 良好 尚可 失誤 | Perfect、Great、Good、OK、Miss |
+| 連擊 / 最高連擊 / 全連擊 | コンボ / 最大コンボ / フルコンボ |
+| 精準度 | 精度 |
+| 完成度 | 達成度 |
+| 生命值 | ライフ |
+| 護盾 | シールド |
+| 評級 | ランク |
+| 名次 | 順位（「3位」） |
+| 通關 / 失敗 | クリア / 失敗 |
+| 第 N 關 | ステージN |
+| 拍 | 拍 |
+| 曲目 | 曲 |
+| 線上對戰 / 對戰 | オンライン対戦 / 対戦 |
+| 快速配對 | クイックマッチ |
+| 房間 / 房號 / 房主 | ルーム / ルームコード / ホスト |
+| 公開 / 私人 | 公開 / 非公開 |
+| 準備 | 準備完了 |
+| 投票選曲 | 投票で選曲 |
+| 牽制 | 妨害 |
+| 最後衝刺 | ラストスパート |
+| 星星時間 | スタータイム |
+| 觀戰 | 観戦 |
+| 出局 / 離線 | 脱落 / オフライン |
+| 好友 / 好友碼 | フレンド / フレンドコード |
+| 暱稱 | ニックネーム |
+| 排行榜 | ランキング |
+| 檢舉 / 封鎖 / 隱藏 | 通報 / ブロック / 非表示 |
+| 延遲補償 / 校準 | 遅延補正 / 調整 |
+| 音樂層次：微光 明亮 輝映 星耀 | ともしび、ひかり、かがやき、きらめき |
+| 恢復購買 | 購入を復元 |
+| 回報問題 | 不具合を報告 |
+| 社群規範 | コミュニティガイドライン |
+
+曲名は日本で通っている邦題（エリーゼのために、きらきら星、アイネ・クライネ・ナハトムジーク、パッヘルベルのカノン）。作曲者は姓のカタカナ（ベートーヴェン、J.S.バッハ）。
+約1761 → 1761年頃。傳統 → 伝承。

@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "wrangler dev --port 8787",
     "charts": "node scripts/charts.mjs",
-    "predeploy": "node scripts/charts.mjs --check && node scripts/catalog.mjs --check && node ../tools/stars.mjs --check",
+    "predeploy": "node scripts/charts.mjs --check && node scripts/catalog.mjs --check && node ../tools/stars.mjs --check && node ../tools/i18n.mjs check",
     "deploy": "npx -y wrangler@4.100.0 deploy",
     "db:local": "wrangler d1 migrations apply LB --local",
     "catalog": "node scripts/catalog.mjs",

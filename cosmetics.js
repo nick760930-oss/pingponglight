@@ -2,6 +2,11 @@
 // Runs in the browser (window.PPLC) and in node via vm (globalThis.PPLC): nothing here touches the DOM at load time.
 // Drawing code comes from docs/design/cosmetics-catalog.html (v15), kept as close to the original as possible.
 (typeof window!=='undefined'?window:globalThis).PPLC=(()=>{'use strict';
+// language helpers: in the browser they are the globals of i18n.js; in node (vm) there is no translation, the Chinese is returned as is
+const GL=typeof window!=='undefined'?window:globalThis,I18=GL.PPLI18N||null;
+const TX=GL.TX||((s,p)=>{s=String(s);const a=s.lastIndexOf('@@');if(a>=0)s=s.slice(0,a);return p?s.replace(/\{(\w+)\}/g,(m,k)=>k in p?p[k]:m):s});
+const TXA=GL.TXA||(a=>a.map(s=>TX(s))),TXO=GL.TXO||(o=>{const r={};for(const k in o)r[k]=TX(o[k]);return r});
+const FF=I18?I18.font:'"Noto Sans TC",sans-serif';   // canvas font family (Japanese needs Japanese glyph shapes)
 if(typeof CanvasRenderingContext2D!=='undefined'&&!CanvasRenderingContext2D.prototype.roundRect)CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){r=Math.min(r||0,w/2,h/2);this.moveTo(x+r,y);this.arcTo(x+w,y,x+w,y+h,r);this.arcTo(x+w,y+h,x,y+h,r);this.arcTo(x,y+h,x,y,r);this.arcTo(x,y,x+w,y,r);this.closePath()};
 const TAU=Math.PI*2,rnd=(a,b)=>a+Math.random()*(b-a);
 const hexA=(h,a)=>{const n=parseInt(h.slice(1),16);return `rgba(${n>>16&255},${n>>8&255},${n&255},${a})`};
@@ -699,9 +704,17 @@ const CATS=['theme','orb','trail','hit','frame','bg','plate','avatar','emote','s
 const SLOTS=['orb','trail','hit','frame','bg','plate','avatar','emote','share','title'];
 const DEFAULTS={orb:'orb.circle',trail:'trail.ribbon',hit:'hit.ring',frame:'frame.glow',bg:'bg.stars',plate:'plate.basic',avatar:'avatar.orb',emote:'emote.basic',share:'share.basic',title:''};
 const items=[],byId={};
+// the name and description shown to players come from the language files (cos.json; titles fall back to ach.json); the Chinese given to I() stays the source
+// and is what ids/how were made from, so this runs last, inside I(), after the caller has used the Chinese text
+function i18nItem(it){
+  if(!I18)return;
+  const o=I18.cos(it.id),h=String(it.how||''),a=it.cat==='title'&&h.indexOf('ach:')===0?I18.ach(h.slice(4)):undefined;
+  const nm=o&&o.name||a&&a.name,ds=o&&o.desc||a&&a.desc;
+  if(nm)it.name=nm;if(ds)it.desc=ds;
+  if(it.cat==='emote'&&o&&Array.isArray(o.list)){it.list=o.list.slice();it.desc=it.list.join(TX('　'))}}
 function I(id,cat,name,desc,how,price,x){
   const it=Object.assign({id,cat,name,desc:desc||'',price:price||0,how,pid:how==='buy'?PFX+id:null,vis:cat==='avatar'||cat==='plate'||cat==='title',parts:null,k:id.split('.')[1]},x||{});
-  if(byId[id])throw new Error('duplicate item '+id);items.push(it);byId[id]=it;return it}
+  if(byId[id])throw new Error('duplicate item '+id);i18nItem(it);items.push(it);byId[id]=it;return it}
 const P30=30,P90=90;
 // ---- full version and sponsorship (shop sections, not equippable) ----
 {const f=I('full','full','完整版','解除每個星座 30% 的上限，後續曲目照樣過關解鎖；一次買斷，不訂閱、沒有廣告。','buy',50);f.pid=PFX+'full';f.k='full'}
@@ -754,7 +767,7 @@ THEMES.forEach(([k,n,h,d,T])=>{
   const parts=[];for(const s of ['bg','frame','orb','trail','hit']){if(T[s]&&T[s]!==DEFK[s])parts.push(s+'.'+T[s])}
   if(T.share)parts.push('share.'+T.share);
   I('theme.'+k,'theme',n,d,h,h==='buy'?P90:0,{parts,T:Object.assign({bg:'stars',frame:'glow',orb:'circle',trail:'ribbon',hit:'ring',c1:'#7cf0ff',c2:'#8f6bff'},T),limited:!!T.limited,
-    note:parts.length?'內含 '+parts.length+' 件，單買 '+parts.filter(p=>p.indexOf('share.')!==0).length+' 件要 NT$'+(parts.filter(p=>p.indexOf('share.')!==0).length*30):''})});
+    note:parts.length?(()=>{const m=parts.filter(p=>p.indexOf('share.')!==0).length;return TX('內含 {n} 件，單買 {m} 件要 NT${price}',{n:parts.length,m,price:m*30})})():''})});
 // ---- name plates (css = the plate itself; avatar and nickname sit inside) ----
 [['basic','基本','default','預設名牌框。','background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15)'],
  ['glow','冷光','buy','淡淡的藍色冷光。','background:rgba(124,240,255,.14);border:1px solid #3fd8ff;box-shadow:0 0 10px rgba(63,216,255,.5)',{also:'ach:半程'}],
@@ -804,6 +817,8 @@ I('title.lamplighter','title','點燈人','任一贊助包；替這片星空點�
 
 // ---------- preview scene (same engine as the catalogue) ----------
 const DEF={bg:'stars',frame:'glow',orb:'circle',trail:'ribbon',hit:'ring',c1:'#7cf0ff',c2:'#8f6bff'};
+// the made-up game screens drawn in the preview (home, song menu): shown text, translated once
+const PVMENU=TXA(['線上對戰','星空','好友','設定']),PVSONGS=[TX('土耳其進行曲'),TX('小夜曲'),'K.545',TX('月光'),TX('命運')];
 function scene(cv,T){T=Object.assign({},DEF,T);const s={cv,T,t:Math.random()*3,H:[],P:[],fl:0,last:0,vis:false,ph:Math.random()};return s}
 function step(s,dt){const{cv,T}=s,x=cv.getContext('2d'),dpr=cv._dpr||Math.min(3,devicePixelRatio||1),W=cv.clientWidth||cv._w||0,Hh=cv.clientHeight||cv._h||0;if(!W||!Hh)return;
  const pw=Math.round(W*dpr),ph=Math.round(Hh*dpr);if(cv.width!==pw||cv.height!==ph){cv.width=pw;cv.height=ph}
@@ -814,15 +829,15 @@ function step(s,dt){const{cv,T}=s,x=cv.getContext('2d'),dpr=cv._dpr||Math.min(3,
  const sh=(s.ph*360+t*14)%360;x.save();x.globalCompositeOperation='lighter';
  [[.15,.3,sh,.10],[.88,.75,(sh+140)%360,.09]].forEach(([a,b,hh,al])=>{const g=x.createRadialGradient(w*a,h*b,0,w*a,h*b,Math.max(w,h)*.5);g.addColorStop(0,`hsla(${hh},80%,50%,${al})`);g.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g;x.fillRect(0,0,w,h)});x.restore();
  const m=10;
- if(T.view==='home'){x.fillStyle='rgba(3,4,12,.5)';x.fillRect(0,0,w,h);x.textAlign='center';x.fillStyle='#e8ecff';x.font='800 22px "Noto Sans TC",sans-serif';x.fillText('PingPongLight',w/2,h*.36);
-  x.fillStyle='#8a93c0';x.font='400 10px "Noto Sans TC",sans-serif';x.fillText('節奏彈球遊戲',w/2,h*.36+16);
+ if(T.view==='home'){x.fillStyle='rgba(3,4,12,.5)';x.fillRect(0,0,w,h);x.textAlign='center';x.fillStyle='#e8ecff';x.font='800 22px '+FF;x.fillText('PingPongLight',w/2,h*.36);
+  x.fillStyle='#8a93c0';x.font='400 10px '+FF;x.fillText(TX('節奏彈球遊戲'),w/2,h*.36+16);
   const bw=110,bx=w/2-bw/2,by=h*.52;const g=x.createLinearGradient(bx,0,bx+bw,0);g.addColorStop(0,'#3fd8ff');g.addColorStop(1,'#8f6bff');x.fillStyle=g;x.beginPath();x.roundRect(bx,by,bw,24,12);x.fill();
-  x.fillStyle='#04060f';x.font='700 11px "Noto Sans TC",sans-serif';x.fillText('開始遊戲',w/2,by+16);
-  ['線上對戰','星空','好友','設定'].forEach((n,i)=>{const cx=w/2+(i-1.5)*62;x.strokeStyle='rgba(255,255,255,.18)';x.fillStyle='rgba(255,255,255,.06)';x.beginPath();x.roundRect(cx-27,h*.7,54,18,9);x.fill();x.stroke();x.fillStyle='#e8ecff';x.font='400 9px "Noto Sans TC",sans-serif';x.fillText(n,cx,h*.7+12.5)});return}
- if(T.view==='menu'){x.fillStyle='rgba(3,4,12,.88)';x.fillRect(0,0,w,h);x.textAlign='left';x.fillStyle='#e8ecff';x.font='700 12px "Noto Sans TC",sans-serif';x.fillText('‹ 返回　　選擇曲目',14,22);
-  for(let i=0;i<5;i++){x.fillStyle=i===1?'rgba(124,240,255,.14)':'rgba(255,255,255,.04)';x.beginPath();x.roundRect(14,34+i*27,w*.42,22,7);x.fill();x.fillStyle=i===1?'#7cf0ff':'#c9cfee';x.font='400 10px "Noto Sans TC",sans-serif';x.fillText(['土耳其進行曲','小夜曲','K.545','月光','命運'][i],24,49+i*27)}
-  x.fillStyle='rgba(30,36,80,.6)';x.beginPath();x.roundRect(w*.47,34,w*.53-14,h-48,10);x.fill();x.fillStyle='#e8ecff';x.font='800 14px "Noto Sans TC",sans-serif';x.fillText('小夜曲',w*.47+12,58);
-  x.fillStyle='#8a93c0';x.font='400 9px "Noto Sans TC",sans-serif';x.fillText('莫札特 · 古典座',w*.47+12,72);return}
+  x.fillStyle='#04060f';x.font='700 11px '+FF;x.fillText(TX('開始遊戲'),w/2,by+16);
+  PVMENU.forEach((n,i)=>{const cx=w/2+(i-1.5)*62;x.strokeStyle='rgba(255,255,255,.18)';x.fillStyle='rgba(255,255,255,.06)';x.beginPath();x.roundRect(cx-27,h*.7,54,18,9);x.fill();x.stroke();x.fillStyle='#e8ecff';x.font='400 9px '+FF;x.fillText(n,cx,h*.7+12.5)});return}
+ if(T.view==='menu'){x.fillStyle='rgba(3,4,12,.88)';x.fillRect(0,0,w,h);x.textAlign='left';x.fillStyle='#e8ecff';x.font='700 12px '+FF;x.fillText(TX('‹ 返回　　選擇曲目'),14,22);
+  for(let i=0;i<5;i++){x.fillStyle=i===1?'rgba(124,240,255,.14)':'rgba(255,255,255,.04)';x.beginPath();x.roundRect(14,34+i*27,w*.42,22,7);x.fill();x.fillStyle=i===1?'#7cf0ff':'#c9cfee';x.font='400 10px '+FF;x.fillText(PVSONGS[i],24,49+i*27)}
+  x.fillStyle='rgba(30,36,80,.6)';x.beginPath();x.roundRect(w*.47,34,w*.53-14,h-48,10);x.fill();x.fillStyle='#e8ecff';x.font='800 14px '+FF;x.fillText(TX('小夜曲'),w*.47+12,58);
+  x.fillStyle='#8a93c0';x.font='400 9px '+FF;x.fillText(TX('莫札特 · 古典座'),w*.47+12,72);return}
  // play field: dim inner area like the game (rgba(10,14,40,.55))
  x.fillStyle='rgba(10,14,40,.55)';x.beginPath();x.roundRect(m,m,w-2*m,h-2*m,14);x.fill();
  const r=h*.08,L=m+r+2,R=w-m-r-2,per=1.3;
@@ -853,7 +868,7 @@ function step(s,dt){const{cv,T}=s,x=cv.getContext('2d'),dpr=cv._dpr||Math.min(3,
  x.globalCompositeOperation='source-over';
  ORB[T.orb](x,{x:px,y:py,ang:s.ang,sp:s.sp,ti:TI},r,K,t);
  // tier badge (top-right)
- x.font='800 10px "Noto Sans TC",sans-serif';const lab=Ti.gold?'★ 星星時間':'連擊 '+Ti.n,tw=x.measureText(lab).width+14,bx=w-m-6-tw,by=m+6;
+ x.font='800 10px '+FF;const lab=Ti.gold?TX('★ 星星時間'):TX('連擊 {n}',{n:Ti.n}),tw=x.measureText(lab).width+14,bx=w-m-6-tw,by=m+6;
  x.fillStyle='rgba(4,6,15,.75)';x.beginPath();x.roundRect(bx,by,tw,16,8);x.fill();x.strokeStyle=tc;x.lineWidth=1;x.stroke();x.fillStyle=tc;x.textAlign='center';x.fillText(lab,bx+tw/2,by+11.5);
 }
 
@@ -893,8 +908,8 @@ function keepOf(id){return !!state.keep[id]}
 function setKeep(id,v){if(v)state.keep[id]=1;else delete state.keep[id];bump()}
 function comboCols(h,sat,g){const gold=g>.5,hh=h;return{c1:gold?'#ffd36b':hsl2hex(hh,sat,sat?62:88),c2:gold?'#fff1c2':hsl2hex(hh+20,sat,sat?72:96)}}
 // the achievement id (what how / also hold) is never renamed; the name shown to players comes from ach-data.js (PPLACH), when it differs
-function achName(id){const D=window.PPLACH,a=D&&D.list&&D.list.find(x=>x.id===id);return a?a.name:id}
-function howText(it){const h=it.how;return it.retired?'已停止取得（原本持有者保留）':h==='default'?'預設':h==='buy'?'NT$'+it.price:h==='sponsor'?'贊助':h.indexOf('ach:')===0?'成就：'+achName(h.slice(4)):h}
+function achName(id){const D=window.PPLACH,a=D&&D.list&&D.list.find(x=>x.id===id),o=I18&&I18.ach(id);return o&&o.name||(a?a.name:id)}
+function howText(it){const h=it.how;return it.retired?TX('已停止取得（原本持有者保留）'):h==='default'?TX('預設'):h==='buy'?'NT$'+it.price:h==='sponsor'?TX('贊助'):h.indexOf('ach:')===0?TX('成就：{name}',{name:achName(h.slice(4))}):h}
 // every id a purchase of `it` hands out (a theme gives its parts; sponsorship gives the title/avatar/plate)
 function grants(it){
   if(!it)return[];if(it.cat==='theme')return [it.id].concat(it.parts||[]);

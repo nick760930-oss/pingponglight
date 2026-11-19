@@ -124,56 +124,56 @@ async function claim(it){   // test period: free
     if(r&&r.ok&&r.state&&Array.isArray(r.state.owned)){serverOwned=new Set(r.state.owned.filter(id=>C.byId[id]));for(const id of serverOwned)S.own.add(id);for(const id of ids)S.own.add(id);save();return true}
     if(r&&(r._s===429||r.error==='slow')){busyT=Date.now()+65000;clearTimeout(claimQ.timer);claimQ.timer=setTimeout(claimPending,66000)}   // kept on this device, sent up a little later
     else if(r&&r.error==='noname')NONAME=true;
-    else if(r&&(r._s===403||r._s===400)){G.toast('目前無法取得，請稍後再試');return false}}
+    else if(r&&(r._s===403||r._s===400)){G.toast(TX('目前無法取得，請稍後再試'));return false}}
   for(const id of ids)S.own.add(id);save();return true   // no server (or no account yet): owned on this device; sent up when a nickname exists
 }
 async function buy(it){
   if(MODE==='test'){const ok=await claim(it);if(ok){done(it)}return}
   if(MODE==='iap'){
-    if(!window.PPLIAP||typeof window.PPLIAP.buy!=='function'){G.toast('購買功能尚未就緒，請稍後再試');return}
-    if(unavail(it)){G.toast('這個品項尚未開放');return}
+    if(!window.PPLIAP||typeof window.PPLIAP.buy!=='function'){G.toast(TX('購買功能尚未就緒，請稍後再試'));return}
+    if(unavail(it)){G.toast(TX('這個品項尚未開放'));return}
     let r=null,err=false;
     try{r=await window.PPLIAP.buy(it.pid)}catch(e){err=true}
     if(r&&r.ok&&goodOwned(r.state)){applyServer(r.state);lockCheck()}   // the verify answer carries the owned list: use it even if the sync below is held back
     await sync();
-    if(err||!r||r===false){G.toast('購買沒有完成');render();return}
-    if(r.noname)G.toast('請先設定暱稱再購買');
-    else if(r.paid&&!r.ok){G.toast(r.bad?'已付款但驗證失敗，請稍後按「恢復購買」或聯絡我們':'已付款，購買紀錄稍後會自動補上，請勿重複購買')}   // the money is spent: never suggest paying again
+    if(err||!r||r===false){G.toast(TX('購買沒有完成'));render();return}
+    if(r.noname)G.toast(TX('請先設定暱稱再購買'));
+    else if(r.paid&&!r.ok){G.toast(r.bad?TX('已付款但驗證失敗，請稍後按「恢復購買」或聯絡我們'):TX('已付款，購買紀錄稍後會自動補上，請勿重複購買'))}   // the money is spent: never suggest paying again
     else if(r.ok){
       const st=r.results&&r.results[0]&&r.results[0].status;
-      if(st==='taken')G.toast('這筆購買已在 24 小時內轉移過，暫時無法再轉移');
-      else if(st==='revoked')G.toast('這筆購買已退款');
+      if(st==='taken')G.toast(TX('這筆購買已在 24 小時內轉移過，暫時無法再轉移'));
+      else if(st==='revoked')G.toast(TX('這筆購買已退款'));
       else if(it.id==='full')done(it);
-      else G.toast('購買完成')}
-    else if(r.error==='off')G.toast('目前無法驗證購買，請稍後再試');
-    else if(r.pending)G.toast('購買等待核准中，核准後會自動取得');
-    else if(!r.cancelled)G.toast('購買沒有完成');
+      else G.toast(TX('購買完成'))}
+    else if(r.error==='off')G.toast(TX('目前無法驗證購買，請稍後再試'));
+    else if(r.pending)G.toast(TX('購買等待核准中，核准後會自動取得'));
+    else if(!r.cancelled)G.toast(TX('購買沒有完成'));
     render();return}
   webDialog();
 }
 function done(it){
-  if(it.id==='full'){dlg('✦ 已解鎖完整版','謝謝支持！每個星座後面的曲目已經開放挑戰。',[{t:'好',c:'pri'}],true);window.dispatchEvent(new Event('ppl-full'))}
+  if(it.id==='full'){dlg(TX('✦ 已解鎖完整版'),TX('謝謝支持！每個星座後面的曲目已經開放挑戰。'),[{t:TX('好'),c:'pri'}],true);window.dispatchEvent(new Event('ppl-full'))}
 
   render();
 }
 async function restore(){
   if(MODE==='iap'){
-    if(!window.PPLIAP||typeof window.PPLIAP.restore!=='function'){G.toast('恢復購買尚未就緒');return}
+    if(!window.PPLIAP||typeof window.PPLIAP.restore!=='function'){G.toast(TX('恢復購買尚未就緒'));return}
     try{const r=await window.PPLIAP.restore();   // the server's answer: {error:'off'} when it cannot verify; a result's status 'moved' = it was bought by another player and now belongs to this one
       const res=r&&Array.isArray(r.results)?r.results:Array.isArray(r)?r:[];
       const n=st=>res.filter(x=>x&&x.status===st).length,good=n('granted')+n('dup')+n('moved');
-      if(r&&r.noname)G.toast('請先設定暱稱再恢復購買');
-      else if(r&&r.error==='off')G.toast('目前無法驗證購買，請稍後再試');
-      else if(r&&r.ok===false)G.toast('恢復購買沒有完成');
+      if(r&&r.noname)G.toast(TX('請先設定暱稱再恢復購買'));
+      else if(r&&r.error==='off')G.toast(TX('目前無法驗證購買，請稍後再試'));
+      else if(r&&r.ok===false)G.toast(TX('恢復購買沒有完成'));
       else{
         const m=[];
-        if(good)m.push(n('moved')?'已恢復購買（購買已轉移到這個玩家）':'已恢復購買');
-        if(n('taken'))m.push(n('taken')+' 筆購買已在 24 小時內轉移過，暫時無法恢復');
-        if(n('bad'))m.push(n('bad')+' 筆驗證失敗，請稍後再試或聯絡我們');
-        if(!m.length)m.push(res.length?'沒有可恢復的購買':'沒有找到可恢復的購買');
-        G.toast(m.join('；'))}}catch(e){G.toast('恢復購買沒有完成')}
+        if(good)m.push(n('moved')?TX('已恢復購買（購買已轉移到這個玩家）'):TX('已恢復購買'));
+        if(n('taken'))m.push(TX('{n} 筆購買已在 24 小時內轉移過，暫時無法恢復',{n:n('taken')}));
+        if(n('bad'))m.push(TX('{n} 筆驗證失敗，請稍後再試或聯絡我們',{n:n('bad')}));
+        if(!m.length)m.push(res.length?TX('沒有可恢復的購買'):TX('沒有找到可恢復的購買'));
+        G.toast(m.join(TX('；')))}}catch(e){G.toast(TX('恢復購買沒有完成'))}
     await sync();render();return}
-  if(MODE==='test'){G.toast('測試期間所有外觀免費取得，不需要恢復購買。');return}
+  if(MODE==='test'){G.toast(TX('測試期間所有外觀免費取得，不需要恢復購買。'));return}
   webDialog();
 }
 
@@ -192,14 +192,14 @@ function setCombo(it,on){
 C.themePartIds=th=>(th.parts||[]).filter(id=>/^(orb|trail|hit)\./.test(id));
 
 // ---------------------------------------------------------------- ui state
-const SIDE=[['full','完整版'],['theme','主題套組'],['single','單件外觀'],['vis','名牌與頭像'],['emote','對戰表情'],['share','分享圖外框']];   // no sponsoring (decided 2026-11-16): the tab and the sponsor-only rewards are hidden
-const SUBS={single:[['orb','光球'],['trail','尾跡'],['hit','打擊特效'],['frame','框線'],['bg','背景']],vis:[['plate','名牌框'],['avatar','頭像'],['title','稱號']]};
+const SIDE=[['full',TX('完整版')],['theme',TX('主題套組')],['single',TX('單件外觀')],['vis',TX('名牌與頭像')],['emote',TX('對戰表情')],['share',TX('分享圖外框')]];   // no sponsoring (decided 2026-11-16): the tab and the sponsor-only rewards are hidden
+const SUBS={single:[['orb',TX('光球')],['trail',TX('尾跡')],['hit',TX('打擊特效')],['frame',TX('框線')],['bg',TX('背景')]],vis:[['plate',TX('名牌框')],['avatar',TX('頭像')],['title',TX('稱號')]]};
 const UI={view:'shop',cat:'theme',sub:{single:'orb',vis:'plate'},sel:{}};
 const catOf=()=>UI.cat==='single'||UI.cat==='vis'?UI.sub[UI.cat]:UI.cat;
 const shopOpen=()=>!$('#shop').classList.contains('hidden');
 const esc=C.esc;
 const unavail=it=>MODE==='iap'&&!!it.pid&&!!window.PPLIAP&&typeof window.PPLIAP.has==='function'&&window.PPLIAP.has(it.pid)===false;   // not on sale in the App Store
-const priceTxt=it=>MODE==='test'?'免費':(MODE==='iap'&&window.PPLIAP&&typeof window.PPLIAP.price==='function'&&window.PPLIAP.price(it.pid))||'NT$'+it.price;
+const priceTxt=it=>MODE==='test'?TX('免費'):(MODE==='iap'&&window.PPLIAP&&typeof window.PPLIAP.price==='function'&&window.PPLIAP.price(it.pid))||'NT$'+it.price;
 
 function listFor(cat){
   let l=C.items.filter(i=>i.cat===cat&&(i.how!=='sponsor'||isOwn(i))&&(!i.retired||isOwn(i)));   // a retired title (no longer given by any achievement) is only listed for those who own it
@@ -207,12 +207,12 @@ function listFor(cat){
   if(cat==='title'||cat==='avatar'||cat==='plate')l=l.slice().sort((a,b)=>(isOwn(b)-isOwn(a)));
   return l}
 function statusOf(it){   // [css class, text]
-  if(isEq(it))return['eq','使用中'];
-  if(isOwn(it))return['own','已擁有'];
+  if(isEq(it))return['eq',TX('使用中')];
+  if(isOwn(it))return['own',TX('已擁有')];
   if(it.how==='buy')return['pay',priceTxt(it)];
-  if(it.how==='sponsor')return['ach','贊助取得'];
-  if(it.how.indexOf('ach:')===0)return['ach','成就'];
-  return['own','預設']}
+  if(it.how==='sponsor')return['ach',TX('贊助取得')];
+  if(it.how.indexOf('ach:')===0)return['ach',TX('成就')];
+  return['own',TX('預設')]}
 
 // ---------------------------------------------------------------- render
 function sideBtn(k,t){
@@ -221,7 +221,7 @@ function sideBtn(k,t){
 function render(){
   if(!shopOpen())return;
   const coll=UI.view==='coll';
-  $('#shT').textContent=coll?'收藏':'商城';$('#shMy').textContent=coll?'商城':'收藏';$('#shRes').hidden=coll;
+  $('#shT').textContent=coll?TX('收藏'):TX('商城');$('#shMy').textContent=coll?TX('商城'):TX('收藏');$('#shRes').hidden=coll;
   const side=SIDE.filter(([k])=>!coll||(k!=='full'&&k!=='sponsor'));
   if(!side.some(([k])=>k===UI.cat))UI.cat='theme';
   $('#shSide').innerHTML=side.map(([k,t])=>sideBtn(k,t)).join('');
@@ -233,10 +233,10 @@ function cell(it){
   const [sc,st]=statusOf(it),cat=it.cat,sel=UI.sel[cat]===it.id;
   let vis;
   if(['theme','orb','trail','hit','frame','bg'].includes(cat)){vis='<img class="sw" alt="" src="'+C.thumb(thumbT(it),150,60,2)+'">'}
-  else if(cat==='plate')vis='<div class="ctr">'+C.plateHTML(it.id,C.state.eq.avatar,'小光','',22)+'</div>';
+  else if(cat==='plate')vis='<div class="ctr">'+C.plateHTML(it.id,C.state.eq.avatar,TX('小光'),'',22)+'</div>';
   else if(cat==='avatar')vis='<div class="ctr">'+C.avHTML(C.avSpec(it.id,2),44)+'</div>';
   else if(cat==='title')vis='<div class="ctr">'+C.titleHTML(it.id)+'</div>';
-  else if(cat==='emote')vis='<div class="ctr" style="font-size:12px;color:#cfd5f5;text-align:center;line-height:1.5">'+esc(it.list.slice(0,3).join('　'))+'</div>';
+  else if(cat==='emote')vis='<div class="ctr" style="font-size:12px;color:#cfd5f5;text-align:center;line-height:1.5">'+esc(it.list.slice(0,3).join(TX('　')))+'</div>';
   else if(cat==='share')vis='<div class="ctr"><span style="'+esc(it.css)+';border-radius:8px;padding:6px 16px;font-size:12px;font-weight:700">'+esc(it.name)+'</span></div>';
   else vis='';
   const lk=!isOwn(it)&&it.how!=='buy'?' lk':'';
@@ -247,19 +247,19 @@ function grid(){
   const g=$('#shGrid'),coll=UI.view==='coll';g.className='shGrid';
   if(UI.cat==='full'){
     g.classList.add('one');const f=C.byId.full,own=isOwn(f);
-    g.innerHTML='<div class="shFull"><div class="ic">🌌</div><div style="flex:1"><b>完整版　'+(MODE==='test'?'測試期間免費':priceTxt(f))+'</b><br>解除每個星座 30% 的上限：71 首全部可以過關解鎖（免費版 27 首）。之後新增的正式曲目也包含在內。一次買斷，不訂閱、沒有廣告。</div>'
-      +(own?'<span class="pr own">已擁有</span>':unavail(f)?'<button disabled>尚未開放</button>':'<button class="gold" data-buy="full">'+(MODE==='test'?'取得':'購買')+'</button>')+'</div>'
-      +'<div class="shNote">獎勵星座和音符座一律免費，只要玩就能取得。</div>';return}
+    g.innerHTML='<div class="shFull"><div class="ic">🌌</div><div style="flex:1">'+TX('<b>完整版　{price}</b><br>解除每個星座 30% 的上限：71 首全部可以過關解鎖（免費版 27 首）。之後新增的正式曲目也包含在內。一次買斷，不訂閱、沒有廣告。',{price:MODE==='test'?TX('測試期間免費'):priceTxt(f)})+'</div>'
+      +(own?'<span class="pr own">'+TX('已擁有')+'</span>':unavail(f)?'<button disabled>'+TX('尚未開放')+'</button>':'<button class="gold" data-buy="full">'+(MODE==='test'?TX('取得'):TX('購買'))+'</button>')+'</div>'
+      +'<div class="shNote">'+TX('獎勵星座和音符座一律免費，只要玩就能取得。')+'</div>';return}
   if(UI.cat==='sponsor'){
-    g.innerHTML=C.items.filter(i=>i.cat==='sponsor').map(it=>{const ic={'30':'☕','90':'🎵','300':'🎹'}[it.k]||'✦',nm={'30':'請喝咖啡','90':'買一張唱片','300':'送一台鋼琴'}[it.k]||it.name;
-      const sub={'30':'贊助者稱號「點燈人」','90':'稱號＋金冠頭像','300':'稱號＋金冠＋金色名牌框「燈塔」'}[it.k]||it.desc;
+    g.innerHTML=C.items.filter(i=>i.cat==='sponsor').map(it=>{const ic={'30':'☕','90':'🎵','300':'🎹'}[it.k]||'✦',nm=it.name;
+      const sub=TXO({'30':'贊助者稱號「點燈人」','90':'稱號＋金冠頭像','300':'稱號＋金冠＋金色名牌框「燈塔」'})[it.k]||it.desc;
       return '<div class="shIt shSp"><div class="ic">'+ic+'</div><div class="nm" style="text-align:center">'+esc(nm)+'</div><small style="margin:3px 0 6px">'+esc(sub)+'</small>'
-        +(MODE==='test'?'<button disabled>App 版開放</button>':unavail(it)?'<button disabled>尚未開放</button>':'<button class="gold" data-buy="'+it.id+'">'+priceTxt(it)+'</button>')+'</div>'}).join('')
-      +'<div class="shNote">贊助不會讓遊戲變簡單，也不影響排行榜，只會讓別人看到你支持了這款遊戲。可以重複贊助，稱號與外觀只會給一次。'+(MODE==='test'?'<br><b>測試期間不開放贊助</b>（贊助是真實付費，App 上架後才能買）。':'')+'</div>';return}
+        +(MODE==='test'?'<button disabled>'+TX('App 版開放')+'</button>':unavail(it)?'<button disabled>'+TX('尚未開放')+'</button>':'<button class="gold" data-buy="'+it.id+'">'+priceTxt(it)+'</button>')+'</div>'}).join('')
+      +'<div class="shNote">'+TX('贊助不會讓遊戲變簡單，也不影響排行榜，只會讓別人看到你支持了這款遊戲。可以重複贊助，稱號與外觀只會給一次。')+(MODE==='test'?TX('<br><b>測試期間不開放贊助</b>（贊助是真實付費，App 上架後才能買）。'):'')+'</div>';return}
   const l=listFor(catOf());
   if(UI.cat==='theme'&&coll)l.unshift(null);
-  if(!l.length){g.innerHTML='<div class="shEmpty">'+(coll?'還沒有這類外觀，到商城看看。':'沒有品項')+'</div>';return}
-  g.innerHTML=l.map(it=>it?cell(it):'<button class="shIt'+(UI.sel.theme==='_def'?' sel':'')+'" data-id="_def"><div class="ctr" style="font-size:12px;color:#cfd5f5">全部用預設</div><span class="row"><span class="nm">預設外觀</span><span class="pr '+(C.state.themeCol===''&&C.look().allDef?'eq':'own')+'">'+(C.state.themeCol===''&&C.look().allDef?'使用中':'已擁有')+'</span></span></button>').join('');
+  if(!l.length){g.innerHTML='<div class="shEmpty">'+(coll?TX('還沒有這類外觀，到商城看看。'):TX('沒有品項'))+'</div>';return}
+  g.innerHTML=l.map(it=>it?cell(it):'<button class="shIt'+(UI.sel.theme==='_def'?' sel':'')+'" data-id="_def"><div class="ctr" style="font-size:12px;color:#cfd5f5">'+TX('全部用預設')+'</div><span class="row"><span class="nm">'+TX('預設外觀')+'</span><span class="pr '+(C.state.themeCol===''&&C.look().allDef?'eq':'own')+'">'+(C.state.themeCol===''&&C.look().allDef?TX('使用中'):TX('已擁有'))+'</span></span></button>').join('');
 }
 
 // ---------------------------------------------------------------- preview panel
@@ -287,37 +287,37 @@ function selected(){
   const l=listFor(cat);return l[0]||(UI.view==='coll'&&UI.cat==='theme'?'def':null)}
 function pview(){
   const p=$('#shPv'),it=selected();pvStop();
-  if(UI.cat==='sponsor'){p.innerHTML='<div class="t">謝謝你</div><div class="d">贊助不會讓遊戲變簡單，也不影響排行榜。稱號與外觀只會給一次，之後的贊助是純粹的支持。</div>';return}
-  if(UI.cat==='full'){const f=C.byId.full;p.innerHTML='<div class="t">買了之後</div><div class="d">每個星座 30% 以後的曲目，標籤從「完整版」變成「通過上一首後開放」，照樣一首一首解鎖。</div>'+(isOwn(f)?'<div class="d" style="color:#8fe388">你已擁有完整版。</div>':'');return}
-  if(it==='def'){p.innerHTML='<div class="big" id="pvC" style="aspect-ratio:19/9"></div><div class="t">預設外觀</div><div class="d">光球、尾跡、打擊特效、框線、背景全部回到最初的樣子。</div><div class="btns"><button class="pri" data-act="alldef">'+(C.look().allDef&&!C.state.themeCol?'使用中':'使用')+'</button></div>';
+  if(UI.cat==='sponsor'){p.innerHTML='<div class="t">'+TX('謝謝你')+'</div><div class="d">'+TX('贊助不會讓遊戲變簡單，也不影響排行榜。稱號與外觀只會給一次，之後的贊助是純粹的支持。')+'</div>';return}
+  if(UI.cat==='full'){const f=C.byId.full;p.innerHTML='<div class="t">'+TX('買了之後')+'</div><div class="d">'+TX('每個星座 30% 以後的曲目，標籤從「完整版」變成「通過上一首後開放」，照樣一首一首解鎖。')+'</div>'+(isOwn(f)?'<div class="d" style="color:#8fe388">'+TX('你已擁有完整版。')+'</div>':'');return}
+  if(it==='def'){p.innerHTML='<div class="big" id="pvC" style="aspect-ratio:19/9"></div><div class="t">'+TX('預設外觀')+'</div><div class="d">'+TX('光球、尾跡、打擊特效、框線、背景全部回到最初的樣子。')+'</div><div class="btns"><button class="pri" data-act="alldef">'+(C.look().allDef&&!C.state.themeCol?TX('使用中'):TX('使用'))+'</button></div>';
     const b=p.querySelector('.btns button');if(C.look().allDef&&!C.state.themeCol)b.disabled=true;
     const cv=document.createElement('canvas');cv.className='big';$('#pvC').replaceWith(cv);pvScene(cv,{});return}
-  if(!it){p.innerHTML='<div class="d">沒有可預覽的品項。</div>';return}
+  if(!it){p.innerHTML='<div class="d">'+TX('沒有可預覽的品項。')+'</div>';return}
   const cat=it.cat,vis=['theme','orb','trail','hit','frame','bg'].includes(cat);
   let top='';
   if(vis)top='<canvas class="big"></canvas>';
-  else if(cat==='plate')top='<div class="bx">'+C.plateHTML(it.id,C.state.eq.avatar,'小光',C.state.eq.title,28)+'</div>';
+  else if(cat==='plate')top='<div class="bx">'+C.plateHTML(it.id,C.state.eq.avatar,TX('小光'),C.state.eq.title,28)+'</div>';
   else if(cat==='avatar')top='<div class="bx">'+C.avHTML(C.avSpec(it.id,2),56)+'</div>';
-  else if(cat==='title')top='<div class="bx">'+C.plateHTML(C.state.eq.plate,C.state.eq.avatar,'小光',it.id,26)+'</div>';
+  else if(cat==='title')top='<div class="bx">'+C.plateHTML(C.state.eq.plate,C.state.eq.avatar,TX('小光'),it.id,26)+'</div>';
   else if(cat==='emote')top='<div class="bx" style="flex-direction:column;gap:3px;font-size:12px;line-height:1.4">'+it.list.map(esc).join('<br>')+'</div>';
-  else if(cat==='share')top='<div class="bx"><span style="'+esc(it.css)+';border-radius:10px;padding:10px 26px;font-size:13px;font-weight:700">我的成績 S</span></div>';
+  else if(cat==='share')top='<div class="bx"><span style="'+esc(it.css)+';border-radius:10px;padding:10px 26px;font-size:13px;font-weight:700">'+TX('我的成績 S')+'</span></div>';
   const own=isOwn(it),eq=isEq(it),[sc,st]=statusOf(it);
   let how='';
-  if(!own){how=it.how==='buy'?(it.also?'也可由成就「'+esc(C.achName(it.also.slice(4)))+'」取得':''):it.how==='sponsor'?'贊助 NT$90 以上取得':'取得方式：'+esc(C.howText(it))}
+  if(!own){how=it.how==='buy'?(it.also?TX('也可由成就「{name}」取得',{name:esc(C.achName(it.also.slice(4)))}):''):it.how==='sponsor'?TX('贊助 NT$90 以上取得'):TX('取得方式：{how}',{how:esc(C.howText(it))})}
   let keep='';
-  if(UI.view==='coll'&&own&&it.id!==C.defaults[cat]&&it.id!=='theme.stars'&&(cat==='theme'||['orb','trail','hit'].includes(cat)))keep='<div class="kp"><span>連擊變色</span><button class="tog'+(keepOn(it)?' on':'')+'" data-act="keep" role="switch" aria-checked="'+keepOn(it)+'" aria-label="連擊變色"></button></div>';
+  if(UI.view==='coll'&&own&&it.id!==C.defaults[cat]&&it.id!=='theme.stars'&&(cat==='theme'||['orb','trail','hit'].includes(cat)))keep='<div class="kp"><span>'+TX('連擊變色')+'</span><button class="tog'+(keepOn(it)?' on':'')+'" data-act="keep" role="switch" aria-checked="'+keepOn(it)+'" aria-label="'+TX('連擊變色')+'"></button></div>';
   let b='';
-  if(vis)b+='<button data-act="try">試玩一首</button>';
+  if(vis)b+='<button data-act="try">'+TX('試玩一首')+'</button>';
   if(own){
-    if(eq&&(cat==='theme'))b+='<button data-act="off">卸下（回到預設）</button>';
-    else if(eq&&cat!=='full'&&it.id!==C.defaults[cat]&&!(cat==='title'))b+='<button class="pri" disabled>使用中</button><button data-act="off">卸下</button>';
-    else if(eq)b+='<button class="pri" disabled>使用中</button>'+(cat==='title'?'<button data-act="off">卸下</button>':'');
-    else b+='<button class="pri" data-act="use">使用</button>';
+    if(eq&&(cat==='theme'))b+='<button data-act="off">'+TX('卸下（回到預設）')+'</button>';
+    else if(eq&&cat!=='full'&&it.id!==C.defaults[cat]&&!(cat==='title'))b+='<button class="pri" disabled>'+TX('使用中')+'</button><button data-act="off">'+TX('卸下')+'</button>';
+    else if(eq)b+='<button class="pri" disabled>'+TX('使用中')+'</button>'+(cat==='title'?'<button data-act="off">'+TX('卸下')+'</button>':'');
+    else b+='<button class="pri" data-act="use">'+TX('使用')+'</button>';
   }else if(it.how==='buy'&&UI.view==='shop'){
-    b+=MODE==='test'?'<button class="gold" data-act="buy">取得</button>':unavail(it)?'<button disabled>尚未開放</button>':'<button class="gold" data-act="buy">購買 '+priceTxt(it)+'</button>';
-  }else if(!own){b+='<button disabled>'+(it.how==='sponsor'?'贊助取得':'成就取得')+'</button>'}
-  const priceLine=!own&&it.how==='buy'?'<div class="d" style="color:#ffd36b">'+(MODE==='test'?'測試期間免費':priceTxt(it))+(it.cat==='theme'?'　（單買 5 件要 NT$150）':'')+'</div>':'';
-  p.innerHTML=top+'<div class="t">'+esc(it.name)+'</div><div class="d">'+esc(it.desc)+'</div>'+priceLine+(how?'<div class="d">'+how+'</div>':'')+(it.limited?'<div class="d" style="color:#c9b6ff">限定</div>':'')+keep+'<div class="btns">'+b+'</div>';
+    b+=MODE==='test'?'<button class="gold" data-act="buy">'+TX('取得')+'</button>':unavail(it)?'<button disabled>'+TX('尚未開放')+'</button>':'<button class="gold" data-act="buy">'+TX('購買 {price}',{price:priceTxt(it)})+'</button>';
+  }else if(!own){b+='<button disabled>'+(it.how==='sponsor'?TX('贊助取得'):TX('成就取得'))+'</button>'}
+  const priceLine=!own&&it.how==='buy'?'<div class="d" style="color:#ffd36b">'+(MODE==='test'?TX('測試期間免費'):priceTxt(it))+(it.cat==='theme'?TX('　（單買 {n} 件要 NT${price}）',{n:5,price:150}):'')+'</div>':'';
+  p.innerHTML=top+'<div class="t">'+esc(it.name)+'</div><div class="d">'+esc(it.desc)+'</div>'+priceLine+(how?'<div class="d">'+how+'</div>':'')+(it.limited?'<div class="d" style="color:#c9b6ff">'+TX('限定')+'</div>':'')+keep+'<div class="btns">'+b+'</div>';
   if(vis){const cv=p.querySelector('canvas.big');pvScene(cv,pvT(it))}
 }
 
@@ -364,7 +364,7 @@ function dlg(title,text,btns,gold){
 function dlgClose(){$('#shDlg').classList.add('hidden')}
 const dlgOpen=()=>!$('#shDlg').classList.contains('hidden');
 $('#shDx').onclick=dlgClose;
-function webDialog(){dlg('商城只在 App 版提供','完整版與外觀請在 iOS App 內購買。App 與網頁的購買暫時不互通，之後會提供帳號轉移。網頁版可以免費玩前 30% 的曲目。',[{t:'知道了',c:'pri'}])}
+function webDialog(){dlg(TX('商城只在 App 版提供'),TX('完整版與外觀請在 iOS App 內購買。App 與網頁的購買暫時不互通，之後會提供帳號轉移。網頁版可以免費玩前 30% 的曲目。'),[{t:TX('知道了'),c:'pri'}])}
 
 // ---------------------------------------------------------------- open / close
 function open(view){   // view: 'shop' (default) or 'coll' (the collection: what the player owns and wears; works in every mode)

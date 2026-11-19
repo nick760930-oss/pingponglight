@@ -1,1 +1,538 @@
-{}
+{
+ "twinkle": {
+  "name": "Twinkle, Twinkle, Little Star",
+  "composer": "Traditional nursery rhyme",
+  "year": "c. 1761",
+  "tip": "The melody comes from the French song “Ah! vous dirai-je, maman,” on which Mozart wrote a set of 12 variations.",
+  "sky": "Twinkle, Twinkle"
+ },
+ "silent": {
+  "name": "Silent Night",
+  "composer": "Gruber",
+  "tip": "First sung in 1818 in the Austrian town of Oberndorf. The church organ is said to have broken down, so the premiere was accompanied on guitar instead."
+ },
+ "green": {
+  "name": "Greensleeves",
+  "composer": "Traditional folk song",
+  "year": "c. 1580",
+  "tip": "Often said to have been written by King Henry VIII, but the tune only appeared after his death, so that is most likely just a legend."
+ },
+ "grace": {
+  "name": "Amazing Grace",
+  "composer": "American hymn",
+  "tip": "Its lyricist, John Newton, was once the captain of a slave ship. He later became a minister and supported the abolition of the slave trade."
+ },
+ "auld": {
+  "name": "Auld Lang Syne",
+  "composer": "Scottish folk song",
+  "tip": "The words are by the Scottish poet Robert Burns. “Auld Lang Syne” means “long, long ago,” and in many places it is sung together at New Year."
+ },
+ "prelude": {
+  "name": "Prelude in C Major",
+  "composer": "J. S. Bach",
+  "tip": "The first piece in Book I of Bach’s The Well-Tempered Clavier. Gounod later added a melody on top of it, creating his famous “Ave Maria.”"
+ },
+ "air": {
+  "name": "Air on the G String",
+  "composer": "J. S. Bach",
+  "year": "c. 1730",
+  "tip": "From Bach’s Orchestral Suite No. 3. “Air on the G String” comes from a 19th-century arrangement by violinist August Wilhelmj, played on the G string alone.",
+  "sky": "Air on the G String"
+ },
+ "canon": {
+  "name": "Canon in D",
+  "composer": "Pachelbel",
+  "year": "c. 1680",
+  "tip": "The original is a Canon and Gigue for three violins and continuo. The eight notes of the bass line repeat 28 times from beginning to end."
+ },
+ "minuetg": {
+  "name": "Minuet in G Major",
+  "composer": "Petzold (from Bach’s notebook)",
+  "tip": "Long thought to be by Bach; only in the 1970s was Petzold confirmed as the composer. It appears in the notebook Bach compiled for his wife."
+ },
+ "hallelujah": {
+  "name": "Hallelujah Chorus",
+  "composer": "Handel",
+  "tip": "From the oratorio Messiah. Legend has it that King George II stood up when he heard this chorus, and audiences have stood to listen ever since."
+ },
+ "spring": {
+  "name": "Spring (The Four Seasons)",
+  "composer": "Vivaldi",
+  "tip": "Each concerto of The Four Seasons is paired with a sonnet. The score of “Spring” is marked with birdsong, flowing streams and thunderstorms.",
+  "sky": "Spring (Vivaldi)"
+ },
+ "fireworks": {
+  "name": "Fireworks: La Réjouissance",
+  "composer": "Handel",
+  "tip": "Written in 1749 for London’s peace-treaty fireworks celebration. The public rehearsal before the official performance reportedly drew over 10,000 people.",
+  "sky": "Royal Fireworks"
+ },
+ "beet7": {
+  "name": "Symphony No. 7, 2nd Mvt.",
+  "composer": "Beethoven",
+  "tip": "At its 1813 premiere the second movement was so popular the audience demanded an instant encore. Wagner called the symphony “the apotheosis of the dance.”",
+  "sky": "Symphony No. 7"
+ },
+ "pathetique2": {
+  "name": "Pathétique Sonata, 2nd Mvt.",
+  "composer": "Beethoven",
+  "tip": "“Pathétique” was reportedly the publisher’s title, approved by Beethoven. Billy Joel borrowed this melody for the chorus of “This Night.”",
+  "sky": "Pathétique Sonata"
+ },
+ "ode": {
+  "name": "Ode to Joy",
+  "composer": "Beethoven",
+  "tip": "From the Ninth Symphony’s finale, with words from Schiller’s poem. Beethoven was nearly deaf at the premiere. It is now also the European Union’s anthem."
+ },
+ "k545": {
+  "name": "Sonata K. 545",
+  "composer": "Mozart",
+  "tip": "Mozart himself described it in his catalogue as “a little sonata for beginners,” and it is still a must-play piece for piano students."
+ },
+ "nacht": {
+  "name": "Eine kleine Nachtmusik",
+  "composer": "Mozart",
+  "tip": "The German title means “a little serenade.” Mozart never published it in his lifetime; it appeared only more than thirty years after his death.",
+  "sky": "Kleine Nachtmusik"
+ },
+ "elise": {
+  "name": "Für Elise",
+  "composer": "Beethoven",
+  "year": "c. 1810",
+  "tip": "The manuscript was not discovered until the 1860s. Who “Elise” was remains unsettled, and some think the name was a miscopying of “Therese.”"
+ },
+ "fifth": {
+  "name": "Symphony No. 5",
+  "composer": "Beethoven",
+  "tip": "The opening four notes, three short and one long, are world famous. Beethoven reportedly called it “fate knocking at the door,” but this is disputed."
+ },
+ "turkish": {
+  "name": "Turkish March",
+  "composer": "Mozart",
+  "year": "c. 1783",
+  "tip": "The third movement of Mozart’s Piano Sonata in A major, K. 331, it imitates the Turkish military bands that were fashionable in Europe at the time."
+ },
+ "moon": {
+  "name": "Moonlight Sonata",
+  "composer": "Beethoven",
+  "tip": "Beethoven only called it a “sonata in the manner of a fantasy.” After his death a critic likened the first movement to moonlight on a lake: “Moonlight.”"
+ },
+ "lullaby": {
+  "name": "Lullaby (Wiegenlied)",
+  "composer": "Brahms",
+  "tip": "Brahms wrote it for the birth of friend Bertha Faber’s second son. The first verse comes from the German folk-song collection Des Knaben Wunderhorn.",
+  "sky": "Brahms’s Lullaby"
+ },
+ "fantaisie": {
+  "name": "Fantaisie-Impromptu (Theme)",
+  "composer": "Chopin",
+  "tip": "Chopin did not want this piece published during his lifetime. It was edited and issued after his death by his friend Fontana.",
+  "sky": "Fantaisie-Impromptu"
+ },
+ "raindrop": {
+  "name": "Raindrop Prelude",
+  "composer": "Chopin",
+  "tip": "Reportedly written while Chopin recovered on Majorca, listening to rain dripping from the eaves. The repeated single note sounds like raindrops."
+ },
+ "danube": {
+  "name": "The Blue Danube",
+  "composer": "Johann Strauss II",
+  "tip": "The 1867 premiere was a choral version with a modest response. Reworked for orchestra, it swept the world; now a regular Vienna New Year’s Concert encore."
+ },
+ "wedding": {
+  "name": "Wedding March",
+  "composer": "Mendelssohn",
+  "tip": "Mendelssohn wrote it as incidental music for A Midsummer Night’s Dream. It became a wedding staple after the 1858 wedding of Britain’s Princess Victoria."
+ },
+ "nocturne": {
+  "name": "Nocturne Op. 9 No. 2",
+  "composer": "Chopin",
+  "tip": "The nocturne as a piano piece was invented by the Irish composer Field. Chopin made it famous, and Op. 9 No. 2 is the best known of them."
+ },
+ "traum": {
+  "name": "Träumerei",
+  "composer": "Schumann",
+  "tip": "Taken from Schumann’s Kinderszenen (Scenes from Childhood), one of 13 short piano pieces written for adults to look back on their childhood."
+ },
+ "schubert": {
+  "name": "Ave Maria (Schubert)",
+  "composer": "Schubert",
+  "tip": "Originally a song set to Scott’s long poem The Lady of the Lake. Its text begins with “Ave Maria,” so it was later sung with the Latin prayer instead.",
+  "sky": "Ave Maria (Schubert)"
+ },
+ "gounod": {
+  "name": "Ave Maria (Gounod)",
+  "composer": "Gounod",
+  "tip": "Gounod used Bach’s Prelude in C major as the accompaniment, wrote a new melody over it, and then set it to the Latin prayer."
+ },
+ "anitra": {
+  "name": "Anitra’s Dance",
+  "composer": "Grieg",
+  "tip": "From Grieg’s incidental music for Ibsen’s play Peer Gynt. It is the dance Anitra performs for Peer Gynt."
+ },
+ "minute": {
+  "name": "Minute Waltz",
+  "composer": "Chopin",
+  "tip": "Reportedly written after Chopin watched George Sand’s little dog chase its tail in circles. In “Minute Waltz,” “minute” means “small,” not “sixty seconds.”"
+ },
+ "homesweet": {
+  "name": "Home, Sweet Home",
+  "composer": "Bishop",
+  "tip": "From the 1823 opera Clari. Its famous line, “there’s no place like home,” comes from this song."
+ },
+ "loreley": {
+  "name": "Die Loreley",
+  "composer": "Silcher",
+  "tip": "Words by Heine: a siren on a Rhine rock lures boatmen onto the rocks with her singing. The Loreley rock really exists on the Rhine."
+ },
+ "lastrose": {
+  "name": "The Last Rose of Summer",
+  "composer": "Irish traditional melody (words by Thomas Moore, arr. Stevenson, 1813)",
+  "tip": "The words are by the Irish poet Moore. Flotow worked it into his opera Martha, and Mendelssohn also wrote a fantasy on it.",
+  "sky": "Last Rose of Summer"
+ },
+ "queennight": {
+  "name": "Queen of the Night Aria",
+  "composer": "Mozart",
+  "tip": "From The Magic Flute, premiered in 1791. The Queen of the Night must sing all the way up to a high F, making this one of the most difficult soprano arias.",
+  "sky": "Queen of the Night"
+ },
+ "brindisi": {
+  "name": "Brindisi (La Traviata)",
+  "composer": "Verdi",
+  "tip": "From Act I of Verdi’s opera La Traviata, sung by the male lead with raised glass at a party. “Brindisi” simply means a drinking toast.",
+  "sky": "Brindisi"
+ },
+ "gymno": {
+  "name": "Gymnopédie No. 1",
+  "composer": "Satie",
+  "tip": "“Gymnopédie” was a title Satie coined himself, perhaps inspired by ancient Greek dance festivals. Debussy later orchestrated two of the set."
+ },
+ "clair": {
+  "name": "Clair de Lune",
+  "composer": "Debussy",
+  "tip": "From Debussy’s Suite bergamasque. The title is taken from the poem “Clair de lune” by the French poet Verlaine."
+ },
+ "stripesfor": {
+  "name": "Stars and Stripes Forever",
+  "composer": "Sousa",
+  "tip": "Sousa was known as the “March King.” In 1987 this march was designated the national march of the United States.",
+  "sky": "Stars and Stripes"
+ },
+ "entertainer": {
+  "name": "The Entertainer",
+  "composer": "Joplin",
+  "tip": "Joplin was known as the “King of Ragtime.” This piece became popular again after it was used in the 1973 film The Sting."
+ },
+ "mountain": {
+  "name": "Hall of the Mountain King",
+  "composer": "Grieg",
+  "tip": "Also from the Peer Gynt music. The melody starts low and slow, then grows faster and louder, depicting Peer Gynt being chased by trolls.",
+  "sky": "Mountain King"
+ },
+ "carmen": {
+  "name": "Carmen Prelude",
+  "composer": "Bizet",
+  "tip": "Carmen was poorly received at its 1875 premiere, and Bizet died three months later, never seeing it become one of the most popular operas."
+ },
+ "mapleleaf": {
+  "name": "Maple Leaf Rag",
+  "composer": "Joplin",
+  "tip": "After its publication in 1899 sales grew year after year, and it became Joplin’s best-selling work. The title is said to come from the Maple Leaf Club."
+ },
+ "harkherald": {
+  "name": "Hark! The Herald Angels Sing",
+  "composer": "Mendelssohn",
+  "tip": "The melody comes from a chorus Mendelssohn wrote to commemorate Gutenberg, the inventor of printing. He himself said it would not suit sacred words.",
+  "sky": "Hark! The Herald"
+ },
+ "firstnoel": {
+  "name": "The First Noel",
+  "composer": "English traditional carol",
+  "tip": "“Noel” is the French word for Christmas. The words of this traditional English carol were first printed in 1823, and the tune was not published until 1833."
+ },
+ "restyemerry": {
+  "name": "God Rest Ye Merry, Gentlemen",
+  "composer": "English traditional carol",
+  "year": "c. 1700",
+  "tip": "In Dickens’s A Christmas Carol, Scrooge frightens off a boy who sings this carol at his door. “Rest you merry” means “may you be well.”",
+  "sky": "God Rest Ye Merry"
+ },
+ "deck": {
+  "name": "Deck the Halls",
+  "composer": "Welsh traditional tune",
+  "year": "c. 1862",
+  "tip": "The tune is the 16th-century Welsh New Year song “Nos Galan.” The English words were added only in the 19th century."
+ },
+ "jingle": {
+  "name": "Jingle Bells",
+  "composer": "Pierpont",
+  "tip": "Originally titled “One Horse Open Sleigh,” and its words do not mention Christmas. In 1965 astronauts played it on a harmonica aboard Gemini 6."
+ },
+ "holynight": {
+  "name": "O Holy Night",
+  "composer": "Adam",
+  "tip": "Written by the French composer Adam, who also composed the ballet Giselle. The words were originally a French poem."
+ },
+ "wishmerry": {
+  "name": "We Wish You a Merry Christmas",
+  "composer": "English traditional carol",
+  "year": "Traditional",
+  "tip": "A traditional song from the west of England. The “figgy pudding” in the lyrics is the treat that carolers ask the householder for.",
+  "sky": "We Wish You…"
+ },
+ "joyworld": {
+  "name": "Joy to the World",
+  "composer": "Handel melody, arr. Mason (Antioch)",
+  "tip": "Watts wrote the words from Psalm 98; originally not a Christmas carol. The tune is credited to Handel but was mostly arranged by Mason."
+ },
+ "nearermygod": {
+  "name": "Nearer, My God, to Thee",
+  "composer": "Mason (Bethany)",
+  "tip": "Legend has it that this hymn was the last piece played by the band as the Titanic sank.",
+  "sky": "Nearer, My God"
+ },
+ "abidewithme": {
+  "name": "Abide with Me",
+  "composer": "Monk (Eventide tune)",
+  "tip": "The Rev. Lyte wrote the poem in the weeks before his death from illness. It is still sung by the whole crowd before the FA Cup Final in England."
+ },
+ "adeste": {
+  "name": "O Come, All Ye Faithful",
+  "composer": "Wade",
+  "tip": "The Latin title Adeste Fideles means “Come, you faithful.” The work is usually credited to the 18th-century Englishman Wade.",
+  "sky": "Adeste Fideles"
+ },
+ "littletown": {
+  "name": "O Little Town of Bethlehem",
+  "composer": "Redner (St. Louis tune)",
+  "tip": "The Rev. Brooks wrote the words after a trip to Bethlehem in 1865, and the organist Redner then composed the tune for the children of his Sunday school.",
+  "sky": "O Little Town"
+ },
+ "awayinmanger": {
+  "name": "Away in a Manger",
+  "composer": "Murray (Mueller tune)",
+  "tip": "Long thought to have been written by Martin Luther, but the words in fact first appeared in 19th-century America."
+ },
+ "friendjesus": {
+  "name": "What a Friend We Have in Jesus",
+  "composer": "Converse (What a Friend tune)",
+  "tip": "Scriven wrote the poem to comfort his mother, who was far away at home, and never intended to publish it.",
+  "sky": "What a Friend"
+ },
+ "angelshigh": {
+  "name": "Angels We Have Heard on High",
+  "composer": "French traditional carol (Gloria)",
+  "year": "c. 1700",
+  "tip": "The refrain “Gloria in excelsis Deo” is Latin for “Glory to God in the highest,” and the single syllable “Glo” is stretched over a long run of notes.",
+  "sky": "Angels We Have Heard"
+ },
+ "mollymalone": {
+  "name": "Molly Malone",
+  "composer": "James Yorkston",
+  "tip": "The Molly of the song is a young woman who sells seafood from a cart on the streets of Dublin, and a bronze statue of her stands in central Dublin."
+ },
+ "london": {
+  "name": "London Bridge",
+  "composer": "English nursery rhyme",
+  "year": "c. 1744",
+  "tip": "London Bridge has been damaged and rebuilt many times. In the 1960s an American bought an old London Bridge and had it moved and rebuilt in Arizona."
+ },
+ "rowboat": {
+  "name": "Row, Row, Row Your Boat",
+  "composer": "Lyte",
+  "tip": "This is a round: several people start from the beginning at staggered times, and the melodies layer into harmony.",
+  "sky": "Row Your Boat"
+ },
+ "happybday": {
+  "name": "Happy Birthday to You",
+  "composer": "Mildred and Patty Hill",
+  "tip": "The melody was originally “Good Morning to All,” written by the Hill sisters for kindergarten children, and only later got its birthday words.",
+  "sky": "Happy Birthday"
+ },
+ "jacques": {
+  "name": "Frère Jacques",
+  "composer": "French nursery rhyme",
+  "year": "c. 1780",
+  "tip": "The French original asks a friar “Are you sleeping?” and tells him to ring morning bells. Mahler made it a minor-key funeral march in Symphony No. 1."
+ },
+ "alohaoe": {
+  "name": "Aloha ʻOe",
+  "composer": "Queen Liliʻuokalani",
+  "year": "c. 1878",
+  "tip": "Its composer, Liliʻuokalani, was the last monarch of the Kingdom of Hawaiʻi. “Aloha ʻOe” means “farewell to you.”"
+ },
+ "yankee": {
+  "name": "Yankee Doodle",
+  "composer": "Traditional (American)",
+  "year": "Traditional",
+  "tip": "During the American Revolution, British troops mocked colonial soldiers with this song, but Americans made it a victory song. Now Connecticut’s state song."
+ },
+ "korobeiniki": {
+  "name": "Korobeiniki",
+  "composer": "Russian folk song",
+  "tip": "The words come from a poem by Nekrasov about a traveling peddler. Many people know the tune from the Tetris background music."
+ },
+ "jollygood": {
+  "name": "He’s a Jolly Good Fellow",
+  "composer": "Traditional (English)",
+  "year": "Traditional",
+  "tip": "The tune is the same as the old French song “Malbrough s’en va-t-en guerre,” which Beethoven also used in Wellington’s Victory.",
+  "sky": "Jolly Good Fellow"
+ },
+ "pixel": {
+  "name": "Pixel Jump",
+  "composer": "Original",
+  "tip": "An original PingPongLight piece with the sound of a retro video game."
+ },
+ "velvet": {
+  "name": "Velvet Groove",
+  "composer": "Original",
+  "tip": "An original PingPongLight piece with a slower tempo and a soft groove."
+ },
+ "neon": {
+  "name": "Neon Rush",
+  "composer": "Original",
+  "tip": "An original PingPongLight piece written for fast-paced neon visuals."
+ },
+ "scarborough": {
+  "name": "Scarborough Fair",
+  "composer": "English folk song",
+  "year": "Traditional",
+  "tip": "An old English folk song whose lyrics ask the other person for one impossible task after another. Simon and Garfunkel’s 1966 cover spread it worldwide."
+ },
+ "londonderry": {
+  "name": "Londonderry Air",
+  "composer": "Irish folk song",
+  "tip": "Traditional tune from County Londonderry, Ireland (now Northern Ireland), in Petrie’s 1855 Irish collection. Reworded, it became the famous “Danny Boy.”"
+ },
+ "auralee": {
+  "name": "Aura Lee",
+  "composer": "George Poulton",
+  "tip": "An American song published in 1861, sung by soldiers on both sides of the Civil War. In 1956 its melody got new words as Elvis Presley’s “Love Me Tender.”"
+ },
+ "shenandoah": {
+  "name": "Shenandoah",
+  "composer": "American folk song (sea shanty)",
+  "year": "Traditional",
+  "tip": "A 19th-century American folk song said to have been sung first by boatmen on the Missouri River, and later by sailors as they weighed anchor."
+ },
+ "molihua": {
+  "name": "Mo Li Hua (Jasmine Flower)",
+  "composer": "Chinese folk song (notated by Barrow, 1804)",
+  "tip": "From the Qing-dynasty Jiangnan tune “Xianhua Diao,” notated by the British and taken to Europe by the late 18th century. Puccini’s Turandot also quotes it.",
+  "sky": "Mo Li Hua"
+ },
+ "arirang": {
+  "name": "Arirang",
+  "composer": "Korean folk song",
+  "year": "Traditional",
+  "tip": "The Korean Peninsula’s most representative folk song, with dozens of versions. In 2012 it joined UNESCO’s Intangible Cultural Heritage of Humanity list."
+ },
+ "santalucia": {
+  "name": "Santa Lucia",
+  "composer": "Teodoro Cottrau",
+  "tip": "A Neapolitan boat song published by Cottrau in 1849, describing the Bay of Naples seascape at Santa Lucia; a boatman invites you out on the evening breeze."
+ },
+ "funicula": {
+  "name": "Funiculì, Funiculà",
+  "composer": "Luigi Denza",
+  "tip": "Written in 1880 for the Vesuvius funicular opening. Richard Strauss mistook it for folk music, used it in the symphonic fantasy Aus Italien, and was sued."
+ },
+ "sakura": {
+  "name": "Sakura Sakura",
+  "composer": "Japanese folk song",
+  "year": "Traditional",
+  "tip": "Traditional Japanese song, a beginner’s koto piece by the Edo period. Spread by the Tokyo Music School’s 1888 koto book; now among Japan’s signature tunes."
+ },
+ "kalinka2": {
+  "name": "Kalinka",
+  "composer": "Ivan Larionov",
+  "tip": "Larionov wrote it for a play in 1860; often taken for Russian folk music. Its title is a pet name for the guelder-rose berry; speeding up is its trademark."
+ },
+ "largo": {
+  "name": "Largo (New World Symphony)",
+  "composer": "Dvořák",
+  "tip": "Dvořák wrote the New World Symphony in America. Its second movement’s homesick English horn melody was later given words as the familiar “Going Home.”",
+  "sky": "Largo (New World)"
+ },
+ "salut": {
+  "name": "Salut d’Amour",
+  "composer": "Elgar",
+  "tip": "Elgar’s engagement present to his fiancée Caroline Alice. The publisher changed its German title to the French “Salut d’Amour” to help it sell."
+ },
+ "flowerwaltz": {
+  "name": "Waltz of the Flowers",
+  "composer": "Tchaikovsky",
+  "tip": "From Act II (Land of Sweets) of the 1892 ballet The Nutcracker. A harp cadenza leads in, then horns and strings share the theme; a suite favorite.",
+  "sky": "Waltz of the Flowers"
+ },
+ "morning": {
+  "name": "Morning Mood (Peer Gynt)",
+  "composer": "Grieg",
+  "tip": "Grieg wrote it for Ibsen’s dramatic poem Peer Gynt. Often imagined as a Nordic morning, it actually shows the hero greeting sunrise in the Moroccan desert.",
+  "sky": "Morning Mood"
+ },
+ "barcarolle": {
+  "name": "Barcarolle (Hoffmann)",
+  "composer": "Offenbach",
+  "tip": "A Venice duet from the opera The Tales of Hoffmann, its swaying 6/8 beat evoking gondolas. Offenbach died months before the premiere, never hearing it.",
+  "sky": "Barcarolle"
+ },
+ "hungarian5": {
+  "name": "Hungarian Dance No. 5",
+  "composer": "Brahms",
+  "tip": "Brahms arranged Hungarian Gypsy-style tunes for piano four hands; the speeding-and-slowing No. 5 is most popular. Its theme is from Béla Kéler’s csárdás.",
+  "sky": "Hungarian Dance 5"
+ },
+ "williamtell": {
+  "name": "William Tell Overture",
+  "composer": "Rossini",
+  "tip": "Overture to Rossini’s last opera. Its finale, with sounding trumpets and a galloping hoof-beat, became shorthand for horse races and Western film scores.",
+  "sky": "William Tell"
+ },
+ "trepak": {
+  "name": "Trepak (Russian Dance)",
+  "composer": "Tchaikovsky",
+  "tip": "The trepak is a fast Ukrainian and Russian stamping dance. Tchaikovsky put it in The Nutcracker’s Land of Sweets, speeding up and racing to a rapid close.",
+  "sky": "Trepak"
+ },
+ "radetzky": {
+  "name": "Radetzky March",
+  "composer": "Johann Strauss I",
+  "tip": "Johann Strauss I wrote it in 1848 for Field Marshal Radetzky’s victory in Italy. It always closes the Vienna New Year’s Concert, audience clapping along."
+ },
+ "cancan": {
+  "name": "Can-Can",
+  "composer": "Offenbach",
+  "tip": "From Offenbach’s operetta Orpheus in the Underworld (1858), originally the “Galop infernal.” It became the signature accompaniment of the Paris can-can."
+ },
+ "revolution": {
+  "name": "Revolutionary Étude",
+  "composer": "Chopin",
+  "tip": "Written in Stuttgart in 1831 on news that the November Uprising had failed. The racing left hand sounds like anger and grief: the classic left-hand étude.",
+  "sky": "Revolutionary Étude"
+ },
+ "bumblebee": {
+  "name": "Flight of the Bumblebee",
+  "composer": "Rimsky-Korsakov",
+  "tip": "Rimsky-Korsakov’s 1900 interlude in his opera The Tale of Tsar Saltan depicts a prince turned bumblebee stinging his wicked aunts; a famous showpiece.",
+  "sky": "Bumblebee"
+ },
+ "bwv565": {
+  "name": "Toccata in D Minor",
+  "composer": "J. S. Bach",
+  "year": "c. 1708",
+  "tip": "The best-known organ work. Its plunging opening scale and dissonant chords stand for “horror” and “drama.” Scholars still debate whether it is Bach’s."
+ },
+ "campanella": {
+  "name": "La Campanella",
+  "composer": "Liszt",
+  "tip": "Adapted from the finale of Paganini’s Violin Concerto No. 2 and revised by Liszt in 1851 as a grand étude. The repeated high D-sharp imitates a bell."
+ },
+ "paganini24": {
+  "name": "Caprice No. 24",
+  "composer": "Paganini",
+  "tip": "A pinnacle of solo violin writing, in which a short theme gives rise to 11 variations. Liszt, Brahms and Rachmaninoff have all written works based on it."
+ }
+}

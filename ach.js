@@ -12,7 +12,8 @@
 const G=window.PPLG,C=window.PPLC,D=window.PPLACH;if(!G||!D||!Array.isArray(D.list))return;
 const $=s=>document.querySelector(s),esc=G.esc,LS='ppl-ach-';
 const BY={};for(const a of D.list)BY[a.id]=a;
-const TN=['','銅','銀','金','傳說'];
+const TN=TXA(['','銅','銀','金','傳說']);
+const aO=a=>PPLI18N.ach(a.id),aName=a=>{const o=aO(a);return o&&o.name||a.name},aDesc=a=>{const o=aO(a);return o&&o.desc||a.desc},aRew=a=>{const o=aO(a);return o&&o.reward||TX(a.reward)};   // shown texts: the translation when there is one, else the Chinese in the data
 const jget=(k,d)=>{try{const v=JSON.parse(G.lsGet(LS+k)||'null');return v==null?d:v}catch(e){return d}};
 const jarr=k=>{const v=jget(k,[]);return Array.isArray(v)?v:[]};   // a list kept on this device; anything else (damaged data) counts as empty
 const jset=(k,v)=>G.lsSet(LS+k,JSON.stringify(v));
@@ -69,8 +70,8 @@ function showNotes(){
   while(NQ.length&&box.children.length<3){
     const a=BY[NQ.shift()];if(!a)continue;
     const e=document.createElement('div');e.className='achNote';e.setAttribute('role','status');
-    const rw=a.reward&&a.reward!=='成就點數'?'<span class="rw">'+esc(a.reward)+'</span>':'';
-    e.innerHTML='<span class="tier t'+a.tier+'">'+TN[a.tier]+'</span><span class="tx"><b>成就達成　'+esc(a.name)+'</b><span class="d">'+esc(a.desc)+'</span>'+rw+'</span><span class="pt">+'+a.pts+'</span>';
+    const rw=a.reward&&a.reward!=='成就點數'?'<span class="rw">'+esc(aRew(a))+'</span>':'';
+    e.innerHTML='<span class="tier t'+a.tier+'">'+TN[a.tier]+'</span><span class="tx">'+TX('<b>成就達成　{name}</b>',{name:esc(aName(a))})+'<span class="d">'+esc(aDesc(a))+'</span>'+rw+'</span><span class="pt">+'+a.pts+'</span>';
     const rm=()=>{if(e.isConnected){e.remove();showNotes()}};
     e.onclick=rm;box.appendChild(e);setTimeout(rm,5200)}
 }
@@ -120,30 +121,30 @@ function head(){
   const tot=D.list.filter(open),got=tot.filter(a=>earned(a.id)).length,pts=points(),all=D.list.filter(open).reduce((s,a)=>s+a.pts,0),pc=tot.length?Math.round(got/tot.length*100):0;
   const px=innerHeight<=480?56:96,me=G.ME,eq=C.state.eq,tt=titlesEarned();
   return '<div class="acAv">'+C.avHTML(C.avSpec(eq.avatar,C.tierOfCombo(CMC)),px)+'</div>'
-    +'<div class="acMe"><div class="acNm">'+C.nameHTML(eq.plate,me?me.name:'（尚未設定暱稱）',eq.title)+'</div>'
-    +'<div class="acPts"><b>'+pts.toLocaleString()+'</b> 成就點數<small>／ 目前可得 '+all.toLocaleString()+'</small></div>'
+    +'<div class="acMe"><div class="acNm">'+C.nameHTML(eq.plate,me?me.name:TX('（尚未設定暱稱）'),eq.title)+'</div>'
+    +'<div class="acPts">'+TX('<b>{pts}</b> 成就點數<small>／ 目前可得 {all}</small>',{pts:pts.toLocaleString(),all:all.toLocaleString()})+'</div>'
     +'<div class="acBar" role="progressbar" aria-valuemin="0" aria-valuemax="'+tot.length+'" aria-valuenow="'+got+'"><i style="width:'+pc+'%"></i></div>'
-    +'<div class="acSub">已達成 '+got+' / '+tot.length+'（'+pc+'%）'+(tot.length<D.list.length?'　另有 '+(D.list.length-tot.length)+' 個即將開放':'')+'</div></div>'
-    +'<div class="acTt"><div class="acTh">已取得的稱號 <small>'+tt.length+'</small></div>'+(tt.length?'<div class="acTl">'+tt.map(id=>C.titleHTML(id)).join('')+'</div>':'<div class="acNo">還沒有稱號。完成成就就會取得。</div>')+'</div>'}
+    +'<div class="acSub">'+TX('已達成 {got} / {total}（{pc}%）',{got,total:tot.length,pc})+(tot.length<D.list.length?TX('　另有 {n} 個即將開放',{n:D.list.length-tot.length}):'')+'</div></div>'
+    +'<div class="acTt"><div class="acTh">'+TX('已取得的稱號 <small>{n}</small>',{n:tt.length})+'</div>'+(tt.length?'<div class="acTl">'+tt.map(id=>C.titleHTML(id)).join('')+'</div>':'<div class="acNo">'+TX('還沒有稱號。完成成就就會取得。')+'</div>')+'</div>'}
 // hidden achievements (隱藏成就 tab): the condition stays "？？？" until earned
 const HIDDEN_CAT=D.tabs.indexOf('隱藏成就');
-const shownDesc=(a,e)=>e||a.cat!==HIDDEN_CAT?a.desc:'？？？';
+const shownDesc=(a,e)=>e||a.cat!==HIDDEN_CAT?aDesc(a):TX('？？？');
 function row(a){
   const e=earned(a.id),s=soon(a),ts=SRV[a.id]||LOC[a.id];
-  const tag=s?'<span class="tt soon">即將開放</span>':a.chk==='l'?'<span class="tt loc">本機判定</span>':'';
-  const date=e&&ts>1e11?'<small class="dt">'+new Date(ts).toLocaleDateString('zh-TW')+'</small>':'';
-  return '<div class="acR'+(e?' got':'')+(s?' soon':'')+'"><span class="st" aria-label="'+(e?'已達成':s?'即將開放':'未達成')+'">'+(e?'✓':s?'…':'')+'</span>'
-    +'<span class="nm"><span class="tier t'+a.tier+'">'+TN[a.tier]+'</span> <b>'+esc(a.name)+'</b> '+tag+date+'</span>'
-    +'<span class="cd">'+esc(shownDesc(a,e))+'</span><span class="rw">'+(a.lim?'<span class="lim">限定</span> ':'')+esc(a.reward)+'</span><span class="pt">'+a.pts+'</span></div>'}
+  const tag=s?'<span class="tt soon">'+TX('即將開放')+'</span>':a.chk==='l'?'<span class="tt loc">'+TX('本機判定')+'</span>':'';
+  const date=e&&ts>1e11?'<small class="dt">'+new Date(ts).toLocaleDateString(PPLI18N.locale)+'</small>':'';
+  return '<div class="acR'+(e?' got':'')+(s?' soon':'')+'"><span class="st" aria-label="'+(e?TX('已達成'):s?TX('即將開放'):TX('未達成'))+'">'+(e?'✓':s?'…':'')+'</span>'
+    +'<span class="nm"><span class="tier t'+a.tier+'">'+TN[a.tier]+'</span> <b>'+esc(aName(a))+'</b> '+tag+date+'</span>'
+    +'<span class="cd">'+esc(shownDesc(a,e))+'</span><span class="rw">'+(a.lim?'<span class="lim">'+TX('限定')+'</span> ':'')+esc(aRew(a))+'</span><span class="pt">'+a.pts+'</span></div>'}
 function render(){
   if(!pageOn())return;
   $('#acHead').innerHTML=head();
-  $('#acTabs').innerHTML=D.tabs.map((n,i)=>{const c=tabCounts(i);return '<button data-i="'+i+'" class="'+(UI.tab===i?'on':'')+'">'+esc(n)+'<small>'+c[0]+'/'+c[1]+'</small></button>'}).join('')
-    +'<button data-i="-1" class="'+(UI.tab<0?'on':'')+'">全部<small>'+tabCounts(-1).join('/')+'</small></button>';
+  $('#acTabs').innerHTML=D.tabs.map((n,i)=>{const c=tabCounts(i);return '<button data-i="'+i+'" class="'+(UI.tab===i?'on':'')+'">'+esc(TX(n))+'<small>'+c[0]+'/'+c[1]+'</small></button>'}).join('')
+    +'<button data-i="-1" class="'+(UI.tab<0?'on':'')+'">'+TX('全部')+'<small>'+tabCounts(-1).join('/')+'</small></button>';
   let h='';
-  if(UI.tab<0)D.tabs.forEach((n,i)=>{h+='<div class="acCat">'+esc(n)+'</div>'+D.list.filter(a=>a.cat===i).map(row).join('')});
+  if(UI.tab<0)D.tabs.forEach((n,i)=>{h+='<div class="acCat">'+esc(TX(n))+'</div>'+D.list.filter(a=>a.cat===i).map(row).join('')});
   else h=D.list.filter(a=>a.cat===UI.tab).map(row).join('');
-  $('#acList').innerHTML='<div class="acHd"><span></span><span>成就</span><span>條件</span><span>獎勵</span><span>點數</span></div>'+h;
+  $('#acList').innerHTML='<div class="acHd"><span></span><span>'+TX('成就')+'</span><span>'+TX('條件')+'</span><span>'+TX('獎勵')+'</span><span>'+TX('點數')+'</span></div>'+h;
 }
 function openPage(){
   G.initAudio();$('#home').classList.add('hidden');$('#ach').classList.remove('hidden');
