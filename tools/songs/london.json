@@ -1,7 +1,7 @@
 {
   "key": "london", "name": "倫敦鐵橋", "composer": "英國童謠", "year": "約1744",
   "inst": { "lead": "recorder", "bk": "guitar" },
-  "credit": { "source": "依原曲旋律手寫（本遊戲製作）", "url": "", "licence": "公有領域" },
+  "credit": { "source": "依原曲旋律手寫（本遊戲製作）", "url": "https://archive.org/details/kindergartenbook00warn", "licence": "公有領域", "note": "旋律已對照 L. d'O. Warner 編《A Kindergarten Book of Folk-Songs》（Boston: E. C. Schirmer Music Co., 1923）第 45 首（第 40 頁）。" },
   "tune": {
     "bpm": 120, "meter": 4, "style": "march",
     "parts": {

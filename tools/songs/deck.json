@@ -9,8 +9,9 @@
   },
   "credit": {
     "source": "依原曲旋律手寫（本遊戲製作）",
-    "url": "",
-    "licence": "公有領域"
+    "url": "https://archive.org/details/franklinsquares04mccagoog",
+    "licence": "公有領域",
+    "note": "旋律已對照 J. P. McCaskey 編《Franklin Square Song Collection》（New York: Harper & Brothers, 1881）第 120 頁；第三句後半的「Fa la la」上行音階照通行唱法，該版沒有這兩小節。"
   },
   "tune": {
     "bpm": 120,

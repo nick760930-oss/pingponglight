@@ -1,7 +1,7 @@
 {
   "key": "rowboat", "name": "划划划小船", "composer": "萊特", "year": "1881",
   "inst": { "lead": "flute", "bk": "guitar" },
-  "credit": { "source": "依原曲旋律手寫（本遊戲製作）", "url": "", "licence": "公有領域" },
+  "credit": { "source": "依原曲旋律手寫（本遊戲製作）", "url": "https://archive.org/details/franklinsquares04mccagoog", "licence": "公有領域", "note": "旋律已對照 J. P. McCaskey 編《Franklin Square Song Collection》（New York: Harper & Brothers, 1881）第 69 頁（署名 E. O. Lyte）；第 3 小節第二個音照通行唱法。" },
   "tune": {
     "bpm": 240, "meter": 6, "style": "pad",
     "parts": {

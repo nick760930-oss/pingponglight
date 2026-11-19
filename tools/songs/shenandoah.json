@@ -9,7 +9,9 @@
   },
   "credit": {
     "source": "依原曲旋律手寫",
-    "licence": "Public Domain"
+    "url": "https://archive.org/details/shantybooksailor00terr",
+    "licence": "Public Domain",
+    "note": "旋律已對照 R. R. Terry 編《The Shanty Book, Part I》（London: J. Curwen & Sons, 1921）第 9 首（第 20–21 頁）。"
   },
   "tune": {
     "bpm": 72,

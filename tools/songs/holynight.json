@@ -11,11 +11,15 @@
     "source": "Mutopia Project",
     "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=640",
     "licence": "Public Domain",
-    "by": "Gérard Gréco"
+    "by": "Gérard Gréco",
+    "note": "原檔速度 ♩=112，依原譜 Andante maestoso 放慢為約 ♩=62；三個短倚音不發聲。已對照 G. Schirmer（1871）版逐音核對。"
   },
   "midi": {
     "file": "tools/midi/minuit_chretiens.mid",
     "mel": 2,
+    "speed": 0.55,
+    "minGap": 0.15,
+    "gapTo": "drop",
     "crop": [
       0,
       56.7

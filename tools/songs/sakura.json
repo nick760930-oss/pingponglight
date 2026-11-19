@@ -9,7 +9,9 @@
  },
  "credit": {
   "source": "依原曲旋律手寫",
-  "licence": "Public Domain"
+  "url": "https://archive.org/details/collectionjapan00gakkgoog",
+  "licence": "Public Domain",
+  "note": "旋律已對照東京音樂學校編《Collection of Japanese Koto Music》（箏曲集，文部省，1888）第二曲〈櫻〉；最後兩小節的音與該譜相同，節奏照通行唱法。"
  },
  "tune": {
   "bpm": 100,
@@ -18,7 +20,7 @@
   "parts": {
    "A": {
     "mel": "A4:1 A4:1 B4:2 | A4:1 A4:1 B4:2 | A4:1 B4:1 C5:1 B4:1 | A4:1 B4:0.5 A4:0.5 F4:2 | E4:1 C4:1 E4:1 F4:1 | E4:1 E4:0.5 C4:0.5 B3:2 | A4:1 B4:1 C5:1 B4:1 | A4:1 B4:0.5 A4:0.5 F4:2 | E4:1 C4:1 E4:1 F4:1 | E4:1 E4:0.5 C4:0.5 B3:2 | A4:1 A4:1 B4:2 | A4:1 A4:1 B4:2 | E4:1 F4:1 B4:0.5 A4:0.5 F4:1 | E4:4",
-    "chords": "Am:4 Am:2 E:2 Am:4 Am:2 Dm:2 Am:2 F:2 E:4 Am:4 Am:2 F:2 Am:2 F:2 E:4 Am:4 Am:2 E:2 Dm:2 E:2 Am:4"
+    "chords": "Am:4 Am:2 E:2 Am:4 Am:2 Dm:2 Am:2 F:2 E:4 Am:4 Am:2 F:2 Am:2 F:2 E:4 Am:4 Am:2 E:2 Dm:2 E:1 Dm:1 Am:4"
    }
   },
   "form": [

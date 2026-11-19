@@ -4,6 +4,6 @@
   "composer": "巴哈",
   "year": "約1708",
   "inst": { "lead": "organ", "bk": "organ", "bass": "organ" },
-  "credit": { "source": "Mutopia Project", "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1780", "licence": "Public Domain", "by": "Anonymous", "note": "取開頭觸技曲段，收在 D 小調終止和弦" },
-  "midi": { "file": "tools/midi/bwv565.mid", "mel": 1, "crop": [0, 118] }
+  "credit": { "source": "Mutopia Project", "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=1780", "licence": "Public Domain", "by": "Anonymous", "note": "取開頭觸技曲段，收在 D 小調終止和弦。已對照巴哈協會版全集第 15 冊（Leipzig: Breitkopf & Härtel）：第 23 小節一個錯音改正（降 B 改 E），並補回三處由左手演奏的旋律音。" },
+  "midi": { "file": "tools/midi/bwv565.mid", "mel": 1, "crop": [0, 118], "melFrom": [[2, 3.99, 5.3], [2, 61.45, 62.05], [2, 65.45, 66.05]], "fix": [[91.83, 70, 64]] }
 }

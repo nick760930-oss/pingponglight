@@ -9,10 +9,11 @@
   },
   "credit": {
     "source": "依原曲旋律手寫",
-    "licence": "Public Domain"
+    "licence": "Public Domain",
+    "note": "第二樂章英國管主題（原曲第 7–18 小節），時值加倍記譜，相當於原譜 ♩=42。"
   },
   "tune": {
-    "bpm": 76,
+    "bpm": 84,
     "meter": 4,
     "style": "pad",
     "parts": {

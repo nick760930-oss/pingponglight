@@ -73,16 +73,20 @@ export function skyline(notes, gap = 0.03) {
                  minGap?: seconds in game time (a tune note whose next tune note follows sooner than this - a grace note, the inside of a turn - leaves the tune; the last note of such a group stays),
                  gapTo?: 'bk' (default: those notes accompany, right when lead and bk are the same instrument) | 'drop' (they are not played, for a lead that differs from bk),
                  cut?: [[startSec, endSec], ...] in the file's own time (those stretches are taken out and what follows moves up, e.g. the first ending of a repeat that is not played; crop then counts in the shortened time),
-                 melFrom?: [[track, startSec, endSec], ...] in the file's own time (there the tune is carried by that other track) } */
+                 melFrom?: [[track, startSec, endSec], ...] in the file's own time (there the tune is carried by that other track),
+                 fix?: [[sec, pitch, newPitch], ...] in the file's own time (a wrong note in the file, checked against a printed score: the one note that starts there at that pitch gets the new pitch) } */
 export function fromMidi(spec, root) {
   const m = spec.midi, mid = readMidi(root + '/' + m.file);
   const melT = [].concat(m.mel), drop = new Set(m.drop || []), [c0, c1] = m.crop || [0, 1e9], sp = m.speed || 1;
   const inCrop = n => n.s >= c0 - 1e-3 && n.s < c1;
   const cuts = (m.cut || []).slice().sort((a, b) => a[0] - b[0]), lend = m.melFrom || [];
   const mapT = t => { let d = 0; for (const [a, b] of cuts) { if (t >= b) d += b - a; else if (t > a) return a - d; else break } return t - d };
-  const tracks = !cuts.length && !lend.length ? mid.tracks : mid.tracks.map(t => ({ ...t, notes: t.notes
+  const fixes = (m.fix || []).map(([t, p, to]) => ({ t, p, to, n: 0 }));
+  const fixP = n => { const f = fixes.find(f => Math.abs(n.s - f.t) < 0.02 && n.pitch === f.p); if (!f) return n.pitch; f.n++; return f.to };
+  const tracks = !cuts.length && !lend.length && !fixes.length ? mid.tracks : mid.tracks.map(t => ({ ...t, notes: t.notes
     .filter(n => !cuts.some(([a, b]) => n.s >= a && n.s < b))
-    .map(n => { const s = mapT(n.s); return { ...n, s, e: Math.max(mapT(n.e), s + 0.02), tune: lend.some(([k, a, b]) => k === t.i && n.s >= a && n.s < b) } }) }));
+    .map(n => { const s = mapT(n.s); return { ...n, pitch: fixP(n), s, e: Math.max(mapT(n.e), s + 0.02), tune: lend.some(([k, a, b]) => k === t.i && n.s >= a && n.s < b) } }) }));
+  for (const f of fixes) if (f.n !== 1) throw new Error(spec.key + ': midi.fix [' + f.t + ', ' + f.p + '] matches ' + f.n + ' notes (it must match exactly one)');
   const pick = (ts, tune) => tracks.flatMap(t => t.notes.filter(n => tune ? ts.includes(t.i) || n.tune : ts.includes(t.i) && !n.tune)).filter(n => n.ch !== 9 && inCrop(n));
   const key = n => n.s.toFixed(3) + ':' + n.pitch;
   let mel = skyline(pick(melT, true).filter(n => n.e - n.s >= (m.minMel || 0)));
