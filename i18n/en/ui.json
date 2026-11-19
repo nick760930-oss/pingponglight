@@ -789,7 +789,7 @@
  "主畫面": "Home",
  "準備開始": "Ready",
  "結算": "Results",
- "延遲校正 {lat}": "Latency offset {lat}",
+ "延遲補償 {lat}": "Latency offset {lat}",
  "最近遊玩：{song}／{d}": "Last played: {song} / {d}",
  "最近錯誤訊息：{err}": "Last error: {err}",
  "請寫一點說明，或加入至少一張圖片": "Please write a short description or add at least one image.",

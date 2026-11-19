@@ -3096,7 +3096,7 @@ function bugRender(){
   $('#bugI').innerHTML=BUG.imgs.map((d,i)=>'<div class="th" style="background-image:url('+d+')"><button data-rm="'+i+'" aria-label="'+TX('移除第 {n} 張圖片',{n:i+1})+'">✕</button></div>').join('')
     +(BUG.imgs.length<3?'<button class="add" id="bugAdd"'+(BUG.conv?' disabled>'+TX('處理圖片中⋯'):'>'+TX('＋ 加入圖片'))+'<br>'+BUG.imgs.length+' / 3</button>':'');
   const m=bugMeta(),it=[ME?TX('暱稱 {name}',{name:esc(ME.name)}):TX('未設定暱稱'),TX('版本 {v}',{v:m.v})+(APP?TX('（App）'):TX('（網頁）')),TX('裝置 {dev}（含瀏覽器與系統版本）',{dev:bugDev()==='其他'?TX('其他'):bugDev()}),TX('畫面 {scr}、像素比 {dpr}、安全邊距 {sa}',{scr:m.scr,dpr:esc(m.dpr),sa:esc(m.sa.replace(/ 框(\d+)$/,(_,w)=>' '+TX('框{w}',{w:w})))}),
-    TX('語言 {lang}',{lang:esc(m.lang||'—')}),TX('目前畫面 {st}',{st:TXO({home:'主畫面',menu:'選曲',ready:'準備開始',starting:'準備開始',play:'遊戲中',over:'結算',done:'結算'})[m.st]||esc(m.st||'—')}),TX('延遲校正 {lat}',{lat:m.lat})];
+    TX('語言 {lang}',{lang:esc(m.lang||'—')}),TX('目前畫面 {st}',{st:TXO({home:'主畫面',menu:'選曲',ready:'準備開始',starting:'準備開始',play:'遊戲中',over:'結算',done:'結算'})[m.st]||esc(m.st||'—')}),TX('延遲補償 {lat}',{lat:m.lat})];
   if(m.song)it.push(TX('最近遊玩：{song}／{d}',{song:esc(SONGS[si]?SONGS[si].name:m.song),d:esc(DIFFS[di]?DIFFS[di].n:m.d)}));if(m.err)it.push(TX('最近錯誤訊息：{err}',{err:esc(m.err.slice(0,60))}));
   $('#bugM').innerHTML=it.map(s=>'<b>'+s+'</b>').join(' · ');
   $('#bugC').textContent=$('#bugT').value.length+' / 1000';
