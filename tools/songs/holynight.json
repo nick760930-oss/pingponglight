@@ -12,7 +12,7 @@
     "url": "https://www.mutopiaproject.org/cgibin/piece-info.cgi?id=640",
     "licence": "Public Domain",
     "by": "Gérard Gréco",
-    "note": "原檔速度 ♩=112，依原譜 Andante maestoso 放慢為約 ♩=62；三個短倚音不發聲。已對照 G. Schirmer（1871）版逐音核對。"
+    "note": "原檔速度 ♩=112，依原譜 Andante maestoso 放慢為約 ♩=62；兩個短倚音及緊鄰的一個十六分音符不發聲。人聲旋律已對照 G. Schirmer（1871）版逐音核對。"
   },
   "midi": {
     "file": "tools/midi/minuit_chretiens.mid",
