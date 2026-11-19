@@ -20,7 +20,8 @@
 // Players have no account: the phone makes a random 128-bit key and the server stores only its SHA-256.
 // That key is needed to submit, see your own rank, and delete your records. Every player registers a nickname
 // first (/lb/name): unique (ignoring case, spaces and symbols), filtered, can be reported, and hidden
-// automatically after reports from 3 different networks.
+// automatically after reports from 3 different networks. A report is kept for a year (reportSweep), or for as
+// long as the nickname stays hidden; a reporter who deletes their data is taken off the reports they made.
 import { CHARTS } from './charts.js';
 import { cleanName, nameProblem, nameKey } from './names.js';
 import { friendWipe } from './friends.js';
@@ -356,11 +357,16 @@ async function dropCache(b) { try { if (typeof caches !== 'undefined') await cac
 async function wipe(db, id) {                         // a player and everything about them; their boards refresh at once
   const bs = (await db.prepare('SELECT board FROM scores WHERE pid = ?1').bind(id).all()).results;
   await db.batch([db.prepare('DELETE FROM scores WHERE pid = ?1').bind(id), db.prepare('DELETE FROM reports WHERE pid = ?1').bind(id),
+    db.prepare('UPDATE reports SET rp = NULL WHERE rp = ?1').bind(id),   // reports this player made about other nicknames stay (they count towards hiding that nickname), without the reporter
     ...friendWipe(db, id), ...bugWipe(db, id), ...shopWipe(db, id), db.prepare('DELETE FROM players WHERE id = ?1').bind(id)]);
   try { await db.prepare('UPDATE duels SET log1 = NULL WHERE id IN (SELECT did FROM duelp WHERE pid = ?1 AND place = 1)').bind(id).run(); } catch (e) {}   // the beat log kept of a round this player won goes with the account
   try { await db.prepare('UPDATE duels SET host = NULL WHERE host = ?1').bind(id).run(); } catch (e) {}   // rounds this player hosted keep no trace of the account
   for (const t of ['runs', 'tries', 'duelp']) { try { await db.prepare('DELETE FROM ' + t + ' WHERE pid = ?1').bind(id).run(); } catch (e) {} }   // (each on its own: a database without migrations 0010 / 0011 must still delete the account)
   for (const r of bs) await dropCache(r.board);
+}
+export async function reportSweep(env) {              // hourly (cron): nickname reports older than a year, except those of a hidden nickname (a moderator settles those: op 'unhide')
+  if (!env.LB) return;
+  try { await env.LB.prepare('DELETE FROM reports WHERE ts < ?1 AND pid NOT IN (SELECT id FROM players WHERE hidden = 1)').bind(Date.now() - 365 * 86400e3).run(); } catch (e) {}   // the next hour tries again; the other hourly jobs go on
 }
 async function setHidden(db, id, v) {
   await db.batch([db.prepare('UPDATE players SET hidden = ?2 WHERE id = ?1').bind(id, v), db.prepare('UPDATE scores SET hid = ?2 WHERE pid = ?1').bind(id, v)]);

@@ -12,7 +12,8 @@
     "test:shop": "node test/shop.mjs",
     "test:spectate": "node test/spectate.js",
     "test:rank": "node test/rank.mjs",
-    "test:names": "node test/names.mjs"
+    "test:names": "node test/names.mjs",
+    "test:reports": "node test/reports.mjs"
   },
   "devDependencies": {
     "wrangler": "^4"

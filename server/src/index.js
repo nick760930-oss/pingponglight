@@ -11,7 +11,7 @@
 // - phase rules: config/ready only in the lobby, state/attacks only while playing, one result per round;
 // - config changes are throttled (they are the only lobby message that writes storage);
 // - idle sockets (no ping for 75 s) are closed so dead or parked connections cannot hold a room.
-import { handleLb } from './lb.js';
+import { handleLb, reportSweep } from './lb.js';
 import { handleFr, friendSweep } from './friends.js';
 import { moderate } from './moderate.js';
 import { handleBug, bugSweep } from './bugs.js';
@@ -51,7 +51,7 @@ async function limited(env, key) {    // true when this key is over its limit
 }
 
 export default {
-  async scheduled(ev, env, ctx) { ctx.waitUntil(Promise.all([friendSweep(env), moderate(env, 20), bugSweep(env)])); },   // hourly (wrangler.toml [triggers])
+  async scheduled(ev, env, ctx) { ctx.waitUntil(Promise.all([friendSweep(env), moderate(env, 20), bugSweep(env), reportSweep(env)])); },   // hourly (wrangler.toml [triggers])
   async fetch(req, env, ctx) {
     const url = new URL(req.url), origin = req.headers.get('Origin');
     if (url.pathname.startsWith('/lb/')) {           // leaderboard (POST); moderation (/lb/admin) is token-only, no page
