@@ -69,20 +69,47 @@ export function skyline(notes, gap = 0.03) {
 }
 
 /* spec.midi = { file, mel: trackIndex | [tracks], ctr?: track, drop?: [tracks], crop?: [startSec, endSec],
-                 transpose?: semitones, melShift?: semitones (tune only), speed?: 1, minDur?: seconds, minMel?: seconds (tune-track notes shorter than this, e.g. grace notes, stay accompaniment) } */
+                 transpose?: semitones, melShift?: semitones (tune only), speed?: 1, minDur?: seconds, minMel?: seconds (tune-track notes shorter than this, e.g. grace notes, stay accompaniment),
+                 minGap?: seconds in game time (a tune note whose next tune note follows sooner than this - a grace note, the inside of a turn - leaves the tune; the last note of such a group stays),
+                 gapTo?: 'bk' (default: those notes accompany, right when lead and bk are the same instrument) | 'drop' (they are not played, for a lead that differs from bk),
+                 cut?: [[startSec, endSec], ...] in the file's own time (those stretches are taken out and what follows moves up, e.g. the first ending of a repeat that is not played; crop then counts in the shortened time),
+                 melFrom?: [[track, startSec, endSec], ...] in the file's own time (there the tune is carried by that other track) } */
 export function fromMidi(spec, root) {
   const m = spec.midi, mid = readMidi(root + '/' + m.file);
   const melT = [].concat(m.mel), drop = new Set(m.drop || []), [c0, c1] = m.crop || [0, 1e9], sp = m.speed || 1;
   const inCrop = n => n.s >= c0 - 1e-3 && n.s < c1;
-  const pick = ts => mid.tracks.filter(t => ts.includes(t.i)).flatMap(t => t.notes).filter(n => n.ch !== 9 && inCrop(n));
-  const mel = skyline(pick(melT).filter(n => n.e - n.s >= (m.minMel || 0))), melSet = new Set(mel.map(n => n.s.toFixed(3) + ':' + n.pitch));
+  const cuts = (m.cut || []).slice().sort((a, b) => a[0] - b[0]), lend = m.melFrom || [];
+  const mapT = t => { let d = 0; for (const [a, b] of cuts) { if (t >= b) d += b - a; else if (t > a) return a - d; else break } return t - d };
+  const tracks = !cuts.length && !lend.length ? mid.tracks : mid.tracks.map(t => ({ ...t, notes: t.notes
+    .filter(n => !cuts.some(([a, b]) => n.s >= a && n.s < b))
+    .map(n => { const s = mapT(n.s); return { ...n, s, e: Math.max(mapT(n.e), s + 0.02), tune: lend.some(([k, a, b]) => k === t.i && n.s >= a && n.s < b) } }) }));
+  const pick = (ts, tune) => tracks.flatMap(t => t.notes.filter(n => tune ? ts.includes(t.i) || n.tune : ts.includes(t.i) && !n.tune)).filter(n => n.ch !== 9 && inCrop(n));
+  const key = n => n.s.toFixed(3) + ':' + n.pitch;
+  let mel = skyline(pick(melT, true).filter(n => n.e - n.s >= (m.minMel || 0)));
+  const gone = new Set();
+  if (m.gapTo != null && m.gapTo !== 'bk' && m.gapTo !== 'drop') throw new Error(spec.key + ': midi.gapTo must be "bk" or "drop"');
+  if (m.minGap) {
+    const g = m.minGap * sp - 1e-6, outSet = new Set(mel.filter((n, i) => mel[i + 1] && mel[i + 1].s - n.s < g));
+    if (m.gapTo === 'drop') {
+      for (const n of outSet) gone.add(key(n));
+      // the note before a silenced group was cut where the group began: let it sound up to the note that stays
+      mel.forEach((n, i) => {
+        if (outSet.has(n) || !outSet.has(mel[i + 1]) || Math.abs(n.e - mel[i + 1].s) > 0.005) return;
+        let j = i + 1; while (outSet.has(mel[j])) j++;
+        n.e = mel[j].s;
+      });
+    }
+    mel = mel.filter(n => !outSet.has(n));
+  }
+  const melSet = new Set(mel.map(key));
   const ctr = m.ctr != null ? skyline(pick([].concat(m.ctr))) : [];
   const ctrT = [].concat(m.ctr ?? []), bk = [];
-  for (const t of mid.tracks) {   // everything else accompanies, including the inner voices of the tune's own track
-    if (drop.has(t.i) || ctrT.includes(t.i)) continue;
+  for (const t of tracks) {   // everything else accompanies, including the inner voices of the tune's own track
+    if (drop.has(t.i)) continue;
+    const isCtr = ctrT.includes(t.i), isMel = melT.includes(t.i);
     for (const n of t.notes) {
-      if (n.ch === 9 || !inCrop(n)) continue;
-      if (melT.includes(t.i) && melSet.has(n.s.toFixed(3) + ':' + n.pitch)) continue;
+      if (n.ch === 9 || !inCrop(n) || (isCtr && !n.tune)) continue;
+      if ((isMel || n.tune) && (melSet.has(key(n)) || gone.has(key(n)))) continue;
       bk.push(n);
     }
   }

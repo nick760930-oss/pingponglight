@@ -20,6 +20,8 @@
       34,
       107.9
     ],
-    "speed": 1.7
+    "speed": 1.7,
+    "minGap": 0.08,
+    "gapTo": "drop"
   }
 }
