@@ -93,7 +93,8 @@ if (!html.includes(A)) html = html.replace('</tbody>', A + '\n' + B + '\n</tbody
 const kept = (html.match(/<tr><td class="no">/g) || []).length - (html.split(A)[1].split(B)[0].match(/<tr>/g) || []).length;
 // a licence with a public deed gets a link to it (CC0); public-domain pieces need none
 const LIC_URL = { 'CC0': 'https://creativecommons.org/publicdomain/zero/1.0/deed.zh_TW' };
-const licHtml = l => esc(l).replace(/CC0/, m => '<a href="' + LIC_URL[m] + '" target="_blank" rel="noopener noreferrer">' + m + '</a>');
+// "Public Domain" in a spec is shown as 公有領域, like the hand-kept rows (the English and Japanese pages translate it back: tools/i18n.mjs)
+const licHtml = l => esc(l).replace(/^Public Domain/, '公有領域').replace(/CC0/, m => '<a href="' + LIC_URL[m] + '" target="_blank" rel="noopener noreferrer">' + m + '</a>');
 const rows = ORDER.filter(k => DATA[k].credit).map((k, i) => {
   const d = DATA[k], c = d.credit;
   const src = c.url ? '<a href="' + esc(c.url) + '" target="_blank" rel="noopener noreferrer">' + esc(c.source) + '</a>' : '<span class="muted">' + esc(c.source) + '</span>';
