@@ -3,6 +3,10 @@ const CACHE = 'ppl-v52';
 const PRECACHE = [
   './',
   'index.html',
+  'lang-en.js',
+  'lang-ja.js',
+  'i18n.js',
+  'i18n-dom.js',
   'songs.js',
   'cosmetics.js',
   'ai_bg.js',

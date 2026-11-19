@@ -21,12 +21,18 @@
 <meta property="og:image" content="https://pingponglight.vercel.app/icon-512.png">
 <meta property="og:locale" content="zh_TW">
 <meta name="theme-color" content="#05060f">
+<script src="lang-en.js"></script>
+<script src="lang-ja.js"></script>
+<script src="i18n.js"></script>
 <style>
 :root{--bg:#05060f;--fg:#e8ecff;--dim:#8a93c0;--accent:#7cf0ff}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 /* focus rings only for keyboard use: after a tap or click (html.ptr, set in game.js) focus moved back to a button by script draws no blue frame */
 html.ptr :focus,html.ptr :focus-visible{outline:none!important}html.ptr button.tog:focus-visible::before{outline:none!important}
 html,body{margin:0;position:fixed;inset:0;width:100%;height:100%;background:var(--bg);color:var(--fg);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;overflow:hidden;overscroll-behavior:none;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-text-size-adjust:100%}
+/* languages (i18n.js): the page stays hidden until its static text is translated; Japanese uses Japanese glyph shapes */
+html.i18n-wait body{visibility:hidden}
+html[lang="ja"],html[lang="ja"] body{font-family:"Noto Sans JP","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic","Meiryo",system-ui,sans-serif}
 button{touch-action:manipulation}
 canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none;-webkit-touch-callout:none}
 #safe{position:fixed;left:0;top:0;width:0;height:0;visibility:hidden;padding:env(safe-area-inset-top,0) var(--sr) env(safe-area-inset-bottom,0) var(--sl)}
@@ -891,6 +897,7 @@ button.gold:hover{background:linear-gradient(90deg,#ffe08a,#ffad55)}
 
 <div class="ov hidden" id="rot"><b>⟳</b>請將裝置橫向使用</div>
 
+<script src="i18n-dom.js"></script>
 <script src="songs.js"></script>
 <script src="cosmetics.js"></script>
 <script src="ai_bg.js"></script>
