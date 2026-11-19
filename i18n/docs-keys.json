@@ -92,6 +92,10 @@
   "at": "credits.html:93 <td>"
  },
  {
+  "id": "對照 G. Schirmer 1900 年鋼琴版核對：反覆不演奏，兩處第一結尾（原譜第 22、104 小節）略去；第 19～20、101～102 小節的旋律在 MIDI 的另一音軌，已併回旋律",
+  "at": "credits.html:94 <td>"
+ },
+ {
   "id": "與 Wikimedia Commons 11_Home_Sweet_Home.mid（Public domain）交叉比對",
   "at": "credits.html:95 <td>"
  },
@@ -128,7 +132,19 @@
   "at": "credits.html:106 <td>"
  },
  {
+  "id": "旋律已對照 J. P. McCaskey 編《Franklin Square Song Collection》（New York: Harper &amp; Brothers, 1881）第 120 頁；第三句後半的「Fa la la」上行音階（連同前一小節最後一音）照通行唱法，該版沒有這兩小節。",
+  "at": "credits.html:106 <td>"
+ },
+ {
+  "id": "旋律已對照《Heart Songs》（Boston: The Chapple Publishing Company, 1909）第 148–149 頁；三處照通行唱法，與該版略有不同。",
+  "at": "credits.html:107 <td>"
+ },
+ {
   "id": "旋律取自 antioch.ly／antioch.mid 女高音聲部，照原曲反覆兩段；和弦由 MIDI 四部和聲分析；與 Open Hymnal Project ABC 交叉比對",
+  "at": "credits.html:109 <td>"
+ },
+ {
+  "id": "原檔速度 ♩=112，依原譜 Andante maestoso 放慢為約 ♩=62；兩個短倚音及緊鄰的一個十六分音符不發聲。人聲旋律已對照 G. Schirmer（1871）版逐音核對。",
   "at": "credits.html:110 <td>"
  },
  {
@@ -160,6 +176,14 @@
   "at": "credits.html:118 <td>"
  },
  {
+  "id": "旋律已對照 L. d'O. Warner 編《A Kindergarten Book of Folk-Songs》（Boston: E. C. Schirmer Music Co., 1923）第 45 首（第 40 頁）；第 8 小節的節奏照通行唱法。",
+  "at": "credits.html:119 <td>"
+ },
+ {
+  "id": "旋律已對照 J. P. McCaskey 編《Franklin Square Song Collection》（New York: Harper &amp; Brothers, 1881）第 69 頁（署名 E. O. Lyte）；第 3 小節第二個音照通行唱法。",
+  "at": "credits.html:120 <td>"
+ },
+ {
   "id": "Wikimedia Commons〈Happy birthday to you (Zum Geburtstag viel Glück).mid〉（Rabanus Flavus / Peter Gerloff 製作）",
   "at": "credits.html:121 <td>"
  },
@@ -170,6 +194,10 @@
  {
   "id": "旋律音高取自 MIDI 第 1 軌，節奏依通行譜規整為 3/4；唱三遍，最後一遍重複末句；和弦為本遊戲編配",
   "at": "credits.html:121 <td>"
+ },
+ {
+  "id": "旋律已對照 J.-B. Weckerlin 編《Chansons et rondes enfantines》（Paris: Garnier Frères）第 85 頁。",
+  "at": "credits.html:122 <td>"
  },
  {
   "id": "依據 Broder &amp; Schlam 版《Mele Hawaii》（H. Berger 編）第 2 曲 Aloha Oe 的 PDF 第 2 頁（鋼琴引子與第一、二節主歌旋律）與第 3 頁（副歌四聲部合唱＋鋼琴，取女高音旋律與鋼琴左手低音）。原調降 B 大調、4/4，不移調（旋律 F4～Eb5）。片段＝主歌第一段（8 小節，取第一段歌詞對應的音）＋副歌兩輪（第二輪結尾不接弱起）。不加引子。主歌第 4 小節照原譜（第 4 拍為弱起附點八分 F4＋十六分 Bb4）。主歌第 8 小節末接副歌弱起 F4 時，把原譜的四分休止縮成八分休止，讓小節線對齊。和弦依鋼琴左手低音（Bb、Eb、F7）加上旋律和聲手填，每小節低音以原譜為準。",
@@ -200,23 +228,51 @@
   "at": "credits.html:127 <td>"
  },
  {
+  "id": "傳統曲調。旋律與 Wikimedia Commons〈Scarborough Fair (ballad).mid〉（Rabanus Flavus，CC0，旋律標示為傳統曲調）第一段逐音相同，奏兩遍；伴奏為本遊戲自配。",
+  "at": "credits.html:127 <td>"
+ },
+ {
+  "id": "旋律已對照《Heart Songs》（Boston: The Chapple Publishing Company, 1909）第 399 頁，移到 G 大調；副歌後半依該版，主歌第 4 小節略有簡化。",
+  "at": "credits.html:128 <td>"
+ },
+ {
+  "id": "旋律已對照 Hamilton Harty 編〈The Londonderry Air〉（1924）的獨奏小提琴分譜；有兩處照通行唱法，與該譜略有不同。",
+  "at": "credits.html:129 <td>"
+ },
+ {
+  "id": "旋律已對照 R. R. Terry 編《The Shanty Book, Part I》（London: J. Curwen &amp; Sons, 1921）第 9 首（第 20–21 頁）；節拍統一為 4/4，另有兩個音照通行唱法，與該版略有不同。",
+  "at": "credits.html:130 <td>"
+ },
+ {
   "id": "依 John Barrow《Travels in China》(London, 1804) 書中 p.316 印的〈Moo-Lee-Wha〉譜例（archive.org 掃描 PDF 第 340 頁），共 14 小節，原譜為 ¢ 拍號、高音譜號，譜號後標兩個升記號但旋律只用 E、G、A、B、D（無 F、C），照原譜音高、不移調。原譜沒有伴奏，和弦為自配（G 大調五聲音階，用 G／C／D／Em）。原譜只有一遍，遊戲反覆 2 次；第 7 小節與第 14 小節最後的八分／二分音符依拍數推定。原譜沒有速度，遊戲取 ♩=100。",
   "at": "credits.html:131 <td>"
+ },
+ {
+  "id": "旋律已對照 Eduardo Marzo 編《Songs of Italy》（New York: G. Schirmer, 1904）第 44 首（第 124–125 頁）。",
+  "at": "credits.html:133 <td>"
  },
  {
   "id": "依公有領域原版樂譜手寫",
   "at": "credits.html:134 <td>"
  },
  {
+  "id": "旋律已對照東京音樂學校（Tōkyō Academy of Music）編《Collection of Japanese Koto Music》（箏曲集，文部省，1888）第二曲〈櫻〉；最後兩小節的音與該譜相同，節奏照通行唱法。",
+  "at": "credits.html:135 <td>"
+ },
+ {
+  "id": "第二樂章的英國管主題；時值加倍記譜，速度約等於每分鐘 42 個四分音符。",
+  "at": "credits.html:137 <td>"
+ },
+ {
   "id": "依 Edwin H. Lemare 管風琴改編版（公有領域）的樂譜手寫，並以 Schott 1899 年小提琴與鋼琴版對照修正：E 大調 2/4，小提琴第 3～16 小節反覆兩次，含第一、第二結尾",
   "at": "credits.html:138 <td>"
  },
  {
-  "id": "依公有領域原曲旋律手寫（對照 G. Schirmer 1918 年四手聯彈版《胡桃鉗組曲》Op.71a 之 Primo 聲部，印刷頁 53–55（PDF 第 61–63 頁））",
+  "id": "依公有領域原曲旋律手寫（對照 G. Schirmer 1918 年四手聯彈版《胡桃鉗組曲》Op.71a 之 Primo 聲部，印刷頁 53、55（PDF 第 61、63 頁）；Secondo 在印刷頁 52、54）",
   "at": "credits.html:139 <td>"
  },
  {
-  "id": "依 Schirmer 1918 年 Primo 聲部逐小節手寫，D 大調 3/4，速度取 ♩=120（比原譜的圓舞曲速度慢，配合普通難度）。A、B 段取 Primo 下方譜表，C 段取上方譜表，全曲皆維持原譜音高、不移八度；每段只取一條旋律線（B1 第 8 小節取下方的 F#、E 下行線，略去上方插入的 G#、G、A）；省略引子、豎琴華彩、反覆記號與第一反覆房，三連音寫成一拍三個音；C 段原譜的五連十六分音符迴音簡化成一拍三個音；第二反覆房（E 段）與 A3 結尾為自行收尾，收在主音 D。伴奏和弦為自配（參考 Secondo 低音，部分以相近的三和弦、七和弦代替）。",
+  "id": "依 Schirmer 1918 年 Primo 聲部逐小節手寫，D 大調 3/4，速度取 ♩=120（比原譜的圓舞曲速度慢，配合普通難度）。A 段與 B 段前半取 Primo 下方譜表（B1 第 6～7 小節、B2 第 4～9 小節旋律在上方譜表），C 段取上方譜表，全曲皆維持原譜音高、不移八度；每段只取一條旋律線（B1 第 8 小節取下方的 F#、E 下行線，略去上方插入的 G#、G、A）；省略引子、豎琴華彩、反覆記號與第一反覆房；C 段原譜的五連十六分音符迴音簡化成一拍三個音；E 段第 1～3 小節取自第二反覆房，第 4 小節為自行銜接；A3 結尾為自行收尾，收在主音 D。伴奏和弦為自配（參考 Secondo 低音，部分以相近的三和弦、七和弦代替）。",
   "at": "credits.html:139 <td>"
  },
  {
@@ -224,11 +280,15 @@
   "at": "credits.html:140 <td>"
  },
  {
-  "id": "據 Internet Archive 掃描的 G. Schirmer 1893 年版《Hungarian Dances for the Piano, Book I》（Schirmer’s Library Vol. 256，Wm. Scharfenberg 校訂指法，鋼琴獨奏）第 5 首（印刷頁 20–23）逐音手寫；取 Allegro 主段（第 17–32 小節）並依譜上的再現排列。八度齊奏取下聲部，8va 段落取實際音高的下八度；第 3 小節原譜 F# 持續低音上的 E#dim7 以同功能的 C#7 代替。",
+  "id": "取船歌主旋律的前兩個樂句，移到 G 大調，奏兩遍；第一遍照原曲停在屬音，最後一遍收在主音是本遊戲的收尾。",
+  "at": "credits.html:141 <td>"
+ },
+ {
+  "id": "據 Internet Archive 掃描的 G. Schirmer 1893 年版《Hungarian Dances for the Piano, Book I》（Schirmer’s Library Vol. 256，Wm. Scharfenberg 校訂指法，鋼琴獨奏）第 5 首（印刷頁 20–23）逐音手寫；取 Allegro 主段第 9–32 小節（A＝第 9–16 小節、P＝第 17–24 小節、B＝第 25–32 小節），排成 P、A、P、B、P、A，最後以 A 段收尾。八度齊奏的段落 P、A 取上聲部，B 第 1 小節與第 8 小節第 1 拍取下聲部，8va 段落取實際音高的下八度；各段第 3 小節原譜 F# 持續低音上的 E#dim7 以同功能的 C#7 代替。",
   "at": "credits.html:142 <td>"
  },
  {
-  "id": "終曲「瑞士士兵進行曲」，D 大調 2/4；為配合困難難度速度取 ♩=116，並把原譜 32 分音符改為 16 分音符。",
+  "id": "終曲「瑞士士兵進行曲」，移到 D 大調 2/4；為配合困難難度，速度取 ♩=116。主題已對照 Kunkel Bros. 1897 年出版的雙鋼琴改編譜（該譜標 ♩=152）；第二、三段該譜看不清，未對照。",
   "at": "credits.html:143 <td>"
  },
  {
@@ -252,11 +312,11 @@
   "at": "credits.html:146 <td>"
  },
  {
-  "id": "依 Bessel 約1900–01年《沙皇薩爾坦的故事》鋼琴縮譜（Rimsky-Korsakov 卒於1908年）第3幕第1景〈大黃蜂的飛行〉，PDF 第114～115頁（印刷頁108～109）排練號156 Allegro 起，右手半音階十六分音符共22小節（2/4，到排練號157前一小節止），不反覆。原譜標 Vivace ♩=144，遊戲放慢為 ♩=62，保留全部十六分音符；結尾排練號157第1拍的 A4–A3–A3–A3 改為 A4 長音收束。和弦依原譜左手每拍的和聲（E7、Am、D、Dm、A7、G、Gm），伴奏音型自配。",
+  "id": "依 Bessel 約1900–01年《沙皇薩爾坦的故事》鋼琴縮譜（Rimsky-Korsakov 卒於1908年）第3幕第1景〈大黃蜂的飛行〉，PDF 第114～115頁（印刷頁108～109）排練號156 Vivace 起，右手半音階十六分音符共22小節（2/4，到排練號157前一小節止），不反覆。原譜標 Vivace ♩=144，遊戲放慢為 ♩=62，保留全部十六分音符；結尾排練號157第1拍的 A4–A3–A3–A3 改為 A4 長音收束。和弦依原譜左手每拍的和聲（E7、Am、D、Dm、A7、G、Gm），伴奏音型自配。",
   "at": "credits.html:148 <td>"
  },
  {
-  "id": "取開頭觸技曲段，收在 D 小調終止和弦",
+  "id": "取開頭觸技曲段，收在 D 小調終止和弦。已對照巴哈協會版全集第 15 冊（Bach-Gesellschaft；Breitkopf &amp; Härtel 印）：第 23 小節一個錯音改正（降 B 改 E），並把三處被分到伴奏音軌的旋律音補回旋律。",
   "at": "credits.html:149 <td>"
  },
  {
@@ -268,7 +328,7 @@
   "at": "credits.html:150 <td>"
  },
  {
-  "id": "升 G 小調，6/8，每小節 12 個十六分音符。取原譜第 6～20 小節的主題段（「ben marcato il tema」起）奏兩遍，旋律音與高音 D# 鐘聲交替；原譜的 8va 記號是斷續的（第 6 小節～第 7 小節前 4 個十六分音符、第 9 小節後半～第 11 小節前 4 個十六分音符、第 12 小節起等段落在 8va 之下），這裡 8va 段落取記譜音高（即整首降低一個八度後的實際音高），不在 8va 之下的段落再降 12 個半音，使各段相對八度與原曲一致，鐘聲落在 D#6 以內；略去前奏（第 1～5 小節）、裝飾音（小音符），雙升記號（F##、C##）以同音 G、D 記；第 2 段變奏型的雙音（D#5/C#5）只取 C#5；結尾以主和弦上行琶音收住（原譜第 20 小節簡化）。伴奏和弦為自配。",
+  "id": "升 G 小調，6/8，每小節 12 個十六分音符。取原譜第 6～20 小節的主題段（「ben marcato il tema」起）奏兩遍，旋律音與高音 D# 鐘聲交替；原譜的 8va 記號是斷續的（第 6 小節～第 7 小節前 4 個十六分音符、第 9 小節後半～第 11 小節前 4 個十六分音符、第 12 小節整小節、第 13 小節第 3 個十六分音符～第 15 小節前 6 個十六分音符、第 17 小節後半～第 20 小節在 8va 之下），這裡 8va 段落取記譜音高（即整首降低一個八度後的實際音高），不在 8va 之下的段落再降 12 個半音，使各段相對八度與原曲一致，鐘聲落在 D#6 以內；略去前奏（第 1～5 小節）、裝飾音（小音符），重升記號 F## 以同音 G 記；第 11 小節第 11 個十六分音符的雙音（記譜 D#5/C#5）只取 C#5（降八度後為 C#4）；結尾取原譜第 21 小節（終止小節）右手的上行琶音，維持記譜音高、未再降八度。伴奏和弦為自配。",
   "at": "credits.html:150 <td>"
  },
  {
