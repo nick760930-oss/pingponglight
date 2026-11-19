@@ -3046,7 +3046,8 @@ function shareImg(){
   const lg=x.createLinearGradient(70,0,560,0);lg.addColorStop(0,'#7cf0ff');lg.addColorStop(.5,'#b794ff');lg.addColorStop(1,'#ff8fd1');
   const F=PPLI18N.lang==='zh'?'"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif':FF;
   x.fillStyle=lg;x.font='800 64px '+F;x.fillText('PingPongLight',70,120);
-  x.fillStyle='#e8ecff';x.font='700 40px '+F;x.fillText(r.label,70,210,700);
+  const lab=PPLI18N.lang==='ja'?r.label.replace(/ · 『/g,' ·『').replace(/』 · /g,'』· '):r.label;   // 『 』 carry their own side space: ステージ5 ·『蛍の光』· ノーマル
+  x.fillStyle='#e8ecff';x.font='700 40px '+F;x.fillText(lab,70,210,700);
   x.font='800 86px '+F;x.fillText(r.score.toLocaleString(),70,340);
   x.fillStyle='#b9c1ea';x.font='500 32px '+F;x.fillText(TX('精準度 {acc}　最高連擊 {combo}',{acc:pct(r.bp),combo:r.maxCombo}),70,410);
   x.fillStyle='#8a93c0';x.font='400 26px '+F;x.fillText((APP?new URL(SITE).host:location.host)+'　'+new Date().toLocaleDateString(PPLI18N.locale),70,560);

@@ -1172,7 +1172,7 @@
    "id": "選曲",
    "at": [
     "game.js:1618",
-    "game.js:3099"
+    "game.js:3100"
    ]
   },
   {
@@ -1716,7 +1716,7 @@
     "game.js:2127",
     "game.js:2435",
     "game.js:2559",
-    "game.js:3099"
+    "game.js:3100"
    ]
   },
   {
@@ -1989,8 +1989,8 @@
    "at": [
     "game.js:2282",
     "game.js:2586",
-    "game.js:3108",
-    "game.js:3120"
+    "game.js:3109",
+    "game.js:3121"
    ]
   },
   {
@@ -3093,251 +3093,251 @@
   {
    "id": "精準度 {acc}　最高連擊 {combo}",
    "at": [
-    "game.js:3051"
+    "game.js:3052"
    ]
   },
   {
    "id": "我在 PingPongLight {label} 拿到 {rank}（{score} 分）",
    "at": [
-    "game.js:3060"
+    "game.js:3061"
    ]
   },
   {
    "id": "遊戲錯誤",
    "at": [
-    "game.js:3074"
+    "game.js:3075"
    ]
   },
   {
    "id": "畫面異常",
    "at": [
-    "game.js:3074"
+    "game.js:3075"
    ]
   },
   {
    "id": "聲音／節奏不準",
    "at": [
-    "game.js:3074"
+    "game.js:3075"
    ]
   },
   {
    "id": "連線／對戰",
    "at": [
-    "game.js:3074"
+    "game.js:3075"
    ]
   },
   {
    "id": "好友／訊息",
    "at": [
-    "game.js:3074"
+    "game.js:3075"
    ]
   },
   {
    "id": "建議",
    "at": [
-    "game.js:3074"
+    "game.js:3075"
    ]
   },
   {
    "id": "其他",
    "at": [
-    "game.js:3074",
-    "game.js:3098"
+    "game.js:3075",
+    "game.js:3099"
    ]
   },
   {
    "id": "移除第 {n} 張圖片",
    "at": [
-    "game.js:3096"
+    "game.js:3097"
    ]
   },
   {
    "id": "處理圖片中⋯",
    "at": [
-    "game.js:3097"
+    "game.js:3098"
    ]
   },
   {
    "id": "＋ 加入圖片",
    "at": [
-    "game.js:3097"
+    "game.js:3098"
    ]
   },
   {
    "id": "暱稱 {name}",
    "at": [
-    "game.js:3098"
+    "game.js:3099"
    ]
   },
   {
    "id": "未設定暱稱",
    "at": [
-    "game.js:3098"
+    "game.js:3099"
    ]
   },
   {
    "id": "版本 {v}",
    "at": [
-    "game.js:3098"
+    "game.js:3099"
    ]
   },
   {
    "id": "（App）",
    "at": [
-    "game.js:3098"
+    "game.js:3099"
    ]
   },
   {
    "id": "（網頁）",
    "at": [
-    "game.js:3098"
+    "game.js:3099"
    ]
   },
   {
    "id": "裝置 {dev}（含瀏覽器與系統版本）",
    "at": [
-    "game.js:3098"
+    "game.js:3099"
    ]
   },
   {
    "id": "畫面 {scr}、像素比 {dpr}、安全邊距 {sa}",
    "at": [
-    "game.js:3098"
+    "game.js:3099"
    ]
   },
   {
    "id": "框{w}",
    "at": [
-    "game.js:3098"
+    "game.js:3099"
    ]
   },
   {
    "id": "語言 {lang}",
    "at": [
-    "game.js:3099"
+    "game.js:3100"
    ]
   },
   {
    "id": "目前畫面 {st}",
    "at": [
-    "game.js:3099"
+    "game.js:3100"
    ]
   },
   {
    "id": "主畫面",
    "at": [
-    "game.js:3099"
+    "game.js:3100"
    ]
   },
   {
    "id": "準備開始",
    "at": [
-    "game.js:3099"
+    "game.js:3100"
    ]
   },
   {
    "id": "結算",
    "at": [
-    "game.js:3099"
+    "game.js:3100"
    ]
   },
   {
    "id": "延遲補償 {lat}",
    "at": [
-    "game.js:3099"
+    "game.js:3100"
    ]
   },
   {
    "id": "最近遊玩：{song}／{d}",
    "at": [
-    "game.js:3100"
+    "game.js:3101"
    ]
   },
   {
    "id": "最近錯誤訊息：{err}",
    "at": [
-    "game.js:3100"
+    "game.js:3101"
    ]
   },
   {
    "id": "我們會看每一則回報，但不會逐一回覆",
    "at": [
-    "game.js:3108",
+    "game.js:3109",
     "index.html:849"
    ]
   },
   {
    "id": "請寫一點說明，或加入至少一張圖片",
    "at": [
-    "game.js:3119",
-    "game.js:3126"
+    "game.js:3120",
+    "game.js:3127"
    ]
   },
   {
    "id": "已送出回報，感謝協助！",
    "at": [
-    "game.js:3123",
-    "game.js:3124"
+    "game.js:3124",
+    "game.js:3125"
    ]
   },
   {
    "id": "今天已送出 5 則回報，請明天再試",
    "at": [
-    "game.js:3125"
+    "game.js:3126"
    ]
   },
   {
    "id": "操作太頻繁，請稍後再試",
    "at": [
-    "game.js:3125"
+    "game.js:3126"
    ]
   },
   {
    "id": "有圖片無法使用，請換一張再試",
    "at": [
-    "game.js:3125"
+    "game.js:3126"
    ]
   },
   {
    "id": "圖片太大，請減少張數再試",
    "at": [
-    "game.js:3125"
+    "game.js:3126"
    ]
   },
   {
    "id": "回報的圖片空間暫時滿了，請移除圖片、只送文字",
    "at": [
-    "game.js:3126"
+    "game.js:3127"
    ]
   },
   {
    "id": "今天的回報太多了，請明天再試",
    "at": [
-    "game.js:3126"
+    "game.js:3127"
    ]
   },
   {
    "id": "回報內容有誤，請重新開啟遊戲再試",
    "at": [
-    "game.js:3127"
+    "game.js:3128"
    ]
   },
   {
    "id": "儲存失敗，內容已保留，請稍後再試",
    "at": [
-    "game.js:3127"
+    "game.js:3128"
    ]
   },
   {
    "id": "目前無法連線，內容已保留，請稍後再試",
    "at": [
-    "game.js:3128"
+    "game.js:3129"
    ]
   },
   {
    "id": "有 {n} 張圖片無法讀取，請換一張（JPG 或 PNG）",
    "at": [
-    "game.js:3145"
+    "game.js:3146"
    ]
   },
   {
