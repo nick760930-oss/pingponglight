@@ -201,6 +201,10 @@ const DOC_FONT = {   // keep in step with the html[lang] rules in index.html
 const ZHP = /[\u3000-\u303f\uff00-\uffef]/, isZh = s => CJK.test(s) || ZHP.test(s);
 const DOC_BLOCK = /<(title|h[1-6]|p|li|th|td)((?:\s[^>]*)?)>([\s\S]*?)<\/\1>/g;
 const VOID = new Set(['br', 'img', 'hr', 'wbr']);
+// <!-- i18n-only: <p>…</p> --> in a Chinese page is a block that only the translated pages show (privacy.html: "this page is
+// a translation"). Its link to the Chinese page is written ./privacy.html: href="privacy.html" would become the page of the
+// reader's own language (docPage).
+const DOC_ONLY = /<!-- i18n-only: ([\s\S]*?) -->/g, docSrc = f => rd(f).replace(DOC_ONLY, '$1');
 function cutTop(s) {   // [piece, separator, piece, …]: the separators are " · " and <br>, never one inside an element
   const out = []; let depth = 0, from = 0, i = 0;
   while (i < s.length) {
@@ -252,12 +256,12 @@ function docTranslator(c, p, d) {
 }
 // Chinese text of a page that nothing above translates: outside every block, the back link and the three attributes
 function docStray(f) {
-  const s = rd(f).replace(/<!--[\s\S]*?-->|<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>/gi, '')
+  const s = docSrc(f).replace(/<!--[\s\S]*?-->|<style[\s\S]*?<\/style>|<script[\s\S]*?<\/script>/gi, '')
     .replace(DOC_BLOCK, '').replace(/<a class="back"[^>]*>[^<]*<\/a>/g, '').replace(/\b(aria-label|title|alt)="[^"]*"/g, '');
   return s.split(/[<>\n]/).map(x => x.trim()).filter(x => isZh(x));
 }
 function docPage(f, l, tr) {
-  const src = rd(f);
+  const src = docSrc(f);
   let h = src.replace(DOC_BLOCK, (m, tag, attr, inner, off) => '<' + tag + attr + '>' + tr.block(inner, f + ':' + lineOf(src, off) + ' <' + tag + '>', tag === 'td') + '</' + tag + '>');
   h = h.replace(/(<a class="back"[^>]*>)([^<]*)(<\/a>)/g, (m, a, t, z) => a + tr.piece(t, f + ' back link') + z);
   h = h.replace(/\b(aria-label|title|alt)="([^"]*)"/g, (m, a, v) => a + '="' + tr.piece(v, f + ' ' + a) + '"');

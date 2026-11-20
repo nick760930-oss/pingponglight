@@ -37,6 +37,9 @@ The game is written in Traditional Chinese (Taiwan). English and Japanese are tr
 - In these pages a text is Chinese when it has Chinese characters or only Chinese punctuation (`Open Hymnal Project（ABC）`):
   such a piece is a key too, and `check` fails when an English translation or page still has either.
 - A translation keeps the HTML tags and every link of the Chinese text: `check` fails when they differ.
+- `<!-- i18n-only: <p>…</p> -->` in a Chinese page is a block that only the translated pages show; its Chinese text is the key,
+  like any other block. The policy uses it for "this page is a translation; the Chinese version prevails". A link to the
+  Chinese page from such a block is written `./privacy.html` (`href="privacy.html"` is turned into the reader's own language).
 - After the Chinese page changes (a new song's row, a new sentence in the policy): run `keys`, translate what `check` lists as
   `missing doc`, remove what it lists as no longer in the documents, run `build`.
 - The four generated pages are in the service worker's list (sw.js) and in the app's file list (app/build.mjs).
