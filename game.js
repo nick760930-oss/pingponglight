@@ -3198,6 +3198,7 @@ try{netBoot()}catch(e){}
 // The audio has not started yet (menuWake starts it on the first touch): once it has, the panel is filled in again, for the delay it could not show.
 try{if(sessionStorage.getItem('ppl-reopen')){sessionStorage.removeItem('ppl-reopen');if(st==='home'&&!DU.pend&&!FD.pend){syncSet();$('#home').classList.add('hidden');$('#set').classList.remove('hidden');
   const E=['pointerup','click'],up=()=>{if(!AC)return;syncSet();for(const t of E)$('#set').removeEventListener(t,up,true)};for(const t of E)$('#set').addEventListener(t,up,true)}}}catch(e){}
+try{PPLI18N.back()}catch(e){}   // the page stayed hidden until now (i18n.js), so the home screen never shows for a moment before the settings
 // hooks for shop.js (shop, collection, trial run); the game itself never depends on it
 window.PPLG={api,pkey,APP,PF,SET,saveSet,lsGet,lsSet,toast,initAudio,esc,get ME(){return ME},showHome,onTryEnd:null,onMe:null,roomSend(o){if(DU.joined)dsend(o)},busy:()=>st==='play'||st==='ready'||st==='over'||st==='done'||mode==='duel',
   startTry(tr){if(!COS)return;initAudio();tryKeep={si,di};COS.state.trial=tr||null;COS.bump();mode='try';startRun(0)}};

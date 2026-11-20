@@ -32,6 +32,11 @@ html.ptr :focus,html.ptr :focus-visible{outline:none!important}html.ptr button.t
 html,body{margin:0;position:fixed;inset:0;width:100%;height:100%;background:var(--bg);color:var(--fg);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;overflow:hidden;overscroll-behavior:none;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;-webkit-text-size-adjust:100%}
 /* languages (i18n.js): the page stays hidden until its static text is translated; Japanese uses Japanese glyph shapes */
 html.i18n-wait body{visibility:hidden}
+/* a language chosen in the settings: the page fades out, loads again and fades back in on the settings (i18n.js) */
+html.i18n-out body{opacity:0;transition:opacity .15s ease-in;pointer-events:none}
+html.i18n-in body{animation:i18nIn .2s ease-out}
+@keyframes i18nIn{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){html.i18n-out body{transition:none;opacity:1}}
 html[lang="en"],html[lang="en"] body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans TC",sans-serif}   /* a Chinese font draws ’ “ ” … one full square wide */
 html[lang="ja"],html[lang="ja"] body{font-family:"Noto Sans JP","Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic","Meiryo",system-ui,sans-serif}
 button{touch-action:manipulation}

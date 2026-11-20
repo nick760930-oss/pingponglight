@@ -124,17 +124,31 @@
       try { if (to && to !== location.href) history.replaceState(history.state, '', to); } catch (e) {}
       return;
     }
-    if (to && to !== location.href) location.replace(to); else location.reload();   // the same address with a #part would not load again
+    var go = function () { if (to && to !== location.href) location.replace(to); else location.reload(); };   // the same address with a #part would not load again
+    // the page fades out before it loads again, and the new one fades in (see 'back' below): no flash of another screen in between
+    H.classList.add('i18n-out');
+    setTimeout(function () { try { go(); } catch (e) {} }, FADE ? 160 : 0);
+    // a load that never replaces this page (stopped by the player, refused): the page comes back rather than staying blank and dead
+    setTimeout(function () { H.classList.remove('i18n-out'); }, 6000);
   };
 
   var H = document.documentElement;
+  var FADE = true; try { FADE = !matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
   H.lang = LANGS.filter(function (l) { return l.id === L; })[0].html;
-  if (P) {   // hide the Chinese page until i18n-dom.js has translated it (never for longer than 3 s)
+  // back: this load comes from choosing a language in the settings (game.js set 'ppl-reopen' and puts the settings back at the end of
+  // its script). Until then the page would show the home screen for a moment, so it stays hidden in every language until game.js says
+  // so (api.back(); DOMContentLoaded comes after game.js, and 3 s at most).
+  var back = false; try { back = !!sessionStorage.getItem('ppl-reopen'); } catch (e) {}
+  api.shown = function () {};
+  if (P || back) {   // hide the Chinese page until i18n-dom.js has translated it (or, back, until game.js has put the settings back)
     H.classList.add('i18n-wait');
-    api.shown = function () { H.classList.remove('i18n-wait'); };
-    setTimeout(api.shown, 3000);
-    document.addEventListener('DOMContentLoaded', api.shown);
-  } else api.shown = function () {};
+    var show = function () { if (!H.classList.contains('i18n-wait')) return; H.classList.remove('i18n-wait'); if (back && FADE) H.classList.add('i18n-in'); };
+    api.shown = function () { if (!back) show(); };
+    api.back = show;
+    setTimeout(show, 3000);
+    document.addEventListener('DOMContentLoaded', show);
+  }
+  if (!api.back) api.back = function () {};
 
   window.PPLI18N = api; window.TX = TX; window.TXA = TXA; window.TXO = TXO;
 })();
