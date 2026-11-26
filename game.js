@@ -2425,7 +2425,7 @@ function lvRefresh(tick){
   if(!$('#lvp').classList.contains('hidden'))lvpRender(tick);
 }
 const lvLgt=L=>LI+L.nat+' / '+L.cap+(L.extra>0?' +'+L.extra:'')+' <em>'+(L.full?TX('已滿'):TX('{t} 後 +1',{t:mmss(L.next/1000)}))+'</em>';
-const lvPassTxt=s=>s&&s.pass>Date.now()?TX('月票剩 {n} 天',{n:Math.ceil((s.pass-Date.now())/86400e3)}):'';   // days left including today (the pass ends at 04:00 after its last pay day; the raised cap lasts until then)
+const lvPassTxt=s=>s&&s.pass>Date.now()?TX('朔望之光剩 {n} 天',{n:Math.ceil((s.pass-Date.now())/86400e3)}):'';   // days left including today (the pass ends at 04:00 after its last pay day; the raised cap lasts until then)
 
 /* ---- home: the name plate ---- */
 function lvTitleId(){
@@ -2589,7 +2589,7 @@ function lvpRender(tick){
     h+='<div class="lvBox"><div class="xbar"><i class="b" style="width:'+Math.min(100,s.cur/s.need*100).toFixed(1)+'%"></i></div><div class="f"><span>'+TX('經驗 {a} / {b}',{a:s.cur.toLocaleString(),b:s.need.toLocaleString()})+'</span><span>'+TX('升到 {lv} 還差 {n}',{lv:lvTxt(s.lv+1),n:(s.need-s.cur).toLocaleString()})+'</span></div></div>';
     h+='<div class="lvBox"><span class="lgt">'+LI+TX('光能')+' '+L.nat+' / '+L.cap+(L.extra>0?' +'+L.extra:'')+'</span> <em style="font-style:normal">'+(L.full?TX('已滿'):TX('{t} 後 +1',{t:mmss(L.next/1000)}))+'</em><br>'
       +TX('每 6 分鐘 +1，今日已用 {x} / {y}',{x:L.spent,y:L.dayCap})+'<br>'+TX('只放大經驗，不影響分數與排行')
-      +(L.extra>0?'<br>'+TX('其中月票贈送 {a} 點、購買 {b} 點，不會過期',{a:L.sub,b:L.paid}):'')
+      +(L.extra>0?'<br>'+TX('其中朔望之光贈送 {a} 點、購買 {b} 點，不會過期',{a:L.sub,b:L.paid}):'')
       +(pass?'<br>'+esc(pass)+'　'+TX('期間自然上限 {n}',{n:L.cap}):'')
       +(lvHalf()?'<br><span style="color:#ffb86b">'+TX('今日遊玩超過 1 小時，經驗減半')+'</span>':'')
       +(buy?'':'<br>'+TX('可在 App 版補充光能'))+(LV.off?'<br><span style="color:#ffb86b">'+TX('離線中，顯示的是上次的數字')+'</span>':'')+'</div>';
@@ -2606,17 +2606,17 @@ function lvRewardsHTML(s){
   const rows=lvRewardRows().map(([n,its])=>{
     const got=lv>=n,nx=!got&&!nextDone;if(nx)nextDone=true;
     return'<div class="lvR'+(got?' got':nx?' next':'')+'"><b>Lv '+n+'</b><span>'+its.map(i=>esc(i.cat==='avatar'?i.name:lvCatTxt(i))).join('＋')+'</span><span class="st">'+(got?LV_CHECK+TX('已獲得'):nx?TX('還差 {n} 級',{n:n-lv}):LV_LOCK)+'</span></div>'}).join('');
-  return'<div class="lvH">'+TX('達到等級就會自動獲得，商城買不到')+'</div>'+rows;
+  return'<div class="lvH">'+TX('達到等級就會自動獲得')+'</div>'+rows;
 }
 function lvBuyHTML(){
-  const P=window.PPLIAP,nm=[TX('光能小瓶'),TX('光能大瓶'),TX('光能箱'),TX('30 日光能月票')];
+  const P=window.PPLIAP,nm=[TX('螢火瓶'),TX('琉璃燈'),TX('星光匣'),TX('朔望之光')];
   const dis=LV.agree&&!LV.buying&&ME?'':' disabled';
   let h='<label class="ag"><input type="checkbox" id="lvAg"'+(LV.agree?' checked':'')+'><span>'+TX('我同意購買後立即使用，不適用七日解除權')+'</span></label>';
   h+=LV_PIDS.map(([pid,pts],i)=>{
     const has=P.has?P.has(pid):null,price=P.price?P.price(pid):'',ok=has!==false&&!!price;
-    const sub=i===3?TX('30 日月票・不會自動續訂：30 天內每天自動入帳 {d} 點（共 {n} 點，不用登入），期間自然上限提高到 120；再買會延長天數',{d:Math.round(pts/30),n:pts}):TX('+{n} 點，不會過期',{n:pts});
+    const sub=i===3?TX('月亮走完一輪的 30 天裡，每天自動入帳 {d} 點（共 {n} 點，不用登入），期間自然上限提高到 120；不會自動續訂，再買會延長天數',{d:Math.round(pts/30),n:pts}):TX('+{n} 點，不會過期',{n:pts});
     return'<div class="it"><span class="tx"><b>'+LI+' '+esc(nm[i])+'</b><small>'+esc(sub)+'</small></span><button class="gold" data-pid="'+pid+'"'+(ok?dis:' disabled')+'>'+(ok?esc(price):'—')+'</button></div>'}).join('');
-  h+='<div class="fn"><p>'+TX('光能只放大單人通關的經驗，不影響分數、排行榜與成就。')+'</p><p>'+TX('購買的光能立即發放、不會過期；月票是一次性購買，每天自動發放，到期後不會自動扣款。')+'</p>'
+  h+='<div class="fn"><p>'+TX('光能只放大單人通關的經驗，不影響分數、排行榜與成就。')+'</p><p>'+TX('購買的光能立即發放、不會過期；朔望之光是一次性購買，每天自動發放，到期後不會自動扣款。')+'</p>'
     +(ME?'':'<p style="color:#ffb86b">'+TX('請先設定暱稱再購買')+'</p>')
     +'<p><a href="terms.html">'+TX('服務條款')+'</a> · <a href="privacy.html">'+TX('隱私權政策')+'</a></p></div>';
   return h;
