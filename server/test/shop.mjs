@@ -66,7 +66,7 @@ function staticChecks() {
   ok(ids.length > 150, 'catalog has items: ' + ids.length);
   for (const [id, it] of Object.entries(CATALOG)) {
     ok(id.split('.')[0] === it.cat || id === 'full', 'id starts with its category: ' + id);
-    ok(it.how === 'default' || it.how === 'buy' || it.how === 'sponsor' || it.how.startsWith('ach:'), 'how is valid: ' + id);
+    ok(it.how === 'default' || it.how === 'buy' || it.how === 'sponsor' || it.how.startsWith('ach:') || /^lv:[1-9][0-9]{0,2}$/.test(it.how), 'how is valid: ' + id);
     ok(!!it.pid === (it.how === 'buy' || it.cat === 'sponsor'), 'product id only for things that can be bought: ' + id);
     ok(it.vis === (['avatar', 'plate', 'title'].includes(it.cat) ? 1 : 0), 'vis only for avatar, plate and title: ' + id);
     for (const p of it.parts) ok(!!CATALOG[p], 'theme part exists: ' + id + ' -> ' + p);

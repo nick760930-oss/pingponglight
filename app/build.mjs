@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const APP = dirname(fileURLToPath(import.meta.url)), ROOT = join(APP, '..'), WWW = join(APP, 'www');
-const FILES = ['index.html', 'lang-en.js', 'lang-ja.js', 'i18n.js', 'i18n-dom.js', 'cosmetics.js', 'ai_bg.js', ...['stars', 'aurora', 'sea', 'sakura', 'lava', 'snow', 'candy', 'nebula', 'paper', 'mysky'].map(id => 'ai_' + id + '.webp'), 'game.js', 'shop.js', 'iap.js', 'ach-data.js', 'ach.js', 'songs.js', 'credits.html', 'privacy.html', 'credits.en.html', 'privacy.en.html', 'credits.ja.html', 'privacy.ja.html', 'icon-192.png', 'icon-512.png', 'manifest.webmanifest'];
+const FILES = ['index.html', 'lang-en.js', 'lang-ja.js', 'i18n.js', 'i18n-dom.js', 'cosmetics.js', 'ai_bg.js', ...['stars', 'aurora', 'sea', 'sakura', 'lava', 'snow', 'candy', 'nebula', 'paper', 'mysky'].map(id => 'ai_' + id + '.webp'), 'meteor_1.webp', 'meteor_2.webp', 'meteor_3.webp', ...['good', 'fire', 'love', 'wow', 'clap', 'cry', 'gg', 'encore'].map(k => 'emo_' + k + '.webp'), 'game.js', 'shop.js', 'iap.js', 'ach-data.js', 'ach.js', 'songs.js', 'credits.html', 'privacy.html', 'credits.en.html', 'privacy.en.html', 'credits.ja.html', 'privacy.ja.html', 'terms.html', 'terms.en.html', 'terms.ja.html', 'icon-192.png', 'icon-512.png', 'manifest.webmanifest'];
 // instrument samples go in as one script per instrument (inst/<name>.js: base64 mp3 by midi number), loaded with a
 // <script> tag: the app web view loads bundled scripts for sure, while fetching the bundled mp3 files left the app on synth sound
 const INST_DIR = join(ROOT, 'inst');
@@ -30,7 +30,7 @@ for (const name of insts) {
   writeFileSync(join(WWW, 'inst', name + '.js'), '(window.PPLI=window.PPLI||{})[' + JSON.stringify(name) + ']=' + JSON.stringify(pk) + ';\n');
 }
 
-for (const page of ['index.html', 'credits.html', 'privacy.html', 'credits.en.html', 'privacy.en.html', 'credits.ja.html', 'privacy.ja.html']) {
+for (const page of ['index.html', 'credits.html', 'privacy.html', 'credits.en.html', 'privacy.en.html', 'credits.ja.html', 'privacy.ja.html', 'terms.html', 'terms.en.html', 'terms.ja.html']) {
   const p = join(WWW, page);
   let html = readFileSync(p, 'utf8');
   if (!html.includes('<meta charset="utf-8">')) throw new Error(page + ': charset meta not found');

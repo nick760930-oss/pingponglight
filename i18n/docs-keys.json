@@ -5,383 +5,395 @@
  },
  {
   "id": "古典曲目、聖詩與民謠的音符取自 <a href=\"https://www.mutopiaproject.org/\" target=\"_blank\" rel=\"noopener noreferrer\">Mutopia Project</a>、<a href=\"https://openhymnal.org/\" target=\"_blank\" rel=\"noopener noreferrer\">Open Hymnal Project</a> 與 <a href=\"https://commons.wikimedia.org/\" target=\"_blank\" rel=\"noopener noreferrer\">Wikimedia Commons</a> 的 MIDI 與樂譜檔案（授權如下表，依原作者標示）；〈小星星〉及表中註明「依原曲旋律手寫」的曲目，是本遊戲依公有領域原曲寫成的旋律與伴奏；「霓虹 海豚座」3 首為本遊戲原創作品。主旋律取自檔案中的旋律聲部，各曲以接近原編制的樂器音色演奏（見下方「樂器音色」）。",
-  "at": "credits.html:47 <p>"
+  "at": "credits.html:48 <p>"
  },
  {
   "id": "編號",
-  "at": "credits.html:52 <th>"
+  "at": "credits.html:53 <th>"
  },
  {
   "id": "曲名",
-  "at": "credits.html:52 <th>"
+  "at": "credits.html:53 <th>"
  },
  {
   "id": "作曲家",
-  "at": "credits.html:52 <th>"
+  "at": "credits.html:53 <th>"
  },
  {
   "id": "年代",
-  "at": "credits.html:52 <th>"
+  "at": "credits.html:53 <th>"
  },
  {
   "id": "來源",
-  "at": "credits.html:52 <th>"
+  "at": "credits.html:53 <th>"
  },
  {
   "id": "公有領域",
-  "at": "credits.html:55 <td>"
+  "at": "credits.html:56 <td>"
  },
  {
   "id": "節錄前段",
-  "at": "credits.html:59 <td>"
- },
- {
-  "id": "手寫傳統旋律",
   "at": "credits.html:60 <td>"
  },
  {
-  "id": "省略整段反覆",
+  "id": "手寫傳統旋律",
   "at": "credits.html:61 <td>"
  },
  {
-  "id": "F. Horetzky 吉他改編",
-  "at": "credits.html:63 <td>"
+  "id": "省略整段反覆",
+  "at": "credits.html:62 <td>"
  },
  {
-  "id": "F. Tárrega 與 J. J. Olson 改編的雙吉他版",
+  "id": "F. Horetzky 吉他改編",
   "at": "credits.html:64 <td>"
  },
  {
+  "id": "F. Tárrega 與 J. J. Olson 改編的雙吉他版",
+  "at": "credits.html:65 <td>"
+ },
+ {
   "id": "本遊戲原創",
-  "at": "credits.html:78 <td>"
+  "at": "credits.html:79 <td>"
  },
  {
   "id": "Wikimedia Commons〈Amazing grace (org).mid〉",
-  "at": "credits.html:82 <td>"
+  "at": "credits.html:83 <td>"
  },
  {
   "id": "Rabanus Flavus（Peter Gerloff）",
-  "at": "credits.html:82 <td>"
+  "at": "credits.html:83 <td>"
  },
  {
   "id": "依公有領域原譜手寫",
-  "at": "credits.html:83 <td>"
- },
- {
-  "id": "依柏林國家圖書館藏手抄總譜（約1838，Canon a 3 Violini con Basso）第1頁第一小提琴聲部第3～18小節逐音轉寫（第1～2小節為固定低音單獨演奏，第一小提琴休止，省略）；D 大調 4/4，未移調。第19小節起進入三十二分音符變奏，未收；結尾自加一小節，取第19小節第一個音 A5 延長在 D 和弦上收尾。和弦依 Cembalo 固定低音 D A B F# G D G A（每音一拍）。",
-  "at": "credits.html:83 <td>"
- },
- {
-  "id": "依 1739 年 Le Clerc 版 Violino Principale 分譜（Gallica btv1b9062998d）第2頁〈La Primavera〉Allegro：弱起＋第1～13小節開頭 ritornello，與 B 段鳥鳴第13～27小節（至 Tutti 進入前），E 大調 4/4，未移調、無省略反覆。原譜只有獨奏聲部，鳥鳴段其他小提琴應答時主奏休止（第17、18、19小節的休止照原譜保留）；和弦依旋律配 E／A／B 三和弦（此頁無低音聲部可對照）。弱起 E5 前補 3.5 拍休止成一整小節；裝飾音（+、m.）省略；最後 E6 二分音符後補二拍休止收在 Tutti 前。",
   "at": "credits.html:84 <td>"
  },
  {
+  "id": "依柏林國家圖書館藏手抄總譜（約1838，Canon a 3 Violini con Basso）第1頁第一小提琴聲部第3～18小節逐音轉寫（第1～2小節為固定低音單獨演奏，第一小提琴休止，省略）；D 大調 4/4，未移調。第19小節起進入三十二分音符變奏，未收；結尾自加一小節，取第19小節第一個音 A5 延長在 D 和弦上收尾。和弦依 Cembalo 固定低音 D A B F# G D G A（每音一拍）。",
+  "at": "credits.html:84 <td>"
+ },
+ {
+  "id": "依 1739 年 Le Clerc 版 Violino Principale 分譜（Gallica btv1b9062998d）第2頁〈La Primavera〉Allegro：弱起＋第1～13小節開頭 ritornello，與 B 段鳥鳴第13～27小節（至 Tutti 進入前），E 大調 4/4，未移調、無省略反覆。原譜只有獨奏聲部，鳥鳴段其他小提琴應答時主奏休止（第17、18、19小節的休止照原譜保留）；和弦依旋律配 E／A／B 三和弦（此頁無低音聲部可對照）。弱起 E5 前補 3.5 拍休止成一整小節；裝飾音（+、m.）省略；最後 E6 二分音符後補二拍休止收在 Tutti 前。",
+  "at": "credits.html:85 <td>"
+ },
+ {
   "id": "Mutopia Project（Symphony No. 7 Op. 92, Allegretto，Stelios Samelis 排版）",
-  "at": "credits.html:86 <td>"
- },
- {
-  "id": "公有領域 / No rights reserved",
-  "at": "credits.html:86 <td>"
- },
- {
-  "id": "MIDI 與 LilyPond 皆取自 Mutopia；另以 Wikimedia Commons Pathétique-2.mid 交叉比對",
   "at": "credits.html:87 <td>"
  },
  {
-  "id": "依 Breitkopf &amp; Härtel 舊全集（Rudorff 編，Sonate Nr.15）PDF 第 200 頁第 1～24 小節與第 201 頁第一行（第 25～28 小節），第一樂章呈示部（不反覆）；旋律為右手，和弦依左手 Alberti／和弦分析；顫音不展開（第 4、15、17、25 小節只寫主音），倚音（第 22、23 小節）省略，第 23 小節 32 分音符迴音改為 16 分音符（附點四分縮為四分）；和弦取頂音當旋律（第 12、28 小節）",
+  "id": "公有領域 / No rights reserved",
+  "at": "credits.html:87 <td>"
+ },
+ {
+  "id": "MIDI 與 LilyPond 皆取自 Mutopia；另以 Wikimedia Commons Pathétique-2.mid 交叉比對",
   "at": "credits.html:88 <td>"
  },
  {
-  "id": "Mutopia Project（Chopin, Fantaisie-Impromptu Op. 66）",
+  "id": "依 Breitkopf &amp; Härtel 舊全集（Rudorff 編，Sonate Nr.15）PDF 第 200 頁第 1～24 小節與第 201 頁第一行（第 25～28 小節），第一樂章呈示部（不反覆）；旋律為右手，和弦依左手 Alberti／和弦分析；顫音不展開（第 4、15、17、25 小節只寫主音），倚音（第 22、23 小節）省略，第 23 小節 32 分音符迴音改為 16 分音符（附點四分縮為四分）；和弦取頂音當旋律（第 12、28 小節）",
   "at": "credits.html:89 <td>"
  },
  {
-  "id": "依 C. A. Spina 1867 年首版鋼琴獨奏譜第 4 頁（Commons Donauwalzer_Spina_04.jpg）Walzer No.1 第 1～32 小節，D 大調 3/4，到換調的雙縱線為止，不反覆。旋律取右手最高聲部（主旋律與高八度「回聲」和弦交替）；第 28～29 小節右手另以高八度重疊（F#6、D6），為保持旋律連貫改取下方主聲部 F#5、D5；第 32 小節的和弦只取最高音；帶斜線的小倚音省略。和弦依左手低音推定。原譜只標 Tempo di Valse，遊戲取 ♩=132。",
-  "at": "credits.html:91 <td>"
+  "id": "Mutopia Project（Chopin, Fantaisie-Impromptu Op. 66）",
+  "at": "credits.html:90 <td>"
  },
  {
-  "id": "依 Breitkopf &amp; Härtel 1848 年總譜《仲夏夜之夢》No.9 Hochzeitmarsch（PDF 第 141～142 頁，總譜頁碼 137～138）。號角取第 1～5 小節三支小號（C 調，記譜即實音）的最高音；主題取第 6～13 小節長笛／第一小提琴的最高聲部，反覆一次，中間接第一結尾（1ma Volta，第 14～17 小節，小號號角）；第 13 小節第 4 拍第一次加上小號三連音弱起，第二次改休止，在 C 收。第 6、10 小節第一個音另有八度重疊的和弦內音只取最高音；顫音與倚音省略；第二次第 13 小節後的第二結尾未使用。和弦依低音聲部（Violoncello/Basso）推定，號角段樂團休止，伴奏以 C 和弦代替。速度原為 Allegro vivace，遊戲取 ♩=96。",
+  "id": "依 C. A. Spina 1867 年首版鋼琴獨奏譜第 4 頁（Commons Donauwalzer_Spina_04.jpg）Walzer No.1 第 1～32 小節，D 大調 3/4，到換調的雙縱線為止，不反覆。旋律取右手最高聲部（主旋律與高八度「回聲」和弦交替）；第 28～29 小節右手另以高八度重疊（F#6、D6），為保持旋律連貫改取下方主聲部 F#5、D5；第 32 小節的和弦只取最高音；帶斜線的小倚音省略。和弦依左手低音推定。原譜只標 Tempo di Valse，遊戲取 ♩=132。",
   "at": "credits.html:92 <td>"
  },
  {
-  "id": "依 Kistner 1832 首版 PDF 第 6 頁：弱起＋第 1～10 小節（主題 A、A 的裝飾變奏、B 段第一句，至 poco ritard. 的 Bb4 收）；12/8 以四分音符為拍（每小節 6 拍）；原譜印 M.M. ♩=132（一般解為八分音符），此處放慢為四分音符=60；顫音、迴音記號、波音不展開，倚音省略（第 7、8、10 小節）；和弦取右手頂音當旋律，和聲依左手低音與和弦分析，部分和弦為簡化判讀",
+  "id": "依 Breitkopf &amp; Härtel 1848 年總譜《仲夏夜之夢》No.9 Hochzeitmarsch（PDF 第 141～142 頁，總譜頁碼 137～138）。號角取第 1～5 小節三支小號（C 調，記譜即實音）的最高音；主題取第 6～13 小節長笛／第一小提琴的最高聲部，反覆一次，中間接第一結尾（1ma Volta，第 14～17 小節，小號號角）；第 13 小節第 4 拍第一次加上小號三連音弱起，第二次改休止，在 C 收。第 6、10 小節第一個音另有八度重疊的和弦內音只取最高音；顫音與倚音省略；第二次第 13 小節後的第二結尾未使用。和弦依低音聲部（Violoncello/Basso）推定，號角段樂團休止，伴奏以 C 和弦代替。速度原為 Allegro vivace，遊戲取 ♩=96。",
   "at": "credits.html:93 <td>"
  },
  {
-  "id": "對照 G. Schirmer 1900 年鋼琴版核對：反覆不演奏，兩處第一結尾（原譜第 22、104 小節）略去；第 19～20、101～102 小節的旋律在 MIDI 的另一音軌，已併回旋律",
+  "id": "依 Kistner 1832 首版 PDF 第 6 頁：弱起＋第 1～10 小節（主題 A、A 的裝飾變奏、B 段第一句，至 poco ritard. 的 Bb4 收）；12/8 以四分音符為拍（每小節 6 拍）；原譜印 M.M. ♩=132（一般解為八分音符），此處放慢為四分音符=60；顫音、迴音記號、波音不展開，倚音省略（第 7、8、10 小節）；和弦取右手頂音當旋律，和聲依左手低音與和弦分析，部分和弦為簡化判讀",
   "at": "credits.html:94 <td>"
  },
  {
+  "id": "對照 G. Schirmer 1900 年鋼琴版核對：反覆不演奏，兩處第一結尾（原譜第 22、104 小節）略去；第 19～20、101～102 小節的旋律在 MIDI 的另一音軌，已併回旋律",
+  "at": "credits.html:95 <td>"
+ },
+ {
   "id": "Mutopia Project（Henry R. Bishop, Home! Sweet Home!）",
-  "at": "credits.html:95 <td>"
- },
- {
-  "id": "與 Wikimedia Commons 11_Home_Sweet_Home.mid（Public domain）交叉比對",
-  "at": "credits.html:95 <td>"
- },
- {
-  "id": "Mutopia Project（Friedrich Silcher, Die Loreley）",
   "at": "credits.html:96 <td>"
  },
  {
-  "id": "旋律與 Mutopia id=575 版（03-TheLastRoseOfSummer.mid，CC 公有領域）交叉比對",
+  "id": "與 Wikimedia Commons 11_Home_Sweet_Home.mid（Public domain）交叉比對",
+  "at": "credits.html:96 <td>"
+ },
+ {
+  "id": "Mutopia Project（Friedrich Silcher, Die Loreley）",
   "at": "credits.html:97 <td>"
  },
  {
-  "id": "Mutopia Project（魔笛 K.620 第14首 Der Hölle Rache，完整總譜 MIDI）",
+  "id": "旋律與 Mutopia id=575 版（03-TheLastRoseOfSummer.mid，CC 公有領域）交叉比對",
   "at": "credits.html:98 <td>"
  },
  {
-  "id": "Mutopia Project（La Traviata N° 2 Brindisi，鋼琴改編，N. Toledo；排版 Alberto Corella）",
+  "id": "Mutopia Project（魔笛 K.620 第14首 Der Hölle Rache，完整總譜 MIDI）",
   "at": "credits.html:99 <td>"
  },
  {
-  "id": "Mutopia Project（John Philip Sousa, The Stars and Stripes Forever，鋼琴版）",
+  "id": "Mutopia Project（La Traviata N° 2 Brindisi，鋼琴改編，N. Toledo；排版 Alberto Corella）",
   "at": "credits.html:100 <td>"
  },
  {
-  "id": "依 Choudens 1883 年鋼琴聲樂譜 Prélude（PDF 第 9～11 頁，譜面頁碼 1～3）。進行曲主題為第 1 頁第 1～16 小節（A 大調 2/4），照原譜反覆一次；之後省略中段、主題再現與 pp 過門，直接接第 2 頁第 5 行起的鬥牛士之歌（F 大調色彩，以還原記號寫在 A 大調調號上）共 20 小節，到第 3 頁第 1 行第 2 小節 dim. 的 C5 收。旋律取右手最高聲部，和弦只取最高音；顫音、倚音與裝飾小音省略；跨小節的連結線合併成一個長音。和弦依左手推定。原譜速度 ♩=116，遊戲取 ♩=96（避免三連音十六分音符短於 0.1 秒）。（鬥牛士段含三連音，浮點拍數合計有微小誤差，故該段標 free；實際為 20 個完整小節。）",
+  "id": "Mutopia Project（John Philip Sousa, The Stars and Stripes Forever，鋼琴版）",
   "at": "credits.html:101 <td>"
  },
  {
+  "id": "依 Choudens 1883 年鋼琴聲樂譜 Prélude（PDF 第 9～11 頁，譜面頁碼 1～3）。進行曲主題為第 1 頁第 1～16 小節（A 大調 2/4），照原譜反覆一次；之後省略中段、主題再現與 pp 過門，直接接第 2 頁第 5 行起的鬥牛士之歌（F 大調色彩，以還原記號寫在 A 大調調號上）共 20 小節，到第 3 頁第 1 行第 2 小節 dim. 的 C5 收。旋律取右手最高聲部，和弦只取最高音；顫音、倚音與裝飾小音省略；跨小節的連結線合併成一個長音。和弦依左手推定。原譜速度 ♩=116，遊戲取 ♩=96（避免三連音十六分音符短於 0.1 秒）。（鬥牛士段含三連音，浮點拍數合計有微小誤差，故該段標 free；實際為 20 個完整小節。）",
+  "at": "credits.html:102 <td>"
+ },
+ {
   "id": "旋律與 Open Hymnal Project ABC 交叉比對",
-  "at": "credits.html:103 <td>"
+  "at": "credits.html:104 <td>"
  },
  {
   "id": "Open Hymnal Project（ABC）",
-  "at": "credits.html:105 <td>"
+  "at": "credits.html:106 <td>"
  },
  {
   "id": "旋律取自 ABC 第一聲部，照原曲反覆兩段；和弦由 ABC 四部和聲逐拍分析",
-  "at": "credits.html:105 <td>"
+  "at": "credits.html:106 <td>"
  },
  {
   "id": "依原曲旋律手寫（本遊戲製作）",
-  "at": "credits.html:106 <td>"
- },
- {
-  "id": "旋律已對照 J. P. McCaskey 編《Franklin Square Song Collection》（New York: Harper &amp; Brothers, 1881）第 120 頁；第三句後半的「Fa la la」上行音階（連同前一小節最後一音）照通行唱法，該版沒有這兩小節。",
-  "at": "credits.html:106 <td>"
- },
- {
-  "id": "旋律已對照《Heart Songs》（Boston: The Chapple Publishing Company, 1909）第 148–149 頁；三處照通行唱法，與該版略有不同。",
   "at": "credits.html:107 <td>"
  },
  {
-  "id": "Wikimedia Commons〈We Wish You A Merry Christmas.mid〉",
+  "id": "旋律已對照 J. P. McCaskey 編《Franklin Square Song Collection》（New York: Harper &amp; Brothers, 1881）第 120 頁；第三句後半的「Fa la la」上行音階（連同前一小節最後一音）照通行唱法，該版沒有這兩小節。",
+  "at": "credits.html:107 <td>"
+ },
+ {
+  "id": "旋律已對照《Heart Songs》（Boston: The Chapple Publishing Company, 1909）第 148–149 頁；三處照通行唱法，與該版略有不同。",
   "at": "credits.html:108 <td>"
  },
  {
-  "id": "旋律取自 antioch.ly／antioch.mid 女高音聲部，照原曲反覆兩段；和弦由 MIDI 四部和聲分析；與 Open Hymnal Project ABC 交叉比對",
+  "id": "Wikimedia Commons〈We Wish You A Merry Christmas.mid〉",
   "at": "credits.html:109 <td>"
  },
  {
-  "id": "原檔速度 ♩=112，依原譜 Andante maestoso 放慢為約 ♩=62；兩個短倚音及緊鄰的一個十六分音符不發聲。人聲旋律已對照 G. Schirmer（1871）版逐音核對。",
+  "id": "旋律取自 antioch.ly／antioch.mid 女高音聲部，照原曲反覆兩段；和弦由 MIDI 四部和聲分析；與 Open Hymnal Project ABC 交叉比對",
   "at": "credits.html:110 <td>"
  },
  {
-  "id": "Open Hymnal Project（ABC）；MIDI／LilyPond 取自 Mutopia Project 供交叉比對",
+  "id": "原檔速度 ♩=112，依原譜 Andante maestoso 放慢為約 ♩=62；兩個短倚音及緊鄰的一個十六分音符不發聲。人聲旋律已對照 G. Schirmer（1871）版逐音核對。",
   "at": "credits.html:111 <td>"
  },
  {
-  "id": "旋律取自 eventide.ly／eventide.mid 女高音聲部，照原曲反覆兩段；和弦由 MIDI 四部和聲逐拍分析；與 Open Hymnal Project ABC 交叉比對",
+  "id": "Open Hymnal Project（ABC）；MIDI／LilyPond 取自 Mutopia Project 供交叉比對",
   "at": "credits.html:112 <td>"
  },
  {
-  "id": "旋律與和弦取自 Open Hymnal 的 1916 年《A Hymnal》四部和聲版",
+  "id": "旋律取自 eventide.ly／eventide.mid 女高音聲部，照原曲反覆兩段；和弦由 MIDI 四部和聲逐拍分析；與 Open Hymnal Project ABC 交叉比對",
   "at": "credits.html:113 <td>"
  },
  {
-  "id": "James R. Murray 的 Mueller 曲調（非 Kirkpatrick 的 Cradle Song）；旋律取自 mueller.ly／mueller.mid 女高音聲部，照原曲反覆兩段；和弦由 MIDI 四部和聲分析；與 Open Hymnal Project ABC 交叉比對",
-  "at": "credits.html:115 <td>"
+  "id": "旋律與和弦取自 Open Hymnal 的 1916 年《A Hymnal》四部和聲版",
+  "at": "credits.html:114 <td>"
  },
  {
-  "id": "和弦取自 ABC 其餘三聲部（逐拍和聲分析）",
+  "id": "James R. Murray 的 Mueller 曲調（非 Kirkpatrick 的 Cradle Song）；旋律取自 mueller.ly／mueller.mid 女高音聲部，照原曲反覆兩段；和弦由 MIDI 四部和聲分析；與 Open Hymnal Project ABC 交叉比對",
   "at": "credits.html:116 <td>"
  },
  {
-  "id": "旋律取自 Open Hymnal Project ABC（法國傳統聖誕歌，公有領域）；和弦只依旋律自行編配，未採用原檔的四部和聲（Edward Shippen Barnes 編；年代說法不一）",
+  "id": "和弦取自 ABC 其餘三聲部（逐拍和聲分析）",
   "at": "credits.html:117 <td>"
  },
  {
+  "id": "旋律取自 Open Hymnal Project ABC（法國傳統聖誕歌，公有領域）；和弦只依旋律自行編配，未採用原檔的四部和聲（Edward Shippen Barnes 編；年代說法不一）",
+  "at": "credits.html:118 <td>"
+ },
+ {
   "id": "Wikimedia Commons〈Molly Malone.mid〉",
-  "at": "credits.html:118 <td>"
- },
- {
-  "id": "樂譜圖檔 Student's Songs 1884 僅作對照（公有領域）",
-  "at": "credits.html:118 <td>"
- },
- {
-  "id": "旋律已對照 L. d'O. Warner 編《A Kindergarten Book of Folk-Songs》（Boston: E. C. Schirmer Music Co., 1923）第 45 首（第 40 頁）；第 8 小節的節奏照通行唱法。",
   "at": "credits.html:119 <td>"
  },
  {
-  "id": "旋律已對照 J. P. McCaskey 編《Franklin Square Song Collection》（New York: Harper &amp; Brothers, 1881）第 69 頁（署名 E. O. Lyte）；第 3 小節第二個音照通行唱法。",
+  "id": "樂譜圖檔 Student's Songs 1884 僅作對照（公有領域）",
+  "at": "credits.html:119 <td>"
+ },
+ {
+  "id": "旋律已對照 L. d'O. Warner 編《A Kindergarten Book of Folk-Songs》（Boston: E. C. Schirmer Music Co., 1923）第 45 首（第 40 頁）；第 8 小節的節奏照通行唱法。",
   "at": "credits.html:120 <td>"
  },
  {
+  "id": "旋律已對照 J. P. McCaskey 編《Franklin Square Song Collection》（New York: Harper &amp; Brothers, 1881）第 69 頁（署名 E. O. Lyte）；第 3 小節第二個音照通行唱法。",
+  "at": "credits.html:121 <td>"
+ },
+ {
   "id": "Wikimedia Commons〈Happy birthday to you (Zum Geburtstag viel Glück).mid〉（Rabanus Flavus / Peter Gerloff 製作）",
-  "at": "credits.html:121 <td>"
- },
- {
-  "id": "<a href=\"https://creativecommons.org/publicdomain/zero/1.0/deed.zh_TW\" target=\"_blank\" rel=\"noopener noreferrer\">CC0</a>（MIDI 檔）；旋律為 Mildred J. Hill 1893 年所作，已屬公有領域",
-  "at": "credits.html:121 <td>"
- },
- {
-  "id": "旋律音高取自 MIDI 第 1 軌，節奏依通行譜規整為 3/4；唱三遍，最後一遍重複末句；和弦為本遊戲編配",
-  "at": "credits.html:121 <td>"
- },
- {
-  "id": "旋律已對照 J.-B. Weckerlin 編《Chansons et rondes enfantines》（Paris: Garnier Frères）第 85 頁。",
   "at": "credits.html:122 <td>"
  },
  {
-  "id": "依據 Broder &amp; Schlam 版《Mele Hawaii》（H. Berger 編）第 2 曲 Aloha Oe 的 PDF 第 2 頁（鋼琴引子與第一、二節主歌旋律）與第 3 頁（副歌四聲部合唱＋鋼琴，取女高音旋律與鋼琴左手低音）。原調降 B 大調、4/4，不移調（旋律 F4～Eb5）。片段＝主歌第一段（8 小節，取第一段歌詞對應的音）＋副歌兩輪（第二輪結尾不接弱起）。不加引子。主歌第 4 小節照原譜（第 4 拍為弱起附點八分 F4＋十六分 Bb4）。主歌第 8 小節末接副歌弱起 F4 時，把原譜的四分休止縮成八分休止，讓小節線對齊。和弦依鋼琴左手低音（Bb、Eb、F7）加上旋律和聲手填，每小節低音以原譜為準。",
+  "id": "<a href=\"https://creativecommons.org/publicdomain/zero/1.0/deed.zh_TW\" target=\"_blank\" rel=\"noopener noreferrer\">CC0</a>（MIDI 檔）；旋律為 Mildred J. Hill 1893 年所作，已屬公有領域",
+  "at": "credits.html:122 <td>"
+ },
+ {
+  "id": "旋律音高取自 MIDI 第 1 軌，節奏依通行譜規整為 3/4；唱三遍，最後一遍重複末句；和弦為本遊戲編配",
+  "at": "credits.html:122 <td>"
+ },
+ {
+  "id": "旋律已對照 J.-B. Weckerlin 編《Chansons et rondes enfantines》（Paris: Garnier Frères）第 85 頁。",
   "at": "credits.html:123 <td>"
  },
  {
-  "id": "Wikimedia Commons〈Yankee Doodle (pg).mid〉（Rabanus Flavus / Peter Gerloff 製作）",
+  "id": "依據 Broder &amp; Schlam 版《Mele Hawaii》（H. Berger 編）第 2 曲 Aloha Oe 的 PDF 第 2 頁（鋼琴引子與第一、二節主歌旋律）與第 3 頁（副歌四聲部合唱＋鋼琴，取女高音旋律與鋼琴左手低音）。原調降 B 大調、4/4，不移調（旋律 F4～Eb5）。片段＝主歌第一段（8 小節，取第一段歌詞對應的音）＋副歌兩輪（第二輪結尾不接弱起）。不加引子。主歌第 4 小節照原譜（第 4 拍為弱起附點八分 F4＋十六分 Bb4）。主歌第 8 小節末接副歌弱起 F4 時，把原譜的四分休止縮成八分休止，讓小節線對齊。和弦依鋼琴左手低音（Bb、Eb、F7）加上旋律和聲手填，每小節低音以原譜為準。",
   "at": "credits.html:124 <td>"
+ },
+ {
+  "id": "Wikimedia Commons〈Yankee Doodle (pg).mid〉（Rabanus Flavus / Peter Gerloff 製作）",
+  "at": "credits.html:125 <td>"
  },
  {
   "id": "<a href=\"https://creativecommons.org/publicdomain/zero/1.0/deed.zh_TW\" target=\"_blank\" rel=\"noopener noreferrer\">CC0</a>（旋律為傳統曲調）",
-  "at": "credits.html:124 <td>"
+  "at": "credits.html:125 <td>"
  },
  {
   "id": "旋律取自 MIDI 第 1 軌（八度重複處取低音；原檔的第二遍主歌在第 3 軌，音高相同）；A、B 兩段照原曲順序重複；和聲依 MIDI 手動簡化為和弦",
-  "at": "credits.html:124 <td>"
+  "at": "credits.html:125 <td>"
  },
  {
   "id": "Wikimedia Commons〈For he's a jolly good fellow.mid〉（Rabanus Flavus / Peter Gerloff 製作）",
-  "at": "credits.html:126 <td>"
+  "at": "credits.html:127 <td>"
  },
  {
   "id": "旋律取自 MIDI 第 1 軌（soprano；第二段取八度重複音的低音）並整首重複一次；和聲依 MIDI 其他聲部手動簡化為和弦",
-  "at": "credits.html:126 <td>"
+  "at": "credits.html:127 <td>"
  },
  {
   "id": "依原曲旋律手寫",
-  "at": "credits.html:127 <td>"
- },
- {
-  "id": "傳統曲調。旋律與 Wikimedia Commons〈Scarborough Fair (ballad).mid〉（Rabanus Flavus，CC0，旋律標示為傳統曲調）第一段逐音相同，奏兩遍；伴奏為本遊戲自配。",
-  "at": "credits.html:127 <td>"
- },
- {
-  "id": "旋律已對照《Heart Songs》（Boston: The Chapple Publishing Company, 1909）第 399 頁，移到 G 大調；副歌後半依該版，主歌第 4 小節略有簡化。",
   "at": "credits.html:128 <td>"
  },
  {
-  "id": "旋律已對照 Hamilton Harty 編〈The Londonderry Air〉（1924）的獨奏小提琴分譜；有兩處照通行唱法，與該譜略有不同。",
+  "id": "傳統曲調。旋律與 Wikimedia Commons〈Scarborough Fair (ballad).mid〉（Rabanus Flavus，CC0，旋律標示為傳統曲調）第一段逐音相同，奏兩遍；伴奏為本遊戲自配。",
+  "at": "credits.html:128 <td>"
+ },
+ {
+  "id": "旋律已對照《Heart Songs》（Boston: The Chapple Publishing Company, 1909）第 399 頁，移到 G 大調；副歌後半依該版，主歌第 4 小節略有簡化。",
   "at": "credits.html:129 <td>"
  },
  {
-  "id": "旋律已對照 R. R. Terry 編《The Shanty Book, Part I》（London: J. Curwen &amp; Sons, 1921）第 9 首（第 20–21 頁）；節拍統一為 4/4，另有兩個音照通行唱法，與該版略有不同。",
+  "id": "旋律已對照 Hamilton Harty 編〈The Londonderry Air〉（1924）的獨奏小提琴分譜；有兩處照通行唱法，與該譜略有不同。",
   "at": "credits.html:130 <td>"
  },
  {
-  "id": "依 John Barrow《Travels in China》(London, 1804) 書中 p.316 印的〈Moo-Lee-Wha〉譜例（archive.org 掃描 PDF 第 340 頁），共 14 小節，原譜為 ¢ 拍號、高音譜號，譜號後標兩個升記號但旋律只用 E、G、A、B、D（無 F、C），照原譜音高、不移調。原譜沒有伴奏，和弦為自配（G 大調五聲音階，用 G／C／D／Em）。原譜只有一遍，遊戲反覆 2 次；第 7 小節與第 14 小節最後的八分／二分音符依拍數推定。原譜沒有速度，遊戲取 ♩=100。",
+  "id": "旋律已對照 R. R. Terry 編《The Shanty Book, Part I》（London: J. Curwen &amp; Sons, 1921）第 9 首（第 20–21 頁）；節拍統一為 4/4，另有兩個音照通行唱法，與該版略有不同。",
   "at": "credits.html:131 <td>"
  },
  {
-  "id": "旋律已對照 Eduardo Marzo 編《Songs of Italy》（New York: G. Schirmer, 1904）第 44 首（第 124–125 頁）。",
-  "at": "credits.html:133 <td>"
+  "id": "依 John Barrow《Travels in China》(London, 1804) 書中 p.316 印的〈Moo-Lee-Wha〉譜例（archive.org 掃描 PDF 第 340 頁），共 14 小節，原譜為 ¢ 拍號、高音譜號，譜號後標兩個升記號但旋律只用 E、G、A、B、D（無 F、C），照原譜音高、不移調。原譜沒有伴奏，和弦為自配（G 大調五聲音階，用 G／C／D／Em）。原譜只有一遍，遊戲反覆 2 次；第 7 小節與第 14 小節最後的八分／二分音符依拍數推定。原譜沒有速度，遊戲取 ♩=100。",
+  "at": "credits.html:132 <td>"
  },
  {
-  "id": "依公有領域原版樂譜手寫",
+  "id": "旋律已對照 Eduardo Marzo 編《Songs of Italy》（New York: G. Schirmer, 1904）第 44 首（第 124–125 頁）。",
   "at": "credits.html:134 <td>"
  },
  {
-  "id": "旋律已對照東京音樂學校（Tōkyō Academy of Music）編《Collection of Japanese Koto Music》（箏曲集，文部省，1888）第二曲〈櫻〉；最後兩小節的音與該譜相同，節奏照通行唱法。",
+  "id": "依公有領域原版樂譜手寫",
   "at": "credits.html:135 <td>"
  },
  {
-  "id": "第二樂章的英國管主題；時值加倍記譜，速度約等於每分鐘 42 個四分音符。",
-  "at": "credits.html:137 <td>"
+  "id": "旋律已對照東京音樂學校（Tōkyō Academy of Music）編《Collection of Japanese Koto Music》（箏曲集，文部省，1888）第二曲〈櫻〉；最後兩小節的音與該譜相同，節奏照通行唱法。",
+  "at": "credits.html:136 <td>"
  },
  {
-  "id": "依 Edwin H. Lemare 管風琴改編版（公有領域）的樂譜手寫，並以 Schott 1899 年小提琴與鋼琴版對照修正：E 大調 2/4，小提琴第 3～16 小節反覆兩次，含第一、第二結尾",
+  "id": "第二樂章的英國管主題；時值加倍記譜，速度約等於每分鐘 42 個四分音符。",
   "at": "credits.html:138 <td>"
  },
  {
+  "id": "依 Edwin H. Lemare 管風琴改編版（公有領域）的樂譜手寫，並以 Schott 1899 年小提琴與鋼琴版對照修正：E 大調 2/4，小提琴第 3～16 小節反覆兩次，含第一、第二結尾",
+  "at": "credits.html:139 <td>"
+ },
+ {
   "id": "依公有領域原曲旋律手寫（對照 G. Schirmer 1918 年四手聯彈版《胡桃鉗組曲》Op.71a 之 Primo 聲部，印刷頁 53、55（PDF 第 61、63 頁）；Secondo 在印刷頁 52、54）",
-  "at": "credits.html:139 <td>"
- },
- {
-  "id": "依 Schirmer 1918 年 Primo 聲部逐小節手寫，D 大調 3/4，速度取 ♩=120（比原譜的圓舞曲速度慢，配合普通難度）。A 段與 B 段前半取 Primo 下方譜表（B1 第 6～7 小節、B2 第 4～9 小節旋律在上方譜表），C 段取上方譜表，全曲皆維持原譜音高、不移八度；每段只取一條旋律線（B1 第 8 小節取下方的 F#、E 下行線，略去上方插入的 G#、G、A）；省略引子、豎琴華彩、反覆記號與第一反覆房；C 段原譜的五連十六分音符迴音簡化成一拍三個音；E 段第 1～3 小節取自第二反覆房，第 4 小節為自行銜接；A3 結尾為自行收尾，收在主音 D。伴奏和弦為自配（參考 Secondo 低音，部分以相近的三和弦、七和弦代替）。",
-  "at": "credits.html:139 <td>"
- },
- {
-  "id": "依 G. Schirmer 1899/1900 年鋼琴版第 3 頁：第 1～16 小節（E 大調主題、轉升 G 大調與 B 段），省略第 17～20 小節，接第 21～23 小節的主題再現；最後一小節為本遊戲自行收成 E 大調終止；倚音省略；6/8 以八分音符為拍，速度 ♪=150（原譜 ♪=180）",
   "at": "credits.html:140 <td>"
  },
  {
-  "id": "取船歌主旋律的前兩個樂句，移到 G 大調，奏兩遍；第一遍照原曲停在屬音，最後一遍收在主音是本遊戲的收尾。",
+  "id": "依 Schirmer 1918 年 Primo 聲部逐小節手寫，D 大調 3/4，速度取 ♩=120（比原譜的圓舞曲速度慢，配合普通難度）。A 段與 B 段前半取 Primo 下方譜表（B1 第 6～7 小節、B2 第 4～9 小節旋律在上方譜表），C 段取上方譜表，全曲皆維持原譜音高、不移八度；每段只取一條旋律線（B1 第 8 小節取下方的 F#、E 下行線，略去上方插入的 G#、G、A）；省略引子、豎琴華彩、反覆記號與第一反覆房；C 段原譜的五連十六分音符迴音簡化成一拍三個音；E 段第 1～3 小節取自第二反覆房，第 4 小節為自行銜接；A3 結尾為自行收尾，收在主音 D。伴奏和弦為自配（參考 Secondo 低音，部分以相近的三和弦、七和弦代替）。",
+  "at": "credits.html:140 <td>"
+ },
+ {
+  "id": "依 G. Schirmer 1899/1900 年鋼琴版第 3 頁：第 1～16 小節（E 大調主題、轉升 G 大調與 B 段），省略第 17～20 小節，接第 21～23 小節的主題再現；最後一小節為本遊戲自行收成 E 大調終止；倚音省略；6/8 以八分音符為拍，速度 ♪=150（原譜 ♪=180）",
   "at": "credits.html:141 <td>"
  },
  {
-  "id": "據 Internet Archive 掃描的 G. Schirmer 1893 年版《Hungarian Dances for the Piano, Book I》（Schirmer’s Library Vol. 256，Wm. Scharfenberg 校訂指法，鋼琴獨奏）第 5 首（印刷頁 20–23）逐音手寫；取 Allegro 主段第 9–32 小節（A＝第 9–16 小節、P＝第 17–24 小節、B＝第 25–32 小節），排成 P、A、P、B、P、A，最後以 A 段收尾。八度齊奏的段落 P、A 取上聲部，B 第 1 小節與第 8 小節第 1 拍取下聲部，8va 段落取實際音高的下八度；各段第 3 小節原譜 F# 持續低音上的 E#dim7 以同功能的 C#7 代替。",
+  "id": "取船歌主旋律的前兩個樂句，移到 G 大調，奏兩遍；第一遍照原曲停在屬音，最後一遍收在主音是本遊戲的收尾。",
   "at": "credits.html:142 <td>"
  },
  {
-  "id": "終曲「瑞士士兵進行曲」，移到 D 大調 2/4；為配合困難難度，速度取 ♩=116。主題已對照 Kunkel Bros. 1897 年出版的雙鋼琴改編譜（該譜標 ♩=152）；第二、三段該譜看不清，未對照。",
+  "id": "據 Internet Archive 掃描的 G. Schirmer 1893 年版《Hungarian Dances for the Piano, Book I》（Schirmer’s Library Vol. 256，Wm. Scharfenberg 校訂指法，鋼琴獨奏）第 5 首（印刷頁 20–23）逐音手寫；取 Allegro 主段第 9–32 小節（A＝第 9–16 小節、P＝第 17–24 小節、B＝第 25–32 小節），排成 P、A、P、B、P、A，最後以 A 段收尾。八度齊奏的段落 P、A 取上聲部，B 第 1 小節與第 8 小節第 1 拍取下聲部，8va 段落取實際音高的下八度；各段第 3 小節原譜 F# 持續低音上的 E#dim7 以同功能的 C#7 代替。",
   "at": "credits.html:143 <td>"
  },
  {
-  "id": "依公有領域原曲旋律手寫（對照 G. Schirmer 1918 年四手聯彈版《胡桃鉗組曲》Op.71a 的 Primo 聲部）",
+  "id": "終曲「瑞士士兵進行曲」，移到 D 大調 2/4；為配合困難難度，速度取 ♩=116。主題已對照 Kunkel Bros. 1897 年出版的雙鋼琴改編譜（該譜標 ♩=152）；第二、三段該譜看不清，未對照。",
   "at": "credits.html:144 <td>"
+ },
+ {
+  "id": "依公有領域原曲旋律手寫（對照 G. Schirmer 1918 年四手聯彈版《胡桃鉗組曲》Op.71a 的 Primo 聲部）",
+  "at": "credits.html:145 <td>"
  },
  {
   "id": "G 大調 2/4，取開頭主題的兩次陳述（各 8 小節）並重複 3 遍；為配合困難難度密度，把「八分音符＋同音十六分音符＋上方 D5 十六分音符」的裝飾寫法簡化成兩個八分音符（A4 D5、G4 D5 等），略去中間的三度平行段，第 8、16 小節的十六分三連音簡化為十六分音符；速度取 ♩=120（遊戲內再加速 1.1 倍）；結尾把原曲 Prestissimo 結束處簡化成「八分音符琶音、十六分音符琶音、長音主和弦」逐步加快的終止。",
-  "at": "credits.html:144 <td>"
+  "at": "credits.html:145 <td>"
  },
  {
   "id": "依公有領域原曲旋律手寫（對照 IMSLP 所載老約翰．史特勞斯 Op.228 鋼琴改編版，與美國國會圖書館 1852 年出版的鋼琴改編譜）",
-  "at": "credits.html:145 <td>"
- },
- {
-  "id": "D 大調 2/4，只取第一主題（進行曲主段），省略前奏、裝飾音與中段 Trio；速度取 ♩=126，遊戲內再加速 1.1 倍；結尾為原譜第二結尾的三個主和弦；省略第 4 小節末的弱起。第二段最高音到 F#6。",
-  "at": "credits.html:145 <td>"
- },
- {
-  "id": "〈地獄加洛普〉D 大調四段＋G 大調終段；為配合困難難度，速度取 ♩=150，重複音段改為等長八分音符。",
   "at": "credits.html:146 <td>"
  },
  {
-  "id": "依 Bessel 約1900–01年《沙皇薩爾坦的故事》鋼琴縮譜（Rimsky-Korsakov 卒於1908年）第3幕第1景〈大黃蜂的飛行〉，PDF 第114～115頁（印刷頁108～109）排練號156 Vivace 起，右手半音階十六分音符共22小節（2/4，到排練號157前一小節止），不反覆。原譜標 Vivace ♩=144，遊戲放慢為 ♩=62，保留全部十六分音符；結尾排練號157第1拍的 A4–A3–A3–A3 改為 A4 長音收束。和弦依原譜左手每拍的和聲（E7、Am、D、Dm、A7、G、Gm），伴奏音型自配。",
-  "at": "credits.html:148 <td>"
+  "id": "D 大調 2/4，只取第一主題（進行曲主段），省略前奏、裝飾音與中段 Trio；速度取 ♩=126，遊戲內再加速 1.1 倍；結尾為原譜第二結尾的三個主和弦；省略第 4 小節末的弱起。第二段最高音到 F#6。",
+  "at": "credits.html:146 <td>"
  },
  {
-  "id": "取開頭觸技曲段，收在 D 小調終止和弦。已對照巴哈協會版全集第 15 冊（Bach-Gesellschaft；Breitkopf &amp; Härtel 印）：第 23 小節一個錯音改正（降 B 改 E），並把三處被分到伴奏音軌的旋律音補回旋律。",
+  "id": "〈地獄加洛普〉D 大調四段＋G 大調終段；為配合困難難度，速度取 ♩=150，重複音段改為等長八分音符。",
+  "at": "credits.html:147 <td>"
+ },
+ {
+  "id": "依 Bessel 約1900–01年《沙皇薩爾坦的故事》鋼琴縮譜（Rimsky-Korsakov 卒於1908年）第3幕第1景〈大黃蜂的飛行〉，PDF 第114～115頁（印刷頁108～109）排練號156 Vivace 起，右手半音階十六分音符共22小節（2/4，到排練號157前一小節止），不反覆。原譜標 Vivace ♩=144，遊戲放慢為 ♩=62，保留全部十六分音符；結尾排練號157第1拍的 A4–A3–A3–A3 改為 A4 長音收束。和弦依原譜左手每拍的和聲（E7、Am、D、Dm、A7、G、Gm），伴奏音型自配。",
   "at": "credits.html:149 <td>"
  },
  {
-  "id": "Wikimedia Commons 公有領域樂譜：李斯特《帕格尼尼大練習曲》第 3 首〈鐘〉，Breitkopf &amp; Härtel 約 1851 年版（Internet Archive b10312122 掃描）；音高以影像辨識定位符頭位置後逐小節人工核對，並與同版另一份掃描（Internet Archive b10271399）對照",
+  "id": "取開頭觸技曲段，收在 D 小調終止和弦。已對照巴哈協會版全集第 15 冊（Bach-Gesellschaft；Breitkopf &amp; Härtel 印）：第 23 小節一個錯音改正（降 B 改 E），並把三處被分到伴奏音軌的旋律音補回旋律。",
   "at": "credits.html:150 <td>"
+ },
+ {
+  "id": "Wikimedia Commons 公有領域樂譜：李斯特《帕格尼尼大練習曲》第 3 首〈鐘〉，Breitkopf &amp; Härtel 約 1851 年版（Internet Archive b10312122 掃描）；音高以影像辨識定位符頭位置後逐小節人工核對，並與同版另一份掃描（Internet Archive b10271399）對照",
+  "at": "credits.html:151 <td>"
  },
  {
   "id": "Wikimedia Commons 公有領域樂譜（Breitkopf &amp; Härtel 原版掃描）",
-  "at": "credits.html:150 <td>"
+  "at": "credits.html:151 <td>"
  },
  {
   "id": "升 G 小調，6/8，每小節 12 個十六分音符。取原譜第 6～20 小節的主題段（「ben marcato il tema」起）奏兩遍，旋律音與高音 D# 鐘聲交替；原譜的 8va 記號是斷續的（第 6 小節～第 7 小節前 4 個十六分音符、第 9 小節後半～第 11 小節前 4 個十六分音符、第 12 小節整小節、第 13 小節第 3 個十六分音符～第 15 小節前 6 個十六分音符、第 17 小節後半～第 20 小節在 8va 之下），這裡 8va 段落取記譜音高（即整首降低一個八度後的實際音高），不在 8va 之下的段落再降 12 個半音，使各段相對八度與原曲一致，鐘聲落在 D#6 以內；略去前奏（第 1～5 小節）、裝飾音（小音符），重升記號 F## 以同音 G 記；第 11 小節第 11 個十六分音符的雙音（記譜 D#5/C#5）只取 C#5（降八度後為 C#4）；結尾取原譜第 21 小節（終止小節）右手的上行琶音，維持記譜音高、未再降八度。伴奏和弦為自配。",
-  "at": "credits.html:150 <td>"
+  "at": "credits.html:151 <td>"
  },
  {
   "id": "主題依帕格尼尼原作（1820 年出版，公有領域）手寫，並以 Wikimedia Commons〈Paganini caprice24 theme.mid〉對照；變奏為依原曲和聲自行編寫",
-  "at": "credits.html:151 <td>"
+  "at": "credits.html:152 <td>"
  },
  {
   "id": "A 小調，2/4；先奏主題（16 小節），再接三段自編炫技變奏（琶音、跳八度、音階），收在主音。",
-  "at": "credits.html:151 <td>"
+  "at": "credits.html:152 <td>"
+ },
+ {
+  "id": "美術",
+  "at": "credits.html:157 <h2>"
+ },
+ {
+  "id": "遊戲的背景圖（<code>ai_*.webp</code>）、隕石圖（<code>meteor_*.webp</code>）與小光表情圖（<code>emo_*.webp</code>）由生成式 AI 協助製作；其餘外觀皆由程式繪製。",
+  "at": "credits.html:158 <p>"
  },
  {
   "id": "樂器音色",
-  "at": "credits.html:156 <h2>"
+  "at": "credits.html:159 <h2>"
  },
  {
   "id": "鋼琴：<a href=\"https://archive.org/details/SalamanderGrandPianoV3\" target=\"_blank\" rel=\"noopener noreferrer\">Salamander Grand Piano</a>（Alexander Holm，<a href=\"https://creativecommons.org/licenses/by/3.0/deed.zh_TW\" target=\"_blank\" rel=\"noopener noreferrer\">CC BY 3.0</a>）。<br>\n小提琴、中提琴、大提琴、弦樂合奏、撥弦、長笛、直笛、單簧管、小號、管風琴、合唱、尼龍弦吉他：FluidR3 GM 音色庫（Frank Wen，<a href=\"https://creativecommons.org/licenses/by/3.0/deed.zh_TW\" target=\"_blank\" rel=\"noopener noreferrer\">CC BY 3.0</a>；採用 <a href=\"https://github.com/gleitz/midi-js-soundfonts\" target=\"_blank\" rel=\"noopener noreferrer\">midi-js-soundfonts</a> 的單音錄音）。<br>\n遊戲內經過剪裁、淡出與轉檔；原創曲目的音色與鼓組由程式即時合成。",
-  "at": "credits.html:157 <p>"
+  "at": "credits.html:160 <p>"
+ },
+ {
+  "id": "相關文件：<a href=\"terms.html\">服務條款</a> · <a href=\"privacy.html\">隱私權政策</a>",
+  "at": "credits.html:163 <p>"
  },
  {
   "id": "‹ 返回遊戲",
@@ -400,7 +412,7 @@
   "at": "privacy.html:39 <h1>"
  },
  {
-  "id": "生效日期：2026 年 11 月 20 日",
+  "id": "生效日期：2026 年 11 月 26 日",
   "at": "privacy.html:41 <p>"
  },
  {
@@ -412,199 +424,491 @@
   "at": "privacy.html:44 <p>"
  },
  {
-  "id": "一、只存在您裝置上的資料",
+  "id": "一、蒐集者",
   "at": "privacy.html:46 <h2>"
  },
  {
-  "id": "以下資料只存放在您的手機或瀏覽器中，不會傳送給我們：",
+  "id": "本遊戲由個人開發者「失眠的黑貓（Nocticat）」營運（以下稱「我們」），是本政策所說資料的蒐集者與管理者。聯絡方式見「十三、聯絡我們」。",
   "at": "privacy.html:47 <p>"
  },
  {
+  "id": "二、只存在您裝置上的資料",
+  "at": "privacy.html:49 <h2>"
+ },
+ {
+  "id": "以下資料只存放在您的手機或瀏覽器中，不會傳送給我們：",
+  "at": "privacy.html:50 <p>"
+ },
+ {
   "id": "各曲目的最佳成績、評級與通關紀錄（星空收集圖）",
-  "at": "privacy.html:49 <li>"
- },
- {
-  "id": "音量、特效、延遲補償等設定",
-  "at": "privacy.html:50 <li>"
- },
- {
-  "id": "一組隨機產生的識別碼（用來在伺服器上認出「這是您的暱稱與成績」，不含任何個人資訊）",
-  "at": "privacy.html:51 <li>"
- },
- {
-  "id": "您在排行榜上選擇隱藏的玩家名單",
   "at": "privacy.html:52 <li>"
  },
  {
+  "id": "音量、特效、延遲補償等設定",
+  "at": "privacy.html:53 <li>"
+ },
+ {
+  "id": "一組隨機產生的識別碼（用來在伺服器上認出「這是您的暱稱、成績與等級光能進度」，不含任何個人資訊）",
+  "at": "privacy.html:54 <li>"
+ },
+ {
+  "id": "您在排行榜上選擇隱藏的玩家名單",
+  "at": "privacy.html:55 <li>"
+ },
+ {
   "id": "刪除本遊戲，或清除瀏覽器的網站資料，就會一併刪除這些資料。",
-  "at": "privacy.html:54 <p>"
- },
- {
-  "id": "二、存在伺服器上的資料（排行榜與好友）",
-  "at": "privacy.html:56 <h2>"
- },
- {
-  "id": "設定暱稱之後，以下資料會存放在我們的伺服器上，直到您刪除為止：",
   "at": "privacy.html:57 <p>"
  },
  {
-  "id": "<b>暱稱</b>：公開顯示在排行榜和好友名單上。暱稱不能和別人重複，含不當字詞的會被拒絕；被多人檢舉的暱稱會先隱藏，由管理人員審查；對暱稱的檢舉紀錄最長保存 1 年，暱稱已被隱藏的則保留到管理人員解除隱藏或該玩家的資料被刪除為止。請勿使用真實姓名。",
-  "at": "privacy.html:59 <li>"
+  "id": "三、存在伺服器上的資料",
+  "at": "privacy.html:59 <h2>"
  },
  {
-  "id": "<b>識別碼的雜湊值</b>：伺服器只保存您裝置上識別碼經過單向雜湊後的結果，無法反推出識別碼本身。",
-  "at": "privacy.html:60 <li>"
+  "id": "伺服器會保存兩類資料。第一類是<b>等級與光能進度</b>：只要您連線進行過一局，不論有沒有設定暱稱都會建立，以您裝置上識別碼的雜湊值為鍵（見下方），不含暱稱，直到您刪除為止：",
+  "at": "privacy.html:60 <p>"
  },
  {
-  "id": "<b>排行榜成績</b>：每首曲目、每個難度您最好的一次成績（精準度、平均時間誤差、分數、最高連擊）與達成的日期時間，以及那一次每一拍的時間誤差紀錄與裝置類型（網頁、iOS 或 Android）。達成的日期時間用來排定成績相同時的先後，逐拍紀錄只用來檢查作弊，兩者都不會公開。",
-  "at": "privacy.html:61 <li>"
- },
- {
-  "id": "<b>好友資料</b>：您的好友碼、好友名單、送出與收到的好友邀請、封鎖名單，以及最後上線時間。",
+  "id": "<b>進度紀錄</b>：累計經驗、光能（自然回復、月票贈送與付費購買的點數）、月票到期時間、當日遊玩秒數與當日已用光能、上次選擇的倍率，以及已發放的等級獎勵進度。這些資料用來計算等級與光能，不會公開。未設定暱稱的玩家不會出現在排行榜或好友名單上。設定暱稱之後，這份進度會沿用到您的暱稱。未設定暱稱、且連續一年沒有遊玩的匿名進度紀錄，會被自動刪除。",
   "at": "privacy.html:62 <li>"
  },
  {
-  "id": "<b>好友訊息</b>：您和好友之間的文字訊息，只有雙方看得到，保存 7 天後自動刪除。刪除好友或封鎖對方後，雙方都無法再查看這些訊息；訊息仍會保留到 7 天期滿，期間只用於處理檢舉。訊息會先經過不當用語、連結與聯絡方式的過濾。",
+  "id": "<b>光能異動紀錄</b>：每次購買、月票發放、退款扣回與花費光能時，保存時間、數量與對應的交易編號或曲目，用來核對點數與處理退費，保存 2 年。",
   "at": "privacy.html:63 <li>"
  },
  {
-  "id": "<b>檢舉紀錄與審查</b>：您檢舉某則訊息或某位玩家時，伺服器會保存檢舉者、被檢舉者，以及被檢舉訊息（或對方最近傳給您的訊息）的副本。這些內容會交由 AI 模型（Cloudflare Workers AI，在本遊戲的伺服器服務商 Cloudflare 內執行，不提供給其他第三方）判斷是否違反社群規範；確認違規時，該訊息會被刪除，傳送者會被暫停傳送訊息 1 天、7 天或 30 天（依累計的違規次數，情節嚴重的一次算兩次）。AI 無法判定的檢舉由管理人員人工審查，暫停期間由管理人員視情節決定。訊息的檢舉紀錄最長保存 1 年。違規次數從最近一次違規起算，滿 180 天沒有再違規就重新計算；違規次數紀錄在暫停期滿與最近一次違規都超過 180 天後刪除。",
+  "id": "<b>進行中對局的暫時憑證</b>：每局開始時伺服器會發出一組憑證（含識別碼的雜湊值與所選倍率），用來驗證結算，一段時間後自動清除。",
   "at": "privacy.html:64 <li>"
  },
  {
-  "id": "<b>成就、外觀與遊玩統計</b>：您已達成的成就、擁有的外觀、目前使用的頭像、名牌框與稱號，以及累計的遊玩統計（例如通關次數、各曲目各難度的挑戰與失敗次數）。頭像、名牌框與稱號會顯示給其他玩家。",
-  "at": "privacy.html:65 <li>"
+  "id": "第二類是設定暱稱之後才會存放的資料，直到您刪除為止：",
+  "at": "privacy.html:66 <p>"
  },
  {
-  "id": "<b>App 內購買</b>：在 iOS App 內購買完整版或外觀時，付款由 Apple 處理，我們不會取得您的姓名、付款方式或 Apple 帳號。購買後，App 會把 Apple 簽發的交易憑證傳到伺服器驗證，伺服器保存交易編號、購買的品項、購買環境（正式或測試）、紀錄時間與是否已退款，並連結到您的暱稱，用來發放與恢復您購買的內容。在另一個暱稱下恢復購買時，購買的內容會移到該暱稱。",
-  "at": "privacy.html:66 <li>"
+  "id": "<b>暱稱</b>：公開顯示在排行榜和好友名單上。暱稱不能和別人重複，含不當字詞的會被拒絕；被多人檢舉的暱稱會先隱藏，由管理人員審查；對暱稱的檢舉紀錄最長保存 1 年，暱稱已被隱藏的則保留到管理人員解除隱藏或該玩家的資料被刪除為止。請勿使用真實姓名。",
+  "at": "privacy.html:68 <li>"
  },
  {
-  "id": "<b>上線狀態</b>：開著遊戲時，您的好友看得到您是否在線上、選曲中、遊戲中（含曲名）或對戰中。關閉或切到背景就顯示為離線。這項狀態只存在記憶體中，不寫入資料庫。",
-  "at": "privacy.html:67 <li>"
+  "id": "<b>識別碼的雜湊值</b>：伺服器只保存您裝置上識別碼經過單向雜湊後的結果，無法反推出識別碼本身；它是上述進度紀錄與暱稱的共同索引。本遊戲沒有帳號系統，刪除 App、清除資料或換手機，裝置上的識別碼就會不見，付費光能無法自動找回；這時請來信「十三、聯絡我們」的信箱，附上 Apple 的收據或交易編號，我們才能人工協助補回。",
+  "at": "privacy.html:69 <li>"
  },
  {
-  "id": "未設定暱稱就不會上傳任何資料（您主動送出的問題回報除外，見下方），可以照常離線玩單人模式。",
-  "at": "privacy.html:69 <p>"
+  "id": "<b>排行榜成績</b>：每首曲目、每個難度您最好的一次成績（精準度、平均時間誤差、分數、最高連擊）與達成的日期時間，以及那一次每一拍的時間誤差紀錄與裝置類型（網頁、iOS 或 Android）。達成的日期時間用來排定成績相同時的先後，逐拍紀錄只用來檢查作弊，兩者都不會公開。",
+  "at": "privacy.html:70 <li>"
  },
  {
-  "id": "<b>問題回報</b>：您在主畫面或暫停選單按「回報問題」並送出時，伺服器會保存您選的問題類型、您寫的說明、您選擇附上的圖片（從暫停選單回報時，預設附上當下的遊戲畫面，送出前可以移除），以及回報視窗中列出的裝置資訊：遊戲版本、網頁或 App、瀏覽器與系統版本、螢幕大小與像素比、螢幕安全邊距與遊戲框寬度、語言設定、回報當下所在的畫面（例如遊戲中）、延遲補償值、最近遊玩的曲目與難度、最近一次的錯誤訊息。設定了暱稱的話，回報會連到您的暱稱。回報只供開發者修正問題，不會公開；保存 180 天後自動刪除。請不要在說明或圖片中放入個人資料。",
+  "id": "<b>好友資料</b>：您的好友碼、好友名單、送出與收到的好友邀請、封鎖名單，以及最後上線時間。",
   "at": "privacy.html:71 <li>"
  },
  {
-  "id": "<b>IP 位址</b>：只用來限制請求頻率，防止伺服器遭受攻擊；檢舉暱稱與送出問題回報時會保存 IP 的雜湊值，用來避免同一個網路重複檢舉，以及限制每天的回報數量。這個雜湊值只隨該筆檢舉或回報保存，不用來辨識個人。",
+  "id": "<b>好友訊息</b>：您和好友之間的文字訊息，只有雙方看得到，保存 7 天後自動刪除。刪除好友或封鎖對方後，雙方都無法再查看這些訊息；訊息仍會保留到 7 天期滿，期間只用於處理檢舉。訊息會先經過不當用語、連結與聯絡方式的過濾。",
   "at": "privacy.html:72 <li>"
  },
  {
-  "id": "三、使用線上對戰時處理的資料",
-  "at": "privacy.html:75 <h2>"
+  "id": "<b>檢舉紀錄與審查</b>：您檢舉某則訊息或某位玩家時，伺服器會保存檢舉者、被檢舉者，以及被檢舉訊息（或對方最近傳給您的訊息）的副本。這些內容會交由 AI 模型（Cloudflare Workers AI，在本遊戲的伺服器服務商 Cloudflare 內執行，不提供給其他第三方）判斷是否違反社群規範；確認違規時，該訊息會被刪除，傳送者會被暫停傳送訊息 1 天、7 天或 30 天（依累計的違規次數，情節嚴重的一次算兩次）。AI 無法判定的檢舉由管理人員人工審查，暫停期間由管理人員視情節決定。訊息的檢舉紀錄最長保存 1 年。違規次數從最近一次違規起算，滿 180 天沒有再違規就重新計算；違規次數紀錄在暫停期滿與最近一次違規都超過 180 天後刪除。",
+  "at": "privacy.html:73 <li>"
  },
  {
-  "id": "使用「線上對戰」或好友功能時，本遊戲會另外處理以下資料：",
-  "at": "privacy.html:76 <p>"
+  "id": "<b>成就、外觀與遊玩統計</b>：您已達成的成就、擁有的外觀、目前使用的頭像、名牌框與稱號，以及累計的遊玩統計（例如通關次數、各曲目各難度的挑戰與失敗次數）。頭像、名牌框與稱號會顯示給其他玩家。",
+  "at": "privacy.html:74 <li>"
  },
  {
-  "id": "<b>暱稱與對戰狀態</b>（分數、連擊、生命值、選擇的曲目與難度）：只傳給同一房間的對手。房間關閉或閒置逾時後就不再保存。",
-  "at": "privacy.html:78 <li>"
+  "id": "<b>App 內購買</b>：在 iOS App 內購買完整版、外觀或光能時，付款由 Apple 處理，我們不會取得您的姓名、付款方式或 Apple 帳號。購買後，App 會把 Apple 簽發的交易憑證傳到伺服器驗證，伺服器保存交易編號、購買的品項、購買環境（正式或測試）、紀錄時間與是否已退款，並連結到您的暱稱，或（未設定暱稱時）連結到您裝置識別碼的雜湊值，用來發放與恢復您購買的內容。Apple 通知退款時，伺服器會依通知扣回對應的光能（扣到 0 為止）或收回外觀。在另一個暱稱下恢復購買時，購買的內容會移到該暱稱。",
+  "at": "privacy.html:75 <li>"
  },
  {
-  "id": "<b>對戰邀請</b>：只傳給您邀請的好友，不保存。",
-  "at": "privacy.html:79 <li>"
+  "id": "<b>上線狀態</b>：開著遊戲時，您的好友看得到您是否在線上、選曲中、遊戲中（含曲名）或對戰中。關閉或切到背景就顯示為離線。這項狀態只存在記憶體中，不寫入資料庫。",
+  "at": "privacy.html:76 <li>"
  },
  {
-  "id": "<b>線上對戰結果</b>：設定暱稱後進行線上對戰時，每局結束會把您送出的逐拍紀錄交給伺服器重算分數，並保存這一局的結果（曲目、難度、人數、您的名次、分數、精準度、是否全連擊）及同房對手的玩家代號（伺服器內部的編號，不是暱稱），用來判定對戰與社交成就。逐拍紀錄在結算後即刪除，只有每局第 1 名的逐拍紀錄會保留在該局的紀錄中，用來檢查作弊。管理人員可因作弊嫌疑作廢單局。刪除線上資料時，您的對戰結果會一併刪除，您拿第 1 名的那些局所保留的逐拍紀錄也會一併清除；其他玩家的紀錄不受影響。",
+  "id": "未設定暱稱時，伺服器仍會保存上述等級與光能進度、光能異動紀錄與購買紀錄，但不會有排行榜成績、好友與訊息等資料；您主動送出的問題回報也會另外保存（見下方）。您可以照常離線玩單人模式，離線時的進度不會計入等級。",
+  "at": "privacy.html:78 <p>"
+ },
+ {
+  "id": "<b>問題回報</b>：您在主畫面或暫停選單按「回報問題」並送出時，伺服器會保存您選的問題類型、您寫的說明、您選擇附上的圖片（從暫停選單回報時，預設附上當下的遊戲畫面，送出前可以移除），以及回報視窗中列出的裝置資訊：遊戲版本、網頁或 App、瀏覽器與系統版本、螢幕大小與像素比、螢幕安全邊距與遊戲框寬度、語言設定、回報當下所在的畫面（例如遊戲中）、延遲補償值、最近遊玩的曲目與難度、最近一次的錯誤訊息。設定了暱稱的話，回報會連到您的暱稱。回報只供開發者修正問題，不會公開；保存 180 天後自動刪除。請不要在說明或圖片中放入個人資料。",
   "at": "privacy.html:80 <li>"
  },
  {
-  "id": "<b>房間快速發言</b>：從固定的短語清單中選擇，只傳給同一房間的玩家，不保存。",
+  "id": "<b>IP 位址</b>：只用來限制請求頻率，防止伺服器遭受攻擊；檢舉暱稱與送出問題回報時會保存 IP 的雜湊值，用來避免同一個網路重複檢舉，以及限制每天的回報數量。這個雜湊值只隨該筆檢舉或回報保存，不用來辨識個人。",
   "at": "privacy.html:81 <li>"
  },
  {
-  "id": "伺服器與資料庫由 Cloudflare 代管。Cloudflare 依其<a href=\"https://www.cloudflare.com/privacypolicy/\" target=\"_blank\" rel=\"noopener\">隱私權政策</a>，可能會為了資安防護而短期處理連線紀錄。",
-  "at": "privacy.html:83 <p>"
+  "id": "四、使用線上對戰時處理的資料",
+  "at": "privacy.html:84 <h2>"
  },
  {
-  "id": "四、刪除您的資料",
-  "at": "privacy.html:85 <h2>"
+  "id": "使用「線上對戰」或好友功能時，本遊戲會另外處理以下資料：",
+  "at": "privacy.html:85 <p>"
  },
  {
-  "id": "在遊戲的「設定」按「刪除我的線上資料」並再按一次確認，就會立即從伺服器永久刪除您的暱稱與識別碼的雜湊值、所有排行榜成績與逐拍紀錄、線上對戰結果、好友碼、好友關係、好友邀請、封鎖名單、好友訊息、與您有關的訊息檢舉紀錄（您提出的和針對您的）、違規次數紀錄、其他玩家對您暱稱的檢舉，以及設定暱稱後送出的問題回報（設定暱稱前送出的回報沒有連到您的資料，無法分辨是誰送的，會在 180 天後自動刪除）。您的成就、擁有的外觀與遊玩統計也會一併刪除；App 內購買的交易紀錄會保留，但不再連結到您的資料，之後可以用「恢復購買」把購買的內容取回到新的暱稱。您對其他玩家暱稱提出的檢舉不會一併刪除：它是該玩家暱稱被檢舉次數的一部分，最長保存 1 年（該暱稱已被隱藏的，則保留到管理人員解除隱藏或該玩家的資料被刪除為止）。不過這筆紀錄裡您的玩家代號會同時清除，只留下被檢舉的玩家、檢舉時間與 IP 的雜湊值。刪除後無法復原；單人模式的進度仍保留在您的裝置上。",
-  "at": "privacy.html:86 <p>"
+  "id": "<b>暱稱與對戰狀態</b>（分數、連擊、生命值、選擇的曲目與難度）：只傳給同一房間的對手。房間關閉或閒置逾時後就不再保存。",
+  "at": "privacy.html:87 <li>"
  },
  {
-  "id": "五、我們不做的事",
-  "at": "privacy.html:88 <h2>"
+  "id": "<b>對戰邀請</b>：只傳給您邀請的好友，不保存。",
+  "at": "privacy.html:88 <li>"
  },
  {
-  "id": "不蒐集姓名、電子郵件、電話、位置、通訊錄等個人資料；照片只有在您自己選擇附到問題回報時才會上傳",
+  "id": "<b>線上對戰結果</b>：設定暱稱後進行線上對戰時，每局結束會把您送出的逐拍紀錄交給伺服器重算分數，並保存這一局的結果（曲目、難度、人數、您的名次、分數、精準度、是否全連擊）及同房對手的玩家代號（伺服器內部的編號，不是暱稱），用來判定對戰與社交成就。逐拍紀錄在結算後即刪除，只有每局第 1 名的逐拍紀錄會保留在該局的紀錄中，用來檢查作弊。管理人員可因作弊嫌疑作廢單局。刪除線上資料時，您的對戰結果會一併刪除，您拿第 1 名的那些局所保留的逐拍紀錄也會一併清除；其他玩家的紀錄不受影響。",
+  "at": "privacy.html:89 <li>"
+ },
+ {
+  "id": "<b>房間快速發言</b>：從固定的短語清單中選擇，只傳給同一房間的玩家，不保存。",
   "at": "privacy.html:90 <li>"
  },
  {
-  "id": "不使用廣告識別碼，不進行跨 App 或跨網站追蹤",
-  "at": "privacy.html:91 <li>"
+  "id": "五、第三方服務與跨境傳輸",
+  "at": "privacy.html:93 <h2>"
  },
  {
-  "id": "不販售、出租或分享任何資料給第三方",
-  "at": "privacy.html:92 <li>"
+  "id": "為了提供本遊戲，我們使用以下服務。它們只在提供服務所需的範圍內處理資料，我們不會把資料賣給它們或任何人：",
+  "at": "privacy.html:94 <p>"
  },
  {
-  "id": "六、社群規範",
-  "at": "privacy.html:95 <h2>"
+  "id": "<b>Cloudflare</b>：代管伺服器與資料庫，並執行 Workers AI。Cloudflare 依其<a href=\"https://www.cloudflare.com/privacypolicy/\" target=\"_blank\" rel=\"noopener\">隱私權政策</a>，可能會為了資安防護而短期處理連線紀錄。您檢舉的訊息會交給 Cloudflare Workers AI 判斷是否違規（見「三」），不提供給其他第三方。",
+  "at": "privacy.html:96 <li>"
  },
  {
-  "id": "使用好友訊息即表示同意遵守以下規範，本遊戲對違規內容零容忍：",
-  "at": "privacy.html:96 <p>"
+  "id": "<b>Vercel</b>：託管本遊戲的網站（網頁版、本政策與其他說明頁）。Vercel 依其<a href=\"https://vercel.com/legal/privacy-policy\" target=\"_blank\" rel=\"noopener\">隱私權政策</a>，在您開啟網頁時會處理 IP 位址、瀏覽器與系統資訊、請求時間與網址等存取紀錄，用於傳送網頁與資安防護。我們沒有啟用 Vercel 的分析功能。",
+  "at": "privacy.html:97 <li>"
  },
  {
-  "id": "禁止辱罵、人身攻擊或騷擾",
+  "id": "<b>Apple</b>：iOS App 的發行與 App 內購買。付款與帳號資料由 Apple 依其<a href=\"https://www.apple.com/legal/privacy/\" target=\"_blank\" rel=\"noopener\">隱私權政策</a>處理；伺服器只接收 Apple 簽發的交易憑證與退款通知。",
   "at": "privacy.html:98 <li>"
  },
  {
-  "id": "禁止仇恨、歧視、性相關或暴力內容，以及鼓勵自殺、自殘",
-  "at": "privacy.html:99 <li>"
+  "id": "上述服務的伺服器可能位於台灣以外的地區，因此您的資料可能被傳送到境外處理。我們以前述服務商的資安措施與本政策所列的最小化原則保護這些資料。",
+  "at": "privacy.html:100 <p>"
  },
  {
-  "id": "禁止詐騙、索取個人資料或引導至其他平台聯絡",
-  "at": "privacy.html:100 <li>"
+  "id": "六、刪除您的資料",
+  "at": "privacy.html:102 <h2>"
  },
  {
-  "id": "禁止廣告與洗版",
-  "at": "privacy.html:101 <li>"
- },
- {
-  "id": "您可以在聊天中檢舉訊息或封鎖對方。如對審查結果有疑問、需要申訴或回報其他問題，請來信「十、聯絡我們」的信箱。",
+  "id": "在遊戲的「設定」按「刪除我的線上資料」並再按一次確認（未設定暱稱的玩家同樣可以刪除自己的等級與光能進度），就會立即從伺服器永久刪除您的暱稱與識別碼的雜湊值、所有排行榜成績與逐拍紀錄、線上對戰結果、好友碼、好友關係、好友邀請、封鎖名單、好友訊息、與您有關的訊息檢舉紀錄（您提出的和針對您的）、違規次數紀錄、其他玩家對您暱稱的檢舉、等級與光能進度、光能異動紀錄，以及設定暱稱後送出的問題回報（設定暱稱前送出的回報沒有連到您的資料，無法分辨是誰送的，會在 180 天後自動刪除）。您的成就、擁有的外觀與遊玩統計也會一併刪除；App 內購買的交易紀錄會保留，但不再連結到您的資料，之後可以用「恢復購買」把購買的內容取回到新的暱稱。您對其他玩家暱稱提出的檢舉不會一併刪除：它是該玩家暱稱被檢舉次數的一部分，最長保存 1 年（該暱稱已被隱藏的，則保留到管理人員解除隱藏或該玩家的資料被刪除為止）。不過這筆紀錄裡您的玩家代號會同時清除，只留下被檢舉的玩家、檢舉時間與 IP 的雜湊值。刪除後無法復原；單人模式的進度仍保留在您的裝置上。<b>例外：</b>刪除時如果您還有未用完的付費光能，伺服器會另外保留「識別碼的雜湊值、刪除時間、剩餘的付費點數」三項，保存 1 年後自動刪除，只用來讓您在退費期間內辦理退費與核對，不含暱稱，也不作其他用途。",
   "at": "privacy.html:103 <p>"
  },
  {
-  "id": "七、兒童",
+  "id": "七、您的權利",
   "at": "privacy.html:105 <h2>"
  },
  {
-  "id": "本遊戲適合所有年齡層。我們不會刻意蒐集兒童的個人資料。暱稱請勿使用真實姓名。",
+  "id": "依《個人資料保護法》，您可以就我們保存的、與您有關的資料，請求查詢或閱覽、製給複製本、補充或更正、停止蒐集、處理或利用，以及刪除。您可以隨時在遊戲內刪除自己的線上資料（見「六」）；其他請求請來信「十三、聯絡我們」的信箱，並附上您的暱稱（未設定暱稱的玩家，我們需要您在遊戲內配合確認，才能認出您的紀錄）。我們會在法定期限內答覆。居住在其他地區（例如歐盟或日本）的玩家，也享有當地法律賦予的相關權利，同樣請來信。不提供資料的影響：您仍可離線遊玩單人模式，但無法使用排行榜、好友、線上對戰，也無法累積等級與光能。",
   "at": "privacy.html:106 <p>"
  },
  {
-  "id": "八、分享成績",
+  "id": "八、我們不做的事",
   "at": "privacy.html:108 <h2>"
  },
  {
+  "id": "不蒐集姓名、電子郵件、電話、位置、通訊錄等個人資料；照片只有在您自己選擇附到問題回報時才會上傳",
+  "at": "privacy.html:110 <li>"
+ },
+ {
+  "id": "不使用廣告識別碼，不進行跨 App 或跨網站追蹤",
+  "at": "privacy.html:111 <li>"
+ },
+ {
+  "id": "不販售或出租任何資料，也不為廣告或行銷目的與第三方分享資料（「五」所列的服務商只在提供服務所需的範圍內處理）",
+  "at": "privacy.html:112 <li>"
+ },
+ {
+  "id": "九、社群規範",
+  "at": "privacy.html:115 <h2>"
+ },
+ {
+  "id": "使用好友訊息即表示同意遵守以下規範，本遊戲對違規內容零容忍：",
+  "at": "privacy.html:116 <p>"
+ },
+ {
+  "id": "禁止辱罵、人身攻擊或騷擾",
+  "at": "privacy.html:118 <li>"
+ },
+ {
+  "id": "禁止仇恨、歧視、性相關或暴力內容，以及鼓勵自殺、自殘",
+  "at": "privacy.html:119 <li>"
+ },
+ {
+  "id": "禁止詐騙、索取個人資料或引導至其他平台聯絡",
+  "at": "privacy.html:120 <li>"
+ },
+ {
+  "id": "禁止廣告與洗版",
+  "at": "privacy.html:121 <li>"
+ },
+ {
+  "id": "您可以在聊天中檢舉訊息或封鎖對方。如對審查結果有疑問、需要申訴或回報其他問題，請來信「十三、聯絡我們」的信箱。",
+  "at": "privacy.html:123 <p>"
+ },
+ {
+  "id": "十、未成年人",
+  "at": "privacy.html:125 <h2>"
+ },
+ {
+  "id": "本遊戲不以 13 歲以下的兒童為對象，我們不會刻意蒐集兒童的個人資料。未滿 18 歲的玩家使用好友訊息或購買付費內容，應先取得法定代理人的同意。如果您是家長或監護人，發現孩子的資料未經您同意而被保存，請來信「十三、聯絡我們」的信箱，我們會協助刪除。暱稱請勿使用真實姓名。",
+  "at": "privacy.html:126 <p>"
+ },
+ {
+  "id": "十一、分享成績",
+  "at": "privacy.html:128 <h2>"
+ },
+ {
   "id": "按下「分享成績」時，成績圖片只在您的裝置上產生，再交由系統的分享功能處理。分享給誰、分享到哪裡，由您自己決定。",
-  "at": "privacy.html:109 <p>"
+  "at": "privacy.html:129 <p>"
  },
  {
-  "id": "九、政策更新",
-  "at": "privacy.html:111 <h2>"
+  "id": "十二、政策更新",
+  "at": "privacy.html:131 <h2>"
  },
  {
-  "id": "如果本政策有變更，我們會更新本頁面與生效日期。重大變更會在遊戲內另行告知。",
-  "at": "privacy.html:112 <p>"
+  "id": "如果本政策有變更，我們會更新本頁面與生效日期。重大變更會在遊戲內另行告知。購買付費內容與使用服務的條件，見<a href=\"terms.html\">服務條款</a>。",
+  "at": "privacy.html:132 <p>"
  },
  {
-  "id": "十、聯絡我們",
-  "at": "privacy.html:114 <h2>"
+  "id": "十三、聯絡我們",
+  "at": "privacy.html:134 <h2>"
  },
  {
   "id": "對本政策有任何疑問，請來信：<a id=\"contact\" href=\"mailto:nick760930@gmail.com\">nick760930@gmail.com</a>",
-  "at": "privacy.html:115 <p>"
+  "at": "privacy.html:135 <p>"
+ },
+ {
+  "id": "相關文件：<a href=\"terms.html\">服務條款</a> · <a href=\"credits.html\">曲目與美術來源</a>",
+  "at": "privacy.html:136 <p>"
+ },
+ {
+  "id": "服務條款",
+  "at": "terms.html:8 <title>"
+ },
+ {
+  "id": "PingPongLight 服務條款",
+  "at": "terms.html:39 <h1>"
+ },
+ {
+  "id": "本頁是譯文，僅供參考；內容如與<a href=\"./terms.html\">中文版</a>不一致，以中文版為準。",
+  "at": "terms.html:42 <p>"
+ },
+ {
+  "id": "歡迎使用 PingPongLight（以下稱「本遊戲」）。使用本遊戲，或在遊戲內購買付費內容，即表示您已閱讀並同意本條款。個人資料的處理方式，見<a href=\"privacy.html\">隱私權政策</a>。",
+  "at": "terms.html:44 <p>"
+ },
+ {
+  "id": "一、服務內容",
+  "at": "terms.html:46 <h2>"
+ },
+ {
+  "id": "單人遊玩免費，不需要註冊帳號，離線也可以玩。",
+  "at": "terms.html:48 <li>"
+ },
+ {
+  "id": "線上功能包含排行榜、好友與好友訊息、線上對戰、成就，以及等級與光能。使用線上功能需要連線，可能因維護或其他原因暫時中斷。",
+  "at": "terms.html:49 <li>"
+ },
+ {
+  "id": "「光能」是遊戲內用來放大經驗的點數：花費光能只會讓通關時獲得的經驗倍率變高，<b>不影響分數、判定與排行榜</b>。光能不是貨幣，不能轉讓、贈送或兌換現金。",
+  "at": "terms.html:50 <li>"
+ },
+ {
+  "id": "線上對戰通關也會獲得經驗（依名次與人數加成），不消耗光能。",
+  "at": "terms.html:51 <li>"
+ },
+ {
+  "id": "同一裝置在同一時間開了多局時，只有最後開始的那一局會計算經驗。",
+  "at": "terms.html:52 <li>"
+ },
+ {
+  "id": "我們可能調整、新增或停止部分功能與數值（例如經驗公式、光能回復速度），重大變更會在遊戲內或本頁告知。",
+  "at": "terms.html:53 <li>"
+ },
+ {
+  "id": "二、帳號與裝置金鑰",
+  "at": "terms.html:56 <h2>"
+ },
+ {
+  "id": "本遊戲沒有帳號、電子郵件或密碼。您的暱稱、成績、等級、光能與購買紀錄，都綁定在您裝置上自動產生的識別碼（裝置金鑰）。因此：",
+  "at": "terms.html:57 <p>"
+ },
+ {
+  "id": "刪除本遊戲、清除瀏覽器的網站資料或更換裝置，會讓裝置金鑰遺失，我們無法替您找回原本的暱稱、等級與光能。",
+  "at": "terms.html:59 <li>"
+ },
+ {
+  "id": "App 內購買的外觀可以用「恢復購買」取回；光能是消耗型購買，沒有「恢復購買」，遺失金鑰後付費光能無法自動找回。這時請來信「十四、聯絡方式」的信箱，附上 Apple 的收據或交易編號，我們才能人工協助補回。",
+  "at": "terms.html:60 <li>"
+ },
+ {
+  "id": "請妥善保管您的裝置。他人使用您的裝置所產生的行為與花費，由您自行負責。",
+  "at": "terms.html:61 <li>"
+ },
+ {
+  "id": "三、付費內容",
+  "at": "terms.html:64 <h2>"
+ },
+ {
+  "id": "付費內容只在 iOS App 內以 App 內購買提供，包含：",
+  "at": "terms.html:65 <p>"
+ },
+ {
+  "id": "<b>外觀</b>：頭像、名牌框、光球、拖尾、背景等裝飾項目，購買後永久保留在您的紀錄中。",
+  "at": "terms.html:67 <li>"
+ },
+ {
+  "id": "<b>光能小瓶、大瓶、箱</b>：一次性增加付費光能的點數。付費光能<b>不會過期</b>，會依「自然回復光能、月票贈送光能、付費光能」的順序使用。",
+  "at": "terms.html:68 <li>"
+ },
+ {
+  "id": "<b>30 日光能月票</b>：購買一次，自購買當天起 30 個遊戲日（每天台灣時間 04:00 換日），每天自動發放 30 點月票光能到您的進度紀錄，不需登入，未登入的日子會在下次連線時補齊；期間並提高光能的自然回復上限。重複購買時天數會往後累加，每天發放量不變。月票光能發放後<b>不會過期</b>。它是消耗型商品，<b>不會自動續訂</b>，也不會自動扣款。",
+  "at": "terms.html:69 <li>"
+ },
+ {
+  "id": "各商品的內容與價格以購買畫面與 App Store 顯示為準。價格可能因地區、稅費與匯率而不同。",
+  "at": "terms.html:71 <p>"
+ },
+ {
+  "id": "四、付款與退款",
+  "at": "terms.html:73 <h2>"
+ },
+ {
+  "id": "付款、發票與退款申請由 Apple 處理，依 Apple 的條款與退款政策辦理；請至 Apple 的「回報問題」頁面或聯絡 Apple 申請。我們無法直接替您向 Apple 申請退款。",
+  "at": "terms.html:75 <li>"
+ },
+ {
+  "id": "Apple 核准退款後，我們會收到通知並扣回該筆購買所發放的光能；已經花掉的光能，以扣到 0 為止，不會變成負數，也不會因此封鎖您的帳號。月票退款時，會停止發放該筆月票尚未發放的天數，並扣回已發放的部分，效期也一併縮短（不會早於現在）。外觀退款後會被收回。",
+  "at": "terms.html:76 <li>"
+ },
+ {
+  "id": "若遇到購買後沒有收到內容，請先在 App 內使用「恢復購買」，仍有問題請來信「十四、聯絡方式」的信箱，並附上 Apple 的收據或訂單編號。",
+  "at": "terms.html:77 <li>"
+ },
+ {
+  "id": "五、七日解除權",
+  "at": "terms.html:80 <h2>"
+ },
+ {
+  "id": "光能與外觀屬於一經提供即完成履行的數位內容。依《消費者保護法》第 19 條第 1 項及《通訊交易解除權合理例外情事適用準則》，經您事先同意者，這類非以有形媒介提供的數位內容，不適用七日內無條件解除契約的規定。因此購買前，遊戲會要求您勾選同意「內容一經提供即無法適用七日解除權」，勾選後才能購買。這不影響您依 Apple 的政策向 Apple 申請退款，也不影響法律上不得排除的權利。",
+  "at": "terms.html:81 <p>"
+ },
+ {
+  "id": "六、終止服務與未使用光能的退還",
+  "at": "terms.html:83 <h2>"
+ },
+ {
+  "id": "<b>您刪除資料時</b>：您在遊戲內刪除線上資料後，若還有未使用的付費光能，我們只會保留「裝置金鑰的雜湊值、刪除時間、剩餘點數」一年，用來核對。刪除後 30 日內，您可以來信「十四、聯絡方式」的信箱，附上購買憑證，申請退還未使用的付費光能；我們核對保留的紀錄後，依未使用點數的比例，以 Apple 的退款機制或與您協議的其他合理方式辦理。",
+  "at": "terms.html:85 <li>"
+ },
+ {
+  "id": "<b>我們終止服務時</b>：如果我們決定終止本遊戲的線上服務，會至少在終止前 30 日於遊戲內與本網站公告。公告後 30 日內，您可以來信申請退還尚未使用的付費光能，辦理方式同上。單人遊玩在 App 與網頁版仍會盡量保留。",
+  "at": "terms.html:86 <li>"
+ },
+ {
+  "id": "超過上述期間、或已經使用的光能，不在退還範圍；但這不影響法律規定您所享有、不得排除的權利。",
+  "at": "terms.html:87 <li>"
+ },
+ {
+  "id": "七、禁止行為",
+  "at": "terms.html:90 <h2>"
+ },
+ {
+  "id": "使用本遊戲時，請勿：",
+  "at": "terms.html:91 <p>"
+ },
+ {
+  "id": "作弊或破壞公平，例如修改或偽造成績、竄改封包或程式、使用外掛與自動化工具、利用漏洞取得經驗、光能或排行榜名次；發現漏洞請來信告知。",
+  "at": "terms.html:93 <li>"
+ },
+ {
+  "id": "騷擾、辱罵、威脅其他玩家，傳送仇恨、歧視、性相關或暴力的內容，鼓勵自殺、自殘，或洗版、廣告、詐騙、索取個人資料與引導至其他平台聯絡（細節見<a href=\"privacy.html\">隱私權政策</a>「九、社群規範」）。",
+  "at": "terms.html:94 <li>"
+ },
+ {
+  "id": "使用冒用他人、含不當字詞或個人資料的暱稱。",
+  "at": "terms.html:95 <li>"
+ },
+ {
+  "id": "攻擊、干擾或過度使用我們的伺服器，或嘗試取得他人資料。",
+  "at": "terms.html:96 <li>"
+ },
+ {
+  "id": "轉售、出租或交易帳號、光能或外觀。",
+  "at": "terms.html:97 <li>"
+ },
+ {
+  "id": "八、檢舉、處置與停權",
+  "at": "terms.html:100 <h2>"
+ },
+ {
+  "id": "您可以在遊戲內檢舉訊息或玩家，也可以封鎖對方。被檢舉的內容會依<a href=\"privacy.html\">隱私權政策</a>所述，先由 AI 判斷，無法判定的由管理人員審查。",
+  "at": "terms.html:102 <li>"
+ },
+ {
+  "id": "確認違規時，我們可能刪除訊息、暫停傳送訊息、隱藏暱稱、作廢成績，情節嚴重或屢犯者可停止其使用線上功能。我們會依情節輕重與累計次數決定處置。",
+  "at": "terms.html:103 <li>"
+ },
+ {
+  "id": "如果您對處置有疑問，可以來信申訴，我們會重新查證；查證後確認處置有誤的，我們會恢復，並補償受影響的付費內容。",
+  "at": "terms.html:104 <li>"
+ },
+ {
+  "id": "九、智慧財產權",
+  "at": "terms.html:107 <h2>"
+ },
+ {
+  "id": "本遊戲的程式、介面、原創曲目與美術的權利，屬於我們或授權給我們的權利人。曲目、音色與圖像的來源與授權，見<a href=\"credits.html\">曲目與美術來源</a>。您可以為個人、非商業的目的遊玩與分享成績圖片，但不得複製、修改、散布或反向工程本遊戲，法律另有許可者除外。",
+  "at": "terms.html:108 <p>"
+ },
+ {
+  "id": "十、免責聲明與責任限制",
+  "at": "terms.html:110 <h2>"
+ },
+ {
+  "id": "本遊戲依現狀提供。我們會盡力維持服務穩定，但不保證服務不中斷、不出錯，也不保證排行榜與統計資料永遠完整。",
+  "at": "terms.html:112 <li>"
+ },
+ {
+  "id": "因網路、裝置、Apple、Cloudflare、Vercel 等第三方服務的故障或維護，或其他不可歸責於我們的原因造成的損失，我們不負賠償責任。",
+  "at": "terms.html:113 <li>"
+ },
+ {
+  "id": "在法律允許的範圍內，我們對您因使用本遊戲所受的損害，賠償責任以您在事故發生前 12 個月內實際支付的金額為限；但因我們故意或重大過失所致的損害，以及法律規定不得限制或排除的責任（包括對消費者依《消費者保護法》所享有的權利），不在此限。",
+  "at": "terms.html:114 <li>"
+ },
+ {
+  "id": "十一、準據法與管轄",
+  "at": "terms.html:117 <h2>"
+ },
+ {
+  "id": "本條款以中華民國法律為準據法。因本條款或本遊戲所生的爭議，雙方同意以臺灣臺北地方法院為第一審管轄法院；但法律對消費者有強制規定的管轄者，從其規定。",
+  "at": "terms.html:118 <p>"
+ },
+ {
+  "id": "十二、條款變更",
+  "at": "terms.html:120 <h2>"
+ },
+ {
+  "id": "我們可能因服務或法令的變化修改本條款。修改後會更新本頁與生效日期，重大變更（尤其是付費、退款與停權規則）會在生效前於遊戲內或本頁公告，並給您合理的時間瞭解。生效後您繼續使用本遊戲，即視為同意修改後的條款；如果不同意，請停止使用，並可依「六」申請退還未使用的付費光能。",
+  "at": "terms.html:121 <p>"
+ },
+ {
+  "id": "十三、條款的適用與可分",
+  "at": "terms.html:123 <h2>"
+ },
+ {
+  "id": "本條款的某一條如被認定無效或無法執行，不影響其他條款的效力。本條款若有中文以外的翻譯，翻譯僅供參考，內容不一致時以中文版為準。",
+  "at": "terms.html:124 <p>"
+ },
+ {
+  "id": "十四、聯絡方式",
+  "at": "terms.html:126 <h2>"
+ },
+ {
+  "id": "本遊戲的營運者：失眠的黑貓（Nocticat），個人開發者。",
+  "at": "terms.html:127 <p>"
+ },
+ {
+  "id": "對本條款、購買、退費或申訴有任何問題，請來信：<a href=\"mailto:nick760930@gmail.com\">nick760930@gmail.com</a>",
+  "at": "terms.html:128 <p>"
+ },
+ {
+  "id": "相關文件：<a href=\"privacy.html\">隱私權政策</a> · <a href=\"credits.html\">曲目與美術來源</a>",
+  "at": "terms.html:130 <p>"
  }
 ]

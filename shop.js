@@ -128,6 +128,7 @@ async function claim(it){   // test period: free
   for(const id of ids)S.own.add(id);save();return true   // no server (or no account yet): owned on this device; sent up when a nickname exists
 }
 async function buy(it){
+  if(!it||it.how!=='buy')return;   // only what is for sale: level rewards (lv:N), achievement items and defaults are never bought
   if(MODE==='test'){const ok=await claim(it);if(ok){done(it)}return}
   if(MODE==='iap'){
     if(!window.PPLIAP||typeof window.PPLIAP.buy!=='function'){G.toast(TX('購買功能尚未就緒，請稍後再試'));return}
@@ -199,7 +200,7 @@ const catOf=()=>UI.cat==='single'||UI.cat==='vis'?UI.sub[UI.cat]:UI.cat;
 const shopOpen=()=>!$('#shop').classList.contains('hidden');
 const esc=C.esc;
 const unavail=it=>MODE==='iap'&&!!it.pid&&!!window.PPLIAP&&typeof window.PPLIAP.has==='function'&&window.PPLIAP.has(it.pid)===false;   // not on sale in the App Store
-const priceTxt=it=>MODE==='test'?TX('免費'):(MODE==='iap'&&window.PPLIAP&&typeof window.PPLIAP.price==='function'&&window.PPLIAP.price(it.pid))||'NT$'+it.price;
+const priceTxt=it=>MODE==='test'?TX('免費'):esc((MODE==='iap'&&window.PPLIAP&&typeof window.PPLIAP.price==='function'&&window.PPLIAP.price(it.pid))||'NT$'+it.price);   // the store's text goes into innerHTML: escaped
 
 function listFor(cat){
   let l=C.items.filter(i=>i.cat===cat&&(i.how!=='sponsor'||isOwn(i))&&(!i.retired||isOwn(i)));   // a retired title (no longer given by any achievement) is only listed for those who own it
@@ -212,6 +213,7 @@ function statusOf(it){   // [css class, text]
   if(it.how==='buy')return['pay',priceTxt(it)];
   if(it.how==='sponsor')return['ach',TX('贊助取得')];
   if(it.how.indexOf('ach:')===0)return['ach',TX('成就')];
+  if(it.how.indexOf('lv:')===0)return['ach','Lv '+it.how.slice(3)];
   return['own',TX('預設')]}
 
 // ---------------------------------------------------------------- render
@@ -236,7 +238,7 @@ function cell(it){
   else if(cat==='plate')vis='<div class="ctr">'+C.plateHTML(it.id,C.state.eq.avatar,TX('小光'),'',22)+'</div>';
   else if(cat==='avatar')vis='<div class="ctr">'+C.avHTML(C.avSpec(it.id,2),44)+'</div>';
   else if(cat==='title')vis='<div class="ctr">'+C.titleHTML(it.id)+'</div>';
-  else if(cat==='emote')vis='<div class="ctr" style="font-size:12px;color:#cfd5f5;text-align:center;line-height:1.5">'+esc(it.list.slice(0,3).join(TX('　')))+'</div>';
+  else if(cat==='emote')vis='<div class="ctr" style="font-size:12px;color:#cfd5f5;text-align:center;line-height:1.5"><span>'+C.emo(it.list.slice(0,3).join(TX('　')))+'</span></div>';
   else if(cat==='share')vis='<div class="ctr"><span style="'+esc(it.css)+';border-radius:8px;padding:6px 16px;font-size:12px;font-weight:700">'+esc(it.name)+'</span></div>';
   else vis='';
   const lk=!isOwn(it)&&it.how!=='buy'?' lk':'';
@@ -299,11 +301,11 @@ function pview(){
   else if(cat==='plate')top='<div class="bx">'+C.plateHTML(it.id,C.state.eq.avatar,TX('小光'),C.state.eq.title,28)+'</div>';
   else if(cat==='avatar')top='<div class="bx">'+C.avHTML(C.avSpec(it.id,2),56)+'</div>';
   else if(cat==='title')top='<div class="bx">'+C.plateHTML(C.state.eq.plate,C.state.eq.avatar,TX('小光'),it.id,26)+'</div>';
-  else if(cat==='emote')top='<div class="bx" style="flex-direction:column;gap:3px;font-size:12px;line-height:1.4">'+it.list.map(esc).join('<br>')+'</div>';
+  else if(cat==='emote')top='<div class="bx" style="flex-direction:column;gap:3px;font-size:12px;line-height:1.4">'+it.list.map(t=>'<span>'+C.emo(t)+'</span>').join('')+'</div>';
   else if(cat==='share')top='<div class="bx"><span style="'+esc(it.css)+';border-radius:10px;padding:10px 26px;font-size:13px;font-weight:700">'+TX('我的成績 S')+'</span></div>';
   const own=isOwn(it),eq=isEq(it),[sc,st]=statusOf(it);
   let how='';
-  if(!own){how=it.how==='buy'?(it.also?TX('也可由成就「{name}」取得',{name:esc(C.achName(it.also.slice(4)))}):''):it.how==='sponsor'?TX('贊助 NT$90 以上取得'):TX('取得方式：{how}',{how:esc(C.howText(it))})}
+  if(!own){how=it.how==='buy'?(it.also?TX('也可由成就「{name}」取得',{name:esc(C.achName(it.also.slice(4)))}):''):it.how==='sponsor'?TX('贊助 NT$90 以上取得'):it.how.indexOf('lv:')===0?TX('達到 Lv {n} 獲得',{n:it.how.slice(3)}):TX('取得方式：{how}',{how:esc(C.howText(it))})}
   let keep='';
   if(UI.view==='coll'&&own&&it.id!==C.defaults[cat]&&it.id!=='theme.stars'&&(cat==='theme'||['orb','trail','hit'].includes(cat)))keep='<div class="kp"><span>'+TX('連擊變色')+'</span><button class="tog'+(keepOn(it)?' on':'')+'" data-act="keep" role="switch" aria-checked="'+keepOn(it)+'" aria-label="'+TX('連擊變色')+'"></button></div>';
   let b='';
@@ -315,9 +317,9 @@ function pview(){
     else b+='<button class="pri" data-act="use">'+TX('使用')+'</button>';
   }else if(it.how==='buy'&&UI.view==='shop'){
     b+=MODE==='test'?'<button class="gold" data-act="buy">'+TX('取得')+'</button>':unavail(it)?'<button disabled>'+TX('尚未開放')+'</button>':'<button class="gold" data-act="buy">'+TX('購買 {price}',{price:priceTxt(it)})+'</button>';
-  }else if(!own){b+='<button disabled>'+(it.how==='sponsor'?TX('贊助取得'):TX('成就取得'))+'</button>'}
+  }else if(!own){b+='<button disabled>'+(it.how==='sponsor'?TX('贊助取得'):it.how.indexOf('lv:')===0?TX('等級取得'):TX('成就取得'))+'</button>'}
   const priceLine=!own&&it.how==='buy'?'<div class="d" style="color:#ffd36b">'+(MODE==='test'?TX('測試期間免費'):priceTxt(it))+(it.cat==='theme'?TX('　（單買 {n} 件要 NT${price}）',{n:5,price:150}):'')+'</div>':'';
-  p.innerHTML=top+'<div class="t">'+esc(it.name)+'</div><div class="d">'+esc(it.desc)+'</div>'+priceLine+(how?'<div class="d">'+how+'</div>':'')+(it.limited?'<div class="d" style="color:#c9b6ff">'+TX('限定')+'</div>':'')+keep+'<div class="btns">'+b+'</div>';
+  p.innerHTML=top+'<div class="t">'+esc(it.name)+'</div><div class="d">'+C.emo(it.desc)+'</div>'+priceLine+(how?'<div class="d">'+how+'</div>':'')+(it.limited?'<div class="d" style="color:#c9b6ff">'+TX('限定')+'</div>':'')+keep+'<div class="btns">'+b+'</div>';
   if(vis){const cv=p.querySelector('canvas.big');pvScene(cv,pvT(it))}
 }
 

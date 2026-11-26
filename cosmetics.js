@@ -164,6 +164,40 @@ const BG={
   const sp=(t*.4)%3;if(sp<1){const sx=w*(.1+sp*.8),sy=h*(.08+sp*.3);const g=x.createLinearGradient(sx-40,sy-15,sx,sy);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(1,'rgba(255,255,255,.8)');x.strokeStyle=g;x.lineWidth=1.2;x.beginPath();x.moveTo(sx-40,sy-15);x.lineTo(sx,sy);x.stroke()}},
  deep(x,w,h,t){BG.stars(x,w,h,t)},
 };
+// ---------- level-reward backgrounds: concert hall pieces shared by the two hall backgrounds ----------
+// velvet curtains down both sides (folds shaded in turn) with a scalloped valance across the top; c = [r,g,b,fold brightness]
+const hcurt=(x,w,h,t,c)=>{const cw=w*.14,N=16;
+ for(let s=0;s<2;s++)for(let i=0;i<N;i++){const u=i/(N-1),px=s?w-cw+u*cw:u*cw,sh=.5+.5*Math.sin(i*1.9+s*2+t*.3),L=h*(.8+.04*Math.sin(i*.8+s));x.fillStyle=`rgb(${c[0]+sh*c[3]|0},${c[1]+sh*c[3]*.25|0},${c[2]+sh*c[3]*.3|0})`;x.fillRect(px,0,cw/N+.7,L)}
+ x.fillStyle=`rgb(${c[0]+8},${c[1]+2},${c[2]+4})`;x.fillRect(0,0,w,h*.07);for(let i=0;i<10;i++){x.beginPath();x.arc((i+.5)*w/10,h*.07,w/20,0,Math.PI);x.fill()}
+ x.strokeStyle='rgba(255,211,107,.45)';x.lineWidth=1;x.beginPath();for(let i=0;i<10;i++)x.arc((i+.5)*w/10,h*.07,w/20,0,Math.PI);x.stroke()};
+// wooden stage floor in perspective with a pool of light; warm = colour of the spotlight
+const hstage=(x,w,h,t,warm)=>{const y0=h*.78,g=x.createLinearGradient(0,y0,0,h);g.addColorStop(0,'#5a3a1e');g.addColorStop(1,'#1a0e08');x.fillStyle=g;x.fillRect(0,y0,w,h-y0);
+ x.strokeStyle='rgba(255,210,140,.16)';x.lineWidth=.8;x.beginPath();x.moveTo(0,y0);x.lineTo(w,y0);for(let i=-8;i<=8;i++){x.moveTo(w/2+i*8,y0);x.lineTo(w/2+i*w*.09,h)}x.stroke();
+ const sg=x.createRadialGradient(w/2,h*.9,0,w/2,h*.9,w*.3);sg.addColorStop(0,warm);sg.addColorStop(1,'rgba(0,0,0,0)');x.save();x.globalCompositeOperation='lighter';x.fillStyle=sg;x.beginPath();x.ellipse(w/2,h*.9,w*.3,h*.1,0,0,TAU);x.fill();x.restore()};
+// two rows of seat backs in silhouette along the bottom
+const hseats=(x,w,h)=>{x.fillStyle='#07040a';for(let r=0;r<2;r++)for(let i=0;i<14;i++){const px=(i+.5+r*.5)*w/14,py=h*(.955+r*.03);x.beginPath();x.roundRect(px-w*.026,py-h*.045,w*.052,h*.09,5);x.fill()}};
+// Lv45: a concert hall: gold proscenium arches, a chandelier, spotlight beams crossing on the stage, dust in the light, velvet curtains, a lit stage
+BG.hall=(x,w,h,t)=>{vg(x,w,h,[[0,'#140910'],[.6,'#2c1320'],[1,'#3a1a16']]);
+ x.strokeStyle='rgba(255,211,107,.3)';x.lineWidth=1.2;for(let k=0;k<3;k++){x.beginPath();x.ellipse(w/2,h*.8,w*(.4-k*.03),h*(.72-k*.05),0,Math.PI,0);x.stroke()}
+ x.save();x.globalCompositeOperation='lighter';[.3,.5,.7].forEach((a,i)=>{const sx=w*a,ex=w*(.5+(a-.5)*.4),g=x.createLinearGradient(0,0,0,h*.85);g.addColorStop(0,`rgba(255,225,170,${.2+.06*Math.sin(t*.8+i*2)})`);g.addColorStop(1,'rgba(255,225,170,0)');x.fillStyle=g;x.beginPath();x.moveTo(sx-3,0);x.lineTo(sx+3,0);x.lineTo(ex+w*.07,h*.8);x.lineTo(ex-w*.07,h*.8);x.fill()});
+ for(let i=0;i<16;i++){const a=RS.c[i%40],px=w*(.25+a[0]*.5)+Math.sin(t*.5+i)*6,py=h*(.15+((a[1]+t*.02*(1+a[2]))%1)*.65);x.fillStyle=`rgba(255,235,200,${.2+.3*Math.abs(Math.sin(t*1.5+i))})`;x.fillRect(px,py,1.2,1.2)}x.restore();
+ x.strokeStyle='rgba(255,211,107,.5)';x.lineWidth=.8;x.beginPath();x.moveTo(w/2,0);x.lineTo(w/2,h*.07);x.stroke();glow(x,w/2,h*.1,9,'#ffd9a0');
+ for(let i=0;i<9;i++){x.fillStyle=`rgba(255,238,200,${.75+.25*Math.sin(t*3+i)})`;x.beginPath();x.arc(w/2+(i-4)*7,h*.1+Math.abs(i-4)*1.3,1.6,0,TAU);x.fill()}
+ hcurt(x,w,h,t,[92,14,30,34]);hstage(x,w,h,t,'rgba(255,214,150,.45)');hseats(x,w,h)};
+// Lv85: the hall opens onto the night sky: stars overhead, a gold arch, notes drifting up from the stage, a shooting star
+BG.starhall=(x,w,h,t)=>{vg(x,w,h,[[0,'#04061a'],[.6,'#0e1240'],[1,'#1a1850']]);twinkle(x,w,h,t,RS.a,.7,'#dfe8ff');
+ x.strokeStyle='rgba(255,211,107,.35)';x.lineWidth=1.2;for(let k=0;k<3;k++){x.beginPath();x.ellipse(w/2,h*.8,w*(.4-k*.03),h*(.72-k*.05),0,Math.PI,0);x.stroke()}
+ x.save();x.globalCompositeOperation='lighter';const mg=x.createRadialGradient(w*.5,h*.3,0,w*.5,h*.3,h*.5);mg.addColorStop(0,'rgba(160,170,255,.18)');mg.addColorStop(1,'rgba(160,170,255,0)');x.fillStyle=mg;x.fillRect(0,0,w,h);x.restore();
+ for(let i=0;i<9;i++){const u=(t*.05+i*.11)%1,px=w*(.3+(i%5)*.1)+Math.sin(t*1.2+i*2)*8,py=h*(.82-u*.7);x.globalAlpha=Math.sin(u*Math.PI)*.85;note(x,px,py,3.4,i%2?'#ffe9a8':'#c9d4ff')}x.globalAlpha=1;
+ {const sp=(t*.35)%3;if(sp<1){const sx=w*(.1+sp*.8),sy=h*(.06+sp*.28),g=x.createLinearGradient(sx-40,sy-14,sx,sy);g.addColorStop(0,'rgba(255,255,255,0)');g.addColorStop(1,'rgba(255,255,255,.85)');x.strokeStyle=g;x.lineWidth=1.2;x.beginPath();x.moveTo(sx-40,sy-14);x.lineTo(sx,sy);x.stroke()}}
+ hcurt(x,w,h,t,[24,20,74,40]);hstage(x,w,h,t,'rgba(170,190,255,.45)');hseats(x,w,h)};
+// Lv100 set: golden five-line staves sweeping across a violet night, a note lighting up on the lines, a halo overhead, gold dust
+BG.lv100=(x,w,h,t)=>{vg(x,w,h,[[0,'#05030f'],[.6,'#150b34'],[1,'#22104a']]);twinkle(x,w,h,t,RS.a,.6,'#e8dcff');
+ const hg=x.createRadialGradient(w*.5,h*.18,0,w*.5,h*.18,h*.6);hg.addColorStop(0,'rgba(255,211,107,.22)');hg.addColorStop(1,'rgba(255,211,107,0)');x.fillStyle=hg;x.fillRect(0,0,w,h);
+ const yy=(k,u)=>h*(.42+k*.032)+Math.sin(u*5+t*.5)*h*.09*(1-Math.abs(u-.5)*.6)+Math.sin(u*11-t*.8)*h*.012;
+ x.save();x.globalCompositeOperation='lighter';x.lineCap='round';for(let k=0;k<5;k++){x.strokeStyle=`rgba(255,211,107,${.42-.04*k})`;x.lineWidth=1;x.beginPath();for(let i=0;i<=60;i++){const u=i/60;i?x.lineTo(u*w,yy(k,u)):x.moveTo(0,yy(k,u))}x.stroke()}x.restore();
+ [[.14,1],[.27,3],[.4,0],[.52,2],[.66,4],[.79,1],[.9,3]].forEach(([u,k],i)=>{const px=u*w,py=yy(k,u),pu=.55+.45*Math.sin(t*2+i*1.3);glow(x,px,py,3+pu*2,'#ffd36b');note(x,px,py,4.2,`rgba(255,240,200,${.6+.4*pu})`)});
+ for(const[a,b,c,d]of RS.b){const py=(b*h+t*(3+c*4))%h;x.fillStyle=`rgba(255,215,120,${.12+.3*Math.abs(Math.sin(t*2+d*9))})`;x.fillRect(a*w,py,1.2,1.2)}};
 // ---------- shapes ----------
 function star(x,cx,cy,r,rot=0){x.beginPath();for(let i=0;i<10;i++){const a=rot+i*Math.PI/5-Math.PI/2,rr=i%2?r*.45:r;x.lineTo(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr)}x.closePath()}
 function heart(x,cx,cy,r){x.beginPath();x.moveTo(cx,cy+r*.9);x.bezierCurveTo(cx-r*1.5,cy-r*.2,cx-r*.6,cy-r*1.3,cx,cy-r*.4);x.bezierCurveTo(cx+r*.6,cy-r*1.3,cx+r*1.5,cy-r*.2,cx,cy+r*.9);x.closePath()}
@@ -286,6 +320,33 @@ ORB.propeller=(x,b,r,T,t)=>{spinDraw(x,b,r,T,SPIN.propeller);const R=r*1.45,sp=M
  star(x,0,0,R*.12,0);x.fillStyle=T.c2;x.fill();
  if(sp>.1){x.strokeStyle='#ffffff';x.lineWidth=1;x.lineCap='round';for(let i=0;i<3;i++){const y0=(i-1)*R*.55,ph=(t*3+i*.33)%1,x0=R*(1.3+ph*1.2);x.globalAlpha=sp*.8*(1-ph);x.beginPath();x.moveTo(x0,y0);x.quadraticCurveTo(x0+R*.4,y0-R*.25,x0+R*.8,y0);x.stroke();x.beginPath();x.moveTo(-x0,y0);x.quadraticCurveTo(-x0-R*.4,y0-R*.25,-x0-R*.8,y0);x.stroke()}x.globalAlpha=1}
  x.restore()};
+// ---------- level-reward orbs ----------
+// big eighth note (head, stem, flag) centred on 0,0; f = fill/stroke style
+function bnote(x,r,f){x.fillStyle=f;x.strokeStyle=f;x.lineWidth=r*.17;x.lineCap='round';x.beginPath();x.ellipse(-r*.22,r*.42,r*.34,r*.25,-.45,0,TAU);x.fill();x.beginPath();x.moveTo(r*.08,r*.34);x.lineTo(r*.08,-r*.62);x.bezierCurveTo(r*.1,-r*.4,r*.62,-r*.35,r*.5,r*.02);x.stroke()}
+// Lv15: a bold eighth note inside a dark disc, bouncing on the beat with sound arcs on both sides
+ORB.solonote=(x,b,r,T,t)=>{glow(x,b.x,b.y,r,T.c1);const bt=(t*2)%1,pu=Math.exp(-bt*7);x.save();x.translate(b.x,b.y);x.scale(1+pu*.1,1+pu*.1);
+ x.fillStyle='#0c1030';x.beginPath();x.arc(0,0,r*1.15,0,TAU);x.fill();x.strokeStyle=hexA(T.c1,.95);x.lineWidth=r*.16;x.stroke();
+ const g=x.createLinearGradient(0,-r,0,r);g.addColorStop(0,'#ffffff');g.addColorStop(1,T.c1);bnote(x,r,g);
+ x.fillStyle='rgba(255,255,255,.5)';x.beginPath();x.ellipse(-r*.5,-r*.62,r*.28,r*.1,-.6,0,TAU);x.fill();x.restore();
+ x.strokeStyle=hexA(T.c2,.75*(1-bt));x.lineWidth=1.2;const rr=r*(1.35+bt*.7);x.beginPath();x.arc(b.x,b.y,rr,-.5,.5);x.stroke();x.beginPath();x.arc(b.x,b.y,rr,Math.PI-.5,Math.PI+.5);x.stroke()};
+// Lv50: a metronome in a dark disc, the pendulum swings with the beat and a tick flashes at each end of the swing
+ORB.metronome=(x,b,r,T,t)=>{glow(x,b.x,b.y,r,T.c1);const ph=t*TAU*.9,a=Math.sin(ph)*.55,cs=Math.abs(Math.cos(ph)),tk=cs<.12?1-cs/.12:0;x.save();x.translate(b.x,b.y);
+ x.fillStyle='#0c1030';x.beginPath();x.arc(0,0,r*1.15,0,TAU);x.fill();x.strokeStyle=hexA(T.c1,.95);x.lineWidth=r*.16;x.stroke();
+ x.save();x.beginPath();x.arc(0,0,r*1.1,0,TAU);x.clip();
+ const g=x.createLinearGradient(-r*.6,0,r*.6,0);g.addColorStop(0,T.c1);g.addColorStop(1,T.c2);
+ x.fillStyle=g;x.beginPath();x.moveTo(-r*.62,r*.85);x.lineTo(-r*.24,-r*.78);x.lineTo(r*.24,-r*.78);x.lineTo(r*.62,r*.85);x.closePath();x.fill();
+ x.fillStyle='rgba(8,10,30,.85)';x.beginPath();x.moveTo(-r*.09,r*.62);x.lineTo(-r*.06,-r*.6);x.lineTo(r*.06,-r*.6);x.lineTo(r*.09,r*.62);x.closePath();x.fill();
+ const py=r*.6,L=r*1.2,ex=Math.sin(a)*L,ey=py-Math.cos(a)*L;x.lineCap='round';x.strokeStyle='#0c1030';x.lineWidth=r*.2;x.beginPath();x.moveTo(0,py);x.lineTo(ex,ey);x.stroke();x.strokeStyle='#ffffff';x.lineWidth=r*.1;x.stroke();
+ x.save();x.translate(Math.sin(a)*L*.62,py-Math.cos(a)*L*.62);x.rotate(a);x.fillStyle='#ffd36b';x.fillRect(-r*.15,-r*.1,r*.3,r*.2);x.restore();x.restore();
+ if(tk>0){const sg=Math.sign(a)||1;x.strokeStyle=hexA('#ffffff',tk*.85);x.lineWidth=1.2;for(let k=0;k<2;k++){x.beginPath();x.arc(0,0,r*(1.35+k*.28),sg>0?-.5:Math.PI-.5,sg>0?.5:Math.PI+.5);x.stroke()}}
+ x.restore()};
+// Lv100 set: a golden disc with a dark note cut into it, three small notes circling, a twinkle on the rim
+ORB.lv100=(x,b,r,T,t)=>{glow(x,b.x,b.y,r*1.2,T.c1);
+ for(let i=0;i<3;i++){const a=t*1.8+i*TAU/3;note(x,b.x+Math.cos(a)*r*1.85,b.y+Math.sin(a)*r*1.5,r*.42,hexA(T.c2,.9))}
+ const g=x.createRadialGradient(b.x-r*.35,b.y-r*.4,0,b.x,b.y,r*1.15);g.addColorStop(0,'#ffffff');g.addColorStop(.45,T.c1);g.addColorStop(1,T.c2);x.fillStyle=g;x.beginPath();x.arc(b.x,b.y,r*1.12,0,TAU);x.fill();
+ x.strokeStyle='rgba(255,255,255,.85)';x.lineWidth=1;x.stroke();
+ x.save();x.translate(b.x,b.y+r*.03);bnote(x,r*.95,'rgba(26,12,58,.88)');x.restore();
+ const tw=Math.max(0,Math.sin(t*4)),sx=b.x+Math.cos(-.8)*r*1.12,sy=b.y+Math.sin(-.8)*r*1.12;x.strokeStyle=`rgba(255,255,255,${tw})`;x.lineWidth=1;x.beginPath();x.moveTo(sx-r*.5*tw,sy);x.lineTo(sx+r*.5*tw,sy);x.moveTo(sx,sy-r*.5*tw);x.lineTo(sx,sy+r*.5*tw);x.stroke()};
 // ---------- trails: (ctx, history H newest last, radius, colours, time, scene, ball) ----------
 const nrm=(H,i)=>{const a=H[Math.max(0,i-1)],c=H[Math.min(H.length-1,i+1)];let dx=c.x-a.x,dy=c.y-a.y;const l=Math.hypot(dx,dy)||1;return[-dy/l,dx/l]};
 const emit=(s,o)=>s.P.push(Object.assign({l:.6,m:.6},o));
@@ -393,6 +454,23 @@ const TRAIL={
  ink(x,H,r,T){for(let i=1;i<H.length;i++){const k=i/H.length;x.strokeStyle=hexA(T.c1,k*.35);x.lineWidth=r*2.8*k;x.lineCap='round';x.beginPath();x.moveTo(H[i-1].x,H[i-1].y);x.lineTo(H[i].x,H[i].y);x.stroke()}
   for(let i=1;i<H.length;i++){const k=i/H.length;x.strokeStyle=`rgba(14,16,22,${k*.9})`;x.lineWidth=r*2.2*k*(.7+.3*Math.sin(i*1.7));x.lineCap='round';x.beginPath();x.moveTo(H[i-1].x,H[i-1].y);x.lineTo(H[i].x,H[i].y);x.stroke()}},
 };
+// ---------- level-reward trails ----------
+// Lv25: a hairline along the path with a string of note glyphs hung on it, bobbing in turn
+TRAIL.notestring=(x,H,r,T,t)=>{const n=H.length;if(n<4)return;
+ x.strokeStyle=hexA(T.c1,.35);x.lineWidth=.8;x.beginPath();H.forEach((p,i)=>i?x.lineTo(p.x,p.y):x.moveTo(p.x,p.y));x.stroke();
+ for(let i=n-4;i>=2;i-=4){const f=i/n,[nx,ny]=nrm(H,i),o=Math.sin(t*5+i*.9)*r*.55*f;x.globalAlpha=f;note(x,H[i].x+nx*o,H[i].y+ny*o,r*(.3+.8*f),i%8<4?T.c1:T.c2)}x.globalAlpha=1};
+// Lv65: a gold meteor with a white-hot core drags an unrolled five-line staff that fans out behind it, stars twinkling on the lines
+TRAIL.meteorscore=(x,H,r,T,t,s,b)=>{const n=H.length;if(n<4)return;x.lineCap='round';
+ for(let i=1;i<n;i++){const f=i/n;x.strokeStyle=hexA(T.c1,f*.5);x.lineWidth=r*1.5*f;x.beginPath();x.moveTo(H[i-1].x,H[i-1].y);x.lineTo(H[i].x,H[i].y);x.stroke()}
+ for(let i=1;i<n;i++){const f=i/n;x.strokeStyle=hexA('#ffffff',f*.85);x.lineWidth=r*.34*f;x.beginPath();x.moveTo(H[i-1].x,H[i-1].y);x.lineTo(H[i].x,H[i].y);x.stroke()}
+ for(let k=-2;k<=2;k++){if(!k)continue;x.strokeStyle=hexA('#ffffff',.45);x.lineWidth=.7;x.beginPath();for(let i=0;i<n;i++){const[nx,ny]=nrm(H,i),o=k*r*.55*(1-i/n);i?x.lineTo(H[i].x+nx*o,H[i].y+ny*o):x.moveTo(H[i].x+nx*o,H[i].y+ny*o)}x.stroke()}
+ for(let i=2;i<n-3;i+=6){const f=i/n,[nx,ny]=nrm(H,i),o=(((i*7)%5)-2)*r*.34*(1-f),tw=.5+.5*Math.sin(t*6+i);star(x,H[i].x+nx*o,H[i].y+ny*o,r*(.2+.35*f)*(.6+.6*tw),i);x.fillStyle=hexA(i%12?T.c2:T.c1,f);x.fill()}
+ if(Math.random()<.3)emit(s,{x:b.x,y:b.y,vx:rnd(-30,30),vy:rnd(-10,40),ay:60,k:'star',c:T.c1,s:rnd(.9,1.8),l:.6,m:.6})};
+// Lv100 set: a wide gold-violet ribbon with the note string riding on it
+TRAIL.lv100=(x,H,r,T,t,s,b)=>{const n=H.length;if(n<4)return;x.lineCap='round';
+ for(let i=1;i<n;i++){const f=i/n;x.strokeStyle=hexA(T.c2,f*.4);x.lineWidth=r*2.1*f;x.beginPath();x.moveTo(H[i-1].x,H[i-1].y);x.lineTo(H[i].x,H[i].y);x.stroke();x.strokeStyle=hexA(T.c1,f*.7);x.lineWidth=r*.8*f;x.stroke()}
+ TRAIL.notestring(x,H,r,T,t);
+ if(Math.random()<.2)emit(s,{x:b.x,y:b.y,vx:rnd(-25,25),vy:rnd(-30,10),k:'star',c:'#ffffff',s:rnd(.8,1.5),l:.6,m:.6})};
 // ---------- hits ----------
 // ---------- hits: px,py = contact point on the wall, dir = direction back into the field (+1 = rightwards) ----------
 function hit(kind,P,px,py,T,dir){const add=o=>P.push(Object.assign({l:.6,m:.6},o));
@@ -427,6 +505,14 @@ function hit(kind,P,px,py,T,dir){const add=o=>P.push(Object.assign({l:.6,m:.6},o
  case'bolt':N(2,i=>add({x:px,y:py,k:'bolt',c:i?T.c2:T.c1,a:A0+(i?.5:-.5)*rnd(.3,1),s:rnd(38,55),seed:Math.random()*1e4,l:.3,m:.3}));add({x:px,y:py,k:'smoke',c:'#ffffff',s:3,g:20,l:.18,m:.18});break;
  // music: a five-line staff unrolls from the wall and notes get written onto it one by one, then float up
  case'notes':add({x:px,y:py,k:'staff',c:T.c1,a:dir,s:46,l:1,m:1});N(5,i=>add({x:px+dir*(10+i*8),y:py+(2-((i*3)%5))*3+3,vx:0,vy:-8,k:'note',c:i%2?T.c1:'#ffffff',s:9,g:i,del:.08+i*.07,l:.8,m:.8}));break;
+ // level reward Lv35: three notes stack into a chord on a short staff and rise a little, a ring spreads and an echo follows
+ case'chord':add({x:px+dir*14,y:py,k:'chordp',c:T.c1,c2:T.c2,s:11,l:.75,m:.75});add({x:px+dir*26,y:py-4,k:'chordp',c:T.c2,c2:T.c1,s:7,del:.14,l:.6,m:.6});add({x:px,y:py,k:'ring',c:T.c1,s:3,g:38,l:.4,m:.4});
+  N(6,i=>{const a=fan(1.1),v=rnd(35,70);add({x:px,y:py,vx:Math.cos(a)*v,vy:Math.sin(a)*v,k:'streak',c:i%2?T.c2:'#ffffff',s:1,l:.3,m:.3})});break;
+ // level reward Lv75: a timpani is struck, its head trembles, rings and sound arcs roll out
+ case'timpani':add({x:px,y:py,k:'drum',c:T.c1,c2:T.c2,a:dir,s:17,l:.75,m:.75});N(3,i=>add({x:px,y:py,k:'ring',c:i%2?T.c2:T.c1,s:5,g:52,flat:1,del:i*.07,l:.5,m:.5}));
+  N(3,i=>add({x:px,y:py,k:'arc',c:i%2?T.c2:'#ffffff',a:A0,s:8,g:55,del:.04+i*.06,l:.45,m:.45}));N(6,i=>{const a=fan(1.2),v=rnd(25,60);add({x:px,y:py,vx:Math.cos(a)*v,vy:Math.sin(a)*v-10,ay:80,k:'dot',c:i%2?T.c2:'#ffffff',s:1.2,l:.45,m:.45})});break;
+ // level reward Lv100 set: chord, lens-flare cross and a gold ring
+ case'lv100':hit('chord',P,px,py,T,dir);hit('starburst',P,px,py,{c1:T.c1,c2:'#ffffff'},dir);add({x:px,y:py,k:'ring',c:T.c2,s:6,g:80,del:.1,l:.6,m:.6});break;
  // achievement: supernova
  case'nova':hit('starburst',P,px,py,T,dir);hit('firework',P,px,py,{c1:'#ffffff',c2:T.c1},dir);add({x:px,y:py,k:'ring',c:T.c2,s:6,g:90,l:.8,m:.8});add({x:px,y:py,k:'ring',c:'#ffffff',s:4,g:120,del:.15,l:.7,m:.7});break;
  // achievement: perfect dial — a precise clock face with 60 ticks snaps shut, its hand sweeps a full turn
@@ -491,6 +577,15 @@ function drawP(x,p,dt){if(p.del>0){p.del-=dt;return}p.l-=dt;if(p.vx!==undefined)
   x.strokeStyle=hexA(p.c2,.7);x.lineWidth=.8;x.beginPath();for(let i=0;i<=14;i++){const a=i/14*TAU,rr=p.s*g*lb[i%14];x.lineTo(Math.cos(a)*rr,Math.sin(a)*rr)}x.stroke();
   x.fillStyle='rgba(255,255,255,.35)';x.beginPath();x.ellipse(-p.s*.3*g,-p.s*.35*g,p.s*.3*g,p.s*.12*g,-.6,0,TAU);x.fill();x.restore();break}
 
+ case'chordp':{const e=1-k,u=Math.min(1,e*5),s=p.s;x.save();x.translate(p.x,p.y-e*10);x.scale(u,u);
+  x.strokeStyle=hexA(p.c,.45);x.lineWidth=.6;for(let j=-2;j<=2;j++){x.beginPath();x.moveTo(-s*1.7,j*s*.9);x.lineTo(s*1.7,j*s*.9);x.stroke()}
+  x.strokeStyle=p.c;x.lineWidth=s*.16;x.lineCap='round';x.beginPath();x.moveTo(s*.55,s*.9);x.lineTo(s*.55,-s*.9-s*2.3);x.stroke();
+  [p.c,'#ffffff',p.c2||p.c].forEach((c,j)=>{x.fillStyle=c;x.beginPath();x.ellipse(0,(j-1)*s*.9,s*.62,s*.45,-.4,0,TAU);x.fill()});x.restore();break}
+ case'drum':{const e=1-k,R=p.s*Math.min(1,e*6),vib=Math.sin(e*46)*(1-e)*.14;x.save();x.translate(p.x+p.a*R*.6,p.y);x.scale(p.a>0?1:-1,1);
+  const g=x.createLinearGradient(-R*.6,0,0,0);g.addColorStop(0,'#5a3016');g.addColorStop(1,p.c2||'#d9904a');x.fillStyle=g;x.beginPath();x.ellipse(0,0,R*.6,R,0,Math.PI/2,Math.PI*1.5);x.closePath();x.fill();
+  x.fillStyle='rgba(244,238,222,.92)';x.beginPath();x.ellipse(0,0,R*.28,R,0,0,TAU);x.fill();x.strokeStyle=p.c;x.lineWidth=1.4;x.stroke();
+  x.strokeStyle=hexA(p.c,.55);x.lineWidth=.7;for(let j=1;j<=3;j++){x.beginPath();x.ellipse(0,0,R*.28*(1-j*.22)*(1+vib),R*(1-j*.22)*(1+vib),0,0,TAU);x.stroke()}
+  x.fillStyle=hexA('#ffffff',Math.max(0,1-e*5));x.beginPath();x.arc(0,0,R*.3,0,TAU);x.fill();x.restore();break}
  }x.globalAlpha=1}
 // ---------- frames ----------
 function frame(kind,x,w,h,T,t,fl,ox,oy){const m=10,rr=14;const path=()=>{x.beginPath();x.roundRect(m,m,w-2*m,h-2*m,rr)};
@@ -505,6 +600,10 @@ x.save();if(ox){x.translate(ox,oy)}
  case'rainbow':{path();const g=x.createLinearGradient(0,0,w,0);for(let i=0;i<=6;i++)g.addColorStop(i/6,`hsl(${(i*60+t*90)%360},90%,65%)`);x.strokeStyle=g;x.lineWidth=3+2*fl;x.shadowColor='#fff';x.shadowBlur=6*fl;x.stroke();break}
  case'ink':x.strokeStyle=`rgba(232,224,204,${.5+.35*fl})`;x.lineCap='round';[[m,m,w-m,m],[w-m,m,w-m,h-m],[w-m,h-m,m,h-m],[m,h-m,m,m]].forEach(([a,b,c,d],i)=>{x.lineWidth=2.5+fl*2;x.beginPath();x.moveTo(a,b);x.quadraticCurveTo((a+c)/2+(i%2?3:0),(b+d)/2+(i%2?0:2),c,d);x.stroke()});break;
  case'pixel':x.fillStyle=hexA(T.c1,.6+.4*fl);for(let xx=m;xx<w-m;xx+=6){x.fillRect(xx,m,4,4);x.fillRect(xx,h-m-4,4,4)}for(let yy=m;yy<h-m;yy+=6){x.fillRect(m,yy,4,4);x.fillRect(w-m-4,yy,4,4)}break;
+ // level reward Lv100 set: a gold outer line, a thin violet inner line, small stars at the corners and a note on the top edge
+ case'lv100':{path();const g=x.createLinearGradient(0,0,w,h);g.addColorStop(0,'#fff3c4');g.addColorStop(.5,T.c1);g.addColorStop(1,'#fff3c4');x.strokeStyle=g;x.lineWidth=2.5+fl;x.shadowColor=T.c1;x.shadowBlur=6+10*fl;x.stroke();x.shadowBlur=0;
+  x.beginPath();x.roundRect(m+5,m+5,w-2*m-10,h-2*m-10,rr-4);x.strokeStyle=hexA(T.c2,.5+.3*fl);x.lineWidth=1;x.stroke();
+  [[m,m],[w-m,m],[m,h-m],[w-m,h-m]].forEach(([a,c])=>{star(x,a,c,5,0);x.fillStyle='#fff3c4';x.fill()});note(x,w/2,m+1,5,'#fff3c4');break}
  }x.restore()}
 // The game draws the frame through this: the (shadow-blurred, expensive) frame is painted into an offscreen canvas and only repainted
 // when what it looks like has changed (the flash level in 1/24 steps; the two animated frames, gold and rainbow, in 1/20 s steps).
@@ -815,6 +914,40 @@ const TITLES=[["newstar","新星",1,"通關任 1 首（任何難度）"],["half"
 TITLES.forEach(([k,n,tier,cond,a])=>I('title.'+k,'title',n,cond,'ach:'+(a||n),0,/（已停發）$/.test(a||'')?{tier,retired:true}:{tier}));
 I('title.lamplighter','title','點燈人','任一贊助包；替這片星空點一盞燈。','sponsor',0,{tier:5});
 
+// ---- level rewards: how = lv:N. They cannot be bought; the server gives them when the player reaches Lv N (see the level spec, section 4).
+// Titles are title.<Chinese name>, everything else <cat>.lv<N> (a second item of the same category at the same level would get a letter after N).
+{const LV=(n,id,cat,name,desc,x)=>I(id,cat,name,desc,'lv:'+n,0,x),D=n=>'達到 Lv '+n+' 獲得';
+ const EM=(n,id,name,list)=>I(id,'emote',name,list.join('　'),'lv:'+n,0,{list});
+ const AV=(n,k,name,desc,a)=>LV(n,'avatar.lv'+n,'avatar',name,desc,{a});
+ EM(5,'emote.lv5','拍手包',['👏 精彩','👏 好球','👏 漂亮','👏 給你掌聲']);
+ EM(55,'emote.lv55','安可包',['🎵 安可！','🎵 再來一首','👏 太好聽了','🎵 還想聽']);
+ EM(95,'emote.lv95','謝幕包',['🙇 謝謝大家','👏 感謝有你','🎵 完美落幕','✨ 下次見']);
+ [[10,'見習樂手',1],[20,'樂團團員',1],[30,'聲部首席',2],[40,'樂團首席',2],[50,'獨奏家',3],[60,'協奏名家',3],[70,'宮廷樂長',3],[80,'樂壇巨匠',4],[90,'傳世名家',4],[100,'星光樂聖',5]]
+  .forEach(([n,nm,tier])=>LV(n,'title.'+nm,'title',nm,D(n),{tier}));
+ AV(10,'bronze','頭像框・銅','銅色的雙圈外框。',{k:'orb',acc:'#d9965a',bg:'#2a1708',pat:'stars',rim:'double'});
+ AV(30,'silver','頭像框・銀','銀色的刻度外框。',{k:'orb',acc:'#d5deee',bg:'#161c2a',pat:'stars',rim:'ticks'});
+ AV(50,'gold','頭像框・金','金色漸層外框，四角鑲星。',{k:'orb',acc:'#ffd36b',acc2:'#ff9f3d',bg:'#2a1c05',pat:'sparkle',rim:'gold'});
+ AV(70,'platinum','頭像框・白金','白金漸層外框，底下有放射光芒。',{k:'orb',acc:'#e8f4ff',acc2:'#8fb8ff',bg:'#10243a',pat:'rays',rim:'grad'});
+ AV(90,'starlight','頭像框・星輝','星輝外框，一直流光。',{k:'orb',acc:'#c9b6ff',acc2:'#7cf0ff',bg:'#1a1040',pat:'sparkle',rim:'gold',lux:1});
+ LV(15,'orb.lv15','orb','音符','一顆粗體八分音符，跟著拍子輕輕彈跳，兩側冒出聲波。',{k:'solonote',c1:'#ffd36b',c2:'#fff1c2'});
+ LV(50,'orb.lv50','orb','節拍器','節拍器的擺錘隨拍子左右擺動，擺到盡頭時兩側閃一下。',{k:'metronome',c1:'#7cf0ff',c2:'#3a6bff'});
+ LV(25,'trail.lv25','trail','音符串','一串音符沿路排開，輪流上下晃動。',{k:'notestring',c1:'#ffd36b',c2:'#ff8fd1'});
+ LV(65,'trail.lv65','trail','流星譜','金色流星拖出一段攤開的五線譜，譜上星光閃爍。',{k:'meteorscore',c1:'#ffd36b',c2:'#ffffff'});
+ LV(35,'hit.lv35','hit','和弦','三個音符疊成和弦浮現在五線上，伴隨一圈光環。',{k:'chord',c1:'#c9b6ff',c2:'#7cf0ff'});
+ LV(75,'hit.lv75','hit','定音鼓','一面定音鼓被敲響，鼓面震動，音波一圈圈擴散。',{k:'timpani',c1:'#ffb86b',c2:'#ffe3b0'});
+ LV(20,'plate.lv20','plate','五線譜','淡紫色五線譜底紋的名牌。',{css:'background-color:rgba(10,12,30,.92);background-image:repeating-linear-gradient(180deg,transparent 0,transparent 4px,rgba(201,182,255,.5) 4px,rgba(201,182,255,.5) 5px);border:1px solid #c9b6ff'});
+ LV(40,'plate.lv40','plate','譜架','深木色的譜架，上緣有一道金屬橫桿。',{css:'background:linear-gradient(180deg,#3a2616,#24160c);border:1px solid #8a6a3a;border-top:3px solid #c9a35a;box-shadow:0 2px 0 #5a4020'});
+ LV(60,'plate.lv60','plate','金色譜表','金色五線譜底紋，外框帶著微光。',{css:'background-color:rgba(26,18,4,.94);background-image:repeating-linear-gradient(180deg,transparent 0,transparent 4px,rgba(255,211,107,.55) 4px,rgba(255,211,107,.55) 5px);border:1px solid #ffd36b;box-shadow:0 0 10px rgba(255,211,107,.45);color:#fff3c4'});
+ LV(80,'plate.lv80','plate','樂聖手稿','泛黃的羊皮紙加墨色雙線框，像一份樂聖的手稿。',{css:'background:linear-gradient(90deg,#d9c79a,#efe2bd 30%,#e6d6a8 70%,#cdb988);color:#3a2a10;border:3px double #7a5a2a'});
+ LV(45,'bg.lv45','bg','音樂廳','絨布紅幕、金色拱門、吊燈和舞台聚光燈，觀眾席的剪影在底部。',{k:'hall'});
+ LV(85,'bg.lv85','bg','星空音樂廳','音樂廳的屋頂向夜空敞開，音符一個個從舞台飄上星空。',{k:'starhall'});
+ const T100={c1:'#ffd36b',c2:'#c9b6ff'};
+ LV(100,'bg.lv100','bg','樂聖之夜・背景','金色五線譜在紫色星夜中流動，線上的音符一明一滅。',Object.assign({k:'lv100'},T100));
+ LV(100,'frame.lv100','frame','樂聖之夜・外框','金色外線加紫色細內線，四角鑲星，上緣一個音符。',Object.assign({k:'lv100'},T100));
+ LV(100,'orb.lv100','orb','樂聖之夜・光球','金色圓盤刻著一個八分音符，三個小音符繞著轉。',Object.assign({k:'lv100'},T100));
+ LV(100,'trail.lv100','trail','樂聖之夜・尾跡','金紫色寬帶，一串音符沿著它排開。',Object.assign({k:'lv100'},T100));
+ LV(100,'hit.lv100','hit','樂聖之夜・擊中','和弦浮現、星芒一閃，再加一圈金環。',Object.assign({k:'lv100'},T100));
+ LV(100,'theme.lv100','theme','樂聖之夜','金色五線譜在紫色星夜中流動，搭配音符光球、音符串尾跡、和弦與星芒。',{parts:['bg.lv100','frame.lv100','orb.lv100','trail.lv100','hit.lv100'],T:Object.assign({bg:'lv100',frame:'lv100',orb:'lv100',trail:'lv100',hit:'lv100'},T100),limited:false,note:''});}
 // ---------- preview scene (same engine as the catalogue) ----------
 const DEF={bg:'stars',frame:'glow',orb:'circle',trail:'ribbon',hit:'ring',c1:'#7cf0ff',c2:'#8f6bff'};
 // the made-up game screens drawn in the preview (home, song menu): shown text, translated once
@@ -909,7 +1042,7 @@ function setKeep(id,v){if(v)state.keep[id]=1;else delete state.keep[id];bump()}
 function comboCols(h,sat,g){const gold=g>.5,hh=h;return{c1:gold?'#ffd36b':hsl2hex(hh,sat,sat?62:88),c2:gold?'#fff1c2':hsl2hex(hh+20,sat,sat?72:96)}}
 // the achievement id (what how / also hold) is never renamed; the name shown to players comes from ach-data.js (PPLACH), when it differs
 function achName(id){const D=window.PPLACH,a=D&&D.list&&D.list.find(x=>x.id===id),o=I18&&I18.ach(id);return o&&o.name||(a?a.name:id)}
-function howText(it){const h=it.how;return it.retired?TX('已停止取得（原本持有者保留）'):h==='default'?TX('預設'):h==='buy'?'NT$'+it.price:h==='sponsor'?TX('贊助'):h.indexOf('ach:')===0?TX('成就：{name}',{name:achName(h.slice(4))}):h}
+function howText(it){const h=it.how;return it.retired?TX('已停止取得（原本持有者保留）'):h==='default'?TX('預設'):h==='buy'?'NT$'+it.price:h==='sponsor'?TX('贊助'):h.indexOf('ach:')===0?TX('成就：{name}',{name:achName(h.slice(4))}):h.indexOf('lv:')===0?TX('達到 Lv {n} 獲得',{n:h.slice(3)}):h}
 // every id a purchase of `it` hands out (a theme gives its parts; sponsorship gives the title/avatar/plate)
 function grants(it){
   if(!it)return[];if(it.cat==='theme')return [it.id].concat(it.parts||[]);
@@ -926,6 +1059,12 @@ function previewT(it){
   return T}
 // ---- avatar / plate / title html (used by the shop, the collection and, once the server sends them, lists and rooms) ----
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+// 小光 stickers stand in for these emoji wherever phrases are shown (room bubbles, quick-say, messages, shop)
+const EMO={'👍':'good','👌':'good','🔥':'fire','🥰':'love','😮':'wow','🙌':'wow','👏':'clap','🤝':'gg','😭':'cry','🎵':'encore','🔁':'encore'};
+// skin tones, ZWJ sequences and FE0F forms stay as they are. No lookbehind (Safari before 16.4 cannot parse one, and the whole file would fail):
+// a ZWJ right before the emoji is matched as group 1 and the match is then left unchanged.
+let EMO_RE=null;try{EMO_RE=new RegExp('(\\u200D)?('+Object.keys(EMO).join('|')+')(?!\\uFE0F|\\u200D|\\p{Emoji_Modifier})','gu')}catch(e){}
+const emo=s=>{const h=esc(s);return EMO_RE?h.replace(EMO_RE,(m,z,e)=>z?m:'<img class="emo" src="emo_'+EMO[e]+'.webp" alt="'+e+'" draggable="false">'):h};
 function avSpec(id,tier){const it=byId[id];return it&&it.a?it.a:AVDEF(tier==null?2:Math.max(0,Math.min(6,tier)))}
 function avHTML(spec,px,online){return '<span class="cx-avw'+(spec.lux?' lux':'')+'"><img src="'+avURL(spec,px)+'" width="'+px+'" height="'+px+'" alt="">'+(online?'<i class="on"></i>':'')+'</span>'}
 const TIERCLS=['','t1','t2','t3','t4','sp'];
@@ -949,11 +1088,12 @@ function thumb(T,w,h,dpr){
 // ---- room seats: only a border colour and a soft background (the full plate look stays in lists and the shop) ----
 const SEATS={'plate.glow':['#3fd8ff','rgba(124,240,255,.14)'],'plate.neonflow':['#ff6f95','linear-gradient(90deg,rgba(255,111,149,.3),rgba(143,107,255,.3))'],'plate.sakura':['#ff9fd0','rgba(255,159,208,.2)'],
  'plate.ice':['#bfefff','rgba(63,140,190,.32)'],'plate.pixel':['#8fe388','rgba(12,24,12,.75)','4px'],'plate.beacon':['#ffd36b','linear-gradient(90deg,rgba(255,211,107,.26),rgba(255,143,209,.18))'],
- 'plate.ink':['#cfc6b0','rgba(236,229,214,.14)'],'plate.orbit':['#c9b6ff','rgba(201,182,255,.14)'],'plate.immortal':['#f6e7b4','rgba(246,231,180,.15)']};
+ 'plate.ink':['#cfc6b0','rgba(236,229,214,.14)'],'plate.orbit':['#c9b6ff','rgba(201,182,255,.14)'],'plate.immortal':['#f6e7b4','rgba(246,231,180,.15)'],
+ 'plate.lv20':['#c9b6ff','rgba(201,182,255,.14)'],'plate.lv40':['#c9a35a','rgba(90,64,32,.5)'],'plate.lv60':['#ffd36b','rgba(255,211,107,.16)'],'plate.lv80':['#7a5a2a','rgba(217,199,154,.3)']};
 function seatStyle(plateId){const s=SEATS[plateId];return s?'border-color:'+s[0]+';background:'+s[1]+(s[2]?';border-radius:'+s[2]:''):''}
 const tierOfCombo=c=>c>=100?6:c>=75?5:c>=50?4:c>=35?3:c>=20?2:c>=10?1:0;
 return{seatStyle,tierOfCombo,items,byId,cats:CATS,slots:SLOTS,defaults:DEFAULTS,state,pfx:PFX,look,resolve,bump,ownedItem,equipOne,equipTheme,themeSlots,keepOf,setKeep,comboCols,howText,achName,grants,previewT,
-  scene,step,thumb,avDraw,avURL,avSpec,avHTML,plateHTML,nameHTML,titleHTML,esc,hsl2hex,hexA,TIERS,
+  scene,step,thumb,avDraw,avURL,avSpec,avHTML,plateHTML,nameHTML,titleHTML,esc,emo,hsl2hex,hexA,TIERS,
   draw:{BG,ORB,TRAIL,hit,drawP,frame,frameC,TAU,glow,rnd},cons:CONS,
   summary(){const c={};for(const it of items)c[it.cat]=(c[it.cat]||0)+1;return{total:items.length,byCat:c}}};
 })();

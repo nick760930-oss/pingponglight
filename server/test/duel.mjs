@@ -80,12 +80,12 @@ const at = (log, i, x) => { const l = log.slice(); l[i] = x; return l; };
   ok(duelJudge(S, D0, [], undefined) === null && duelJudge(S, D0, plain(N + 1)) === null, 'judge: empty and too long logs');
   ok(duelJudge('nope', 0, plain()) === null && duelJudge(S, 9, plain()) === null, 'judge: unknown song / difficulty');
   // life: a whole log that would have died is not ok
-  const SD = songs.find(s => CHARTS[s].n[2] >= 30), N2 = CHARTS[SD].n[2];     // 困難: 7 life per miss, 30 life: five misses in a row end it
-  const dead = Array.from({ length: N2 }, (_, i) => i < 5 ? null : [0, 300]);
+  const SD = songs.find(s => CHARTS[s].n[2] >= 30), N2 = CHARTS[SD].n[2];     // 困難: 5 life per miss, 30 life: six misses in a row end it
+  const dead = Array.from({ length: N2 }, (_, i) => i < 6 ? null : [0, 300]);
   const jd = duelJudge(SD, 2, dead.map((x, i) => x && [0, i >= sprintAt(N2, 2) ? 600 : 300]));
   ok(jd && jd.ok === 0 && jd.n === N2, 'judge: a whole log whose life ran out is ok 0');
-  const alive = Array.from({ length: N2 }, (_, i) => i < 4 ? null : [0, i >= sprintAt(N2, 2) ? 600 : 300]);
-  ok(duelJudge(SD, 2, alive).ok === 1, 'judge: four misses (28 life) and then hits: ok 1');
+  const alive = Array.from({ length: N2 }, (_, i) => i < 5 ? null : [0, i >= sprintAt(N2, 2) ? 600 : 300]);
+  ok(duelJudge(SD, 2, alive).ok === 1, 'judge: five misses (25 life) and then hits: ok 1');
   // shields: too many 0 entries
   ok(duelJudge(S, D0, plain().map((x, i) => i < 10 ? 0 : x)) === null, 'judge: more shields than power-ups could appear: refused');
   // the seat message

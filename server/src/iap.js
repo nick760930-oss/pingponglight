@@ -16,6 +16,7 @@
 // and they add nothing to the sponsor total. Restoring a purchase on another account moves it (see iapProcess).
 import { CATALOG } from './catalog.js';
 import { grantStmts, sponsorSync } from './cos.js';
+import { LIGHT_PRODUCTS, lightTx } from './level.js';
 
 export const BUNDLE_ID = 'com.nocticat.pingponglight';
 // Apple Root CA - G3 (https://www.apple.com/certificateauthority/AppleRootCA-G3.cer), base64 of the DER file.
@@ -109,10 +110,10 @@ export async function loadRoot(env) {
 
 // ---- the JWS ----
 // -> { ok: true, payload } or { ok: false, why }. now = the time to judge certificate validity at (the transaction's own signing time is used when present).
-export async function verifyJws(jws, root, now = Date.now()) {
+export async function verifyJws(jws, root, now = Date.now(), max = MAX_JWS) {   // max: the longest accepted text (a notification wraps whole transactions, so its outer JWS gets a bigger one)
   const bad = why => ({ ok: false, why });
   try {
-    if (typeof jws !== 'string' || jws.length > MAX_JWS || !root) return bad('input');
+    if (typeof jws !== 'string' || jws.length > max || !root) return bad('input');
     const p = jws.split('.'); if (p.length !== 3 || p.some(x => !/^[A-Za-z0-9_-]+$/.test(x))) return bad('format');
     const head = JSON.parse(new TextDecoder().decode(b64(p[0]))), payload = JSON.parse(new TextDecoder().decode(b64(p[1])));
     if (!head || head.alg !== 'ES256' || !Array.isArray(head.x5c) || head.x5c.length < 1 || head.x5c.length > MAX_CHAIN) return bad('header');
@@ -146,16 +147,25 @@ const isSponsor = id => CATALOG[id] && CATALOG[id].cat === 'sponsor';
 const MOVE_GAP = 24 * 3600e3;                            // one transfer per transaction per day: a leaked receipt cannot be grabbed back and forth
 // give what a transaction bought; Sandbox purchases are 'sbx' (see cos.js)
 const srcOf = env => env === 'Sandbox' ? 'sbx' : 'iap';
-export async function iapProcess(db, root, pid, list, now = Date.now()) {
-  const out = [];
+// Light (光能) products are in level.js: light.s / .m / .l go to the bought pool, every new monthly-pass transaction gives 900 to the pass pool.
+// opts: { ph (the player's key hash; looked up from pid when missing), revoke (treat every transaction as refunded: App Store notifications REFUND / REVOKE), reverse (REFUND_REVERSED: give light back) }
+export async function iapProcess(db, root, pid, list, now = Date.now(), opts = {}) {
+  const out = []; let ph = opts.ph || null;
   for (const jws of list) {
     const v = await verifyJws(jws, root, now);
     if (!v.ok) { out.push({ status: 'bad', err: v.why }); continue; }
-    const t = v.payload, item = PRODUCTS[t.productId], tx = typeof t.transactionId === 'string' ? t.transactionId : t.transactionId != null ? String(t.transactionId) : '';
+    const t = v.payload, light = LIGHT_PRODUCTS[t.productId], item = PRODUCTS[t.productId], tx = typeof t.transactionId === 'string' ? t.transactionId : t.transactionId != null ? String(t.transactionId) : '';
     if (t.bundleId !== BUNDLE_ID) { out.push({ status: 'bad', err: 'bundle' }); continue; }
-    if (!item) { out.push({ status: 'bad', err: 'product' }); continue; }
+    if (!item && !light) { out.push({ status: 'bad', err: 'product' }); continue; }
     if (!/^\d{1,32}$/.test(tx)) { out.push({ status: 'bad', err: 'tx' }); continue; }
     if (t.environment !== 'Sandbox' && t.environment !== 'Production') { out.push({ status: 'bad', err: 'env' }); continue; }
+    if (light) {
+      if (t.type !== light.type && t.type !== light.alt) { out.push({ status: 'bad', err: 'type' }); continue; }
+      if (!ph && pid > 0) { const p = await db.prepare('SELECT ph FROM players WHERE id = ?1').bind(pid).first(); ph = p ? p.ph : null; }
+      out.push(await lightTx(db, ph, pid, t, now, opts.reverse ? 'reverse' : opts.revoke ? 'revoke' : '')); continue;
+    }
+    if (opts.reverse) { out.push({ status: 'bad', err: 'product' }); continue; }   // only light is given back
+    if (opts.revoke && !(Number.isFinite(t.revocationDate) && t.revocationDate > 0)) t.revocationDate = now;   // a refund notification: the transaction counts as revoked
     if (t.type !== (isSponsor(item) ? 'Consumable' : 'Non-Consumable')) { out.push({ status: 'bad', err: 'type' }); continue; }
     const q = isSponsor(item) ? Math.max(1, Math.min(10, Number.isInteger(t.quantity) ? t.quantity : 1)) : 1, amt = isSponsor(item) && t.environment === 'Production' ? CATALOG[item].price * q : 0;   // Sandbox money is not money: no sponsor total, no reward
     const revoked = Number.isFinite(t.revocationDate) && t.revocationDate > 0 ? 1 : 0, r = { product: item, tx };
@@ -187,4 +197,39 @@ export async function iapProcess(db, root, pid, list, now = Date.now()) {
     out.push({ ...r, status: known ? 'dup' : 'granted' });
   }
   return out;
+}
+
+// ---- App Store Server Notifications (V2) ----
+// Apple POSTs { signedPayload } (a JWS, verified like a transaction; the outer text may be up to 64 KB, the transaction inside keeps the usual limit) to /iap/notify. We act on:
+//   REFUND, REVOKE     -> the transaction is revoked: light is taken back (never below 0; a pass also loses its 30 days), a cosmetic is taken away (iapProcess)
+//   REFUND_REVERSED    -> the refund was taken back: the light (and the pass days) are given again
+// Anything else is acknowledged and ignored (the monthly pass is a consumable now: there are no renewals). Each notificationUUID is handled once (iapnote), and the
+// environment of the notification must be the environment of the transaction inside it.
+// -> { ok: true, note } (answer 200 so Apple stops retrying) or { ok: false, why } (answer 400)
+export const MAX_NOTE_JWS = 65536;
+export async function iapNotify(db, root, signedPayload, now = Date.now()) {
+  const v = await verifyJws(signedPayload, root, now, MAX_NOTE_JWS);
+  if (!v.ok) return { ok: false, why: v.why };
+  const n = v.payload, data = n && n.data;
+  if (!data || typeof data !== 'object' || data.bundleId !== BUNDLE_ID || typeof n.notificationType !== 'string') return { ok: false, why: 'payload' };
+  if (data.environment !== 'Sandbox' && data.environment !== 'Production') return { ok: false, why: 'env' };
+  const type = n.notificationType;
+  if (!['REFUND', 'REVOKE', 'REFUND_REVERSED'].includes(type)) return { ok: true, note: 'ignored' };
+  if (typeof n.notificationUUID !== 'string' || !/^[0-9A-Za-z-]{8,64}$/.test(n.notificationUUID) || typeof data.signedTransactionInfo !== 'string') return { ok: false, why: 'payload' };
+  const seen = await db.prepare('SELECT 1 FROM iapnote WHERE uuid = ?1').bind(n.notificationUUID).first();
+  if (seen) return { ok: true, note: 'dup' };
+  const tv = await verifyJws(data.signedTransactionInfo, root, now);
+  if (!tv.ok) return { ok: false, why: tv.why };
+  const t = tv.payload, tx = t.transactionId != null ? String(t.transactionId) : '';
+  if (t.bundleId !== BUNDLE_ID || !/^\d{1,32}$/.test(tx)) return { ok: false, why: 'tx' };
+  if (t.environment !== data.environment) return { ok: false, why: 'env' };
+  const row = await db.prepare('SELECT pid FROM iaptx WHERE txid = ?1').bind(tx).first(), pid = row ? row.pid : 0;   // the player the transaction was granted to
+  const reverse = type === 'REFUND_REVERSED';
+  let note = 'ignored';
+  if (!reverse || pid > 0) {
+    const r = (await iapProcess(db, root, pid, [data.signedTransactionInfo], now, reverse ? { reverse: true } : { revoke: true }))[0];
+    note = r.status;
+  }
+  await db.prepare('INSERT OR IGNORE INTO iapnote (uuid, ts) VALUES (?1, ?2)').bind(n.notificationUUID, now).run();
+  return { ok: true, note };
 }

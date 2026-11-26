@@ -1,5 +1,5 @@
 // PingPongLight service worker: offline support for the static site.
-const CACHE = 'ppl-v55';
+const CACHE = 'ppl-v56';
 const PRECACHE = [
   './',
   'index.html',
@@ -21,8 +21,11 @@ const PRECACHE = [
   'credits.html',
   'privacy.html',
   'credits.en.html', 'privacy.en.html', 'credits.ja.html', 'privacy.ja.html',
+  'terms.html', 'terms.en.html', 'terms.ja.html',
   'ai_stars.webp', 'ai_aurora.webp', 'ai_sea.webp', 'ai_sakura.webp', 'ai_lava.webp',
   'ai_snow.webp', 'ai_candy.webp', 'ai_nebula.webp', 'ai_paper.webp', 'ai_mysky.webp',
+  'meteor_1.webp', 'meteor_2.webp', 'meteor_3.webp',
+  ...['good', 'fire', 'love', 'wow', 'clap', 'cry', 'gg', 'encore'].map((k) => 'emo_' + k + '.webp'),
 ];
 
 self.addEventListener('install', (event) => {

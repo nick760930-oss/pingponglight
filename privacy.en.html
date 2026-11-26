@@ -39,41 +39,50 @@ ul{padding-left:1.2em}li{margin:.3em 0}
 <body>
 <header class="top"><a class="back" href="./">‹ Back to Game</a><h1>Privacy Policy</h1></header>
 <main>
-<p class="dim">Effective date: November 20, 2026</p>
+<p class="dim">Effective date: 26 November 2026</p>
 <p class="dim">This page is a translation provided for reference. If it differs from the <a href="./privacy.html">Chinese version</a>, the Chinese version prevails.</p>
 
 <p>PingPongLight (the “Game”) does not require an account, an email address or a password, shows no ads, and does not use any tracking or analytics tools. This policy explains what data the Game handles and how it is handled.</p>
 
-<h2>1. Data Stored Only on Your Device</h2>
+<h2>1. Who collects the data</h2>
+<p>This game is operated by the individual developer Nocticat (“we”), who collects and manages the data described in this policy. See “13. Contact us” for how to reach us.</p>
+
+<h2>2. Data that stays on your device</h2>
 <p>The following data is stored only on your phone or in your browser and is not sent to us:</p>
 <ul>
 <li>Best scores, ranks and clear records for each song (the Night Sky collection map)</li>
 <li>Settings such as volume, effects and latency offset</li>
-<li>A randomly generated identifier (used on the server to recognize “this is your nickname and scores”; it contains no personal information)</li>
+<li>A randomly generated ID (used on the server to recognize “this is your nickname, scores and level and light progress”; it contains no personal information)</li>
 <li>The list of players you chose to hide on the leaderboard</li>
 </ul>
 <p>Uninstalling the Game, or clearing your browser’s site data, deletes this data as well.</p>
 
-<h2>2. Data Stored on the Server (Leaderboard and Friends)</h2>
-<p>After you set a nickname, the following data is stored on our server until you delete it:</p>
+<h2>3. Data stored on the server</h2>
+<p>The server keeps two kinds of data. The first is your <b>level and light progress</b>: it is created as soon as you play a round online, whether or not you have set a nickname, is keyed by the hash of the ID on your device (see below), does not contain a nickname, and is kept until you delete it:</p>
+<ul>
+<li><b>Progress record</b>: total experience, light (the points that regenerate naturally, those given by the monthly pass and those you bought), the monthly pass expiry time, the seconds played and the light spent today, the multiplier you chose last time, and how far level rewards have been granted. These are used to work out your level and light and are not made public. A player without a nickname does not appear on the leaderboard or in friends lists. When you set a nickname, this progress carries over to it. An anonymous progress record with no nickname and no play for a full year is deleted automatically.</li>
+<li><b>Light log</b>: each time light is bought, given by the monthly pass, taken back by a refund or spent, the server keeps the time, the amount and the matching transaction ID or song, to check the points and to handle refunds; it is kept for 2 years.</li>
+<li><b>Temporary ticket of a round in progress</b>: when a round starts, the server issues a ticket (containing the hash of your ID and the chosen multiplier) that is used to verify the result; it is deleted automatically after a while.</li>
+</ul>
+<p>The second kind is the data stored only after you set a nickname, kept until you delete it:</p>
 <ul>
 <li><b>Nickname</b>: shown publicly on the leaderboard and on friends lists. Nicknames must be unique, and those containing inappropriate words are rejected; a nickname reported by many players is hidden pending review by moderators, and reports against a nickname are kept for up to 1 year or, while the nickname is hidden, until moderators unhide it or that player’s data is deleted. Please do not use your real name.</li>
-<li><b>Hash of the identifier</b>: the server stores only the result of a one-way hash of the identifier on your device, from which the identifier itself cannot be recovered.</li>
+<li><b>Hash of your ID</b>: the server keeps only the one-way hash of the ID on your device, from which the ID itself cannot be recovered; it is the shared index of the progress record above and your nickname. The game has no account system: deleting the app, clearing its data or changing phones loses the ID on the device, and paid light cannot be found again automatically; in that case write to the address in “13. Contact us” with Apple’s receipt or transaction ID, and we can help restore it by hand.</li>
 <li><b>Leaderboard scores</b>: your best result for each song and each difficulty (accuracy, average timing error, score, max combo) and the date and time you achieved it, plus the per-beat timing error record of that run and the device type (web, iOS or Android). The date and time are used to order equal results, the per-beat record is used only to check for cheating, and neither is made public.</li>
 <li><b>Friend data</b>: your friend code, friends list, friend requests sent and received, block list, and last online time.</li>
 <li><b>Friend messages</b>: text messages between you and a friend, visible only to the two of you, and deleted automatically after 7 days. After you remove a friend or block the other person, neither of you can view these messages any more; the messages are still kept until the 7 days are up, and during that time are used only for handling reports. Messages are first filtered for inappropriate language, links and contact details.</li>
 <li><b>Reports and review</b>: when you report a message or a player, the server stores the reporter, the reported player, and a copy of the reported message (or of the messages the other person most recently sent you). This content is handed to an AI model (Cloudflare Workers AI, which runs within Cloudflare, the Game’s server provider; this content is not provided to any other third party) to judge whether it violates the community guidelines; when a violation is confirmed, the message is deleted and the sender is suspended from sending messages for 1 day, 7 days or 30 days (depending on the cumulative number of violations; a serious violation counts as two). Reports that the AI cannot decide are reviewed manually by moderators, who set the length of any suspension according to the case. Message report records are kept for up to 1 year. The violation count runs from the most recent violation and starts over once 180 days pass without a new one; the violation count record is deleted once more than 180 days have passed since both the end of the suspension period and the most recent violation.</li>
 <li><b>Achievements, cosmetics and play statistics</b>: the achievements you have earned, the cosmetics you own, the avatar, nameplate and title you currently use, and cumulative play statistics (for example, the number of clears, and the number of attempts and failures for each song and difficulty). Your avatar, nameplate and title are shown to other players.</li>
-<li><b>In-app purchases</b>: when you buy the Full Version or cosmetics inside the iOS app, payment is handled by Apple, and we do not receive your name, payment method or Apple account. After a purchase, the app sends the transaction receipt issued by Apple to the server for verification, and the server stores the transaction ID, the item purchased, the purchase environment (production or test), the record time, and whether it has been refunded, linked to your nickname, in order to grant and restore the content you purchased. When you restore purchases under a different nickname, the purchased content moves to that nickname.</li>
+<li><b>In-app purchases</b>: when you buy the full version, cosmetics or light in the iOS app, Apple processes the payment, and we never receive your name, payment method or Apple account. After a purchase, the app sends the transaction receipt signed by Apple to the server for verification; the server keeps the transaction ID, the item bought, the environment (production or test), the time recorded and whether it was refunded, linked to your nickname or (if you have not set one) to the hash of your device ID, in order to grant and restore what you bought. When Apple notifies us of a refund, the server takes back the matching light (down to 0 at the lowest) or withdraws the cosmetic. When you restore purchases under another nickname, what you bought moves to that nickname.</li>
 <li><b>Online status</b>: while the Game is open, your friends can see whether you are online, picking a song, playing (including the song title) or in a match. When you close the Game or switch it to the background, you show as offline. This status exists only in memory and is not written to the database.</li>
 </ul>
-<p>If you have not set a nickname, no data is uploaded (except problem reports that you send yourself; see below), and you can still play single-player offline as usual.</p>
+<p>Without a nickname, the server still keeps the level and light progress, the light log and the purchase records described above, but there are no leaderboard scores, friends or messages; a problem report you send yourself is kept as well (see below). You can still play the single-player mode offline as usual; progress made offline does not count toward your level.</p>
 <ul>
 <li><b>Problem reports</b>: when you tap “Report a Problem” on the Home screen or the pause menu and submit, the server stores the problem type you chose, the description you wrote, the images you chose to attach (when you report from the pause menu, a screenshot of the current game screen is attached by default, and you can remove it before sending), and the device information listed in the report window: game version, web or app, browser and system version, screen size and pixel ratio, screen safe area and game frame width, language setting, the screen you were on when reporting (for example, Playing), latency offset value, the song and difficulty most recently played, and the most recent error message. If you have set a nickname, the report is linked to your nickname. Reports are used only by the developer to fix problems, are not made public, and are deleted automatically after 180 days. Please do not put personal data in the description or images.</li>
 <li><b>IP address</b>: used only to limit request rates and protect the server from attacks; when a nickname is reported or a problem report is submitted, a hash of the IP address is stored to prevent repeated reports from the same network and to limit the number of reports per day. The hash is stored only with that report and is not used to identify individuals.</li>
 </ul>
 
-<h2>3. Data Handled When You Use Online Match</h2>
+<h2>4. Data processed when you play online</h2>
 <p>When you use “Online Match” or the friends features, the Game additionally handles the following data:</p>
 <ul>
 <li><b>Nickname and match state</b> (score, combo, life, the song and difficulty chosen): sent only to the opponents in the same room. Not stored after the room closes or times out from inactivity.</li>
@@ -81,19 +90,30 @@ ul{padding-left:1.2em}li{margin:.3em 0}
 <li><b>Online match results</b>: when you play an online match after setting a nickname, at the end of each round the per-beat record you submit is handed to the server to recalculate the score, and the result of that round is stored (song, difficulty, number of players, your place, score, accuracy, whether you got a full combo) along with the player IDs of the opponents in the same room (internal server numbers, not nicknames), in order to determine match and social achievements. The per-beat records are deleted as soon as the round is scored, and only the per-beat record of the 1st-place player of each round is kept in that round’s record, to check for cheating. Moderators may void a single round on suspicion of cheating. When you delete your online data, your match results are deleted with it, and the per-beat records kept for the rounds in which you placed 1st are cleared as well; other players’ records are not affected.</li>
 <li><b>Quick Chat in rooms</b>: chosen from a fixed list of short phrases, sent only to the players in the same room, and not stored.</li>
 </ul>
-<p>The server and database are hosted by Cloudflare. Under its <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">privacy policy</a>, Cloudflare may process connection logs for a short time for security protection.</p>
 
-<h2>4. Deleting Your Data</h2>
-<p>In the Game’s “Settings”, tap “Delete My Online Data” and confirm by tapping once more, and your nickname and the hash of your identifier, all leaderboard scores and per-beat records, online match results, friend code, friendships, friend requests, block list, friend messages, the message report records that involve you (those you filed and those filed against you), your violation count record, other players’ reports of your nickname, and problem reports submitted after you set a nickname will be permanently deleted from the server immediately (reports submitted before you set a nickname are not linked to your data and cannot be traced to whoever sent them; they are deleted automatically after 180 days). Your achievements, the cosmetics you own and your play statistics are deleted as well; the transaction records of in-app purchases are kept but are no longer linked to your data, and you can later use “Restore Purchases” to get the purchased content back under a new nickname. Reports you filed against other players’ nicknames are not deleted along with the rest: each one is part of the number of reports against that player’s nickname and is kept for up to 1 year (or, while that nickname is hidden, until moderators unhide it or that player’s data is deleted). Your player ID is, however, removed from such a record at the same time, leaving only the reported player, the time of the report and the hash of your IP address. Deletion cannot be undone; your single-player progress remains on your device.</p>
+<h2>5. Third-party services and transfers abroad</h2>
+<p>To provide the game we use the following services. They process data only as far as needed to provide their service, and we do not sell data to them or to anyone else:</p>
+<ul>
+<li><b>Cloudflare</b>: hosts the server and the database and runs Workers AI. Under its <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">privacy policy</a>, Cloudflare may process connection logs for a short time for security. A message you report is given to Cloudflare Workers AI to judge whether it breaks the rules (see “3”), and is not given to any other third party.</li>
+<li><b>Vercel</b>: hosts the game’s website (the web version, this policy and the other information pages). Under its <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener">privacy policy</a>, when you open a page Vercel processes access logs such as your IP address, browser and system information, request time and URL, in order to deliver the page and for security. We have not turned on Vercel’s analytics.</li>
+<li><b>Apple</b>: distributes the iOS app and provides in-app purchases. Payment and account data are handled by Apple under its <a href="https://www.apple.com/legal/privacy/" target="_blank" rel="noopener">privacy policy</a>; the server receives only the transaction receipts and refund notifications that Apple signs.</li>
+</ul>
+<p>The servers of these services may be located outside Taiwan, so your data may be transferred abroad for processing. We protect it with those providers’ security measures and the data-minimization principles in this policy.</p>
 
-<h2>5. What We Do Not Do</h2>
+<h2>6. Deleting your data</h2>
+<p>In the game’s “Settings”, press “Delete my online data” and confirm once more (a player without a nickname can likewise delete their own level and light progress), and the server immediately and permanently deletes your nickname and the hash of your ID, all leaderboard scores and per-beat records, online match results, friend code, friendships, friend requests, block list, friend messages, message-report records about you (those you filed and those against you), violation counts, other players’ reports of your nickname, your level and light progress, the light log, and the problem reports you sent after setting a nickname (reports sent before you set one are not linked to your data, so we cannot tell who sent them; they are deleted automatically after 180 days). Your achievements, the cosmetics you own and your play statistics are deleted too; the transaction records of in-app purchases are kept but no longer linked to your data, and you can later use “Restore purchases” to get what you bought back under a new nickname. A report you filed against another player’s nickname is not deleted with the rest: it is part of the number of reports against that nickname and is kept for up to 1 year (or, while that nickname is hidden, until moderators unhide it or that player’s data is deleted). Your player number is removed from that record at the same time, leaving only the reported player, the time of the report and the hash of the IP. Deletion cannot be undone; your single-player progress stays on your device. <b>Exception:</b> if you still have unused paid light when you delete, the server keeps three items, “the hash of your ID, the time of deletion and the paid points left”, for 1 year and then deletes them automatically; they are used only so that you can request a refund and have it checked within the refund period, contain no nickname, and are not used for anything else.</p>
+
+<h2>7. Your rights</h2>
+<p>Under the Personal Data Protection Act, you may ask to query or review the data we keep about you, to obtain a copy, to have it supplemented or corrected, to have us stop collecting, processing or using it, and to have it deleted. You can delete your own online data in the game at any time (see “6”); for other requests, write to the address in “13. Contact us” and include your nickname (for a player without a nickname, we need you to help confirm in the game so that we can recognize your records). We will answer within the period required by law. Players who live elsewhere (for example the EU or Japan) also have the rights that local law gives them; please write to us in the same way. Effect of not providing data: you can still play the single-player mode offline, but you cannot use the leaderboard, friends or online matches, and you cannot gain levels or light.</p>
+
+<h2>8. What we do not do</h2>
 <ul>
 <li>We do not collect personal data such as your name, email address, phone number, location or contacts; photos are uploaded only if you choose to attach them to a problem report</li>
 <li>We do not use advertising identifiers, and we do not track you across apps or websites</li>
-<li>We do not sell, rent or share any data with third parties</li>
+<li>We do not sell or rent any data, and we do not share data with third parties for advertising or marketing (the providers listed in “5” process data only as far as needed to provide their service)</li>
 </ul>
 
-<h2>6. Community Guidelines</h2>
+<h2>9. Community rules</h2>
 <p>By using friend messages, you agree to follow the guidelines below. The Game has zero tolerance for violating content:</p>
 <ul>
 <li>No insults, personal attacks or harassment</li>
@@ -101,19 +121,20 @@ ul{padding-left:1.2em}li{margin:.3em 0}
 <li>No scams, soliciting personal data, or steering people to contact you on other platforms</li>
 <li>No advertising or spamming</li>
 </ul>
-<p>You can report a message or block the other person in chat. If you have questions about a review result, need to appeal, or want to report other problems, please email the address in “10. Contact Us”.</p>
+<p>You can report a message or block the other player in a chat. If you have questions about a review result, want to appeal, or want to report any other problem, write to the address in “13. Contact us”.</p>
 
-<h2>7. Children</h2>
-<p>The Game is suitable for all ages. We do not knowingly collect children’s personal data. Please do not use a real name as your nickname.</p>
+<h2>10. Minors</h2>
+<p>This game is not aimed at children under 13, and we do not knowingly collect their personal data. A player under 18 should get the consent of a legal guardian before using friend messages or buying paid content. If you are a parent or guardian and find that your child’s data has been kept without your consent, write to the address in “13. Contact us” and we will help delete it. Please do not use a real name as your nickname.</p>
 
-<h2>8. Sharing Your Results</h2>
+<h2>11. Sharing your score</h2>
 <p>When you tap “Share Result”, the result image is generated only on your device and then handed to the system’s share function. Who you share it with and where is up to you.</p>
 
-<h2>9. Policy Updates</h2>
-<p>If this policy changes, we will update this page and the effective date. Major changes will be announced separately in the Game.</p>
+<h2>12. Policy updates</h2>
+<p>If this policy changes, we will update this page and the effective date. Major changes will also be announced in the game. For the terms of buying paid content and using the service, see the <a href="terms.en.html">Terms of Service</a>.</p>
 
-<h2>10. Contact Us</h2>
+<h2>13. Contact us</h2>
 <p>If you have any questions about this policy, please email: <a id="contact" href="mailto:nick760930@gmail.com">nick760930@gmail.com</a></p>
+<p class="dim">Related documents: <a href="terms.en.html">Terms of Service</a> · <a href="credits.en.html">Song and art sources</a></p>
 </main>
 </body>
 </html>

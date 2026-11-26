@@ -8,6 +8,7 @@
     "deploy": "npx -y wrangler@4.100.0 deploy",
     "db:local": "wrangler d1 migrations apply LB --local",
     "catalog": "node scripts/catalog.mjs",
+    "test:level": "node test/level.mjs",
     "test:iap": "node test/iap.mjs",
     "test:shop": "node test/shop.mjs",
     "test:spectate": "node test/spectate.js",

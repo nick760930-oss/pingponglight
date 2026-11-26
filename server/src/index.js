@@ -15,7 +15,8 @@ import { handleLb, reportSweep } from './lb.js';
 import { handleFr, friendSweep } from './friends.js';
 import { moderate } from './moderate.js';
 import { handleBug, bugSweep } from './bugs.js';
-import { handleShop } from './shop.js';
+import { handleShop, handleIapNotify } from './shop.js';
+import { handleLv, levelSweep, misconfigured } from './level.js';
 export { Hub } from './friends.js';   // presence Durable Object (friends)
 export { Arena, Lobby } from './arena.js';   // v2 multiplayer rooms (2..8) and lobby
 const ALPH = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';          // no 0/O/1/I/L
@@ -51,9 +52,10 @@ async function limited(env, key) {    // true when this key is over its limit
 }
 
 export default {
-  async scheduled(ev, env, ctx) { ctx.waitUntil(Promise.all([friendSweep(env), moderate(env, 20), bugSweep(env), reportSweep(env)])); },   // hourly (wrangler.toml [triggers])
+  async scheduled(ev, env, ctx) { ctx.waitUntil(Promise.all([friendSweep(env), moderate(env, 20), bugSweep(env), reportSweep(env), levelSweep(env)])); },   // hourly (wrangler.toml [triggers])
   async fetch(req, env, ctx) {
     const url = new URL(req.url), origin = req.headers.get('Origin');
+    if (misconfigured(env)) { console.error('IAP_ON=1 and SHOP_TEST=1 at the same time: purchases would be live while every item is free. Refusing all requests (set SHOP_TEST to 0).'); return new Response('misconfigured', { status: 503, headers: BASE_H }); }
     if (url.pathname.startsWith('/lb/')) {           // leaderboard (POST); moderation (/lb/admin) is token-only, no page
       const admin = url.pathname === '/lb/admin';
       if (!admin && !okOrigin(origin, env)) return new Response('forbidden', { status: 403, headers: BASE_H });
@@ -66,6 +68,13 @@ export default {
       const H = cors(origin);
       if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: { ...H, 'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Max-Age': '86400' } });
       return handleBug(req, env, url.pathname, clientKey(req), H, limited);
+    }
+    if (url.pathname === '/iap/notify') return handleIapNotify(req, env, clientKey(req), limited);   // App Store Server Notifications: Apple calls it, so no Origin (the signed payload is checked instead)
+    if (url.pathname.startsWith('/lv/')) {           // level and light (src/level.js)
+      if (!okOrigin(origin, env)) return new Response('forbidden', { status: 403, headers: BASE_H });
+      const H = cors(origin);
+      if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: { ...H, 'Access-Control-Allow-Methods': 'POST', 'Access-Control-Allow-Headers': 'Content-Type', 'Access-Control-Max-Age': '86400' } });
+      return handleLv(req, env, url.pathname, clientKey(req), H, limited);
     }
     if (url.pathname.startsWith('/shop/') || url.pathname.startsWith('/iap/') || url.pathname.startsWith('/ach/')) {   // shop, purchases, achievements (src/shop.js)
       if (!okOrigin(origin, env)) return new Response('forbidden', { status: 403, headers: BASE_H });

@@ -12,7 +12,11 @@ const BATCH=16,LIMIT=80000;                                                   //
 let prod=null;                                                     // Map pid -> displayPrice once the store answered; null = not known
 const inflight=new Map();                                          // txid -> Promise of its outcome, while it is being verified
 
-const pids=()=>C.items.filter(i=>i.pid).map(i=>i.pid);
+// light (level system): three consumable bottles and the monthly pass. The game's level page (game.js) buys them through the same buy();
+// the server's answer carries the new light, which is handed to game.js (PPLG.lvFrom) at once
+const LIGHT=['com.nocticat.pingponglight.light.s','com.nocticat.pingponglight.light.m','com.nocticat.pingponglight.light.l','com.nocticat.pingponglight.pass'];
+const pids=()=>C.items.filter(i=>i.pid).map(i=>i.pid).concat(LIGHT);
+const lvFrom=st=>{try{if(st&&typeof G.lvFrom==='function')G.lvFrom(st)}catch(e){}};
 async function loadProducts(){
   try{
     const r=await call('products',{ids:pids()});
@@ -34,7 +38,7 @@ async function verify(jws){
     const r=await G.api('/iap/verify',{pk:G.pkey(),jws:part},15000);
     if(!r||r.error||r._s>=400||!Array.isArray(r.results))return{fail:r||{error:'net'},results,state};
     for(const x of r.results)results.push(x);
-    if(r.state)state=r.state;
+    if(r.state){state=r.state;lvFrom(state)}
   }
   return{results,state};
 }
@@ -64,6 +68,7 @@ async function processItems(items){
 function resync(){
   const S=window.PPLSHOP;if(!S||typeof S.sync!=='function')return;
   S.sync().then(()=>{if(typeof S.render==='function')S.render()}).catch(()=>{});
+  try{if(typeof G.lvLoad==='function')G.lvLoad(true)}catch(e){}   // a renewed pass or a bottle arrived: the light total is read again
 }
 
 // Retrying: a 400 (bad request, no nickname) or 413 never gets better by repeating (no nickname: G.onMe runs it again later);

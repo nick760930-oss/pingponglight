@@ -8,7 +8,7 @@
 //   id   "<category>.<key>", e.g. orb.star, theme.aurora, title.新星; also full, sponsor.30
 //   cat  theme orb trail hit frame bg plate avatar emote share title full sponsor
 //   vis  1 when other players can see it (avatar, plate, title)
-//   how  default | buy | sponsor | ach:<achievement id>   (sponsor: given by sponsoring; the sponsor.* items are the purchasable packs)
+//   how  default | buy | sponsor | ach:<achievement id> | lv:<level, an integer 1..999>   (sponsor: given by sponsoring; the sponsor.* items are the purchasable packs)
 //   pid  store product id (buy items and the sponsor.* packs), com.nocticat.pingponglight.<id>
 //   parts  for themes: the item ids a theme purchase also gives
 //   price  NT$ (sponsor: the amount)
@@ -41,7 +41,7 @@ for (const it of list) {
   const cat = it.cat;
   if (!CATS.includes(cat)) die(id + ': unknown category ' + cat);
   const how = String(it.how == null ? '' : it.how);
-  if (!/^(default|buy|sponsor|ach:.+)$/.test(how)) die(id + ': bad how ' + how);
+  if (!/^(default|buy|sponsor|ach:.+|lv:[1-9][0-9]{0,2})$/.test(how)) die(id + ': bad how ' + how);
   const pid = how === 'buy' || cat === 'sponsor' ? String(it.pid || PID + id) : '';
   if (pid && pid !== PID + id) die(id + ': product id must be ' + PID + id + ' (got ' + pid + ')');
   const parts = Array.isArray(it.parts) ? it.parts.map(String) : [];

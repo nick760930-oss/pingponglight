@@ -33,8 +33,9 @@ a{color:var(--accent);text-underline-offset:3px}
 @media (max-height:480px){body{font-size:14px}.top{padding-top:max(6px,env(safe-area-inset-top));padding-bottom:6px}main{padding:14px 18px 16px}}
 
 .table-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
-table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px}
-th,td{padding:.55em .8em;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}
+th,td{padding:.55em .8em;text-align:left;vertical-align:top;border-bottom:1px solid var(--line);overflow-wrap:anywhere;word-break:break-word}
+th{white-space:nowrap}td.no{white-space:nowrap}td:nth-child(5){min-width:15em}td:nth-child(2),td:nth-child(3){min-width:6em}
 th{color:var(--accent);font-weight:600;background:#151a3e}
 td{color:#cfd5f5}td.no{color:var(--dim);text-align:right;font-variant-numeric:tabular-nums}
 tbody tr:nth-child(even) td{background:rgba(255,255,255,.025)}
@@ -153,10 +154,13 @@ tr:last-child td{border-bottom:none}
 </tbody>
 </table>
 </div>
+<h2>美術</h2>
+<p>遊戲的背景圖（<code>ai_*.webp</code>）、隕石圖（<code>meteor_*.webp</code>）與小光表情圖（<code>emo_*.webp</code>）由生成式 AI 協助製作；其餘外觀皆由程式繪製。</p>
 <h2>樂器音色</h2>
 <p>鋼琴：<a href="https://archive.org/details/SalamanderGrandPianoV3" target="_blank" rel="noopener noreferrer">Salamander Grand Piano</a>（Alexander Holm，<a href="https://creativecommons.org/licenses/by/3.0/deed.zh_TW" target="_blank" rel="noopener noreferrer">CC BY 3.0</a>）。<br>
 小提琴、中提琴、大提琴、弦樂合奏、撥弦、長笛、直笛、單簧管、小號、管風琴、合唱、尼龍弦吉他：FluidR3 GM 音色庫（Frank Wen，<a href="https://creativecommons.org/licenses/by/3.0/deed.zh_TW" target="_blank" rel="noopener noreferrer">CC BY 3.0</a>；採用 <a href="https://github.com/gleitz/midi-js-soundfonts" target="_blank" rel="noopener noreferrer">midi-js-soundfonts</a> 的單音錄音）。<br>
 遊戲內經過剪裁、淡出與轉檔；原創曲目的音色與鼓組由程式即時合成。</p>
+<p class="dim">相關文件：<a href="terms.html">服務條款</a> · <a href="privacy.html">隱私權政策</a></p>
 </main>
 </body>
 </html>

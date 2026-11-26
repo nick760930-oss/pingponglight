@@ -6,6 +6,7 @@ import { cleanName, nameProblem } from './names.js';
 import { friendRequest, relations, pidOf, blockedBy } from './friends.js';
 import { cosOf, NOCOS } from './cos.js';
 import { duelJudge, parseLg, ordering, settle, duelFactsFor, duelWrite, LG_MAX } from './duel.js';
+import { duelXp } from './level.js';
 import { achRecalc } from './ach.js';
 const cosOut = c => c ? { avatar: c.avatar, plate: c.plate, title: c.title, cmc: c.cmc } : NOCOS;   // what a seat wears (cos.js), only known for signed-in players
 
@@ -219,7 +220,10 @@ export class Arena {
           tried.add(p.round.id);
           try {
             const ord = ordering(p.round, p.recs, p.now), res = settle(p.round, ord, await duelFactsFor(this.env.LB, p.round, ord, p.now), p.now, p.log1);
-            if (res) { await duelWrite(this.env.LB, res); for (const r of res.rows) for (const w of this.socks()) if (this.info(w).pid === r.pid) this.send(w, { t: 'ach' }); }
+            if (res) { await duelWrite(this.env.LB, res); for (const r of res.rows) for (const w of this.socks()) if (this.info(w).pid === r.pid) this.send(w, { t: 'ach' });
+              // experience for the valid seats that finished (src/level.js duelXp): { t: 'lv', lv: <level state + gain, ups, rewards ...>, duel: { n, place, mult } } to that player's sockets
+              try { for (const x of await duelXp(this.env.LB, res, p.round.at, p.now)) for (const w of this.socks()) if (this.info(w).pid === x.pid) this.send(w, { t: 'lv', lv: x.lv, duel: x.duel }); } catch (e) {}
+            }
             left.set(p.round.id, null);
           } catch (e) { left.set(p.round.id, p.tries < PEND_TRIES ? { ...p, tries: p.tries + 1 } : null); }
         }

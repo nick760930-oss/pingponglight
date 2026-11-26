@@ -13,10 +13,11 @@ crons = ["17 * * * *"]
 binding = "AI"
 
 # SHOP_TEST = "1": every purchasable item can be taken for free (shop.js, the free test period). IAP_ON = "1" switches on
-# /iap/verify (App Store purchases); anything else answers 503 {error:"off"}. Local tests override both with --var.
+# /iap/verify (App Store purchases); anything else answers 503 {error:"off"}. These are the production values; local tests override
+# them with --var or .dev.vars. Both at 1 is refused (every request answers 503, see misconfigured in src/level.js).
 [vars]
-SHOP_TEST = "1"
-IAP_ON = "0"
+SHOP_TEST = "0"
+IAP_ON = "1"
 
 [[durable_objects.bindings]]
 name = "ROOMS"

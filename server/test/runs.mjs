@@ -50,11 +50,11 @@ const big = songs.slice().sort((a, b) => N(b, 0) - N(a, 0))[0];
 const perfect = (s, d) => Array.from({ length: N(s, d) }, () => [0, 300]);
 const withAt = (log, i, x) => { const l = log.slice(); l[i] = x; return l; };
 const sub = (P, s, d, log, star, age) => post('/lb/submit', { run: ticket(P.id, s, d, age), pk: P.pk, log, ...(star ? { star } : {}) });
-const end = (P, s, d, kind, log, star, age = kind === 'quit' ? 900e3 : 20e3, seq) => post('/lb/end', { run: ticket(P.id, s, d, age), pk: P.pk, kind, ...(log ? { log } : {}), ...(star ? { star } : {}), ...(seq ? { seq } : {}) });
+const end = (P, s, d, kind, log, star, age = kind === 'quit' ? 900e3 : 70e3, seq) => post('/lb/end', { run: ticket(P.id, s, d, age), pk: P.pk, kind, ...(log ? { log } : {}), ...(star ? { star } : {}), ...(seq ? { seq } : {}) });
 const sync = async P => { const r = await handleShop(new Request('http://t/ach/sync', { method: 'POST', body: JSON.stringify({ pk: P.pk }) }), env, '/ach/sync', '203.0.113.9', {}, async () => false); return { s: r.status, j: await r.json() }; };
 const itemCap = (s, d) => Math.max(1, 2 + Math.floor((CHARTS[s].dur / CHARTS[s].spd[d] + 3.8 - 9) / 8));
 const got = (r, id) => !!(r.j.ach && r.j.ach.includes(id));
-const S = songs[0], D2 = 2;   // difficulty 2 costs 7 life per miss, 3 costs 2, 0 costs 3
+const S = songs[0], D2 = 2;   // difficulty 2 costs 5 life per miss, 3 costs 1, 0 costs 2
 
 // ---- /lb/start ----
 {
@@ -119,33 +119,34 @@ const S = songs[0], D2 = 2;   // difficulty 2 costs 7 life per miss, 3 costs 2, 
 // ---- life replay and /lb/end ----
 {
   const P = await player(), M = null, H = [0, 300];
-  const dead5 = [M, M, M, M, M];                                      // difficulty 2: 30 -> 23 -> 16 -> 9 -> 2 -> 0
-  let r = await end(P, S, D2, 'fail', dead5); ok(r.j.ok && Array.isArray(r.j.ach), 'fail: a possible fall is accepted');
+  const dead6 = [M, M, M, M, M, M];                                   // difficulty 2: 30 -> 25 -> 20 -> 15 -> 10 -> 5 -> 0
+  const M5 = [M, M, M, M, M];                                          // 5 life left
+  let r = await end(P, S, D2, 'fail', dead6); ok(r.j.ok && Array.isArray(r.j.ach), 'fail: a possible fall is accepted');
   let t = q1('SELECT ends, fails FROM tries WHERE pid = ? AND song = ? AND d = ?', P.id, S, D2); ok(t.ends === 1 && t.fails === 1, 'fail: records one try and one failure');
-  ok(failCheck(S, D2, dead5), 'failCheck: 5 misses at difficulty 2');
-  ok(!failCheck(S, D2, [M, M, M]) && !failCheck(S, D2, [M, M, M, M]), 'failCheck: not enough misses to fall');
+  ok(failCheck(S, D2, dead6), 'failCheck: 6 misses at difficulty 2');
+  ok(!failCheck(S, D2, [M, M, M, M]) && !failCheck(S, D2, M5), 'failCheck: not enough misses to fall');
   r = await end(P, S, D2, 'fail', [M, M, M]); ok(r.s === 400 && r.j.error === 'log', 'fail: an impossible fall is refused');
-  ok(!failCheck(S, D2, [M, M, M, M, M, M]), 'failCheck: life was gone before the last beat');
-  ok(!failCheck(S, D2, [M, M, M, M, 0]) && !failCheck(S, D2, [M, M, M, M, H]), 'failCheck: the last entry must be a real miss');
-  ok(failCheck(S, D2, [M, M, M, M, 0, M]), 'failCheck: a shielded miss costs nothing: the fall comes later');
-  ok(failCheck(S, D2, [M, M, M, M, H, M]) && !failCheck(S, D2, [M, M, M, M, H, H, H, H, M]), 'failCheck: perfect hits heal 2 each (2 -> 10 after four hits: survives a miss at 7)');
-  ok(failCheck(S, 3, Array(15).fill(M)) && !failCheck(S, 3, Array(14).fill(M)), 'failCheck: difficulty 3 costs 2 per miss (15 misses)');
-  ok(failCheck(S, 0, Array(10).fill(M)) && !failCheck(S, 0, Array(9).fill(M)), 'failCheck: difficulty 0 costs 3 per miss');
-  ok(failCheck(S, 4, Array(4).fill(M)) && !failCheck(S, 4, Array(3).fill(M)) && failCheck(S, 1, Array(8).fill(M)) && !failCheck(S, 1, Array(7).fill(M)), 'failCheck: difficulty 4 costs 8, difficulty 1 costs 4');
+  ok(!failCheck(S, D2, [...M5, M, M]), 'failCheck: life was gone before the last beat');
+  ok(!failCheck(S, D2, [...M5, 0]) && !failCheck(S, D2, [...M5, H]), 'failCheck: the last entry must be a real miss');
+  ok(failCheck(S, D2, [...M5, 0, M]), 'failCheck: a shielded miss costs nothing: the fall comes later');
+  ok(failCheck(S, D2, [...M5, [200, 100], M]) && !failCheck(S, D2, [...M5, H, M]), 'failCheck: a perfect hit heals 2 (5 -> 7: survives a miss at 5), an ok-tier hit heals nothing');
+  ok(failCheck(S, 3, Array(30).fill(M)) && !failCheck(S, 3, Array(29).fill(M)), 'failCheck: difficulty 3 costs 1 per miss (30 misses)');
+  ok(failCheck(S, 0, Array(15).fill(M)) && !failCheck(S, 0, Array(14).fill(M)), 'failCheck: difficulty 0 costs 2 per miss');
+  ok(failCheck(S, 4, Array(5).fill(M)) && !failCheck(S, 4, Array(4).fill(M)) && failCheck(S, 1, Array(10).fill(M)) && !failCheck(S, 1, Array(9).fill(M)), 'failCheck: difficulty 4 costs 6, difficulty 1 costs 3');
   ok(!failCheck(S, D2, []) && !failCheck(S, D2, 'x') && !failCheck(S, D2, Array(N(S, D2)).fill(M)), 'failCheck: empty, junk and full-length logs refused');
-  ok(!failCheck(S, D2, [M, M, M, M, [0, 5000]]) && !failCheck(S, D2, [M, M, M, M, [999, 300]]), 'failCheck: every entry gets the same checks as judge');
-  ok(failCheck(S, D2, dead5, [[0, 2]]) && !failCheck(S, D2, dead5, [[0, 9]]), 'failCheck: star ranges are checked against the partial length');
+  ok(!failCheck(S, D2, [...M5, [0, 5000]]) && !failCheck(S, D2, [...M5, [999, 300]]), 'failCheck: every entry gets the same checks as judge');
+  ok(failCheck(S, D2, dead6, [[0, 2]]) && !failCheck(S, D2, dead6, [[0, 9]]), 'failCheck: star ranges are checked against the partial length');
   // tiers heal 2/1/1/0: a tier-3 hit gives nothing
-  { const pre = Array(14).fill(M);   // difficulty 3 (2 per miss): 14 misses leave 2 life; an ok-tier hit heals 0, a good-tier hit 1
-    ok(failCheck(S, 3, [...pre, [200, 100], M]) && !failCheck(S, 3, [...pre, [100, 120], M]) && !failCheck(S, 3, [...pre, [30, 280], M]), 'failCheck: heal by tier: ok 0 (falls), good and perfect both heal (survives)'); }
+  { const pre = Array(9).fill(M);   // difficulty 1 (3 per miss): 9 misses leave 3 life; then a hit, then a miss. ok tier heals 0 (3 -> 0 falls); good 1 (4 -> 1) and perfect 2 (5 -> 2) survive
+    ok(failCheck(S, 1, [...pre, [200, 100], M]) && !failCheck(S, 1, [...pre, [100, 120], M]) && !failCheck(S, 1, [...pre, [30, 280], M]), 'failCheck: heal by tier: ok 0 (falls), good and perfect both heal (survives)'); }
   r = await end(P, S, D2, 'fail'); ok(r.s === 400 && r.j.error === 'log', 'fail without a log: refused');
   // quit
   r = await end(P, S, D2, 'quit'); ok(r.j.ok, 'quit: accepted'); t = q1('SELECT ends, fails FROM tries WHERE pid = ? AND song = ? AND d = ?', P.id, S, D2); ok(t.ends === 2 && t.fails === 1, 'quit: one more try, no failure');
   // timing, kinds, tickets
   r = await end(P, S, D2, 'quit', null, null, 5e3); ok(r.s === 400 && r.j.error === 'ticket', 'end: under 10 seconds is refused');
-  r = await end(P, S, D2, 'fail', dead5, null, 2e3); ok(r.s === 400 && r.j.error === 'ticket', 'end (fail): under 3 seconds is refused');
+  r = await end(P, S, D2, 'fail', dead6, null, 2e3); ok(r.s === 400 && r.j.error === 'ticket', 'end (fail): under 3 seconds is refused');
   r = await end(P, S, D2, 'quit', null, null, 3 * 3600e3 + 5e3); ok(r.s === 400 && r.j.error === 'ticket', 'end: older than 3 hours is refused');
-  r = await end(P, S, D2, 'fail', dead5, null, 3.5e3); ok(r.j.ok, 'end (fail): 3 seconds is enough');
+  r = await end(P, S, D2, 'fail', dead6, null, 3.5e3); ok(r.j.ok, 'end (fail): 3 seconds is enough');
   r = await post('/lb/end', { run: ticket(P.id, S, D2, 20e3), pk: P.pk, kind: 'win' }); ok(r.s === 400 && r.j.error === 'bad', 'end: only fail or quit');
   r = await post('/lb/end', { run: legacy(S, D2, 20e3), pk: P.pk, kind: 'quit' }); ok(r.s === 400 && r.j.error === 'ticket', 'end: legacy tickets are refused');
   const tk = ticket(P.id, S, D2, 20e3); await post('/lb/end', { run: tk, pk: P.pk, kind: 'quit' });
@@ -156,7 +157,7 @@ const S = songs[0], D2 = 2;   // difficulty 2 costs 7 life per miss, 3 costs 2, 
   // a failed attempt with a bad log did not use the ticket up
   const tk2 = ticket(P.id, S, D2, 20e3);
   r = await post('/lb/end', { run: tk2, pk: P.pk, kind: 'fail', log: [M, M, M] }); ok(r.s === 400, 'bad log refused');
-  r = await post('/lb/end', { run: tk2, pk: P.pk, kind: 'fail', log: dead5 }); ok(r.j.ok, 'a refused log does not burn the ticket');
+  r = await post('/lb/end', { run: tk2, pk: P.pk, kind: 'fail', log: dead6 }); ok(r.j.ok, 'a refused log does not burn the ticket');
 }
 
 // ---- star-time ranges ----
@@ -210,30 +211,30 @@ const S = songs[0], D2 = 2;   // difficulty 2 costs 7 life per miss, 3 costs 2, 
     const rw = CONS.filter(c => c[2]).flatMap(c => c[1])[0]; r = await end(P, rw, 0, 'quit'); ok(!got(r, '遍聽'), '遍聽: a reward-constellation song does not count');
     r = await end(P, all[70], 0, 'quit'); ok(got(r, '遍聽'), '遍聽 with all 71'); }
   // 百折不撓: 30 ended runs of one song, any difficulty
-  { const P = await player(); let r; for (let i = 0; i < 29; i++) r = await end(P, S, i % 5, i % 2 ? 'quit' : 'fail', i % 2 ? null : Array(i % 5 === 0 ? 10 : i % 5 === 1 ? 8 : i % 5 === 2 ? 5 : i % 5 === 3 ? 15 : 4).fill(M));
+  { const P = await player(); let r; for (let i = 0; i < 29; i++) r = await end(P, S, i % 5, i % 2 ? 'quit' : 'fail', i % 2 ? null : Array(i % 5 === 0 ? 15 : i % 5 === 1 ? 10 : i % 5 === 2 ? 6 : i % 5 === 3 ? 30 : 5).fill(M));
     ok(r.j.ok && !got(r, '百折不撓'), '百折不撓 not with 29'); r = await end(P, S, 1, 'quit'); ok(got(r, '百折不撓'), '百折不撓 with 30');
     const Q = await player(); for (let i = 0; i < 20; i++) await end(Q, songs[i % 20], 0, 'quit'); r = await end(Q, songs[0], 0, 'quit'); ok(!got(r, '百折不撓'), '百折不撓 needs one song'); }
   // 屢敗屢戰: the chart failed 5 times before, then cleared
-  { const P = await player(); for (let i = 0; i < 4; i++) await end(P, S, D2, 'fail', Array(5).fill(M));
+  { const P = await player(); for (let i = 0; i < 4; i++) await end(P, S, D2, 'fail', Array(6).fill(M));
     let r = await sub(P, S, D2, perfect(S, D2)); ok(!got(r, '屢敗屢戰'), '屢敗屢戰 not with 4 fails');
-    const Q = await player(); for (let i = 0; i < 5; i++) await end(Q, S, D2, 'fail', Array(5).fill(M));
+    const Q = await player(); for (let i = 0; i < 5; i++) await end(Q, S, D2, 'fail', Array(6).fill(M));
     r = await sub(Q, S, 1, perfect(S, 1)); ok(!got(r, '屢敗屢戰'), '屢敗屢戰: the fails belong to the chart (another difficulty does not count)');
     r = await sub(Q, S, D2, perfect(S, D2)); ok(got(r, '屢敗屢戰'), '屢敗屢戰 with 5 fails then a clear');
     const R = await player(); for (let i = 0; i < 5; i++) await end(R, S, D2, 'quit'); r = await sub(R, S, D2, perfect(S, D2)); ok(!got(r, '屢敗屢戰'), '屢敗屢戰: quits are not failures'); }
   // life: 一線生機 / 不滅
-  { const n = N(S, D2), P = await player(), base = perfect(S, D2), tail = base.slice(0, n - 4).concat([M, M, M, M]);   // 4 misses at the end: 30 -> 2
+  { const H = [0, 300], n = N(S, D2), P = await player(), base = perfect(S, D2), tail = base.slice(0, n - 7).concat([M, M, M, M, M, H, M]);   // difficulty 2 (5 per miss): 5 misses 30 -> 5, a perfect hit -> 7, a miss -> 2
     let r = await sub(P, S, D2, tail); ok(r.j.ok && got(r, '一線生機'), '一線生機: finished with 2 life');
     const Q = await player(); r = await sub(Q, S, D2, base); ok(!got(r, '一線生機') && !got(r, '不滅'), '一線生機 not with full life');
-    const R = await player(); r = await sub(R, S, D2, base.slice(0, n - 3).concat([M, M, M])); ok(!got(r, '一線生機'), '一線生機 not with 9 life (3 misses at 7)');
-    const X = await player(), gone = [M, M, M, M, M].concat(base.slice(0, n - 9), [M, M, M, M]);   // the life was gone at beat 5, then healed, then 4 misses
+    const R = await player(); r = await sub(R, S, D2, base.slice(0, n - 8).concat([M, M, M, M, M, H, [100, 120], M])); ok(!got(r, '一線生機'), '一線生機 not with 3 life (5 misses 30 -> 5, +2 +1, a miss -> 3: the boundary)');
+    const X = await player(), gone = [M, M, M, M, M, M].concat(base.slice(0, n - 13), [M, M, M, M, M, H, M]);   // the life was gone at beat 6, then healed, then 5 misses, a hit and a miss (2 life at the end)
     r = await sub(X, S, D2, gone); ok(r.j.ok && r.j.ach.includes('新星') && !got(r, '一線生機') && !got(r, '不滅'), 'life that hit 0 in a finished run: accepted, but no life achievement'); }
-  { const d = 0, n = N(big, d), P = await player(), M2 = null;       // difficulty 0: 3 per miss. 9 misses -> 3, a good-tier hit (+1) -> 4, a miss -> 1
+  { const d = 1, n = N(big, d), P = await player(), M2 = null;       // difficulty 1: 3 per miss (difficulty 0 needs 15 misses, too many for rank A). 9 misses -> 3, a good-tier hit (+1) -> 4, a miss -> 1
     const mk = lo => { const l = perfect(big, d); for (let i = 0; i < 9; i++) l[i] = M2; l[9] = [100, 120]; l[10] = M2; return l; };
     let r = await sub(P, big, d, mk()); const r0 = judge(big, d, mk());
     ok(r0.life.min === 1 && r0.life.dead < 0 && r0.rank === 'A', '不滅 test run: lowest life 1, never gone, rank A (' + r0.life.min + ',' + r0.rank + ')');
     ok(got(r, '不滅'), '不滅: lowest life exactly 1 with rank A'); ok(!got(r, '一線生機') || r0.life.end < 3, '(end life ' + r0.life.end + ')');
     const Q = await player(); const l2 = perfect(big, d); for (let i = 0; i < 8; i++) l2[i] = M2; r = await sub(Q, big, d, l2); ok(judge(big, d, l2).life.min === 6 && !got(r, '不滅'), '不滅 not when the lowest life is 6');
-    const R = await player(); const l3 = perfect(big, d); for (let i = 0; i < 9; i++) l3[i] = M2; l3[9] = [100, 120]; l3[10] = M2; for (let i = 11; i < 200; i++) l3[i] = M2;   // many misses: rank below A, and life goes to 0 anyway
+    const R = await player(); const l3 = perfect(big, d); for (let i = 0; i < 9; i++) l3[i] = M2; l3[9] = [100, 120]; l3[10] = M2; for (let i = 11; i < n; i++) l3[i] = M2;   // many misses: rank below A, and life goes to 0 anyway
     r = await sub(R, big, d, l3); ok(!got(r, '不滅'), '不滅 not below rank A / when the life ran out'); }
   // star time: 星光初拾 / 星光全收 / 金色時刻
   { const S1 = songs.slice().sort((a, b) => N(b, 4) - N(a, 4))[0], n = N(S1, 4), pr = perfect(S1, 4);
@@ -287,26 +288,26 @@ const S = songs[0], D2 = 2;   // difficulty 2 costs 7 life per miss, 3 costs 2, 
 {
   const M = null, H = [0, 300], P = await player();
   // a fall on the very last beat is a legal fail (log length N)
-  const n3 = N(S, 3), last = perfect(S, 3).slice(0, n3 - 15).concat(Array(15).fill(M));
-  let r = await end(P, S, 3, 'fail', last); ok(failCheck(S, 3, last) && r.j.ok, 'fail: life reaching 0 exactly on the last beat of the song (log length N)');
-  ok(!failCheck(S, 3, perfect(S, 3).slice(0, n3 - 14).concat(Array(14).fill(M))), 'fail: 14 misses at the end do not reach 0');
-  // seq: beats 7 and 8 settled in the other order. Difficulty 1: 4 life per miss, two balls (displacement must stay below 2)
-  const f1 = [M, M, M, M, M, M, M, M, H];                       // beat 7 miss, beat 8 hit
-  const s1 = [0, 1, 2, 3, 4, 5, 6, 8, 7];                       // the hit settled first: 2 -> 4 -> 0 at beat 7, the last settled
+  const n3 = N(S, 0), last = perfect(S, 0).slice(0, n3 - 15).concat(Array(15).fill(M));   // difficulty 0 (2 per miss): 15 misses reach 0 (difficulty 3 would need 30 = the whole song)
+  let r = await end(P, S, 0, 'fail', last); ok(failCheck(S, 0, last) && r.j.ok, 'fail: life reaching 0 exactly on the last beat of the song (log length N)');
+  ok(!failCheck(S, 0, perfect(S, 0).slice(0, n3 - 14).concat(Array(14).fill(M))), 'fail: 14 misses at the end do not reach 0');
+  // seq: beats 11 and 12 settled in the other order. Difficulty 1: 3 life per miss, two balls (displacement must stay below 2)
+  const f1 = [M, M, M, M, M, M, M, M, M, [100, 120], M, M, H];  // 9 misses -> 3, a good hit -> 4, a miss -> 1; beat 11 miss, beat 12 hit
+  const s1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 11];        // the hit settled first: 1 -> 3 -> 0 at beat 11, the last settled (beat order: dead at beat 11, then a hit)
   ok(!failCheck(S, 1, f1) && failCheck(S, 1, f1, undefined, s1), 'seq: in beat order that run is not a fall at its end, in settle order it is');
-  const s2 = [0, 1, 2, 3, 4, 5, 6, 8], f2 = [M, M, M, M, M, M, M, M, M];   // beat 7 not settled yet (placeholder), beat 8 the fatal miss
-  ok(failCheck(S, 1, f2, undefined, s2) && !failCheck(S, 1, f2), 'seq: beats not settled yet cost no life (8 misses settled, a placeholder between)');
-  ok(!failCheck(S, 1, [M, M, M, M, M, M, M, [0, 300], M], undefined, [0, 1, 2, 3, 4, 5, 6, 8]), 'seq: an unsettled beat that is not a null placeholder is refused');
-  ok(!failCheck(S, 1, f1, undefined, [2, 1, 0, 3, 4, 5, 6, 8, 7]) && !failCheck(S, 1, f1, undefined, [0, 1, 2, 3, 4, 5, 6, 7, 6]) && !failCheck(S, 1, f1, undefined, [0, 0, 2, 3, 4, 5, 6, 8, 7]), 'seq: displacement of nb or more, a repeat, a duplicate: refused');
-  ok(!failCheck(S, 1, f1, undefined, 'x') && !failCheck(S, 1, f1, undefined, [0, 1, 2, 3, 4, 5, 6, 8, 99]) && !failCheck(S, 1, f1, undefined, [0, 1.5, 2, 3, 4, 5, 6, 8, 7]), 'seq: not a list, out of range, not an integer: refused');
-  ok(!failCheck(S, 0, [M, M, M, M, M, M, M, M, M, M], undefined, [1, 0, 2, 3, 4, 5, 6, 7, 8, 9]) && failCheck(S, 0, Array(10).fill(M), undefined, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]), 'seq: one ball at a time (difficulty 0) allows no displacement');
+  const s2 = [0, 1, 2, 3, 4, 5, 6, 8, 9, 10], f2 = Array(11).fill(M);   // beat 7 not settled yet (placeholder), beat 10 the fatal miss
+  ok(failCheck(S, 1, f2, undefined, s2) && !failCheck(S, 1, f2), 'seq: beats not settled yet cost no life (10 misses settled, a placeholder between)');
+  ok(!failCheck(S, 1, [M, M, M, M, M, M, M, [0, 300], M, M, M], undefined, [0, 1, 2, 3, 4, 5, 6, 8, 9, 10]), 'seq: an unsettled beat that is not a null placeholder is refused');
+  ok(!failCheck(S, 1, f1, undefined, [2, 1, 0, 3, 4, 5, 6, 7, 8, 9, 10, 12, 11]) && !failCheck(S, 1, f1, undefined, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 10]) && !failCheck(S, 1, f1, undefined, [0, 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 11]), 'seq: displacement of nb or more, a repeat, a duplicate: refused');
+  ok(!failCheck(S, 1, f1, undefined, 'x') && !failCheck(S, 1, f1, undefined, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 99]) && !failCheck(S, 1, f1, undefined, [0, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 11]), 'seq: not a list, out of range, not an integer: refused');
+  ok(!failCheck(S, 0, Array(15).fill(M), undefined, [1, 0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]) && failCheck(S, 0, Array(15).fill(M), undefined, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]), 'seq: one ball at a time (difficulty 0) allows no displacement');
   r = await end(P, S, 1, 'fail', f1, null, 20e3, s1); ok(r.j.ok, '/lb/end accepts a seq');
-  r = await end(P, S, 1, 'fail', f1, null, 20e3, [2, 1, 0, 3, 4, 5, 6, 8, 7]); ok(r.s === 400 && r.j.error === 'log', '/lb/end refuses a seq that moves a beat too far');
+  r = await end(P, S, 1, 'fail', f1, null, 20e3, [2, 1, 0, 3, 4, 5, 6, 7, 8, 9, 10, 12, 11]); ok(r.s === 400 && r.j.error === 'log', '/lb/end refuses a seq that moves a beat too far');
   // whole run: life follows seq, everything else the beat order
-  const s4 = songs.slice().sort((a, b) => N(b, 4) - N(a, 4))[0], l4 = perfect(s4, 4); for (const i of [0, 1, 2, 3]) l4[i] = M; l4[4] = H; l4[5] = H;
-  const sq = Array.from({ length: N(s4, 4) }, (_, i) => i); [sq[3], sq[4], sq[5]] = [4, 5, 3];
+  const s4 = songs.slice().sort((a, b) => N(b, 4) - N(a, 4))[0], l4 = perfect(s4, 4); for (const i of [0, 1, 2, 3, 4]) l4[i] = M; l4[5] = H; l4[6] = H;   // difficulty 4: 6 per miss, 5 misses in beat order = 0
+  const sq = Array.from({ length: N(s4, 4) }, (_, i) => i); [sq[4], sq[5], sq[6]] = [5, 6, 4];   // the 5th miss settles after the two hits: 6 -> 8 -> 10 -> 4
   const a = judge(s4, 4, l4, undefined, true), b = judge(s4, 4, l4, undefined, true, sq);
-  ok(a.life.dead >= 0 && b.life.dead === -1 && b.life.min === 2, 'seq: full run, two hits settled before a miss: life survives where beat order would have fallen (' + a.life.dead + ' / ' + b.life.dead + ', min ' + b.life.min + ')');
+  ok(a.life.dead >= 0 && b.life.dead === -1 && b.life.min === 4, 'seq: full run, two hits settled before a miss: life survives where beat order would have fallen (' + a.life.dead + ' / ' + b.life.dead + ', min ' + b.life.min + ')');
   ok(a.acc === b.acc && a.score === b.score && a.maxCombo === b.maxCombo && a.rank === b.rank && a.miss === b.miss, 'seq: accuracy, score, combo and rank stay in beat order');
   ok([sq.slice(1), sq.map((x, i) => i === 10 ? 12 : x), 'x'].every(z => { const j = judge(s4, 4, l4, undefined, true, z); return j && j.lifeBad && j.acc === a.acc && j.score === a.score; }), 'seq: not a full permutation within nb: the run is still judged (score unchanged), only its life is marked bad');
   const sw = Array.from({ length: N(s4, 4) }, (_, i) => i); [sw[0], sw[3]] = [3, 0];
@@ -316,13 +317,13 @@ const S = songs[0], D2 = 2;   // difficulty 2 costs 7 life per miss, 3 costs 2, 
   const Q = await player(); r = await post('/lb/submit', { run: ticket(Q.id, s4, 4), pk: Q.pk, log: l4, seq: sq }); ok(r.j.ok, 'submit with seq: accepted');
   { const nb = q1('SELECT n FROM scores WHERE pid = ?', Q.id).n; r = await post('/lb/submit', { run: ticket(Q.id, s4, 4), pk: Q.pk, log: l4, seq: sw });
     ok(r.s === 200 && r.j.ok && q1('SELECT n FROM scores WHERE pid = ?', Q.id).n === nb + 1 && !got(r, '一線生機') && !got(r, '不滅'), 'submit with a bad seq: the run is accepted and counted, no life achievements'); }
-  { const X = await player(), n4 = N(S, D2), tail = perfect(S, D2).slice(0, n4 - 4).concat([M, M, M, M]);   // would earn 一線生機 (2 life at the end)
+  { const X = await player(), n4 = N(S, D2), tail = perfect(S, D2).slice(0, n4 - 7).concat([M, M, M, M, M, H, M]);   // would earn 一線生機 (2 life at the end)
     let rr = await post('/lb/submit', { run: ticket(X.id, S, D2), pk: X.pk, log: tail, seq: sw }); ok(rr.j.ok && !got(rr, '一線生機') && q1('SELECT n FROM scores WHERE pid = ?', X.id).n === 1, '一線生機 withheld when the seq is bad (score kept)');
     const Y = await player(); rr = await post('/lb/submit', { run: ticket(Y.id, S, D2), pk: Y.pk, log: tail }); ok(got(rr, '一線生機'), '(same log without a seq: earns it)'); }
   // shield and star-range caps (new tickets)
   const c = itemCap(s4, 4), base = perfect(s4, 4), zs = k => base.map((x, i) => i < k ? 0 : x);
   ok(judge(s4, 4, zs(c), undefined, true).lifeBad === false && judge(s4, 4, zs(c + 1), undefined, true).lifeBad === true && judge(s4, 4, zs(c + 1)) !== null, 'shield cap: ' + c + ' shielded misses fine, one more marks the life bad (run still judged)');
-  { const c2 = itemCap(s4, 2), mk = k => { const z = perfect(s4, 2).map((x, i) => i < k ? 0 : x); for (let i = 0; i < 4; i++) z[z.length - 1 - i] = null; return z; };   // hard: four misses at the end leave 2 life, which earns 一線生機 unless the life is bad
+  { const c2 = itemCap(s4, 2), mk = k => { const z = perfect(s4, 2).map((x, i) => i < k ? 0 : x); z.splice(z.length - 7, 7, M, M, M, M, M, H, M); return z; };   // hard: five misses, a perfect hit and a miss at the end leave 2 life, which earns 一線生機 unless the life is bad
     const X = await player(); let rr = await post('/lb/submit', { run: ticket(X.id, s4, 2), pk: X.pk, log: mk(c2 + 1) });
     ok(rr.j.ok && !got(rr, '一線生機') && q1('SELECT n FROM scores WHERE pid = ?', X.id).n === 1, 'too many shields at submit: accepted, no life achievement');
     const Y = await player(); rr = await post('/lb/submit', { run: ticket(Y.id, s4, 2), pk: Y.pk, log: mk(c2) }); ok(got(rr, '一線生機'), '(same run with shields inside the cap: earns it)');
@@ -332,15 +333,15 @@ const S = songs[0], D2 = 2;   // difficulty 2 costs 7 life per miss, 3 costs 2, 
   ok(judge(s4, 4, base, rg(c), true).sc === c && judge(s4, 4, base, rg(c + 1), true).starBad === true && judge(s4, 4, base, rg(c + 1), true).sg === 0 && judge(s4, 4, base, rg(c + 1), true).gold === 0, 'star-range cap: ' + c + ' fine, one more: no star achievements data (run still judged)');
   { const X = await player(); let rr = await post('/lb/submit', { run: ticket(X.id, s4, 4), pk: X.pk, log: base, star: rg(c + 1) }); ok(rr.j.ok && !got(rr, '星光初拾') && !got(rr, '星光全收') && !got(rr, '金色時刻'), 'too many star ranges at submit: accepted, no star achievements');
     const Y = await player(); rr = await post('/lb/submit', { run: ticket(Y.id, s4, 4), pk: Y.pk, log: withAt(base, 0, [0, 120]), star: rg(c + 1) }); ok(rr.s === 400 && rr.j.error === 'log', 'ranges still bound the base points: refused'); }
-  ok(!failCheck(S, D2, [M, M, M, M, ...Array(itemCap(S, D2) + 1).fill(0), M]) && failCheck(S, D2, [M, M, M, M, ...Array(itemCap(S, D2)).fill(0), M]), 'fail: the shield cap applies too');
-  ok(2 * itemCap(S, 3) + 2 <= n3 && failCheck(S, 3, last, rg(itemCap(S, 3)).map(g => [g[0] / 2, g[0] / 2 + 1])) && !failCheck(S, 3, last, rg(itemCap(S, 3) + 1).map(g => [g[0] / 2, g[0] / 2 + 1])), 'fail: the star-range cap applies too');
+  ok(!failCheck(S, D2, [M, M, M, M, M, ...Array(itemCap(S, D2) + 1).fill(0), M]) && failCheck(S, D2, [M, M, M, M, M, ...Array(itemCap(S, D2)).fill(0), M]), 'fail: the shield cap applies too');
+  ok(2 * itemCap(S, 0) + 2 <= n3 && failCheck(S, 0, last, rg(itemCap(S, 0)).map(g => [g[0] / 2, g[0] / 2 + 1])) && !failCheck(S, 0, last, rg(itemCap(S, 0) + 1).map(g => [g[0] / 2, g[0] / 2 + 1])), 'fail: the star-range cap applies too');
   ok(itemCap(S, 0) >= 1 && itemCap(s4, 4) === Math.max(1, 2 + Math.floor((CHARTS[s4].dur / CHARTS[s4].spd[4] - 5.2) / 8)), 'cap formula: 9 s first item, 8 s apart, +1');
   // a quit needs a quarter of the song
   const lg = songs.slice().sort((a, b) => CHARTS[b].dur / CHARTS[b].spd[0] - CHARTS[a].dur / CHARTS[a].spd[0])[0], q = CHARTS[lg].dur / CHARTS[lg].spd[0] * 250;
   ok(q > 10500, 'the longest song needs more than 10 s (' + Math.round(q) + ' ms)');
   r = await end(P, lg, 0, 'quit', null, null, q - 1500); ok(r.s === 400 && r.j.error === 'ticket', 'quit before a quarter of the song: refused');
   r = await end(P, lg, 0, 'quit', null, null, q + 1500); ok(r.j.ok, 'quit after a quarter of the song: accepted');
-  r = await end(P, lg, 0, 'fail', Array(10).fill(M), null, 3.5e3); ok(r.j.ok, 'a fail keeps the 3 second minimum');
+  r = await end(P, lg, 0, 'fail', Array(15).fill(M), null, Math.ceil(CHARTS[lg].dur / CHARTS[lg].spd[0] * 900 * 15 / N(lg, 0)) + 500); ok(r.j.ok, 'a fail is accepted once the settled share of the song could have been played');
   // tries achievements through the sync endpoint
   const T = await player(); for (let i = 0; i < 10; i++) sql.prepare('INSERT INTO tries (pid, song, d, ends, fails) VALUES (?, ?, 0, 1, 0)').run(T.id, songs[i]);
   r = await sync(T); ok(r.j.ok && r.j.fresh.includes('試聽') && !r.j.fresh.includes('百折不撓'), '/ach/sync gives 試聽 from tries');

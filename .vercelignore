@@ -5,3 +5,6 @@ app/
 codemagic.yaml
 tools/
 docs/
+README.md
+i18n/
+.vercelignore

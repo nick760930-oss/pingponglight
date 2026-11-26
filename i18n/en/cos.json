@@ -618,5 +618,164 @@
  "title.lamplighter": {
   "name": "Lamplighter",
   "desc": "Any supporter pack; light a lamp for this night sky."
+ },
+ "emote.lv5": {
+  "name": "Applause Pack",
+  "list": [
+   "👏 Brilliant!",
+   "👏 Nice hit!",
+   "👏 Lovely!",
+   "👏 Bravo to you"
+  ]
+ },
+ "emote.lv55": {
+  "name": "Encore Pack",
+  "list": [
+   "🎵 Encore!",
+   "🎵 One more song",
+   "👏 Sounds great!",
+   "🎵 More, please"
+  ]
+ },
+ "emote.lv95": {
+  "name": "Curtain Call Pack",
+  "list": [
+   "🙇 Thank you all",
+   "👏 Thanks for playing",
+   "🎵 A perfect finale",
+   "✨ See you next time"
+  ]
+ },
+ "avatar.lv10": {
+  "name": "Frame · Bronze",
+  "desc": "A bronze double-ring frame."
+ },
+ "avatar.lv30": {
+  "name": "Frame · Silver",
+  "desc": "A silver frame with tick marks."
+ },
+ "avatar.lv50": {
+  "name": "Frame · Gold",
+  "desc": "A gold gradient frame with stars at the corners."
+ },
+ "avatar.lv70": {
+  "name": "Frame · Platinum",
+  "desc": "A platinum gradient frame over radiating light."
+ },
+ "avatar.lv90": {
+  "name": "Frame · Starlight",
+  "desc": "A starlight frame whose light never stops flowing."
+ },
+ "orb.lv15": {
+  "name": "Note",
+  "desc": "A bold eighth note that bounces gently on the beat, with sound waves rippling out on both sides."
+ },
+ "orb.lv50": {
+  "name": "Metronome",
+  "desc": "The pendulum of a metronome swings with the beat and flashes on both sides at the end of each swing."
+ },
+ "trail.lv25": {
+  "name": "Note String",
+  "desc": "A string of notes laid out along the path, bobbing up and down in turn."
+ },
+ "trail.lv65": {
+  "name": "Meteor Score",
+  "desc": "A gold meteor drags an unrolled staff behind it, with stars twinkling on the lines."
+ },
+ "hit.lv35": {
+  "name": "Chord",
+  "desc": "Three notes stack into a chord on the staff, with a ring of light."
+ },
+ "hit.lv75": {
+  "name": "Timpani",
+  "desc": "A timpani is struck: the head trembles and sound waves spread out ring after ring."
+ },
+ "plate.lv20": {
+  "name": "Staff",
+  "desc": "A nameplate with a pale violet staff pattern."
+ },
+ "plate.lv40": {
+  "name": "Music Stand",
+  "desc": "A dark wooden music stand with a metal bar along the top."
+ },
+ "plate.lv60": {
+  "name": "Golden Staff",
+  "desc": "A gold staff pattern with a faintly glowing edge."
+ },
+ "plate.lv80": {
+  "name": "Maestro's Manuscript",
+  "desc": "Yellowed parchment with an ink double-line border, like a maestro's manuscript."
+ },
+ "bg.lv45": {
+  "name": "Concert Hall",
+  "desc": "Velvet curtains, gold arches, a chandelier and stage spotlights, with the silhouettes of the audience seats along the bottom."
+ },
+ "bg.lv85": {
+  "name": "Starry Concert Hall",
+  "desc": "The hall roof opens onto the night sky, and notes drift up from the stage into the stars."
+ },
+ "bg.lv100": {
+  "name": "Night of the Maestro · Background",
+  "desc": "Golden staves flow across a violet starry night, notes on the lines lighting up and fading."
+ },
+ "frame.lv100": {
+  "name": "Night of the Maestro · Frame",
+  "desc": "A gold outer line with a thin violet inner line, stars at the corners and a note on the top edge."
+ },
+ "orb.lv100": {
+  "name": "Night of the Maestro · Orb",
+  "desc": "A golden disc with an eighth note carved into it, circled by three small notes."
+ },
+ "trail.lv100": {
+  "name": "Night of the Maestro · Trail",
+  "desc": "A wide gold-and-violet ribbon with a string of notes laid along it."
+ },
+ "hit.lv100": {
+  "name": "Night of the Maestro · Hit",
+  "desc": "A chord rises, a starburst flashes, and a gold ring follows."
+ },
+ "theme.lv100": {
+  "name": "Night of the Maestro",
+  "desc": "Golden staves flow across a violet starry night, with a note orb, a note-string trail, a chord and a starburst."
+ },
+ "title.見習樂手": {
+  "name": "Apprentice Musician",
+  "desc": "Reach Lv 10 to unlock."
+ },
+ "title.樂團團員": {
+  "name": "Orchestra Member",
+  "desc": "Reach Lv 20 to unlock."
+ },
+ "title.聲部首席": {
+  "name": "Section Leader",
+  "desc": "Reach Lv 30 to unlock."
+ },
+ "title.樂團首席": {
+  "name": "Concertmaster",
+  "desc": "Reach Lv 40 to unlock."
+ },
+ "title.獨奏家": {
+  "name": "Soloist",
+  "desc": "Reach Lv 50 to unlock."
+ },
+ "title.協奏名家": {
+  "name": "Concerto Virtuoso",
+  "desc": "Reach Lv 60 to unlock."
+ },
+ "title.宮廷樂長": {
+  "name": "Court Kapellmeister",
+  "desc": "Reach Lv 70 to unlock."
+ },
+ "title.樂壇巨匠": {
+  "name": "Titan of Music",
+  "desc": "Reach Lv 80 to unlock."
+ },
+ "title.傳世名家": {
+  "name": "Timeless Master",
+  "desc": "Reach Lv 90 to unlock."
+ },
+ "title.星光樂聖": {
+  "name": "Starlight Maestro",
+  "desc": "Reach Lv 100 to unlock."
  }
 }

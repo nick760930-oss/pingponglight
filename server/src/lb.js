@@ -28,6 +28,7 @@ import { friendWipe } from './friends.js';
 import { bugAdmin, bugWipe } from './bugs.js';
 import { withCos, shopWipe } from './cos.js';
 import { achRecalc, logFeats, ftOf, rankOf, statsStmt, duelAdmin } from './ach.js';
+import { settle, ensureProg, lvBackfill, levelWipe } from './level.js';
 
 const DIFFS = 5, TICKET_MAX_MS = 3 * 3600e3, MAX_BODY = 16384, TOP = 100, HIDE_AT = 3, BOARD_CACHE_S = 30;
 const MAX_ERR = 400, MISS = null;                      // ms; a missed beat is null in the log (0 = a miss the shield absorbed)
@@ -35,7 +36,7 @@ const MAX_ERR = 400, MISS = null;                      // ms; a missed beat is n
 // A legacy ticket can still be used (it only updates the best score: no run count, no totals, no achievements). Set this to false to stop accepting them.
 const LEGACY_TICKETS = true;
 const END_MIN_MS = 10e3, FAIL_MIN_MS = 3e3, STAR_MAX = 50, RUNS_KEEP_MS = TICKET_MAX_MS;   // /lb/end: a quit must be at least 10 s old, a fail 3 s (missing every beat from the start ends the fastest charts after about 3.4 s); at most 50 star-time ranges per log
-const LIFE0 = 30, DMG = [3, 4, 7, 2, 8], HEAL = [2, 1, 1, 0];   // game.js: opening life (= cap); damage per miss by difficulty index (DIFFS order, same as CHARTS); life a hit of tier 0..3 gives back
+const LIFE0 = 30, DMG = [2, 3, 5, 1, 6], HEAL = [2, 1, 1, 0];   // game.js: opening life (= cap); damage per miss by difficulty index (DIFFS order, same as CHARTS); life a hit of tier 0..3 gives back
 export const TIER_MS = [45, 90, 150], TIER_W20 = [20, 16, 10, 5];   // integer tier weights (x20, a miss is 0): the sum does not depend on the order of the hits
 // game.js bounce(): base = round(100 * TIER_M * speed^1.1 * (1 + .3 * pressure) * (power-up ? 2 : 1)), then + combo * 5;
 // speed factor is clamped to [.3, 8] there, pressure to [0, 1]
@@ -207,6 +208,7 @@ export async function handleLb(req, env, path, who, origin, H, limited) {
     const pl = await db.prepare('SELECT id FROM players WHERE ph = ?1').bind(ph).first();
     const bs = (await db.prepare('SELECT board FROM scores WHERE pid = ?1').bind(pl.id).all()).results;
     for (const r of bs) await dropCache(r.board);   // boards show the new name at once
+    try { await lvBackfill(db, ph, pl.id, now); } catch (e) {}   // level rewards earned while anonymous (src/level.js)
     return json({ ok: true, id: pl.id, name });
   }
 
@@ -218,16 +220,23 @@ export async function handleLb(req, env, path, who, origin, H, limited) {
 
   if (path === '/lb/start') {                         // a signed ticket: song, difficulty, issue time (and the player, when the phone sent its key)
     const { song, d, pk } = body; if (!songOk(song, d)) return json({ error: 'song' }, 400);
-    const nonce = hex(crypto.getRandomValues(new Uint8Array(8)));
+    const nonce = hex(crypto.getRandomValues(new Uint8Array(8))), m = Number.isInteger(body.m) && body.m >= 1 && body.m <= 4 ? body.m : 1;   // m: the light multiplier the player wants (no m, or a bad one: 1)
     let pid = null;
     if (isPk(pk)) {                                   // a registered player gets a single-use ticket that names them; anyone else the old kind
-      const pl = await db.prepare('SELECT id FROM players WHERE ph = ?1').bind(await sha(pk)).first();
-      if (pl) {
+      const ph = await sha(pk), pl = await db.prepare('SELECT id FROM players WHERE ph = ?1').bind(ph).first();
+      // a key without a nickname gets a ticket with pid 0 (its runs earn experience, nothing else) only when the game sent m; phones that do not still get the old kind
+      const anon = !pl && body.m !== undefined;
+      if (pl || anon) {
         try {
-          await db.batch([db.prepare('INSERT INTO runs (nonce, pid, song, d, ts, done) VALUES (?1, ?2, ?3, ?4, ?5, 0)').bind(nonce, pl.id, song, d, now),
+          if (anon) await ensureProg(db, ph, now);
+          await db.batch([db.prepare('UPDATE runs SET xp = 0 WHERE done = 0 AND xp = 1 AND (ph = ?1 OR (?2 > 0 AND pid = ?2))').bind(ph, pl ? pl.id : 0),   // a new ticket takes the experience of this player's older unsettled tickets with it (parallel tickets cannot multiply experience)
+            db.prepare('INSERT INTO runs (nonce, pid, song, d, ts, done, m, ph) VALUES (?1, ?2, ?3, ?4, ?5, 0, ?6, ?7)').bind(nonce, pl ? pl.id : 0, song, d, now, m, ph),
             db.prepare('DELETE FROM runs WHERE nonce IN (SELECT nonce FROM runs WHERE ts < ?1 LIMIT 50)').bind(now - RUNS_KEEP_MS)]);   // tickets older than their lifetime are gone anyway
-          pid = pl.id;
-        } catch (e) { pid = null; }                   // e.g. the migration is not applied yet: fall back to the old ticket
+          pid = pl ? pl.id : 0;
+        } catch (e) {                                 // e.g. migration 0012 is not applied yet: fall back to the old ticket
+          pid = null;
+          if (pl) { try { await db.batch([db.prepare('INSERT INTO runs (nonce, pid, song, d, ts, done) VALUES (?1, ?2, ?3, ?4, ?5, 0)').bind(nonce, pl.id, song, d, now)]); pid = pl.id; } catch (e2) { pid = null; } }
+        }
       }
     }
     const p = [song, d, now, nonce, ...(pid === null ? [] : [pid])].join('.');
@@ -243,10 +252,15 @@ export async function handleLb(req, env, path, who, origin, H, limited) {
     if (!(now - issued >= minMs && now - issued <= TICKET_MAX_MS)) return json({ error: 'ticket' }, 400);
     const r = judge(song, d, log, body.star, !tk.legacy, body.seq); if (!r) return json({ error: 'log' }, 400);
     const b = board(song, d), pf = ['web', 'ios', 'android'].includes(body.pf) ? body.pf : 'web';
-    const pl = await db.prepare('SELECT id, hidden FROM players WHERE ph = ?1').bind(await sha(pk)).first();
-    if (!pl) return json({ error: 'noname' }, 400);
-    if (!tk.legacy) {                                 // a new ticket is used once, and only by the player it was issued to
-      if (tk.pid !== pl.id || !(await useRun(db, tk.nonce))) return json({ error: 'ticket' }, 400);
+    const ph = await sha(pk), pl = await db.prepare('SELECT id, hidden FROM players WHERE ph = ?1').bind(ph).first();
+    if (!pl) {
+      if (tk.legacy || tk.pid !== 0) return json({ error: 'noname' }, 400);
+      // a ticket with pid 0 (issued to a key without a nickname): used once, only by that key; earns experience and spends light, no board, no achievements
+      if (!(await useRunPh(db, tk.nonce, ph))) return json({ error: 'ticket' }, 400);
+      return json({ error: 'noname', lv: await lvRun(db, ph, 0, now, tk, { kind: 'clear', acc: r.acc }) }, 400);
+    }
+    if (!tk.legacy) {                                 // a new ticket is used once, and only by the player it was issued to (a pid 0 ticket of the same key also counts: the nickname came after the start)
+      if (!(tk.pid === pl.id ? await useRun(db, tk.nonce) : tk.pid === 0 && await useRunPh(db, tk.nonce, ph))) return json({ error: 'ticket' }, 400);
     }
     const prev = await db.prepare('SELECT key FROM scores WHERE board = ?1 AND pid = ?2').bind(b, pl.id).first();
     const seen = await db.prepare('SELECT 1 FROM scores WHERE pid = ?1 AND board LIKE ?2').bind(pl.id, song + '-%').first();   // any difficulty of this song cleared before? (越級者)
@@ -269,7 +283,8 @@ export async function handleLb(req, env, path, who, origin, H, limited) {
         lok: life.dead < 0 && !r.lifeBad ? 1 : 0, lend: life.end, lmin: life.min, sg: r.sg, sc: r.sc, gold: r.gold, pfail: pt ? pt.fails : 0 };   // single-run achievements only exist for a new ticket
       ach = (await achRecalc(db, pl.id, now, { song, d, R, first: !seen }, false)).fresh;
     } catch (e) {}
-    return json({ ok: true, improved, acc: r.acc, err: r.err, score: r.score, rank: r.rank, me, total: await total(db, b), ach });
+    const lv = tk.legacy ? null : await lvRun(db, ph, pl.id, now, tk, { kind: 'clear', acc: r.acc });   // experience and light (src/level.js); a legacy ticket earns none
+    return json({ ok: true, improved, acc: r.acc, err: r.err, score: r.score, rank: r.rank, me, total: await total(db, b), ach, ...(lv ? { lv } : {}) });
   }
 
   if (path === '/lb/end') {                           // a run that did not finish: { run, pk, kind: 'fail' | 'quit', log (fail only), star }
@@ -279,12 +294,22 @@ export async function handleLb(req, env, path, who, origin, H, limited) {
     const cc = CHARTS[tk.song], minEnd = kind === 'fail' ? FAIL_MIN_MS : Math.max(END_MIN_MS, cc.dur / cc.spd[tk.d] * 250);   // a quit: at least a quarter of the song's length
     if (!(now - tk.issued >= minEnd && now - tk.issued <= TICKET_MAX_MS)) return json({ error: 'ticket' }, 400);
     if (kind === 'fail' && !failCheck(tk.song, tk.d, body.log, body.star, body.seq)) return json({ error: 'log' }, 400);
-    const pl = await db.prepare('SELECT id FROM players WHERE ph = ?1').bind(await sha(pk)).first();
-    if (!pl) return json({ error: 'noname' }, 400);
-    if (tk.pid !== pl.id || !(await useRun(db, tk.nonce))) return json({ error: 'ticket' }, 400);
+    let part = { kind };
+    if (kind === 'fail') {                            // the beats settled so far, and how well they were hit (experience for a failed run)
+      const lg = body.log, sc = scan(tk.d, lg, parseStar(body.star, lg.length), true), od = parseSeq(body.seq, tk.d, lg.length, false);
+      const settled = Array.isArray(od) ? od.length : lg.length; part = { kind, accSo: sc && settled ? sc.w * 500 / settled / 10000 : 0, frac: settled / CHARTS[tk.song].n[tk.d] };
+      if (now - tk.issued < cc.dur / cc.spd[tk.d] * part.frac * 900) return json({ error: 'ticket' }, 400);   // the settled share of the song cannot have been played yet (a fail pays experience, so a fake short run must wait as long as a real one)
+    }
+    const ph = await sha(pk), pl = await db.prepare('SELECT id FROM players WHERE ph = ?1').bind(ph).first();
+    if (!pl) {
+      if (tk.pid !== 0) return json({ error: 'noname' }, 400);
+      if (!(await useRunPh(db, tk.nonce, ph))) return json({ error: 'ticket' }, 400);
+      return json({ ok: true, ach: [], lv: await lvRun(db, ph, 0, now, tk, part) });
+    }
+    if (!(tk.pid === pl.id ? await useRun(db, tk.nonce) : tk.pid === 0 && await useRunPh(db, tk.nonce, ph))) return json({ error: 'ticket' }, 400);
     await bumpTries(db, pl.id, tk.song, tk.d, kind === 'fail' ? 1 : 0).run();
     let ach = []; try { ach = (await achRecalc(db, pl.id, now, null, false)).fresh; } catch (e) {}
-    return json({ ok: true, ach });
+    return json({ ok: true, ach, lv: await lvRun(db, ph, pl.id, now, tk, part) });
   }
 
   if (path === '/lb/board') {
@@ -309,8 +334,8 @@ export async function handleLb(req, env, path, who, origin, H, limited) {
 
   if (path === '/lb/delete') {                        // the player removes everything kept about them
     const { pk } = body; if (!isPk(pk)) return json({ error: 'bad' }, 400);
-    const pl = await db.prepare('SELECT id FROM players WHERE ph = ?1').bind(await sha(pk)).first();
-    if (pl) await wipe(db, pl.id);
+    const ph = await sha(pk), pl = await db.prepare('SELECT id FROM players WHERE ph = ?1').bind(ph).first();
+    if (pl) await wipe(db, pl.id); else await levelWipe(db, ph, now);   // a key without a nickname has progress too
     return json({ ok: true });
   }
 
@@ -351,10 +376,21 @@ async function readTicket(env, run) {
   return { song, d, issued, nonce, legacy, pid: legacy ? null : +ps };
 }
 const useRun = async (db, nonce) => { const r = await db.prepare('UPDATE runs SET done = 1 WHERE nonce = ?1 AND done = 0').bind(nonce).run(); return !!(r && r.meta && r.meta.changes === 1); };   // false: used already (or never issued)
+// a ticket with pid 0: taken once, and only by the key hash it was issued to
+const useRunPh = async (db, nonce, ph) => { const r = await db.prepare('UPDATE runs SET done = 1 WHERE nonce = ?1 AND done = 0 AND pid = 0 AND ph = ?2').bind(nonce, ph).run(); return !!(r && r.meta && r.meta.changes === 1); };
+// settle experience and light for a ticket that was just taken (its multiplier is in its runs row); null when the level tables are missing
+async function lvRun(db, ph, pid, now, tk, part) {
+  try {
+    const row = await db.prepare('SELECT m, xp FROM runs WHERE nonce = ?1').bind(tk.nonce).first();
+    // xp = 0: a newer ticket of this player replaced this one (no experience, no light; the board still takes the run); start: when the run began (a run that overlaps the last one earns nothing)
+    return await settle(db, ph, pid, now, { song: tk.song, d: tk.d, m: row && row.m, start: tk.issued, noxp: !!row && row.xp === 0, ...part });
+  } catch (e) { return null; }
+}
 const bumpTries = (db, pid, song, d, fail) => db.prepare('INSERT INTO tries (pid, song, d, ends, fails) VALUES (?1, ?2, ?3, 1, ?4) ON CONFLICT(pid, song, d) DO UPDATE SET ends = ends + 1, fails = fails + ?4').bind(pid, song, d, fail);
 const cacheKey = b => new Request('https://lb.cache/' + encodeURIComponent(b));
 async function dropCache(b) { try { if (typeof caches !== 'undefined') await caches.default.delete(cacheKey(b)); } catch (e) {} }
 async function wipe(db, id) {                         // a player and everything about them; their boards refresh at once
+  const me = await db.prepare('SELECT ph FROM players WHERE id = ?1').bind(id).first(); if (me) await levelWipe(db, me.ph, Date.now());   // level, light and their log (src/level.js)
   const bs = (await db.prepare('SELECT board FROM scores WHERE pid = ?1').bind(id).all()).results;
   await db.batch([db.prepare('DELETE FROM scores WHERE pid = ?1').bind(id), db.prepare('DELETE FROM reports WHERE pid = ?1').bind(id),
     db.prepare('UPDATE reports SET rp = NULL WHERE rp = ?1').bind(id),   // reports this player made about other nicknames stay (they count towards hiding that nickname), without the reporter

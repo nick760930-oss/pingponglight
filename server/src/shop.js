@@ -7,7 +7,8 @@
 import { CATALOG } from './catalog.js';
 import { testMode, cosOf, owns, grantStmts, SLOTS } from './cos.js';
 import { NA, achRecalc, achLocal, achList } from './ach.js';
-import { loadRoot, iapProcess } from './iap.js';
+import { loadRoot, iapProcess, iapNotify } from './iap.js';
+import { progState } from './level.js';
 
 const MAX_BODY = 16384, MAX_IAP_BODY = 90000, MAX_JWS = 16;
 const hex = buf => Array.from(new Uint8Array(buf), b => b.toString(16).padStart(2, '0')).join('');
@@ -23,11 +24,11 @@ export async function shopState(db, env, pl) {
     db.prepare('SELECT COALESCE(SUM(amt), 0) AS s FROM iaptx WHERE pid = ?1 AND revoked = 0').bind(pl.id).first(),
   ]);
   const owned = own.results.map(r => r.item).filter(i => CATALOG[i]), c = eq.get(pl.id) || { avatar: '', plate: '', title: '', cmc: 0 };
-  const a = await achList(db, pl.id);
+  const a = await achList(db, pl.id), lv = pl.ph ? await progState(db, pl.ph, Date.now(), false) : null;   // level and light (src/level.js): the app updates its light total after a purchase from this
   return {
     mode: t ? 'test' : 'web', id: pl.id, owned, full: owned.includes('full'), sponsor: sp ? sp.s : 0,
     equip: { avatar: c.avatar, plate: c.plate, title: c.title }, cmc: c.cmc,
-    ach: a.list, pts: a.pts, na: NA,
+    ach: a.list, pts: a.pts, na: NA, ...(lv ? { light: lv.light, lv } : {}),
   };
 }
 
@@ -47,7 +48,7 @@ export async function handleShop(req, env, path, who, H, limited) {
   let body; try { const t = await req.text(); if (t.length > cap) return json({ error: 'big' }, 413); body = JSON.parse(t); } catch (e) { return json({ error: 'bad' }, 400); }
   if (!body || typeof body !== 'object' || Array.isArray(body) || !isPk(body.pk)) return json({ error: 'bad' }, 400);
   const db = env.LB, now = Date.now();
-  const pl = await db.prepare('SELECT id, name FROM players WHERE ph = ?1').bind(await sha(body.pk)).first();
+  const pl = await db.prepare('SELECT id, name, ph FROM players WHERE ph = ?1').bind(await sha(body.pk)).first();
   if (!pl) return json({ error: 'noname' }, 400);
 
   if (path === '/shop/state') return json(await shopState(db, env, pl));
@@ -86,8 +87,24 @@ export async function handleShop(req, env, path, who, H, limited) {
     if (!list || !list.length || list.length > MAX_JWS) return json({ error: 'bad' }, 400);
     const root = await loadRoot(env);
     if (!root) return json({ error: 'off' }, 503);    // no Apple root certificate we can vouch for: nothing is granted
-    const results = await iapProcess(db, root, pl.id, list, now);
+    const results = await iapProcess(db, root, pl.id, list, now, { ph: pl.ph });
     return json({ ok: true, results, state: await shopState(db, env, pl) });
   }
   return json({ error: 'not found' }, 404);
+}
+
+// POST /iap/notify: App Store Server Notifications from Apple (no Origin header, no pk: the signed payload is the proof). Switched on with IAP_ON=1 like /iap/verify.
+// Rate limit and size limit as /iap/verify; 200 when handled (or deliberately ignored), 400 for a payload that is not Apple's, 503 when off.
+export async function handleIapNotify(req, env, who, limited) {
+  const H = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer' };
+  const json = (o, s = 200, extra) => Response.json(o, { status: s, headers: { ...H, ...extra } });
+  if (!env.LB || env.IAP_ON !== '1') return json({ error: 'off' }, 503);
+  if (req.method !== 'POST') return json({ error: 'method' }, 405);
+  if (await limited(env, 'iapn:' + who)) return json({ error: 'slow' }, 429, { 'Retry-After': '60' });
+  if (+(req.headers.get('Content-Length') || 0) > MAX_IAP_BODY) return json({ error: 'big' }, 413);
+  let body; try { const t = await req.text(); if (t.length > MAX_IAP_BODY) return json({ error: 'big' }, 413); body = JSON.parse(t); } catch (e) { return json({ error: 'bad' }, 400); }
+  if (!body || typeof body !== 'object' || Array.isArray(body) || typeof body.signedPayload !== 'string') return json({ error: 'bad' }, 400);
+  const root = await loadRoot(env); if (!root) return json({ error: 'off' }, 503);
+  let r; try { r = await iapNotify(env.LB, root, body.signedPayload, Date.now()); } catch (e) { return json({ error: 'busy' }, 503); }   // 5xx: Apple tries again later
+  return r.ok ? json({ ok: true, note: r.note }) : json({ error: 'bad', why: r.why }, 400);
 }

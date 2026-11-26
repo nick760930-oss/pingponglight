@@ -471,9 +471,9 @@ const DU={ws:null,rel:{},says:{},relIds:'',code:'',you:0,host:0,players:[],cfg:{
   lob:{di:-1,max:4},matching:false,roomsIv:0,roomsTok:0,autoIv:0,pingIv:0,note:''};
 (()=>{const d=parseInt(lsGet('ppl-qdi')||'',10),m=parseInt(lsGet('ppl-qmax')||'',10);if(d>=-1&&d<5)DU.lob.di=d;if([4,6,8].includes(m))DU.lob.max=m})();
 let mode='normal',D=null,life=30,lifeMax=30,resumeCD=0,lastRes=null,freezeG=0;
-const LIFE0=30;   // every run opens with 30 HP; lifeMax = 30 + level (levels come later)
+const LIFE0=30;   // every run opens with 30 HP, which is also the cap (levels never add life: the player's choice, 2026-11-24)
 const lifeP=()=>Math.round(life/lifeMax*100);   // percent, as the room and spectator protocol expects
-const TRYN=40,TUTN=20,TUTD={n:TX('教學'),nb:1,gap:1.25,spd:.9,dmg:0,bm:1.4,hm:1.4,wm:1.3,ob:.5,noSmall:1};
+const TRYN=40,TUTN=20,TUTD={n:TX('教學'),nb:1,gap:1.25,spd:.9,dmg:0,bm:1.4,hm:1.4,wm:1.3,ob:.5,noSmall:1,mr:[10,20]};
 let st='home',si=0,offset=0,nt=0,resolved=0,nb=1,bi=0,tickQ=[],endAt=0,paused=false,exitT=0;
 let score=0,combo=0,maxCombo=0,tierCount=[0,0,0,0],time=0,ts=1,gAC=0,gT=0,cp={ti:0,score:0},lastCents=0,lastP=.5,pSrc='none';
 let balls=[],bumps=[],items=[],rings=[],floats=[],parts=[],aims=[],missCount=0,runFrom=0;
@@ -484,7 +484,7 @@ const LEADIN=2.6,CPN=25;
 //   bm: ball size, hm: touch radius, wm: hit window (all × the base), side: a tap anywhere on the ball's half counts,
 //   ob: obstacle amount, noSmall: no "smaller touch range" item. Tuned with an analysis of every song on an iPhone in landscape.
 //   Keep it on one line: server/scripts/charts.mjs reads it from here.
-const DIFFS=[{n:'簡單',nb:1,gap:1.0,spd:1.0,dmg:3,bm:1.4,hm:1.6,wm:1.5,ob:.5,noSmall:1},{n:'普通',nb:2,gap:.6,spd:1.0,dmg:4,bm:1.25,hm:1.25,wm:1.15,ob:1},{n:'困難',nb:2,gap:.45,spd:1.1,dmg:7,bm:1.1,hm:1.1,wm:1.05,ob:1},{n:'入門',nb:1,gap:1.3,spd:.9,dmg:2,bm:1.5,hm:1.3,wm:1.7,side:1,ob:0,noSmall:1},{n:'專家',nb:3,gap:.3,spd:1.25,dmg:8,ob:1}];
+const DIFFS=[{n:'簡單',nb:1,gap:1.0,spd:1.0,dmg:2,bm:1.4,hm:1.6,wm:1.5,ob:.5,noSmall:1,mr:[10,20]},{n:'普通',nb:2,gap:.6,spd:1.0,dmg:3,bm:1.25,hm:1.25,wm:1.15,ob:1,mr:[15,30]},{n:'困難',nb:2,gap:.45,spd:1.1,dmg:5,bm:1.1,hm:1.1,wm:1.05,ob:1,mr:[20,40]},{n:'入門',nb:1,gap:1.3,spd:.9,dmg:1,bm:1.5,hm:1.3,wm:1.7,side:1,ob:0,noSmall:1},{n:'專家',nb:3,gap:.3,spd:1.25,dmg:6,ob:1,mr:[20,45]}];   // dmg: life a miss costs (server/src/lb.js DMG keeps the same numbers); mr: how far a mirror turns a ball (degrees from level, solo)
 const DORD=[3,0,1,2,4],LVL=[1,2,3,0,4],BALLS=['',TX('單球'),TX('雙球'),TX('三球')],DN_ZH=DIFFS.map(d=>d.n);TXA(['簡單','普通','困難','入門','專家']).forEach((n,i)=>{DIFFS[i].n=n});   // the DIFFS line above stays plain data: server/scripts/charts.mjs and tools/stars.mjs run it on its own, without TX. DN_ZH: the names as the server and the bug reports know them (never shown)
 /* music layers: the accompaniment grows with unbroken good hits; a miss drops one layer */
 const ML_STEP=[10,15,25],ML_NAME=TXA(['微光','明亮','輝映','星耀']),ML_HUE=[225,185,265,48],ML_TIP=['',TX('和聲與鼓組加入'),TX('加入副旋律'),TX('主旋律加入高八度鐘聲')];
@@ -624,7 +624,7 @@ function startRun(from){
   combo=0;maxCombo=0;tierCount=[0,0,0,0];shake=0;exitT=0;easeT=0;starT=0;shield=0;rangeT=0;rangeMul=1;paused=false;resumeCD=0;lifeMax=LIFE0;life=LIFE0;missCount=0;runFrom=from;flash.a=0;edgeGlow=[0,0,0,0];
   bumps=[];items=[];rings=[];floats=[];parts=[];aims=[];hfx=[];spawnT=5;itemT=9;tickQ=[];cutAll();mlv=0;mgrow=0;mlBan=null;
   balls=[];for(let j=0;j<nb;j++)if(from+j<tg.length)balls.push(newBall(from+j));
-  RUN=(mode==='normal'||mode==='duel')&&!from&&ME?{log:new Array(tg.length).fill(null),star:new Uint8Array(tg.length),seq:[],ended:false,ok:true,ticket:null,key:song.key,d:di,duel:mode==='duel',sent:false}:null;   // only full solo runs can enter the leaderboard; a duel run (duel:true) is only sent to the room (duelLog)
+  RUN=(mode==='normal'||mode==='duel')&&!from&&(ME||mode==='normal')?{log:new Array(tg.length).fill(null),star:new Uint8Array(tg.length),seq:[],ended:false,ok:true,ticket:null,key:song.key,d:di,duel:mode==='duel',sent:false,m:mode==='normal'?lvEffM():1}:null;   // a player without a nickname gets a ticket too (the server counts experience for them, nothing else)   // only full solo runs can enter the leaderboard; a duel run (duel:true) is only sent to the room (duelLog)
   endAt=mode==='tut'||mode==='try'?timeOf(tg[tg.length-1].t)+2:timeOf(song.dur)+1.2;
   runPaused=false;runMute0=SET.mel===0&&SET.bk===0;
   st='ready';hudShow(true);preloadSong(song);
@@ -655,7 +655,7 @@ async function launch(){
   tickQ=[LEADIN-1.5,LEADIN-1,LEADIN-.5];
   for(const b of balls){planLaps(b);b.vr=0;b.v=ballWant(b);b.vr=b.v}
   st='play';audioStatus();setMedia(true);hud();
-  if(RUN&&!RUN.duel&&!RUN.ticket)RUN.ticket=api('/lb/start',{song:RUN.key,d:RUN.d,pk:pkey()}).then(j=>typeof j.run==='string'?j.run:{e:j.error||'net'});   // the server's signed start time
+  if(RUN&&!RUN.duel&&!RUN.ticket)RUN.ticket=Promise.race([LBP,new Promise(r=>setTimeout(r,2500))]).catch(()=>{}).then(()=>api('/lb/start',{song:RUN.key,d:RUN.d,pk:pkey(),m:RUN.m||1})).then(j=>typeof j.run==='string'?j.run:{e:j.error||'net'});   // the server's signed start time
 }
 
 /* ================= input ================= */
@@ -881,12 +881,60 @@ function bumpH(o){
   const out=o.age>o.life?Math.max(0,1-(o.age-o.life)/.4):1;
   return o.Rm*Math.max(0,e)*out;
 }
+// obstacles are round meteors (the player's choice, 2026-11-25). A ball that touches one bounces off its round face for real (angle
+// out = angle in, about the normal where it touched). A bounce that would send it back toward its own side is mirrored left and right
+// about the meteor's upright middle line: the ball comes out of the far side at the mirrored point, same angle, going on forward. Any
+// way steeper than 45° from level is turned to exactly 45° (no near-upright zig-zag). Two rules keep it humanly playable; a touch that
+// would break one lets the ball pass straight through and the meteor dims for a moment instead:
+//   at least MIR_T s before the beat · speed after at most 1.4x before and 3x V0 (speed still comes from ballWant, so it stays on time)
+const MIR_T=.6,S45=Math.SQRT1_2;
+const angDiff=(a,b)=>{let d=(a-b)%6.2832;if(d>3.1416)d-=6.2832;else if(d<-3.1416)d+=6.2832;return d};
+// the way out of a real bounce off a round face with normal (nx,ny), mirrored forward and kept within 45° of level
+function rockOut(dx,dy,nx,ny,fw){
+  const dn=dx*nx+dy*ny;let ox=dx-2*dn*nx,oy=dy-2*dn*ny;const back=ox*fw<0;
+  if(back)ox=-ox;
+  if(Math.abs(oy)>S45){ox=fw*S45;oy=(oy<0?-1:1)*S45}
+  return{ox,oy,back};
+}
+function rockHit(b,o,h,nx,ny){
+  const fw=b.side===1?1:-1,r=rockOut(b.dx,b.dy,nx,ny,fw);
+  let ok=b.ti>=0&&!b.away&&!b.laps&&tT(b.ti)-GB()>=MIR_T;
+  const sx=b.x,sy=b.y,sdx=b.dx,sdy=b.dy,v0=b.v;
+  let px=o.x+nx*(h+BR+.5),py=o.y+ny*(h+BR+.5);
+  if(r.back)px=2*o.x-px;                                         // out of the far side, at the mirrored point
+  if(ok){b.x=px;b.y=clamp(py,FR.y+BR,FR.y+FR.h-BR);b.dx=r.ox;b.dy=r.oy;const v=ballWant(b);
+    if(v>1.4*v0+1||v>3*V0){b.x=sx;b.y=sy;b.dx=sdx;b.dy=sdy;ok=false}else b.v=v}
+  if(!ok){o.dim=time;return}                                     // passes straight through
+  b.win=null;
+  o.st=time;o.hx=o.x+nx*h;o.hy=o.y+ny*h;o.ex=r.back?2*o.x-o.hx:o.hx;o.ey=o.hy;o.odx=b.dx;o.ody=b.dy;
+  shake=Math.max(shake,3);
+}
+// where a ball will be t seconds from now if nothing gets in its way (straight on, off the top and bottom walls)
+function ballAt(b,t){const v=b.v||ballWant(b),lo=FR.y+BR,L=FR.h-2*BR;let u=(b.y+b.dy*v*t-lo)%(2*L);if(u<0)u+=2*L;return{x:b.x+b.dx*v*t,y:lo+(u>L?2*L-u:u)}}
 function spawnBump(){
+  // solo: meteors are put on a ball's way (the player's choice, 2026-11-24: a whole song with hardly any bounce is dull), where it
+  // will be 0.6 s from now or later (the meteor has grown by then) and at least MIR_T s before its beat, placed so the bounce sends the
+  // ball on forward at a random angle of the difficulty's range (D.mr, degrees from level) that differs from its own way by 10° or more:
+  // half of them a glancing touch, half a head-on one that is mirrored out of the far side.
+  // A duel keeps plain random places: both phones must make the same meteors from the shared seed (the same RNG calls as before).
+  const way=mode!=='duel'?balls.filter(b=>b.ti>=0&&!b.away&&!b.laps):[];
   for(let tries=0;tries<12;tries++){
-    const x=FR.x+FR.w*srand(.2,.8),y=FR.y+FR.h*srand(.14,.86);let ok=true;
-    for(const b of balls)if(Math.hypot(b.x-x,b.y-y)<FR.h*.35)ok=false;
-    for(const o of bumps)if(Math.hypot(o.x-x,o.y-y)<FR.h*.4)ok=false;
+    let x=FR.x+FR.w*srand(.2,.8),y=FR.y+FR.h*srand(.14,.86),aim=null;
     const Rm=Math.min(FR.w,FR.h)*srand(.07,.12);
+    // solo: always on a ball's way (a random one is mostly met too close to the beat and only passed through)
+    if(way.length&&tries<9){const b=way[Math.floor(RNG()*way.length)],t1=Math.min(2.4,tT(b.ti)-GB()-MIR_T-.1);if(t1<.6)continue;
+      const tp=srand(.6,t1),p=ballAt(b,tp),q=ballAt(b,tp+.03),ai=Math.atan2(q.y-p.y,q.x-p.x),fw=b.side===1?1:-1;
+      const R=(D&&D.mr)||[15,30];let phi=srand(R[0],R[1])*Math.PI/180*(RNG()<.5?-1:1),ao=fw>0?phi:Math.PI-phi;
+      if(Math.abs(angDiff(ao,ai))<.175){phi=-phi;ao=fw>0?phi:Math.PI-phi}
+      if(Math.abs(angDiff(ao,ai))<.175)continue;
+      // the real bounce wanted: ao itself (glancing), or ao turned back (head-on, then mirrored forward); its normal is along out − in
+      const back=RNG()<.5,rx=back?-Math.cos(ao):Math.cos(ao),ry=Math.sin(ao),mx=rx-Math.cos(ai),my=ry-Math.sin(ai),ml=Math.hypot(mx,my)||1;
+      x=p.x-mx/ml*(Rm+BR);y=p.y-my/ml*(Rm+BR);aim=b;             // the ball touches the meteor where it is at p
+      if(x<FR.x+FR.w*.2||x>FR.x+FR.w*.8||y<FR.y+FR.h*.1||y>FR.y+FR.h*.9)continue}
+    if(mode!=='duel'&&!aim)continue;   // solo: no mirror this time rather than one in a random place
+    let ok=true;
+    for(const b of balls)if(Math.hypot(b.x-x,b.y-y)<FR.h*(b===aim?.25:.35))ok=false;
+    for(const o of bumps)if(Math.hypot(o.x-x,o.y-y)<FR.h*.4)ok=false;
     for(const it of items)if(Math.hypot(it.x-x,it.y-y)<itemGap(Rm))ok=false;   // never on top of / hugging an item
     if(ok){bumps.push({x,y,Rm,age:0,life:srand(3.2,5.5)});if(DU.wn>0)spEv('bump',{x,y});return}
   }
@@ -989,8 +1037,9 @@ function showResult(ok,msg){
   if(mode==='duel')duelFinish(ok,rank,acc);
   else for(const id of['bRetry','bSel'])$('#'+id).style.display='';
   $('#end').classList.remove('hidden');
-  const rl=$('#rlb');rl.hidden=true;
-  if(ok&&mode==='normal'&&!runFrom){if(RUN&&RUN.ok)lbSubmit(RUN);else if(!ME){rl.hidden=false;$('#rlbT').textContent=TX('設定暱稱後，通關成績將列入排行榜');const b=$('#rlbB');b.textContent=TX('設定暱稱');b.hidden=false}}
+  const rl=$('#rlb');rl.hidden=true;lvRowOff();
+  if(ok&&mode==='normal'&&!runFrom){if(RUN&&RUN.ok)LBP=lbSubmit(RUN).catch(()=>{});else if(!ME){rl.hidden=false;$('#rlbT').textContent=TX('設定暱稱後，通關成績將列入排行榜');const b=$('#rlbB');b.textContent=TX('設定暱稱');b.hidden=false}}
+  else if(!ok&&mode==='normal'&&!runFrom&&RUN&&RUN.ok&&RUN.endP){LBP=RUN.endP;lvFail(RUN)}
   RUN=null;
   if(ok)jingleWin(rank);else jingleLose();
   if(window.PPLA)window.PPLA.flush();   // achievements earned during the run show up with the result
@@ -1004,8 +1053,8 @@ function win(){
   setTimeout(()=>{if(st==='done')showResult(true)},500);
 }
 function hudShow(v){$('#hud').style.visibility=v?'visible':'hidden';$('#bPause').style.display=mode==='duel'?'none':'';$('#prog').classList.toggle('duel',v&&mode==='duel')}
-function showHome(){if(SP.on)specOff(false);if(RSEL&&RSEL.on)mpSelOff();howClose();docClose();mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');$('#frv').classList.add('hidden');$('#shop').classList.add('hidden');$('#home').classList.remove('hidden');skyBadge();audioStatus();frBadge();layout()}
-function showSelect(){if(SP.on)specOff(false);mode='normal';setMedia(false);hudShow(false);st='menu';cutAll();balls=[];buildChips();$('#home').classList.add('hidden');$('#end').classList.add('hidden');$('#lbv').classList.add('hidden');$('#menu').classList.remove('hidden');selScroll()}
+function showHome(){if(SP.on)specOff(false);if(RSEL&&RSEL.on)mpSelOff();howClose();docClose();mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');$('#frv').classList.add('hidden');$('#shop').classList.add('hidden');$('#home').classList.remove('hidden');lvPlateRender();lvLoad();skyBadge();audioStatus();frBadge();layout()}
+function showSelect(){if(SP.on)specOff(false);mode='normal';setMedia(false);hudShow(false);st='menu';cutAll();balls=[];buildChips();$('#home').classList.add('hidden');$('#end').classList.add('hidden');$('#lbv').classList.add('hidden');$('#menu').classList.remove('hidden');lvLoad();selScroll()}
 
 /* ================= update ================= */
 function wallFx(b,e){rings.push({x:b.x,y:b.y,r0:BR*.5,life:.3,max:.3,hue:hueNow()+80,w:1.5});edgeGlow[e]=Math.max(edgeGlow[e],.18);edgeHue[e]=hueNow()}
@@ -1038,21 +1087,19 @@ function updateBall(b,dt){
     if(b.side===1&&b.x>FR.x+FR.w-BR){b.x=FR.x+FR.w-BR;b.dx=-Math.abs(b.dx);b.laps--;b.away=true;wallFx(b,1)}
     else if(b.side===3&&b.x<FR.x+BR){b.x=FR.x+BR;b.dx=Math.abs(b.dx);b.laps--;b.away=true;wallFx(b,3)}
   }
-  // obstacles pop up in the field: reflect (never reversing toward the wrong side), no sound
+  // obstacles are meteors (see rockHit()): a ball moving onto a grown one bounces off it
   for(const o of bumps){
     const h=bumpH(o);if(h<4)continue;
-    const dx=b.x-o.x,dy=b.y-o.y,d=Math.hypot(dx,dy)||1;
-    if(d<h+BR){
-      const nx=dx/d,ny=dy/d,dot=b.dx*nx+b.dy*ny;
-      if(dot<0){const rx=b.dx-2*dot*nx,ry=b.dy-2*dot*ny;b.dx=.45*b.dx+.55*rx;b.dy=.45*b.dy+.55*ry;const l=Math.hypot(b.dx,b.dy)||1;b.dx/=l;b.dy/=l}   // mild deflection
-      b.x=o.x+nx*(h+BR+1);b.y=o.y+ny*(h+BR+1);
-      b.win=null;shake=Math.max(shake,5);flash.a=.16;flash.hue=345;harmNote(.1);
-      burst(b.x,b.y,345,14,BR*14,.6);
-      rings.push({x:b.x,y:b.y,r0:BR,life:.4,max:.4,hue:345,w:3},{x:o.x,y:o.y,r0:h,life:.3,max:.3,hue:350,w:3});
-    }
+    const rx=b.x-o.x,ry=b.y-o.y,d=Math.hypot(rx,ry)||1;
+    if(b.lbo===o){if(d<h+BR+2)continue;b.lbo=null}   // passing through this one: not again until it is clear of it
+    if(d>=h+BR)continue;
+    const nx=rx/d,ny=ry/d;if(b.dx*nx+b.dy*ny>=0)continue;   // already leaving it
+    b.lbo=o;rockHit(b,o,h,nx,ny);
   }
   const want=(b.side===1?1:-1)*(b.away?-1:1);
-  if(b.dx*want<.5){b.dx=.5*want;const l=Math.hypot(b.dx,b.dy);b.dx/=l;b.dy/=l}
+  // never close to straight up and down (it would zig-zag between the top and bottom walls): at most 70° from level. A real bounce
+  // off an obstacle keeps its own angle up to that (the player's choice, 2026-11-24); launches and rebounds never come near it
+  if(b.dx*want<.342){b.dx=.342*want;b.dy=(b.dy<0?-1:1)*.94}
   // items
   for(let i=items.length-1;i>=0;i--){
     const it=items[i];
@@ -1185,20 +1232,57 @@ function drawField(x){
   if(!cF)for(let e=0;e<4;e++)if(edgeGlow[e]>0){const l=edgeLine(e);gline(x,l[0],l[1],l[2],l[3],edgeHue[e],edgeGlow[e],6)}
   x.restore();
 }
+// realistic meteor pictures (AI-made with Codex, 2026-11-25): cold airless rock lit by a far sun from the upper left (no heat glow:
+// a rock in space is cold, the player's correction); k = the rock's average radius as a share of the picture's half width
+const METEOR=[.952,.961,.962].map((k,i)=>{const im=new Image();im.k=k;im.src='meteor_'+(i+1)+'.webp';return im});
 function drawBumps(x){
   x.save();rr(x,FR.x,FR.y,FR.w,FR.h,10);x.clip();
   for(const o of bumps){
-    if(o.age<.35){   // telegraph: a shrinking dashed ring just before it pops up
-      const k=o.age/.35;x.save();x.strokeStyle=`hsla(340,100%,75%,${.35+.5*k})`;x.lineWidth=2;x.setLineDash([5,5]);
-      x.beginPath();x.arc(o.x,o.y,o.Rm*(1.7-.7*k),0,6.283);x.stroke();x.restore();continue;
+    if(o.age<.35){   // telegraph: a dashed ring where the meteor will land, closing in
+      const k=o.age/.35;x.save();x.strokeStyle=`hsla(205,80%,80%,${.35+.5*k})`;x.lineWidth=2;x.setLineDash([5,5]);
+      x.beginPath();x.arc(o.x,o.y,o.Rm*(1.6-.6*k),0,6.283);x.stroke();x.restore();continue;
     }
     const h=bumpH(o);if(h<1)continue;
-    const a=o.age>o.life?.6:1;
-    const g=x.createRadialGradient(o.x,o.y,h*.2,o.x,o.y,h*1.4);
-    g.addColorStop(0,`hsla(340,95%,60%,${.85*a})`);g.addColorStop(.7,`hsla(330,90%,45%,${.55*a})`);g.addColorStop(1,'transparent');
-    x.fillStyle=g;x.beginPath();x.arc(o.x,o.y,h*1.4,0,6.283);x.fill();
-    x.lineWidth=7;x.strokeStyle=`hsla(340,100%,70%,${.22*a})`;x.beginPath();x.arc(o.x,o.y,h,0,6.283);x.stroke();
-    x.lineWidth=2.5;x.strokeStyle=`hsla(340,100%,75%,${a})`;x.beginPath();x.arc(o.x,o.y,h,0,6.283);x.stroke();
+    // meteor: a cold rock picture (or, until it loads, a drawn lumpy grey rock with a few craters); its look comes from its place. The ball
+    // bounces off the round face (the lumps are only looks). On a bounce: a flash where it touched, a light streak through the rock
+    // when it is mirrored out of the far side, and a short ray along the new way; when one passes through, it dims for a moment
+    if(!o.rk){let s=Math.abs(Math.sin(o.x*12.9898+o.y*78.233)*43758.5453);const r=()=>(s=(s*9301+49297)%233280)/233280;
+      o.rk={v:Array.from({length:11},()=>.88+r()*.16),c:Array.from({length:3},()=>[r()*6.283,r()*.55,.16+r()*.14]),sp:(r()-.5)*.8,i:Math.floor(r()*METEOR.length)}}
+    const dm=o.dim!=null?time-o.dim:9,a=(o.age>o.life?.6:1)*(dm<.45?.35+.65*dm/.45:1),e=o.st!=null?time-o.st:9,rot=time*o.rk.sp,V=o.rk.v;
+    x.save();
+    const aur=x.createRadialGradient(o.x,o.y,h*.9,o.x,o.y,h*1.35);   // faint cool halo so the dark rock reads on the dark field (no heat)
+    aur.addColorStop(0,`hsla(210,70%,75%,${(.16+(e<.3?.3*(1-e/.3):0))*a})`);aur.addColorStop(1,'transparent');
+    x.fillStyle=aur;x.beginPath();x.arc(o.x,o.y,h*1.35,0,6.283);x.fill();
+    const im=METEOR[o.rk.i];
+    if(im.complete&&im.naturalWidth){   // the realistic rock picture (lit from the upper left, so it does not turn), sized so its rock fills the round face
+      const S=h/im.k;x.globalAlpha=a;x.drawImage(im,o.x-S,o.y-S,S*2,S*2);x.globalAlpha=1;
+    }else{   // until the picture has loaded: the drawn rock
+    x.beginPath();
+    for(let i=0;i<=V.length;i++){const k=i%V.length,t=rot+k/V.length*6.283;x[i?'lineTo':'moveTo'](o.x+Math.cos(t)*h*V[k],o.y+Math.sin(t)*h*V[k])}
+    x.closePath();
+    const body=x.createRadialGradient(o.x-h*.35,o.y-h*.35,h*.1,o.x,o.y,h);                       // lit from the upper left
+    body.addColorStop(0,`hsla(30,8%,62%,${a})`);body.addColorStop(.7,`hsla(30,6%,36%,${a})`);body.addColorStop(1,`hsla(220,10%,20%,${a})`);
+    x.fillStyle=body;x.fill();
+    x.lineWidth=1.5;x.strokeStyle=`hsla(210,60%,78%,${.45*a})`;x.stroke();   // cool rim light
+    for(const c of o.rk.c){const t=rot+c[0],cx=o.x+Math.cos(t)*h*c[1],cy=o.y+Math.sin(t)*h*c[1],cr=h*c[2];   // craters
+      x.fillStyle=`hsla(30,6%,22%,${.55*a})`;x.beginPath();x.arc(cx,cy,cr,0,6.283);x.fill();
+      x.strokeStyle=`hsla(30,10%,75%,${.35*a})`;x.lineWidth=1;x.beginPath();x.arc(cx,cy,cr,3.6,5.6);x.stroke()}
+    }
+    if(dm<.45){x.setLineDash([4,4]);x.strokeStyle=`hsla(205,50%,85%,${.6*(1-dm/.45)})`;x.lineWidth=1.5;x.beginPath();x.arc(o.x,o.y,h+3,0,6.283);x.stroke();x.setLineDash([])}
+    if(e<.35){
+      const t=e/.35,dl=Math.hypot(o.odx,o.ody)||1,ux=o.odx/dl,uy=o.ody/dl;
+      const fg=x.createRadialGradient(o.hx,o.hy,0,o.hx,o.hy,BR*3);fg.addColorStop(0,`hsla(45,100%,92%,${(1-t)*a})`);fg.addColorStop(1,'transparent');
+      x.fillStyle=fg;x.beginPath();x.arc(o.hx,o.hy,BR*3,0,6.283);x.fill();                       // flash where it touched
+      x.lineCap='round';
+      if(o.ex!==o.hx){x.strokeStyle=`hsla(45,100%,88%,${(1-t)*.8*a})`;x.lineWidth=3*(1-t)+1;seg(x,o.hx,o.hy,o.ex,o.ey);   // streak through the rock
+        const eg=x.createRadialGradient(o.ex,o.ey,0,o.ex,o.ey,BR*3);eg.addColorStop(0,`hsla(45,100%,92%,${(1-t)*a})`);eg.addColorStop(1,'transparent');
+        x.fillStyle=eg;x.beginPath();x.arc(o.ex,o.ey,BR*3,0,6.283);x.fill()}
+      x.strokeStyle=`hsla(45,100%,82%,${(1-t)*a})`;x.lineWidth=2.5;                             // the ray along the new way
+      const r0=BR*.5+h*2.4*t,r1=BR*.5+h*2.4*Math.min(1,t+.35);
+      x.beginPath();x.moveTo(o.ex+ux*r0,o.ey+uy*r0);x.lineTo(o.ex+ux*r1,o.ey+uy*r1);x.stroke();
+      x.strokeStyle=`hsla(45,100%,75%,${(1-t)*.8*a})`;x.lineWidth=2*(1-t)+1;x.beginPath();x.arc(o.ex,o.ey,BR*(1+1.8*t),0,6.283);x.stroke();
+    }
+    x.restore();
   }
   x.restore();
 }
@@ -1360,7 +1444,7 @@ function drawAttract(x){
 function drawTut(ctx){
   if(!(mode==='tut'&&(st==='play'||st==='ready')))return;
   ctx.save();ctx.textAlign='center';ctx.textBaseline='alphabetic';
-    const r=resolved,msg=r<4?TX('光球抵達亮起的框線時，觸碰光球。外圈縮到光球上的瞬間就是節拍。'):r<8?TX('觸碰光球上方，球往下彈；觸碰光球下方，球往上彈。'):r<12?TX('按得越用力（或指腹接觸面積越大），轉向越大。'):r<16?TX('場中障礙只改變方向，光球會自動加速，準時抵達框線。'):TX('教學中失誤不扣生命值；正式關卡失誤會扣生命值。');
+    const r=resolved,msg=r<4?TX('光球抵達亮起的框線時，觸碰光球。外圈縮到光球上的瞬間就是節拍。'):r<8?TX('觸碰光球上方，球往下彈；觸碰光球下方，球往上彈。'):r<12?TX('按得越用力（或指腹接觸面積越大），轉向越大。'):r<16?TX('場中隕石會讓光球真實反彈，但一定繼續往前，準時抵達框線；離節拍太近時直接穿過。'):TX('教學中失誤不扣生命值；正式關卡失誤會扣生命值。');
     ctx.fillStyle='rgba(4,5,13,.45)';
     ctx.font='700 15px '+FF;const mw=Math.min(FR.w-16,ctx.measureText(msg).width+28);
     rr(ctx,W/2-mw/2,FR.y+8,mw,30,15);ctx.fill();ctx.fillStyle='#ffd36b';ctx.fillText(msg,W/2,FR.y+28,mw-16);
@@ -1427,6 +1511,7 @@ const DUEL_URL=(()=>{if(location.protocol!=='http:'||!/^(localhost|127\.0\.0\.1)
   return 'http://'+location.hostname+':8787'})();
 // Everything from the network is untrusted: escape before HTML, clamp numbers, whitelist enums.
 const esc=s=>String(s==null?'':s).replace(/[&<>"'`]/g,c=>'&#'+c.charCodeAt(0)+';');
+const emo=s=>COS&&COS.emo?COS.emo(String(s==null?'':s)):esc(s);   // phrase text with 小光 stickers
 const dInt=(v,lo,hi)=>{v=Math.floor(Number(v));return Number.isFinite(v)?Math.max(lo,Math.min(hi,v)):lo};
 const dName=v=>String(v==null?'':v).replace(/[\u0000-\u001f\u007f-\u009f<>&"'`\\]/g,'').trim().slice(0,12);const dNameG=v=>{const s=dName(v),m=/^玩家([1-8])$/.exec(s);return m?TX('玩家{n}',{n:m[1]}):s};   // a name the server gave a guest in a room, for showing only (nicknames, leaderboards and friends keep dName; a room player's name as sent is nm0)
 const dKey=v=>typeof v==='string'&&/^[a-z0-9]{2,16}$/.test(v)?v:'';
@@ -1553,6 +1638,7 @@ function duelOn(d){
   if(d.t==='v'){spFrame(d);return}
   if(d.t==='wend'){if(SP.on&&dInt(d.i,0,MP_MAX-1)===SP.i)specNext(1,true);return}
   if(d.t==='atk'){const now=performance.now();if(!DATK.includes(d.k)||now-(DU.atkT||0)<1500)return;DU.atkT=now;duelAttacked(d.k,mpName(dInt(d.from,0,MP_MAX-1)));return}
+  if(d.t==='lv'){duelXpShow(d);return}   // my experience for this round, sent by the server after the results
   if(d.t==='res'){if(!Array.isArray(d.r))return;
     if(SP.on)specOff('res');
     const seen=new Set();DU.res=d.r.slice(0,MP_MAX).filter(x=>x&&typeof x==='object').map(x=>({i:dInt(x.i,0,MP_MAX-1),name:dNameG(x.name)||TX('玩家'),s:dInt(x.s,0,1e8),ok:x.ok===true,
@@ -1633,7 +1719,7 @@ function mpSeats(){
     const rl=p.i!==DU.you&&REL_TAG[DU.rel[p.i]],sy=DU.says[p.i]&&DU.says[p.i].until>now?SAY[DU.says[p.i].k]:'';
     const sc=seatCos(p);
     h+='<div class="seat'+(p.i===DU.you?' me':'')+(p.ready&&!C.qm?' ok':'')+sc.pl+(p.i!==DU.you&&DU.rel[p.i]&&DU.rel[p.i]!=='b'?' tap':'')+'" data-i="'+p.i+'"'+(sc.st?' style="'+sc.st+'"':'')+'>'+sc.av+'<span class="nm">'+esc(p.name)+'</span>'+sc.tl+(p.i===DU.host&&!C.qm?'<i>'+TX('房主')+'</i>':'')
-      +(rl?'<span class="ft '+rl[0]+'">'+rl[1]+'</span>':'')+(sy?'<span class="bub">'+esc(sy)+'</span>':'')+'</div>'}
+      +(rl?'<span class="ft '+rl[0]+'">'+rl[1]+'</span>':'')+(sy?'<span class="bub">'+emo(sy)+'</span>':'')+'</div>'}
   $('#rseats').innerHTML=h;
 }
 function saysTick(){   // re-draw when the next bubble ends (each one lasts its own 3.2 s)
@@ -1661,7 +1747,7 @@ $('#rseats').onclick=e=>{
 };
 function sayOpen(){
   const q=document.createElement('div');q.className='qp';q.setAttribute('role','menu');q.setAttribute('aria-label',TX('快速發言'));
-  q.innerHTML=SAY_G.map(([g,ks])=>'<div class="qh">'+g+'</div>'+ks.map(k=>'<button data-k="'+k+'" role="menuitem">'+esc(SAY[k])+'</button>').join('')).join('');
+  q.innerHTML=SAY_G.map(([g,ks])=>'<div class="qh">'+g+'</div>'+ks.map(k=>'<button data-k="'+k+'" role="menuitem">'+emo(SAY[k])+'</button>').join('')).join('');
   q.onclick=e=>{const b=e.target.closest('button[data-k]');if(!b)return;const k=+b.dataset.k,now=Date.now();popClose();
     if(now-(DU.saidAt||0)<2700){toast(TX('發言過於頻繁，請稍候再試'));return}DU.saidAt=now;dsend({t:'say',k});evA('say')};
   popAt(q,$('#bSay'),true);
@@ -1727,7 +1813,7 @@ function mpRankCheck(){
     if(r<DU.rank){mpBanner('up',TX('第 {n} 名',{n:r}),'','#ffd36b');mpBurst();vib(15)}else mpBanner('down',TX('第 {n} 名',{n:r}),'','#8fb2ff')}
   DU.rank=r;mpLad();
 }
-const ATKN=TXO({bump:'障礙',shrink:'觸碰範圍縮小',fog:'迷霧'}),ATKS={bump:' · '+TX('{n} 秒',{n:4}),shrink:' · '+TX('{n} 秒',{n:5}),fog:' · '+TX('{n} 秒',{n:3})};
+const ATKN=TXO({bump:'隕石',shrink:'觸碰範圍縮小',fog:'迷霧'}),ATKS={bump:' · '+TX('{n} 秒',{n:4}),shrink:' · '+TX('{n} 秒',{n:5}),fog:' · '+TX('{n} 秒',{n:3})};
 function duelHit(j){   // j: 0-3 tier, 4 miss
   const d=score-(DU.lastS||0);DU.lastS=score;
   dsend({t:'st',s:score,c:combo,l:lifeP(),r:resolved,j});
@@ -2006,7 +2092,7 @@ function duelFinish(ok,rank,acc){
   DU.myFin={s:score,ok,acc,rank:ok?rank:'—',mc:maxCombo};duelLog(ok);dsend({t:'fin',...DU.myFin});
   mpLadOff();DU.wn=0;evq.length=0;spEye();DU.spAuto=0;
   $('#deK').textContent=TX('{n} 人對戰',{n:DU.n});$('#deS').textContent=TX('《{song}》',{song:song.name})+' · '+D.n;
-  $('#deMe').innerHTML=TX('本局成績　完美<b>{t0}</b>　極佳<b>{t1}</b>　良好<b>{t2}</b>　尚可<b>{t3}</b>　失誤<b>{miss}</b>　最高連擊<b>{combo}</b>',{t0:tierCount[0],t1:tierCount[1],t2:tierCount[2],t3:tierCount[3],miss:missCount,combo:maxCombo});
+  $('#deXp').hidden=true;$('#deMe').innerHTML=TX('本局成績　完美<b>{t0}</b>　極佳<b>{t1}</b>　良好<b>{t2}</b>　尚可<b>{t3}</b>　失誤<b>{miss}</b>　最高連擊<b>{combo}</b>',{t0:tierCount[0],t1:tierCount[1],t2:tierCount[2],t3:tierCount[3],miss:missCount,combo:maxCombo});
   duelResult();
 }
 const mpPl=x=>{if(x.av||x.pl||x.ti)return x;const p=DU.players.find(q=>q.i===x.i);return p||x};   // the result rows carry what each one wears; others fall back to the room's seats
@@ -2039,6 +2125,12 @@ function duelResult(){
   $('#deN').textContent='';mpEndNote();
   mpEndBtns(!!DU.ws);$('#bWatch').hidden=true;
   if(pos===1)vib([20,40,20,40,60]);
+}
+function duelXpShow(d){   // { lv: the settled state with gain, duel: { n, place, mult } }: one line under my score, and the level-up notice
+  const s=d&&d.lv?lvClean(d.lv):null,e=$('#deXp');if(!s||s.gain==null||!e)return;
+  lvSet(s);const D=d.duel&&typeof d.duel==='object'?d.duel:{},m=Math.round(Math.max(1,Math.min(10,+D.mult||1))*10)/10;
+  e.innerHTML=lvBadge(s.lv)+'<b>+'+s.gain.toLocaleString()+'</b> '+TX('經驗')+(m>1?' · '+TX('對戰獎勵 ×{m}',{m}):'');e.hidden=false;
+  if(s.ups&&s.ups.length&&!$('#end').classList.contains('hidden'))lvUpShow(s);
 }
 function mpEndNote(){   // on the result screen: who already went back for another round (quick match counts down once 2 are back)
   if($('#end').classList.contains('hidden')||mode!=='duel'||!DU.res)return;
@@ -2126,7 +2218,7 @@ async function roomInviteOpen(){
     for(const f of fs){
       const here=inRoom.has(f.name),sub=!f.on?TX('離線@@status'):here?TX('已在房間'):busy(f)?(f.st==='duel'?TX('對戰中'):TX('遊戲中')):TX('在線上'),sent=DU.invited.code===DU.code&&DU.invited.ids[f.id];
       h+='<div class="fi"><i class="dot'+(f.on?' on':'')+'"></i><span><b>'+esc(f.name)+'</b><small>'+esc(sub)+'</small></span>'
-        +(f.on&&!here&&!busy(f)?'<button class="'+(sent?'':'pri')+'" data-iv="'+f.id+'"'+(sent?' disabled':'')+'>'+(sent?TX('已邀請'):TX('邀請'))+'</button>':'')+'</div>';
+        +(f.on&&!here&&!busy(f)?'<button class="'+(sent?'':'acc')+'" data-iv="'+f.id+'"'+(sent?' disabled':'')+'>'+(sent?TX('已邀請'):TX('邀請'))+'</button>':'')+'</div>';
     }
     q.innerHTML=h;
   };
@@ -2166,8 +2258,8 @@ function lbEnd(kind){
   const len=kind==='fail'?(R.seq.length?Math.max(...R.seq)+1:0):0;if(kind==='fail'&&!(len>0&&len<=R.log.length))return;   // the log runs up to the highest beat settled so far
   R.ended=true;
   const body=kind==='fail'?{kind,log:R.log.slice(0,len),seq:R.seq.slice(),star:starRanges(R.star,len)}:{kind};
-  Promise.resolve(R.ticket).then(run=>typeof run==='string'&&run.split('.').length===6?api('/lb/end',Object.assign(body,{run,pk:pkey()})):null)
-    .then(j=>{if(j&&j.ok&&Array.isArray(j.ach)&&window.PPLA)window.PPLA.fresh(j.ach.filter(x=>typeof x==='string').slice(0,40))}).catch(()=>{});
+  R.endP=Promise.resolve(R.ticket).then(run=>typeof run==='string'&&run.split('.').length===6?api('/lb/end',Object.assign(body,{run,pk:pkey()})):null).catch(()=>null);   // the result screen of a failed run reads its experience from this
+  R.endP.then(j=>{if(j&&j.ok&&Array.isArray(j.ach)&&window.PPLA)window.PPLA.fresh(j.ach.filter(x=>typeof x==='string').slice(0,40));if(j&&j.ok&&j.lv)lvApplyRes(j.lv)}).catch(()=>{});
 }
 async function api(path,body,ms){
   const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||8000);
@@ -2201,7 +2293,7 @@ async function nickGo(){
   if(!v){msg.textContent=TX('請輸入暱稱。');return}
   const b=$('#nkGo');b.disabled=true;msg.textContent=TX('確認中⋯');
   const j=await api('/lb/name',{pk:pkey(),name:v});b.disabled=false;
-  if(j.ok){setMe({id:dInt(j.id,1,1e12),name:dName(j.name)||v});msg.textContent='';nickClose(true);return}
+  if(j.ok){setMe({id:dInt(j.id,1,1e12),name:dName(j.name)||v});msg.textContent='';nickClose(true);lvLoad(true);return}
   if(j.error==='name')msg.textContent=j.why==='taken'?(IOS&&!standalone?TX('此暱稱已有人使用，請更換。若這是您在主畫面遊戲使用的暱稱，請改從主畫面開啟遊戲。'):TX('此暱稱已有人使用，請更換。')):j.why==='empty'?TX('暱稱須包含至少一個文字或數字。'):TX('暱稱含有不當字詞，請更換。');
   else if(j.error==='slow')msg.textContent=TX('操作太頻繁，請稍等 1 分鐘後再次嘗試。');
   else{msg.textContent=nickMode==='first'?TX('目前無法連線至伺服器。您可以先離線遊玩單人模式，下次開啟時再設定暱稱。'):TX('目前無法連線至伺服器，請稍後再試。');$('#nkSkip').hidden=false}
@@ -2238,20 +2330,319 @@ async function lbGet(key,d,fresh){
   const j=await api('/lb/board',ME?{song:key,d,pk:pkey()}:{song:key,d});if(j.error)return null;
   const v=lbClean(j);LBC.set(k,{t:performance.now(),v});return v;
 }
+var LBP=null;   // the last run's /lb/submit or /lb/end: a new ticket waits for it (briefly), since a new ticket voids the experience of an unsettled one
 async function lbSubmit(R){
-  const t=$('#rlbT'),b=$('#rlbB'),tok=lastRes;$('#rlb').hidden=false;b.hidden=true;t.textContent=TX('成績上傳中⋯');
+  const t=$('#rlbT'),b=$('#rlbB'),tok=lastRes;if(ME){$('#rlb').hidden=false;b.hidden=true;t.textContent=TX('成績上傳中⋯')}   // without a nickname there is nothing to upload: only the experience row is shown
+  lvPending();
   const run=R.ticket?await R.ticket:{e:'net'};
   const j=typeof run==='string'?await api('/lb/submit',{run,pk:pkey(),log:R.log,seq:R.seq,star:starRanges(R.star,R.log.length),pf:PF}):{error:run.e};
   if(lastRes!==tok)return;
+  lvResult(j,{ok:true,R});
   if(j.ok&&Array.isArray(j.ach)&&window.PPLA)window.PPLA.fresh(j.ach.filter(x=>typeof x==='string').slice(0,40));   // what this run earned on the server: shown as notices
   if(j.ok&&j.me&&typeof j.me==='object'&&!j.me.hidden){
     const k='ppl-lr-'+R.key+'-'+R.d,prev=dInt(lsGet(k),0,1e9),r=dInt(j.me.r,1,1e9);lsSet(k,String(r));LBC.delete(R.key+'-'+R.d);
     t.innerHTML=TX('排行榜 <b>第 {r} 名</b>／共 {n} 人',{r:r,n:dInt(j.total,1,1e9)})+(prev&&r<prev?TX('<em>↑ 上升 {n} 名</em>',{n:prev-r}):'')+(j.improved===false?' '+TX('<span class="dim">（未超越您的最佳紀錄）</span>'):'');
     b.textContent=TX('查看排行榜');b.hidden=false;
   }else if(j.ok)t.textContent=TX('您的暱稱遭多人檢舉，暫時不會顯示於排行榜');
+  else if(!ME){$('#rlb').hidden=false;t.textContent=TX('設定暱稱後，通關成績將列入排行榜');b.textContent=TX('設定暱稱');b.hidden=false}
   else{if(j.error==='noname')setMe(null);
     t.textContent=j.error==='noname'?TX('找不到您的暱稱，請至「設定」重新設定暱稱'):j.error==='slow'?TX('操作太頻繁，本次成績未上傳'):j.error==='net'||j._s===0||j._s>=500?TX('目前無法連線至伺服器，本次成績未列入排行榜'):TX('本次成績無法驗證，未列入排行榜')}
 }
+/* ================= level and light ================= */
+// The server (server/src/level.js) decides every number; the phone shows them and estimates the experience of a full-accuracy run for the
+// multiplier row. The constants are the ones level.js exports. Offline, the last answer is shown from the cache (localStorage ppl-lvc) and only x1 can be chosen.
+const LV={st:null,t:0,off:false,busy:0,m:(v=>v>=1&&v<=4?v:null)(parseInt(lsGet('ppl-lvm')||'',10)),tab:'rw',agree:false,buying:false,msg:'',msgT:0,row:null,upT:0};
+const LV_XP=[30,45,70,20,90],LV_COST=[0,0,5,10,15],LV_MS=360000;
+const LI='<svg class="li" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M5.5 18.5l2.1-2.1M16.4 7.6l2.1-2.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+const LV_PIDS=[['com.nocticat.pingponglight.light.s',90],['com.nocticat.pingponglight.light.m',300],['com.nocticat.pingponglight.light.l',1080],['com.nocticat.pingponglight.pass',900]];
+const lvDay=t=>Math.floor((t+4*3600e3)/86400e3);   // the game day turns over at 04:00 Taiwan time
+const lvTier=lv=>Math.min(9,Math.floor(lv/10));
+const lvTxt=lv=>lv>100?TX('星輝 {k}',{k:lv-100}):'Lv '+lv;
+const lvBadge=(lv,cls)=>'<span class="lvb t'+lvTier(lv)+(cls?' '+cls:'')+'">'+lvTxt(lv)+'</span>';
+const lvTierName=()=>TXA(['白色','青色','綠色','藍色','紫色','粉色','橙色','金色','彩虹','星輝']);
+function lvClean(j){
+  if(!j||typeof j!=='object'||!Number.isInteger(j.lv)||!(j.need>0))return null;
+  const L=j.light&&typeof j.light==='object'?j.light:{},o={lv:dInt(j.lv,1,1e6),xp:dInt(j.xp,0,1e12),cur:dInt(j.cur,0,1e9),need:Math.max(1,dInt(j.need,1,1e9)),star:dInt(j.star,0,1e6),
+    title:typeof j.title==='string'&&/^title\./.test(j.title)&&j.title.length<60?j.title:'',
+    light:{nat:dInt(L.nat,0,1e7),sub:dInt(L.sub,0,1e7),paid:dInt(L.paid,0,1e7),cap:Math.max(1,dInt(L.cap,1,1e4)),next:dInt(L.next,0,LV_MS),spent:dInt(L.spent,0,1e5),dayCap:Math.max(1,dInt(L.dayCap,1,1e5)),pday:dInt(L.pday,0,3650)},
+    pass:dInt(j.pass,0,1e14),dsec:dInt(j.dsec,0,1e6),half:j.half===true,mult:dInt(j.mult,1,4)};
+  if(Number.isFinite(j.gain)){   // the state that comes with a settled run
+    const fr=j.from&&typeof j.from==='object'?j.from:{};
+    o.gain=dInt(j.gain,0,1e9);o.base=dInt(j.base,0,1e9);o.used=dInt(j.used,1,4);o.cost=dInt(j.cost,0,15);
+    o.from={lv:dInt(fr.lv,1,1e6),cur:dInt(fr.cur,0,1e9),need:Math.max(1,dInt(fr.need,1,1e9))};
+    o.ups=Array.isArray(j.ups)?j.ups.slice(0,200).filter(Number.isInteger):[];
+    o.rewards=Array.isArray(j.rewards)?j.rewards.slice(0,60).filter(x=>typeof x==='string'&&x.length<60&&COS&&COS.byId[x]):[];
+  }
+  return o;
+}
+// the light as it is now: the natural pool refills one point per 6 minutes up to its cap (the pool is read at LV.t)
+function lvLight(){
+  const s=LV.st;if(!s)return null;const L=s.light,now=Date.now(),el=Math.max(0,now-LV.t),same=lvDay(now)===lvDay(LV.t);
+  let nat=L.nat,next=0;
+  if(nat<L.cap){
+    if(L.next>0&&el<L.next)next=L.next-el;
+    else{const k=1+Math.floor((el-L.next)/LV_MS);nat=Math.min(L.cap,nat+k);next=nat>=L.cap?0:LV_MS-((el-L.next)%LV_MS)}
+  }
+  return{nat,sub:L.sub,paid:L.paid,extra:L.sub+L.paid,total:nat+L.sub+L.paid,cap:L.cap,next,full:nat>=L.cap,spent:same?L.spent:0,dayCap:L.dayCap};
+}
+const lvHalf=()=>!!(LV.st&&LV.st.half&&lvDay(Date.now())===lvDay(LV.t));
+const lvCan=(m,L)=>LV_COST[m]<=L.total&&L.spent+LV_COST[m]<=L.dayCap;
+// the multiplier a run would start with: the chosen one, or the highest the light and the day's limit allow; offline always x1
+function lvEffM(){
+  const L=lvLight();if(!L||LV.off)return 1;
+  let m=LV.m||(LV.st&&LV.st.mult)||1;while(m>1&&!lvCan(m,L))m--;return m;
+}
+function lvSet(s){
+  LV.st=s;LV.t=Date.now();LV.off=false;if(LV.m==null)LV.m=s.mult;
+  const c=Object.assign({},s);delete c.gain;delete c.base;delete c.used;delete c.cost;delete c.from;delete c.ups;delete c.rewards;
+  lsSet('ppl-lvc',JSON.stringify({t:LV.t,s:c}));lvRefresh();
+}
+function lvApplyRes(j){const s=lvClean(j);if(s)lvSet(s);return s}
+function lvFrom(o){   // an /iap/verify or /shop/state answer: it carries the whole state (lv) or at least the light
+  if(!o||typeof o!=='object')return;
+  if(o.lv&&lvApplyRes(o.lv))return;
+  if(o.light&&LV.st){const s=lvClean(Object.assign({},LV.st,{light:o.light}));if(s)lvSet(s)}
+}
+async function lvLoad(force){
+  if(LV.busy)return;const now=Date.now();if(!force&&LV.t&&!LV.off&&now-LV.t<20000)return;
+  LV.busy=1;
+  try{const j=await api('/lv/me',{pk:pkey()});const s=j&&!j.error&&j.lv?lvClean(j.lv):null;if(s)lvSet(s);else LV.off=true}
+  catch(e){LV.off=true}
+  finally{LV.busy=0;lvRefresh()}
+}
+function lvReset(){LV.st=null;LV.t=0;LV.m=null;LV.off=false;lvRefresh()}
+function lvBoot(){
+  try{const c=JSON.parse(lsGet('ppl-lvc')||'null'),s=c&&lvClean(c.s);if(s){LV.st=s;LV.t=dInt(c.t,0,4e12)||Date.now()}}catch(e){}
+  lvPlateRender();lvLoad(true);setInterval(lvTick,1000);
+}
+let lvKey='';
+function lvTick(){
+  const L=lvLight(),k=L?L.nat+'/'+L.total+'/'+Math.ceil(L.next/1000):'';if(k===lvKey)return;lvKey=k;lvRefresh(true);
+}
+function lvRefresh(tick){
+  if(!$('#home').classList.contains('hidden'))lvPlateRender();
+  if(!$('#menu').classList.contains('hidden'))lvMulRender();
+  if(!$('#lvp').classList.contains('hidden'))lvpRender(tick);
+}
+const lvLgt=L=>LI+L.nat+' / '+L.cap+(L.extra>0?' +'+L.extra:'')+' <em>'+(L.full?TX('已滿'):TX('{t} 後 +1',{t:mmss(L.next/1000)}))+'</em>';
+const lvPassTxt=s=>s&&s.pass>Date.now()?TX('月票剩 {n} 天',{n:Math.ceil((s.pass-Date.now())/86400e3)}):'';   // days left including today (the pass ends at 04:00 after its last pay day; the raised cap lasts until then)
+
+/* ---- home: the name plate ---- */
+function lvTitleId(){
+  const e=COS&&COS.state.eq.title;if(e&&COS.byId[e])return e;
+  const s=LV.st;return s&&s.title&&COS&&COS.byId[s.title]?s.title:'';
+}
+function lvAvatar(px){return COS?COS.avHTML(COS.avSpec(COS.state.eq.avatar,2),px):''}
+function lvPlateRender(){
+  const el=$('#bNp');if(!el)return;const s=LV.st,L=lvLight(),tid=lvTitleId();
+  const nm=ME?'<b class="nn">'+esc(ME.name)+'</b>':'<b class="nn no">'+TX('點此設定暱稱')+'</b>';
+  const pass=lvPassTxt(s)?'<span class="pass">'+esc(lvPassTxt(s))+'</span>':'';
+  let r1,r3;
+  if(s){
+    r1=nm+lvBadge(s.lv)+(tid?COS.titleHTML(tid):'')+pass;
+    r3='<span>'+TX('經驗 {a} / {b}',{a:s.cur.toLocaleString(),b:s.need.toLocaleString()})+(LV.off?' · <span class="off">'+TX('離線')+'</span>':'')+'</span><span class="lgt">'+lvLgt(L)+'</span>';
+  }else{r1=nm+'<span class="lvb">Lv –</span>';r3='<span class="off">'+TX('離線中，暫時無法顯示等級')+'</span>'}
+  const pct=s?Math.min(100,s.cur/s.need*100):0;
+  el.innerHTML='<span class="npav">'+lvAvatar(40)+'</span><span class="npm"><span class="r1">'+r1+'</span><span class="xbar"><i class="b" style="width:'+pct.toFixed(1)+'%"></i></span><span class="r3">'+r3+'</span></span>';
+}
+navTap('#bNp',()=>{initAudio();lvpOpen()});
+
+/* ---- song select: the multiplier row ---- */
+function lvMulRender(){
+  const w=$('#mulW');if(!w)return;const room=RSEL&&RSEL.on;w.hidden=!!room;if(room)return;
+  const L=lvLight(),off=LV.off||!L,eff=lvEffM(),s=SONGS[si];
+  $('#mulL').innerHTML=off?'<span class="off" style="color:#ffb86b">'+TX('離線')+'</span>':LI+L.total;
+  const mh=[1,2,3,4].map(m=>'<button data-m="'+m+'" class="'+(m===eff?'on':'')+(m>1&&(off||!lvCan(m,L))?' off':'')+'">×'+m+'<small>'+(m===1?TX('免費'):TX('{n} 點',{n:LV_COST[m]}))+'</small></button>').join('');
+  const ms=$('#mulS');if(ms.dataset.h!==mh){ms.innerHTML=mh;ms.dataset.h=mh}   // the clock redraws every second: leave the buttons alone unless they changed, so a tap is not lost
+  let h;
+  if(off)h='<span class="w">'+TX('離線中，只能使用 ×1；本次經驗不會計入')+'</span>';
+  else{
+    const lenF=Math.max(.6,Math.min(1.5,(s.dur||0)/(DIFFS[di].spd||1)/120)),half=lvHalf()?.5:1,base=Math.round(LV_XP[di]*lenF*half),n=Math.round(LV_XP[di]*lenF*eff*half);
+    h=(eff>1?TX('全對約 <b>+{n} 經驗</b>（基本 {b} ×{m}）',{n,b:base,m:eff}):TX('全對約 <b>+{n} 經驗</b>',{n}))+'<br>'+TX('通關才扣光能，沒過不扣');
+    const why=LV.msg||([2,3,4].some(m=>L.spent+LV_COST[m]>L.dayCap)?TX('今日已用 {x} / {y}，超過上限的倍率暫時不能選',{x:L.spent,y:L.dayCap}):[2,3,4].some(m=>LV_COST[m]>L.total)?TX('光能不足的倍率暫時不能選（每 6 分鐘回復 1 點）'):'');
+    if(why)h+='<br><span class="w">'+esc(why)+'</span>';
+  }
+  $('#mulX').innerHTML=h;
+}
+$('#mulS').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-m]');if(!b)return;const m=+b.dataset.m,L=lvLight();
+  if(b.classList.contains('off')){
+    LV.msg=!L||LV.off?TX('離線中，只能使用 ×1'):L.spent+LV_COST[m]>L.dayCap?TX('今日光能用量已達上限（{x} / {y}）',{x:L.spent,y:L.dayCap}):TX('光能不足：×{m} 需要 {c} 點，目前 {n} 點',{m,c:LV_COST[m],n:L.total});
+    clearTimeout(LV.msgT);LV.msgT=setTimeout(()=>{LV.msg='';lvMulRender()},4000);lvMulRender();return;
+  }
+  LV.m=m;lsSet('ppl-lvm',String(m));LV.msg='';lvMulRender();
+});
+
+/* ---- result: experience row, then the level-up card ---- */
+function lvRowOff(){const r=$('#xpr');r.hidden=true;r.innerHTML='';LV.row=null;clearTimeout(LV.upT)}
+function lvPending(){const r=$('#xpr');r.hidden=false;r.innerHTML='<div class="h"><span class="s">'+TX('經驗計算中⋯')+'</span></div>'}
+function lvFail(R){   // a run that ended in failure: what /lb/end answered
+  const tok=lastRes;lvPending();
+  R.endP.then(j=>{if(lastRes!==tok)return;lvResult(j||{error:'net'},{ok:false,R})});
+}
+function lvResult(j,o){
+  const r=$('#xpr');if(!r)return;
+  const s=j&&j.lv?lvClean(j.lv):null;
+  if(!s||s.gain==null){
+    if(!j||j.error==='net'||j._s===0||j._s>=500){r.hidden=false;r.innerHTML='<div class="h"><span class="s" style="color:#ffb86b">'+TX('離線，本次經驗未計入')+'</span></div>';if(j&&j.error==='net')LV.off=true}
+    else{r.hidden=true;r.innerHTML=''}
+    return;
+  }
+  lvSet(s);
+  const f=s.from,ups=s.ups,lv1=s.lv,last=lastRes||{},clear=o.ok;
+  const notes=[];
+  if(!clear)notes.push(TX('未過關：依完成比例給經驗，不吃倍率，也不扣光能'));
+  if(clear&&s.gain===0)notes.push(TX('這一局和另一局的時間重疊（例如上一局的結果還沒送出就開始），沒有計入經驗，也沒有扣光能'));
+  else{
+    if(o.R&&o.R.m>s.used)notes.push(TX('光能不足或已達今日上限，本次改為 ×{n}',{n:s.used}));
+    const sg=SONGS.find(x=>x.key===(o.R&&o.R.key)),d=o.R?o.R.d:di;
+    if(sg&&last.bp!=null){const full=Math.round(LV_XP[d]*(.5+.5*last.bp/10000)*Math.max(.6,Math.min(1.5,sg.dur/DIFFS[d].spd/120)));if(s.base>0&&s.base<=Math.round(full*.5)+1&&full>=2)notes.push(TX('今日遊玩超過 1 小時，經驗減半'))}
+  }
+  const need2=s.need-s.cur,ap=f.cur/f.need*100,bp2=s.cur/s.need*100;
+  r.hidden=false;
+  r.innerHTML='<div class="h"><span id="xpB">'+lvBadge(f.lv)+'</span><span class="g">+<span id="xpG">0</span> '+TX('經驗')+'</span>'
+    +(clear&&s.used>1?'<span class="s">'+TX('基本 {b} × 光能 ×{m}',{b:s.base,m:s.used})+'</span>':'')
+    +(s.cost>0?'<span class="lc lgt">'+LI+'−'+s.cost+'</span>':'')+'</div>'
+    +'<div class="xbar"><i class="g" style="width:'+ap.toFixed(1)+'%"></i><i class="b" style="width:'+ap.toFixed(1)+'%"></i></div>'
+    +'<div class="f"><span id="xpA">'+f.cur.toLocaleString()+' / '+f.need.toLocaleString()+'</span><span>'+TX('升到 {lv} 還差 {n}',{lv:lvTxt(lv1+1),n:need2.toLocaleString()})+'</span></div>'
+    +(notes.length?'<div class="n'+(clear?'':'')+'">'+notes.map(esc).join('<br>')+'</div>':'');
+  // the animation: about a second; the gain bar runs ahead of the base bar, a level-up fills it, then continues in the new level
+  const G=$('#xpG'),gb=r.querySelector('i.g'),bb=r.querySelector('i.b'),still=matchMedia('(prefers-reduced-motion:reduce)').matches,T=still?1:1000;
+  const wrap=ups.length>0,t0=performance.now();let wrapped=false;LV.row=o;
+  const setBar=(a,g)=>{bb.style.width=a.toFixed(1)+'%';gb.style.width=g.toFixed(1)+'%'};
+  (function fr(n){
+    if(!r.isConnected||r.hidden||LV.row!==o)return;
+    const k=Math.min(1,(n-t0)/T),e=k*(2-k);
+    G.textContent=Math.round(s.gain*e).toLocaleString();
+    if(!wrap)setBar(ap,ap+(bp2-ap)*e);
+    else if(e<.55)setBar(ap,ap+(100-ap)*(e/.55));
+    else{if(!wrapped){wrapped=true;const b=$('#xpB');if(b)b.innerHTML=lvBadge(lv1);$('#xpA').textContent=s.cur.toLocaleString()+' / '+s.need.toLocaleString()}setBar(0,bp2*((e-.55)/.45))}
+    if(k<1)requestAnimationFrame(fr);else{G.textContent=s.gain.toLocaleString();setBar(wrap?0:ap,bp2);const a=$('#xpA');if(a)a.textContent=s.cur.toLocaleString()+' / '+s.need.toLocaleString()}
+  })(t0);
+  if(ups.length)LV.upT=setTimeout(()=>{if(lastRes===last)lvUpShow(s)},still?300:1300);
+}
+
+/* ---- level-up: a card when the new levels bring rewards, otherwise a small notice ---- */
+const lvCatTxt=(it)=>{const n=it.name;switch(it.cat){
+  case'title':return TX('稱號「{n}」',{n});case'orb':return TX('光球「{n}」',{n});case'trail':return TX('尾跡「{n}」',{n});case'hit':return TX('打擊特效「{n}」',{n});
+  case'frame':return TX('框線「{n}」',{n});case'bg':return TX('背景「{n}」',{n});case'plate':return TX('名牌框「{n}」',{n});case'emote':return TX('表情「{n}」',{n});case'theme':return TX('限定主題「{n}」',{n});
+  default:return n}};
+const lvCatLbl=cat=>({title:TX('稱號'),orb:TX('光球'),trail:TX('尾跡'),hit:TX('打擊特效'),frame:TX('框線'),bg:TX('背景'),plate:TX('名牌框'),avatar:TX('頭像'),emote:TX('表情'),theme:TX('限定主題')}[cat]||'');
+// the items a card can equip: not emote packs, and not the parts of a theme that is in the same list (the theme sets them)
+function lvEquipable(ids){
+  const its=ids.map(id=>COS.byId[id]).filter(Boolean),th=its.find(i=>i.cat==='theme'),parts=th&&th.parts?th.parts:[];
+  return its.filter(i=>i.cat!=='emote'&&i.cat!=='share'&&!(parts.indexOf(i.id)>=0));
+}
+let lvUp=null;
+function lvUpShow(s){
+  const lvTo=s.lv,lvOld=s.from.lv,ids=s.rewards||[];
+  if(!ids.length||!COS){
+    const t=$('#lvTip');t.innerHTML=lvBadge(lvTo)+'<span>'+TX('升級了')+'</span>';t.hidden=false;clearTimeout(lvUp&&lvUp.tm);
+    lvUp={tm:setTimeout(()=>{t.hidden=true},3200)};return;
+  }
+  const its=lvEquipable(ids),shown=its.concat(ids.map(id=>COS.byId[id]).filter(i=>i&&i.cat==='emote'));
+  $('#luD').innerHTML=lvBadge(lvOld)+'<span class="ar">→</span>'+lvBadge(lvTo,'big');
+  const tn=lvTier(lvTo)!==lvTier(lvOld)?lvTierName()[lvTier(lvTo)]:'';
+  $('#luN').textContent=tn?TX('徽章變成{c}',{c:tn}):'';
+  $('#luG').innerHTML='<div class="gt">'+TX('獲得')+'</div><div class="lvg">'+shown.map(it=>{
+    const vis=it.cat==='title'?COS.titleHTML(it.id):it.cat==='avatar'?COS.avHTML(COS.avSpec(it.id,2),30)+'<b>'+esc(it.name)+'</b>':'<b>'+esc(it.name)+'</b>';
+    return '<div><small>'+esc(lvCatLbl(it.cat))+'</small>'+vis+'</div>'}).join('')+'</div>'
+    +(ME?'':'<p class="nt">'+TX('設定暱稱後，這些獎勵會自動補發給您')+'</p>');
+  const eq=$('#luEq');eq.hidden=ME?!its.length:false;eq.disabled=false;eq.textContent=ME?TX('立即裝備'):TX('設定暱稱');
+  lvUp={ids:its.map(i=>i.id)};
+  $('#lvup').classList.remove('hidden');
+}
+function lvUpClose(){$('#lvup').classList.add('hidden');lvUp=null}
+$('#luOk').textContent=TX('繼續@@level');$('#luOk').onclick=lvUpClose;
+$('#luEq').onclick=async()=>{
+  const u=lvUp;if(!u)return;
+  if(!ME){lvUpClose();nickOpen('result');return}
+  const b=$('#luEq');b.disabled=true;const S=window.PPLSHOP;let n=0;
+  if(S&&COS){
+    try{await S.sync()}catch(e){}
+    const its=u.ids.map(id=>COS.byId[id]).filter(Boolean),th=its.find(i=>i.cat==='theme');
+    for(const it of its){if(!COS.state.own.has(it.id))continue;if(it.cat==='theme')S.equipTheme(it);else if(!(th&&th.parts&&th.parts.indexOf(it.id)>=0))S.equip(it.cat,it.id);n++}
+  }
+  lvUpClose();toast(n?TX('已裝備'):TX('已放入收藏，可到「收藏」裝備'));lvPlateRender();
+};
+
+/* ---- the level page: profile, light, level rewards and (in the app) buying light ---- */
+const LV_LOCK='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>',LV_CHECK='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const lvCanBuy=()=>!!(APP&&window.PPLIAP&&typeof window.PPLIAP.buy==='function');
+function lvpOpen(){initAudio();LV.tab='rw';$('#home').classList.add('hidden');$('#lvp').classList.remove('hidden');lvpRender();lvLoad(true)}
+function lvpClose(){$('#lvp').classList.add('hidden');showHome()}
+navTap('#lvBk',lvpClose);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#lvp').classList.contains('hidden')&&$('#lvup').classList.contains('hidden')&&$('#docv').classList.contains('hidden'))lvpClose()});
+function lvRewardRows(){   // [[level, [items]]] from the catalogue (how = 'lv:N'), the parts of a theme left out
+  const m=new Map(),skip=new Set();
+  if(!COS)return[];
+  for(const it of COS.items)if(it.cat==='theme'&&/^lv:/.test(it.how||'')&&it.parts)for(const p of it.parts)skip.add(p);
+  for(const it of COS.items){const x=/^lv:(\d{1,4})$/.exec(it.how||'');if(!x||skip.has(it.id))continue;const n=+x[1];if(!m.has(n))m.set(n,[]);m.get(n).push(it)}
+  return[...m.entries()].sort((a,b)=>a[0]-b[0]);
+}
+function lvpRender(tick){
+  const s=LV.st,L=lvLight(),buy=lvCanBuy();if(!buy&&LV.tab==='buy')LV.tab='rw';
+  const tid=lvTitleId(),pass=lvPassTxt(s);
+  let h='<div class="lvMe">'+lvAvatar(52)+'<div class="tx"><span class="nn">'+(ME?esc(ME.name):TX('尚未設定暱稱'))+'</span><div class="r2">'+(s?lvBadge(s.lv):'<span class="lvb">Lv –</span>')+(tid?COS.titleHTML(tid):'')+'</div></div></div>';
+  if(!ME)h+='<button class="sm" id="lvNick">'+TX('設定暱稱')+'</button>';
+  if(s){
+    h+='<div class="lvBox"><div class="xbar"><i class="b" style="width:'+Math.min(100,s.cur/s.need*100).toFixed(1)+'%"></i></div><div class="f"><span>'+TX('經驗 {a} / {b}',{a:s.cur.toLocaleString(),b:s.need.toLocaleString()})+'</span><span>'+TX('升到 {lv} 還差 {n}',{lv:lvTxt(s.lv+1),n:(s.need-s.cur).toLocaleString()})+'</span></div></div>';
+    h+='<div class="lvBox"><span class="lgt">'+LI+TX('光能')+' '+L.nat+' / '+L.cap+(L.extra>0?' +'+L.extra:'')+'</span> <em style="font-style:normal">'+(L.full?TX('已滿'):TX('{t} 後 +1',{t:mmss(L.next/1000)}))+'</em><br>'
+      +TX('每 6 分鐘 +1，今日已用 {x} / {y}',{x:L.spent,y:L.dayCap})+'<br>'+TX('只放大經驗，不影響分數與排行')
+      +(L.extra>0?'<br>'+TX('其中月票贈送 {a} 點、購買 {b} 點，不會過期',{a:L.sub,b:L.paid}):'')
+      +(pass?'<br>'+esc(pass)+'　'+TX('期間自然上限 {n}',{n:L.cap}):'')
+      +(lvHalf()?'<br><span style="color:#ffb86b">'+TX('今日遊玩超過 1 小時，經驗減半')+'</span>':'')
+      +(buy?'':'<br>'+TX('可在 App 版補充光能'))+(LV.off?'<br><span style="color:#ffb86b">'+TX('離線中，顯示的是上次的數字')+'</span>':'')+'</div>';
+  }else h+='<div class="lvBox"><span style="color:#ffb86b">'+TX('離線中，暫時無法顯示等級')+'</span></div>';
+  $('#lvSide').innerHTML=h;
+  if(tick)return;   // the countdown only touches the left side: the list keeps its scroll position and focus
+  const tabs='<button data-t="rw" class="'+(LV.tab==='rw'?'on':'')+'">'+TX('等級獎勵')+'</button>'+(buy?'<button data-t="buy" class="'+(LV.tab==='buy'?'on':'')+'">'+TX('補充光能')+'</button>':'');
+  $('#lvTabs').innerHTML=tabs;$('#lvTabs').hidden=!buy;
+  const list=$('#lvList'),keep=list.scrollTop;list.innerHTML=LV.tab==='buy'?lvBuyHTML():lvRewardsHTML(s);
+  list.className='lvList'+(LV.tab==='buy'?' lvBuy':'');if(keep)list.scrollTop=keep;
+}
+function lvRewardsHTML(s){
+  const lv=s?s.lv:0;let nextDone=false;
+  const rows=lvRewardRows().map(([n,its])=>{
+    const got=lv>=n,nx=!got&&!nextDone;if(nx)nextDone=true;
+    return'<div class="lvR'+(got?' got':nx?' next':'')+'"><b>Lv '+n+'</b><span>'+its.map(i=>esc(i.cat==='avatar'?i.name:lvCatTxt(i))).join('＋')+'</span><span class="st">'+(got?LV_CHECK+TX('已獲得'):nx?TX('還差 {n} 級',{n:n-lv}):LV_LOCK)+'</span></div>'}).join('');
+  return'<div class="lvH">'+TX('達到等級就會自動獲得，商城買不到')+'</div>'+rows;
+}
+function lvBuyHTML(){
+  const P=window.PPLIAP,nm=[TX('光能小瓶'),TX('光能大瓶'),TX('光能箱'),TX('30 日光能月票')];
+  const dis=LV.agree&&!LV.buying&&ME?'':' disabled';
+  let h='<label class="ag"><input type="checkbox" id="lvAg"'+(LV.agree?' checked':'')+'><span>'+TX('我同意購買後立即使用，不適用七日解除權')+'</span></label>';
+  h+=LV_PIDS.map(([pid,pts],i)=>{
+    const has=P.has?P.has(pid):null,price=P.price?P.price(pid):'',ok=has!==false&&!!price;
+    const sub=i===3?TX('30 日月票・不會自動續訂：30 天內每天自動入帳 {d} 點（共 {n} 點，不用登入），期間自然上限提高到 120；再買會延長天數',{d:Math.round(pts/30),n:pts}):TX('+{n} 點，不會過期',{n:pts});
+    return'<div class="it"><span class="tx"><b>'+LI+' '+esc(nm[i])+'</b><small>'+esc(sub)+'</small></span><button class="gold" data-pid="'+pid+'"'+(ok?dis:' disabled')+'>'+(ok?esc(price):'—')+'</button></div>'}).join('');
+  h+='<div class="fn"><p>'+TX('光能只放大單人通關的經驗，不影響分數、排行榜與成就。')+'</p><p>'+TX('購買的光能立即發放、不會過期；月票是一次性購買，每天自動發放，到期後不會自動扣款。')+'</p>'
+    +(ME?'':'<p style="color:#ffb86b">'+TX('請先設定暱稱再購買')+'</p>')
+    +'<p><a href="terms.html">'+TX('服務條款')+'</a> · <a href="privacy.html">'+TX('隱私權政策')+'</a></p></div>';
+  return h;
+}
+$('#lvTabs').addEventListener('click',e=>{const b=e.target.closest('button[data-t]');if(!b)return;LV.tab=b.dataset.t;lvpRender();$('#lvList').scrollTop=0});
+$('#lvSide').addEventListener('click',e=>{if(e.target.closest('#lvNick'))nickOpen('first')});
+$('#lvList').addEventListener('change',e=>{if(e.target.id==='lvAg'){LV.agree=e.target.checked;lvpRender()}});
+$('#lvList').addEventListener('click',e=>{const b=e.target.closest('button[data-pid]');if(b&&!b.disabled)lvBuy(b.dataset.pid)});
+async function lvBuy(pid){
+  const P=window.PPLIAP;if(!LV.agree||LV.buying)return;
+  if(!ME){toast(TX('請先設定暱稱再購買'));return}
+  if(!P||typeof P.buy!=='function'){toast(TX('購買功能尚未就緒，請稍後再試'));return}
+  LV.buying=true;lvpRender();
+  let r=null;try{r=await P.buy(pid)}catch(e){r=null}
+  LV.buying=false;
+  if(r&&r.state)lvFrom(r.state);
+  if(!r)toast(TX('購買沒有完成'));
+  else if(r.noname)toast(TX('請先設定暱稱再購買'));
+  else if(r.paid&&!r.ok)toast(r.bad?TX('已付款但驗證失敗，下次開啟遊戲時會自動再試；仍未入帳請聯絡我們'):TX('已付款，購買紀錄稍後會自動補上，請勿重複購買'));
+  else if(r.ok){const st=r.results&&r.results[0]&&r.results[0].status;toast(st==='taken'?TX('這筆購買已在 24 小時內轉移過，暫時無法再轉移'):st==='revoked'?TX('這筆購買已退款'):TX('購買完成'))}
+  else if(r.error==='off')toast(TX('目前無法驗證購買，請稍後再試'));
+  else if(r.pending)toast(TX('購買等待核准中，核准後會自動取得'));
+  else if(!r.cancelled)toast(TX('購買沒有完成'));
+  lvLoad(true);lvpRender();
+}
+if(lvCanBuy()&&window.PPLIAP.ready)window.PPLIAP.ready.then(()=>{if(!$('#lvp').classList.contains('hidden'))lvpRender()});
 $('#rlbB').onclick=()=>{if(!ME)nickOpen('result');else lbOpen(si,di)};
 const LBV={i:0,d:0,open:-1,v:null};let lbTok=0;
 function lbOpen(i,d){LBV.i=i;LBV.d=d;LBV.open=-1;$('#lbT').textContent=TX('《{song}》',{song:SONGS[i].name});lbSeg();$('#lbv').classList.remove('hidden');lbLoad()}
@@ -2312,7 +2703,7 @@ function buildChips(){
 function selScroll(){const on=$('#chips .sr.on');if(on)try{on.scrollIntoView({block:'center'})}catch(e){}}
 function selDetail(){
   const i=si,s=SONGS[i];if(!s)return;
-  const room=RSEL&&RSEL.on;if(!room)diSync();const fx=room?null:fixDi(i);
+  const room=RSEL&&RSEL.on;if(!room)diSync();const fx=room?null:fixDi(i);lvMulRender();
   $('#sK').textContent=CONS[CON_OF[i][0]].name+' · '+TX('第 {n} 首',{n:CON_OF[i][1]+1})+' · '+s.year;$('#sN').textContent=s.name;
   $('#sM').innerHTML=esc(s.composer+' · '+durTxt(s))+'<i>'+starTxt(STARS[i])+'</i>';
   $('#sT').textContent=s.tip||'';$('#sT').hidden=!s.tip;
@@ -2443,7 +2834,7 @@ function dmOpen(id,name){
   const w=document.createElement('div');w.className='dmw';
   w.innerHTML='<div class="dmv" role="dialog" tabindex="-1" aria-modal="true" aria-label="'+TX('與 {name} 的訊息',{name:esc(name)})+'"><div class="dh"><button class="bk" aria-label="'+TX('返回')+'">‹</button>'+(COS?whoAv(f,24,!!(f&&f.on)):'<span class="dot'+(f&&f.on?' on':'')+'"></span>')+'<b>'+esc(name)+'</b><small>'+esc(dmSub(f))+'</small><button class="mo" aria-label="'+TX('檢舉或封鎖')+'" aria-haspopup="menu">⋯</button></div>'
     +'<div class="dl"><div class="dd">'+TX('載入中⋯')+'</div></div><div class="sr" aria-live="polite"></div>'
-    +'<div class="qs">'+FSAY.map((t,k)=>'<button data-q="'+k+'">'+esc(TX(t))+'</button>').join('')+'</div>'
+    +'<div class="qs">'+FSAY.map((t,k)=>'<button data-q="'+k+'">'+emo(TX(t))+'</button>').join('')+'</div>'
     +'<div class="di"><input placeholder="'+TX('輸入訊息')+'" enterkeyhint="send" autocomplete="off" aria-label="'+TX('輸入訊息')+'"><span class="cn">0/'+DM_MAX+'</span><button class="pri">'+TX('送出')+'</button></div>'
     +'<div class="dn">'+TX('僅限好友傳送 · 訊息保存 7 天 · 系統將過濾不當用語 · 點選 ⚑ 可檢舉訊息')+'</div></div>';
   document.body.appendChild(w);
@@ -2484,7 +2875,7 @@ function dmDraw(){
   for(const m of C.msgs){
     if(m.sys){h+='<div class="sys">'+esc(m.sys)+'</div>';continue}
     const dy=dmDay(m.ts);if(dy!==day){day=dy;h+='<div class="dd">'+dy+'</div>'}
-    h+='<div class="m '+(m.me?'me':'o')+'"><span>'+esc(fsayT(m.text))+'</span>'+(!m.me&&m.id?'<button class="rp" data-rp="'+m.id+'" aria-label="'+TX('檢舉這則訊息')+'">⚑</button>':'')+'<time>'+hm(m.ts)+'</time></div>';
+    h+='<div class="m '+(m.me?'me':'o')+'"><span>'+emo(fsayT(m.text))+'</span>'+(!m.me&&m.id?'<button class="rp" data-rp="'+m.id+'" aria-label="'+TX('檢舉這則訊息')+'">⚑</button>':'')+'<time>'+hm(m.ts)+'</time></div>';
   }
   L.innerHTML=h;L.scrollTop=L.scrollHeight;
 }
@@ -2541,7 +2932,7 @@ function dmShow(id,name,m){
   frBadgeSet();if(frIsOpen())frRender();
   if(st==='play'||st==='ready'||st==='starting'){toast(name+TX('：')+fsayT(m.text));return}   // during a run: a plain toast, no buttons
   const p=document.createElement('div');p.className='frpop fin';p.setAttribute('role','alert');
-  p.innerHTML='<b><span class="dot on"></span>'+esc(name)+'</b><div class="say">'+esc(fsayT(m.text))+'</div><div class="r"><button class="pri" data-a="re">'+TX('回覆')+'</button><button data-a="ok">'+esc(TX(FSAY[3]))+'</button></div><button class="xbtn" data-a="x" aria-label="'+TX('關閉')+'">✕</button>';
+  p.innerHTML='<b><span class="dot on"></span>'+esc(name)+'</b><div class="say">'+emo(fsayT(m.text))+'</div><div class="r"><button class="pri" data-a="re">'+TX('回覆')+'</button><button data-a="ok">'+esc(TX(FSAY[3]))+'</button></div><button class="xbtn" data-a="x" aria-label="'+TX('關閉')+'">✕</button>';
   p.querySelector('[data-a="re"]').onclick=()=>{popClose();dmOpen(id,name)};
   p.querySelector('[data-a="ok"]').onclick=()=>{popClose();dmSend(id,name,FSAY[3],3)};
   p.querySelector('[data-a="x"]').onclick=popClose;
@@ -2559,7 +2950,7 @@ function frRender(){
     const sub=!f.on?TX('離線@@status')+(f.seen?' · '+ago(f.seen):''):f.st==='duel'?TX('對戰中 · 結束後即可邀請'):f.st==='play'?TX('遊戲中')+(sn?' · '+TX('《{song}》',{song:sn.name}):'')+' · '+TX('結束後即可邀請'):f.st==='menu'?TX('在線上 · 選曲中'):TX('在線上');
     const ls=FD.dm[f.id],nw=dmUnread(f.id),lt=ls&&Date.now()-ls.ts<7*864e5?'<span class="last'+(nw?' nw':'')+'">'+(ls.me?TX('您'):esc(f.name))+TX('：')+esc(fsayT(ls.text))+' · '+esc(ago(ls.ts))+'</span>':'';
     h+='<div class="fr'+(f.on?'':' off')+'">'+frAv(f,cls)+'<span class="tx"><span class="nm">'+whoNm(f,f.name)+'</span><span class="mt '+cls+'">'+esc(sub)+'</span>'+lt+'</span>'
-      +(f.on&&!busy(f)?'<button class="pri inv" data-inv="'+f.id+'">'+TX('邀請對戰')+'</button>':'')
+      +(f.on&&!busy(f)?'<button class="acc inv" data-inv="'+f.id+'">'+TX('邀請對戰')+'</button>':'')
       +'<button class="dm'+(nw?' nw':'')+'" data-dm="'+f.id+'" aria-label="'+(nw?TX('有新訊息，傳訊息給 {name}',{name:esc(f.name)}):TX('傳訊息給 {name}',{name:esc(f.name)}))+'">'+CHAT_SVG+'</button>'
       +'<button class="more" data-more="'+f.id+'" aria-label="'+TX('{name} 的更多選項',{name:esc(f.name)})+'">⋯</button></div>';
     if(FD.open===f.id)h+='<div class="fopt"><button data-rm="'+f.id+'">'+TX('刪除好友')+'</button><button class="warn" data-bl="'+f.id+'">'+TX('封鎖')+'</button><button data-x="1">'+TX('取消')+'</button></div>';
@@ -2568,7 +2959,7 @@ function frRender(){
   if(L.blocked.length){h+='<div class="fsec">'+TX('已封鎖')+'</div>';for(const f of L.blocked)h+='<div class="fr"><span class="dot"></span><span class="tx"><span class="nm">'+esc(f.name)+'</span></span><button data-ub="'+f.id+'">'+TX('解除封鎖')+'</button></div>'}
   $('#frList').innerHTML=h;
   const R=$('#frReq');R.hidden=!L.incoming.length;
-  R.innerHTML=L.incoming.map(f=>'<div><span>'+whoAv(f,24)+' '+TX('<b>{name}</b> 想加您為好友',{name:esc(f.name)})+'</span><button class="pri" data-acc="'+f.id+'">'+TX('接受')+'</button><button data-dec="'+f.id+'">'+TX('略過')+'</button></div>').join('');
+  R.innerHTML=L.incoming.map(f=>'<div><span>'+whoAv(f,24)+' '+TX('<b>{name}</b> 想加您為好友',{name:esc(f.name)})+'</span><button class="acc" data-acc="'+f.id+'">'+TX('接受')+'</button><button data-dec="'+f.id+'">'+TX('略過')+'</button></div>').join('');
 }
 async function frAct(path,body){const j=await api(path,Object.assign({pk:pkey()},body));$('#frMsg').textContent=j.error?(j.error==='net'?TX('目前無法連線至伺服器。'):TX('操作失敗，請稍後再試。')):'';FD.open=-1;await frLoad()}
 $('#frList').onclick=e=>{const b=e.target.closest('button');if(!b)return;const D=b.dataset;
@@ -3002,8 +3393,8 @@ $('#bWipe').onclick=async()=>{   // two taps: the first one only arms it
   wipeT=-1e9;b.disabled=true;b.textContent=TX('刪除中⋯');
   const j=await api('/lb/delete',{pk:pkey()});b.disabled=false;
   if(!j.ok){b.textContent=TX('刪除失敗，請連線後再次嘗試');setTimeout(()=>{b.textContent=idle},3000);return}
-  frDisconnect();try{for(const k of Object.keys(localStorage))if(/^ppl-(pk|me|hide|lr-)/.test(k))localStorage.removeItem(k)}catch(e){}
-  HIDE.clear();setMe(null);LBC.clear();FD.list=null;FD.code='';lsSet('ppl-fc','');dmClose();FD.dm={};try{localStorage.removeItem('ppl-dmr')}catch(e){}$('#frN').textContent='';b.textContent=TX('已刪除。單人模式的進度仍保留於此裝置');setTimeout(()=>{b.textContent=idle},4000);syncSet();
+  frDisconnect();try{for(const k of Object.keys(localStorage))if(/^ppl-(pk|me|hide|lr-|lv)/.test(k))localStorage.removeItem(k)}catch(e){}
+  lvReset();HIDE.clear();setMe(null);LBC.clear();FD.list=null;FD.code='';lsSet('ppl-fc','');dmClose();FD.dm={};try{localStorage.removeItem('ppl-dmr')}catch(e){}$('#frN').textContent='';b.textContent=TX('已刪除。單人模式的進度仍保留於此裝置');setTimeout(()=>{b.textContent=idle},4000);syncSet();
 };
 $('#bSet').onclick=()=>{initAudio();syncSet();$('#home').classList.add('hidden');$('#set').classList.remove('hidden')};
 function closeSet(){$('#set').classList.add('hidden');showHome()}
@@ -3194,13 +3585,14 @@ if(APP){$('#bFs').style.display='none';
 else if('serviceWorker' in navigator&&location.protocol==='https:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));hudShow(false);$('#fsHint').style.display=(!(DE.requestFullscreen||DE.webkitRequestFullscreen)&&!standalone)?'block':'none';
 requestAnimationFrame(frame);
 try{netBoot()}catch(e){}
+try{lvBoot()}catch(e){showErr(e)}
 // a language chosen in the settings loaded the page again: back to the settings, where the player was (not when a room or friend link is waiting).
 // The audio has not started yet (menuWake starts it on the first touch): once it has, the panel is filled in again, for the delay it could not show.
 try{if(sessionStorage.getItem('ppl-reopen')){sessionStorage.removeItem('ppl-reopen');if(st==='home'&&!DU.pend&&!FD.pend){syncSet();$('#home').classList.add('hidden');$('#set').classList.remove('hidden');
   const E=['pointerup','click'],up=()=>{if(!AC)return;syncSet();for(const t of E)$('#set').removeEventListener(t,up,true)};for(const t of E)$('#set').addEventListener(t,up,true)}}}catch(e){}
 try{PPLI18N.back()}catch(e){}   // the page stayed hidden until now (i18n.js), so the home screen never shows for a moment before the settings
 // hooks for shop.js (shop, collection, trial run); the game itself never depends on it
-window.PPLG={api,pkey,APP,PF,SET,saveSet,lsGet,lsSet,toast,initAudio,esc,get ME(){return ME},showHome,onTryEnd:null,onMe:null,roomSend(o){if(DU.joined)dsend(o)},busy:()=>st==='play'||st==='ready'||st==='over'||st==='done'||mode==='duel',
+window.PPLG={lvFrom:o=>lvFrom(o),lvLoad:f=>lvLoad(f),api,pkey,APP,PF,SET,saveSet,lsGet,lsSet,toast,initAudio,esc,get ME(){return ME},showHome,onTryEnd:null,onMe:null,roomSend(o){if(DU.joined)dsend(o)},busy:()=>st==='play'||st==='ready'||st==='over'||st==='done'||mode==='duel',
   startTry(tr){if(!COS)return;initAudio();tryKeep={si,di};COS.state.trial=tr||null;COS.bump();mode='try';startRun(0)}};
 window.__pb={get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:FR,HR:HRe(),BR,nb,tiers:tierCount,cents:lastCents,p:lastP,pSrc,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},setTs(v){ts=v},setSong(i){si=i},skyRes(k,d,ok){const j=SONGS.findIndex(x=>x.key===k);if(j<0)return null;mode='normal';si=j;song=SONGS[si];di=d;D=DIFFS[d];score=1000;tierCount=[tg.length||10,0,0,0];missCount=0;st='done';showResult(ok,'');const r=$('#rsky');return r.hidden?'':r.textContent},tg:()=>tg.map(t=>t.t),pv:()=>({key:PV.s&&PV.s.key,i:PV.i,n:PV.n&&PV.n.length,g:PV.g?+PV.g.gain.value.toFixed(3):null,home:HM.on,ac:AC&&AC.state}),pause:pauseGame,resume:resumeGame,shareImg,STARS,il:()=>instLoad,gaps:()=>{const r=[];for(const it of items)for(const o of bumps)r.push(Math.hypot(it.x-o.x,it.y-o.y)-itemGap(o.Rm));return r}};
 })();
