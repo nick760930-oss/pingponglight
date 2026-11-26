@@ -249,11 +249,11 @@ function grid(){
   const g=$('#shGrid'),coll=UI.view==='coll';g.className='shGrid';
   if(UI.cat==='full'){
     g.classList.add('one');const f=C.byId.full,own=isOwn(f);
-    g.innerHTML='<div class="shFull"><div class="ic">🌌</div><div style="flex:1">'+TX('<b>完整版　{price}</b><br>解除每個星座 30% 的上限：71 首全部可以過關解鎖（免費版 27 首）。之後新增的正式曲目也包含在內。一次買斷，不訂閱、沒有廣告。',{price:MODE==='test'?TX('測試期間免費'):priceTxt(f)})+'</div>'
+    g.innerHTML='<div class="shFull"><div class="ic">'+C.emo('🌌')+'</div><div style="flex:1">'+TX('<b>完整版　{price}</b><br>解除每個星座 30% 的上限：71 首全部可以過關解鎖（免費版 27 首）。之後新增的正式曲目也包含在內。一次買斷，不訂閱、沒有廣告。',{price:MODE==='test'?TX('測試期間免費'):priceTxt(f)})+'</div>'
       +(own?'<span class="pr own">'+TX('已擁有')+'</span>':unavail(f)?'<button disabled>'+TX('尚未開放')+'</button>':'<button class="gold" data-buy="full">'+(MODE==='test'?TX('取得'):TX('購買'))+'</button>')+'</div>'
       +'<div class="shNote">'+TX('獎勵星座和音符座一律免費，只要玩就能取得。')+'</div>';return}
   if(UI.cat==='sponsor'){
-    g.innerHTML=C.items.filter(i=>i.cat==='sponsor').map(it=>{const ic={'30':'☕','90':'🎵','300':'🎹'}[it.k]||'✦',nm=it.name;
+    g.innerHTML=C.items.filter(i=>i.cat==='sponsor').map(it=>{const ic=C.emo({'30':'☕','90':'🎵','300':'🎹'}[it.k]||'✦'),nm=it.name;
       const sub=TXO({'30':'贊助者稱號「點燈人」','90':'稱號＋金冠頭像','300':'稱號＋金冠＋金色名牌框「燈塔」'})[it.k]||it.desc;
       return '<div class="shIt shSp"><div class="ic">'+ic+'</div><div class="nm" style="text-align:center">'+esc(nm)+'</div><small style="margin:3px 0 6px">'+esc(sub)+'</small>'
         +(MODE==='test'?'<button disabled>'+TX('App 版開放')+'</button>':unavail(it)?'<button disabled>'+TX('尚未開放')+'</button>':'<button class="gold" data-buy="'+it.id+'">'+priceTxt(it)+'</button>')+'</div>'}).join('')

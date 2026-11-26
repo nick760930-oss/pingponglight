@@ -1060,7 +1060,9 @@ function previewT(it){
 // ---- avatar / plate / title html (used by the shop, the collection and, once the server sends them, lists and rooms) ----
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 // 小光 stickers stand in for these emoji wherever phrases are shown (room bubbles, quick-say, messages, shop)
-const EMO={'👍':'good','👌':'good','🔥':'fire','🥰':'love','😮':'wow','🙌':'wow','👏':'clap','🤝':'gg','😭':'cry','🎵':'encore','🔁':'encore'};
+const EMO={'👍':'good','👌':'good','🔥':'fire','🥰':'love','😮':'wow','🙌':'wow','👏':'clap','🤝':'gg','😭':'cry','🎵':'encore','🔁':'encore',
+  '💪':'strong','😤':'huff','⚡':'zap','🙈':'oops','🎉':'party','🍵':'tea','🎹':'piano','🥁':'drum','🎼':'score','🙇':'bow','✨':'sparkle',
+  '👋':'wave','🙋':'wave','⏳':'wait','🚀':'rocket','🤣':'lol','😹':'stunned','🫠':'melt','😏':'smirk','😎':'cool','🧋':'boba','👀':'peek','🙏':'please','🎮':'game','☕':'coffee','🌌':'galaxy'};
 // skin tones, ZWJ sequences and FE0F forms stay as they are. No lookbehind (Safari before 16.4 cannot parse one, and the whole file would fail):
 // a ZWJ right before the emoji is matched as group 1 and the match is then left unchanged.
 let EMO_RE=null;try{EMO_RE=new RegExp('(\\u200D)?('+Object.keys(EMO).join('|')+')(?!\\uFE0F|\\u200D|\\p{Emoji_Modifier})','gu')}catch(e){}
