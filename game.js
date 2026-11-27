@@ -474,6 +474,10 @@ let mode='normal',D=null,life=30,lifeMax=30,resumeCD=0,lastRes=null,freezeG=0;
 const LIFE0=30;   // every run opens with 30 HP, which is also the cap (levels never add life: the player's choice, 2026-11-24)
 const lifeP=()=>Math.round(life/lifeMax*100);   // percent, as the room and spectator protocol expects
 const TRYN=40,TUTN=20,TUTD={n:TX('教學'),nb:1,gap:1.25,spd:.9,dmg:0,bm:1.4,hm:1.4,wm:1.3,ob:.5,noSmall:1,mr:[10,20]};
+// tutorial stops (mode 'tut'): tutHold = the stop now on screen (the game clock, music, ball and effects are frozen), tutPend = a touch made during a stop that is settled
+// as a perfect hit when the beat really arrives, tutE = timing error forced on that hit, tutDn = which of the 5 stops already happened
+let tutHold=null,tutPend=null,tutE=null,tutDn=[0,0,0,0,0],tutN=0,tutMiss=false;
+const tutOn=()=>!!tutHold&&st==='play'&&!tutHold.menu;
 let st='home',si=0,offset=0,nt=0,resolved=0,nb=1,bi=0,tickQ=[],endAt=0,paused=false,exitT=0;
 let score=0,combo=0,maxCombo=0,tierCount=[0,0,0,0],time=0,ts=1,gAC=0,gT=0,cp={ti:0,score:0},lastCents=0,lastP=.5,pSrc='none';
 let balls=[],bumps=[],items=[],rings=[],floats=[],parts=[],aims=[],missCount=0,runFrom=0;
@@ -610,7 +614,7 @@ function newBall(ti){
   return{x:FR.x+FR.w*(s===1?srand(.25,.4):srand(.6,.75)),y:FR.y+FR.h*(nb===3?[.2,.5,.8][ti%3]:nb===2?(ti%2?.7:.3):.5),dx:(s===1?1:-1)/l,dy:dy/l,v:0,pop:0,ti,side:s,win:null,trail:[],sq:0,sqn:0,laps:0,away:false};
 }
 function startRun(from){
-  from=from||0;if(SP.on)specOff(false);DU.wn=0;evq.length=0;spEye();$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');
+  from=from||0;if(SP.on)specOff(false);DU.wn=0;tutHold=null;tutPend=null;tutE=null;tutDn=[0,0,0,0,0];tutN=0;tutMiss=false;evq.length=0;spEye();$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');
   if(mode==='tut'){D=TUTD;si=SONGS.findIndex(s=>s.key==='twinkle');if(si<0)si=0}
   else if(mode==='try'){D=DIFFS[3];si=SONGS.findIndex(s=>s.key==='twinkle');if(si<0)si=0}   // shop trial: the easiest level of a short song
   else D=DIFFS[di];
@@ -676,6 +680,7 @@ function pressureOf(e){
 function tap(x,y,e){
   if(AC)unlockAudio();else initAudio();   // never rebuild audio here: pointerdown is not an audio gesture on iOS
   if(portrait)return;
+  if(tutHold&&st==='play'){if(!tutHold.menu&&!resumeCD)tutTap(x,y,e);return}   // a tutorial stop: touches answer the stop, never the game
   if(paused)return;
   if(st==='starting'||st==='ready')return;  // the run starts on "click" (see below)
   if(st!=='play')return;
@@ -706,6 +711,7 @@ function holdMusic(){
 }
 function pauseGame(){
   if(mode==='duel')return;
+  if(tutHold&&st==='play'){if(!tutHold.menu){tutHold.menu=true;showPauseMenu()}return}   // already frozen by a tutorial stop: just show the menu over it
   if(st==='ready'||st==='starting'){if(!paused){paused=true;resumeCD=0;showPauseMenu()}return}
   if(st!=='play'||(paused&&!resumeCD))return;
   holdMusic();paused=true;resumeCD=0;runPaused=true;
@@ -716,6 +722,7 @@ function showPauseMenu(){$('#bQuit').textContent=mode==='tut'?TX('離開教學')
 function resumeGame(){   // audio resumes inside the tap (iOS needs a gesture); the game clock stays frozen during the count-in
   if(!paused||resumeCD)return;
   if(!$('#bugv').classList.contains('hidden'))return;   // not while the bug report is open over the pause menu (lock-screen play button)
+  if(tutHold&&st==='play'){tutHold.menu=false;$('#pause').classList.add('hidden');return}   // back to the tutorial stop it was opened over
   if(st!=='play'){paused=false;$('#pause').classList.add('hidden');return}
   $('#pause').classList.add('hidden');resumeCD=1.5;
   unlockAudio();if(AC&&AC.resume){const p=AC.resume();if(p&&p.catch)p.catch(()=>{})}
@@ -723,7 +730,7 @@ function resumeGame(){   // audio resumes inside the tap (iOS needs a gesture); 
 function doResume(){resumeCD=0;paused=false;unlockAudio();if(AC&&AC.resume){const p=AC.resume();if(p&&p.catch)p.catch(()=>{})}}
 function hushAll(){
   if(mode==='duel'&&st==='play'){over(TX('離開遊戲'));}
-  if(st==='play'){if(!paused||resumeCD)holdMusic();paused=true;resumeCD=0;showPauseMenu()}
+  if(st==='play'){if(!paused||resumeCD)holdMusic();paused=true;resumeCD=0;if(tutHold)tutHold.menu=true;showPauseMenu()}
   cutAll();stopSilent();
   if(AC&&AC.state==='running'&&master){const now=AC.currentTime;try{master.gain.cancelScheduledValues(now);master.gain.setValueAtTime(master.gain.value,now);master.gain.setTargetAtTime(0,now,.02)}catch(e){}}
   const ac=AC;setTimeout(()=>{if(ac&&ac===AC&&document.hidden&&ac.state==='running'&&ac.suspend){try{ac.suspend()}catch(e){}}},120);
@@ -790,7 +797,7 @@ document.addEventListener('contextmenu',e=>e.preventDefault());
 document.addEventListener('selectstart',e=>{if(!(e.target.closest&&e.target.closest('input,select,textarea,.doc')))e.preventDefault()});
 document.addEventListener('wheel',e=>{if(e.ctrlKey||!(e.target.closest&&e.target.closest('.card,.ddp'))&&!inScroller(e.target))e.preventDefault()},{passive:false});
 document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&['+','-','=','0'].includes(e.key))e.preventDefault();
-  else if(e.key==='Escape'||e.key==='p'||e.key==='P'){if(st==='play'&&$('#bugv').classList.contains('hidden')&&!(e.target&&e.target.closest&&e.target.closest('input,textarea'))){/* not while a bug report is open or being typed */if(paused&&!resumeCD)resumeGame();else pauseGame()}}});
+  else if(e.key==='Escape'||e.key==='p'||e.key==='P'){if(st==='play'&&$('#bugv').classList.contains('hidden')&&!(e.target&&e.target.closest&&e.target.closest('input,textarea'))){/* not while a bug report is open or being typed */if(paused&&!resumeCD&&!tutOn())resumeGame();else pauseGame()}}});
 const standalone=APP||!!(navigator.standalone||(window.matchMedia&&matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches));
 if(!(DE.requestFullscreen||DE.webkitRequestFullscreen)&&!standalone)$('#fsHint').style.display='block';
 
@@ -828,7 +835,7 @@ function resolveTarget(b){
   hud();
 }
 function bounce(b,tx,ty,p){
-  const e=G()-tT(b.ti),ae=Math.abs(e),ti=tierOf(ae),T=TIERS[ti];
+  const e=tutE!=null?tutE:G()-tT(b.ti),ae=Math.abs(e),ti=tierOf(ae),T=TIERS[ti];
   const cents=centsOf(e);lastCents=cents;
   const old=b.side,nx=old===1?-1:1;
   const off=clamp((b.y-ty)/HRe(),-1,1),th=(.45+.75*p)*off;      // touch above the ball -> ball goes down; harder = bigger turn
@@ -859,7 +866,7 @@ function bounce(b,tx,ty,p){
 }
 function miss(b){
   if(DU.wn>0)spEv(4,b);
-  missCount++;combo=0;
+  missCount++;combo=0;if(mode==='tut')tutMiss=true;
   if(mlOn()){if(mlv>0)mlSet(mlv-1,false);else mgrow=0}
   const old=b.side,nx=old===1?-1:1,sh=shield>0;
   if(RUN&&b.ti>=0&&b.ti<RUN.log.length){RUN.star[b.ti]=starT>0?1:0;RUN.seq.push(b.ti);if(sh)RUN.log[b.ti]=0}   // a miss the shield absorbed is 0 in the log (null = a miss that cost life)
@@ -1017,10 +1024,13 @@ function showResult(ok,msg){
   lastRes={ok,rank,score,acc,bp,maxCombo,name:song.name,label:$('#rt').textContent};
   const rk=$('#rank');rk.textContent=ok?rank:TX('失敗');rk.className=ok&&rank==='SSS'?'rsss':'';rk.style.color=ok?(rank==='SSS'?'':RANK_COL[rank]):'#ff7a93';rk.style.fontSize=ok?(rank.length===3?'clamp(44px,12.5vh,76px)':rank.length===2?'clamp(50px,14vh,86px)':''):'clamp(40px,11vh,64px)';
   {const gp=$('#rgap');gp.textContent=ok&&mode==='normal'?rankGap(bp,missCount,tierCount[2],tierCount[3],tierCount[1]):'';gp.hidden=!gp.textContent}
-  $('#rnew').innerHTML=newBest?'<span class="badge">'+TX('新紀錄')+'</span>':(ok?'':'<span class="sub">'+(msg||'')+'</span>');
-  const row=(l,v,c)=>'<tr><td style="color:'+(c||'inherit')+'">'+l+'</td><td>'+v+'</td></tr>';
-  $('#rtab').innerHTML=row(TX('完美'),tierCount[0],'#ffd36b')+row(TX('極佳'),tierCount[1],'#7cf0ff')+row(TX('良好'),tierCount[2],'#8fe388')+row(TX('尚可'),tierCount[3],'#9aa3c7')+row(TX('失誤'),missCount,'#ff7a93')
-    +row(TX('最高連擊'),maxCombo)+row(TX('精準度'),pct(bp))+row(TX('完成度'),Math.min(resolved,tg.length)-runFrom+' / '+N);
+  $('#end').classList.toggle('fail',!ok);
+  const done=Math.min(resolved,tg.length)-runFrom;
+  $('#rbest').innerHTML=newBest?'<span class="badge">'+TX('新紀錄')+'</span>':'';
+  $('#rnew').innerHTML=ok?'':'<span class="sub">'+esc(msg||'')+'</span><div class="sub">'+TX('進度 {p}%',{p:Math.round(Math.max(0,Math.min(1,done/N))*100)})+'</div>';
+  const cell=(l,v,c)=>'<div><i style="color:'+c+'">'+l+'</i><b>'+v+'</b></div>';
+  $('#rjg').innerHTML=cell(TX('完美'),tierCount[0],'#ffd36b')+cell(TX('極佳'),tierCount[1],'#7cf0ff')+cell(TX('良好'),tierCount[2],'#8fe388')+cell(TX('尚可'),tierCount[3],'#9aa3c7')+cell(TX('失誤'),missCount,'#ff7a93');
+  $('#rst').innerHTML='<span>'+TX('最高連擊')+'<b>'+maxCombo+'</b></span><span>'+TX('精準度')+'<b>'+pct(bp)+'</b></span><span>'+TX('完成度')+'<b>'+done+' / '+N+'</b></span>';
   if(ok&&mode==='normal'&&!runFrom){const kA=KEY_AC(si,di);if(bp>(parseInt(lsGet(kA)||'0',10)||0))lsSet(kA,String(bp))}
   const rs=$('#rsky');rs.hidden=true;rs.textContent='';
   if(skyB){const a=starOf(si),full=!!skyC&&!skyCB&&skyDone(skyC);
@@ -1053,7 +1063,7 @@ function win(){
   setTimeout(()=>{if(st==='done')showResult(true)},500);
 }
 function hudShow(v){$('#hud').style.visibility=v?'visible':'hidden';$('#bPause').style.display=mode==='duel'?'none':'';$('#prog').classList.toggle('duel',v&&mode==='duel')}
-function showHome(){if(SP.on)specOff(false);if(RSEL&&RSEL.on)mpSelOff();howClose();docClose();mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');$('#frv').classList.add('hidden');$('#shop').classList.add('hidden');$('#home').classList.remove('hidden');lvPlateRender();lvLoad();skyBadge();audioStatus();frBadge();layout()}
+function showHome(){if(SP.on)specOff(false);if(RSEL&&RSEL.on)mpSelOff();docClose();mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');$('#frv').classList.add('hidden');$('#shop').classList.add('hidden');$('#home').classList.remove('hidden');lvPlateRender();lvLoad();skyBadge();audioStatus();frBadge();layout()}
 function showSelect(){if(SP.on)specOff(false);mode='normal';setMedia(false);hudShow(false);st='menu';cutAll();balls=[];buildChips();$('#home').classList.add('hidden');$('#end').classList.add('hidden');$('#lbv').classList.add('hidden');$('#menu').classList.remove('hidden');lvLoad();selScroll()}
 
 /* ================= update ================= */
@@ -1120,6 +1130,7 @@ function updateBall(b,dt){
   if(!b.away&&!b.laps&&depth>-LEAD(b.v)){b.win={edge:b.side,depth};if(depth>GRACE(b.v))miss(b)}else b.win=null;
 }
 function update(dt){
+  if(tutHold&&st==='play'){if(useAC)gAC=AC.currentTime-freezeG;if(!tutHold.menu)return}   // tutorial stop: clock, balls, meteors, effects and animation clock all stand still
   time+=dt;
   mlTick();if(mlBan&&!paused&&!portrait&&(mlBan.t-=dt)<=0)mlBan=null;
   shake=Math.max(0,shake-dt*22);flash.a=Math.max(0,flash.a-dt*.6);
@@ -1156,6 +1167,7 @@ function update(dt){
   itemT-=dt;if(itemT<=0&&Gn>LEADIN&&!tut){if(items.length<1)spawnItem();itemT=srand(8,12)}
   for(let i=bumps.length-1;i>=0;i--){const o=bumps[i];o.age+=dt;if(o.age>o.life+.4)bumps.splice(i,1)}
   for(let i=items.length-1;i>=0;i--){const it=items[i];it.age+=dt;if(it.age>it.life)items.splice(i,1)}
+  if(tut&&tutCheck())return;
   for(const b of balls){updateBall(b,dt);if(st!=='play')return}
   if(resolved>=tg.length&&Gn>endAt)win();
 }
@@ -1441,14 +1453,149 @@ function drawAttract(x){
   for(let k=10;k>=0;k--){const q=attractPos(time-k*.028),a=k?(1-k/11)*.5:1,r=BR*3.6;x.globalAlpha=a;x.drawImage(sprite(h),q[0]-r,q[1]-r,r*2,r*2)}
   x.restore();x.fillStyle='#fff';const b=attractPos(time);x.beginPath();x.arc(b[0],b[1],BR*.7,0,6.283);x.fill();
 }
-function drawTut(ctx){
-  if(!(mode==='tut'&&(st==='play'||st==='ready')))return;
-  ctx.save();ctx.textAlign='center';ctx.textBaseline='alphabetic';
-    const r=resolved,msg=r<4?TX('光球抵達亮起的框線時，觸碰光球。外圈縮到光球上的瞬間就是節拍。'):r<8?TX('觸碰光球上方，球往下彈；觸碰光球下方，球往上彈。'):r<12?TX('按得越用力（或指腹接觸面積越大），轉向越大。'):r<16?TX('場中隕石會讓光球真實反彈，但一定繼續往前，準時抵達框線；離節拍太近時直接穿過。'):TX('教學中失誤不扣生命值；正式關卡失誤會扣生命值。');
-    ctx.fillStyle='rgba(4,5,13,.45)';
-    ctx.font='700 15px '+FF;const mw=Math.min(FR.w-16,ctx.measureText(msg).width+28);
-    rr(ctx,W/2-mw/2,FR.y+8,mw,30,15);ctx.fill();ctx.fillStyle='#ffd36b';ctx.fillText(msg,W/2,FR.y+28,mw-16);
-    ctx.restore();
+/* ---- tutorial stops (mode 'tut') ----
+   Five stops, each once per run: 1/2/3 the ball is 0.3 s short of the line on beats 1, 4 and 8 (touch it / above it / below it); 4 the first meteor is on
+   the field; 5 the first miss (or beat 16 if there was none) explains life. A stop freezes the game clock, music (cutAll + the backing scheduler rewound,
+   like the pause button), ball, meteors, effects and the animation clock; the canvas shows a dimmed screen with a spotlight and an explanation box.
+   A touch that answers stop 1/2/3 is not played at once (the ball is still 0.3 s away from the line): it is remembered (tutPend) and settled as a PERFECT
+   hit, with the touch's up/down offset and force, the moment the beat really arrives after the one-beat count-in. */
+function tutTexts(k){
+  return k===0?{t:TX('外圈縮到光球上的瞬間就是節拍。現在觸碰光球。'),s:TX('光球會在亮起的框線上等你')}
+    :k===1?{t:TX('點光球上方，球往下彈；點下方，球往上彈。按得越用力，轉向越大。'),s:TX('這一拍請點光球上方'),need:'up'}
+    :k===2?{t:TX('點光球上方，球往下彈；點下方，球往上彈。按得越用力，轉向越大。'),s:TX('這一拍請點光球下方'),need:'down'}
+    :k===3?{t:TX('隕石會讓光球照物理反彈，但光球一定繼續往前，準時抵達框線。'),s:TX('離節拍太近時光球會直接穿過'),btn:1}
+    :{t:TX('正式關卡失誤會扣生命值，歸零就失敗。擊中可以回復：完美 +2、極佳 +1、良好 +1。'),s:TX('教學中不扣生命值。難度越高，失誤扣得越多、回復越少；吃到護盾可抵銷一次失誤。'),btn:1};
+}
+function tutStart(k,b,o){
+  tutDn[k]=1;tutN++;if(k===4)tutMiss=false;
+  cutAll();freezeG=GB();
+  const t=offset+(freezeG-LEADIN)*SPD;bi=bkList.findIndex(n=>n[0]/100>=t-.01);if(bi<0)bi=bkList.length;
+  paused=true;resumeCD=0;runPaused=true;
+  if(AC&&AC.state==='running'&&AC.suspend){try{const q=AC.suspend();if(q&&q.catch)q.catch(()=>{})}catch(e){}}
+  tutHold={k,n:tutN,b,o:o||null,menu:false,t0:performance.now(),err:0,tp:null,btn:null};
+  return true;
+}
+function tutGo(){   // the stop is answered: one beat of count-in (the game clock is still frozen), then play goes on
+  tutHold=null;resumeCD=.5;
+  unlockAudio();if(AC&&AC.resume){const p=AC.resume();if(p&&p.catch)p.catch(()=>{})}
+}
+function tutCheck(){   // called every sub-step while playing the tutorial; true = a stop has just begun
+  const b=balls[0];if(!b)return false;
+  const Gn=GB();
+  if(tutPend){
+    if(b.ti!==tutPend.ti)tutPend=null;
+    else if(Gn>=tT(b.ti)-.004){const q=tutPend;tutPend=null;tutE=0;try{bounce(b,b.x,b.y-q.off*HRe(),q.p)}finally{tutE=null}return false}
+  }
+  if(b.ti<0)return false;
+  const tau=tT(b.ti)-Gn,ap=!b.away&&!b.laps,near=tau<=.3&&ap||tau<=.12;
+  if(!tutDn[0]&&b.ti===0&&near)return tutStart(0,b);
+  if(!tutDn[1]&&b.ti===3&&near)return tutStart(1,b);
+  if(!tutDn[2]&&b.ti===7&&near)return tutStart(2,b);
+  if(tau>.8){
+    if(!tutDn[3]){const o=bumps.find(o=>o.age>=.6&&bumpH(o)>=o.Rm*.9);if(o)return tutStart(3,b,o)}
+    if(!tutDn[4]&&(tutMiss||resolved>=15))return tutStart(4,b);
+  }
+  return false;
+}
+function tutTap(x,y,e){
+  const h=tutHold,T=tutTexts(h.k);
+  if(T.btn){if(h.btn&&x>=h.btn.x&&x<=h.btn.x+h.btn.w&&y>=h.btn.y&&y<=h.btn.y+h.btn.h)tutGo();return}
+  const b=h.b,R=HRe(),off=clamp((b.y-y)/R,-1,1);   // off>0: touched above the ball (it goes down), off<0: below it (it goes up)
+  let ok=Math.hypot(b.x-x,b.y-y)<=R;
+  if(ok&&T.need==='up')ok=off>.12;else if(ok&&T.need==='down')ok=off<-.12;
+  if(!ok){h.err=performance.now()+1400;h.tp={x,y,t:performance.now()};return}
+  tutPend={ti:b.ti,off,p:pressureOf(e)};lastP=tutPend.p;
+  rings.push({x,y,r0:6,life:.3,max:.3,hue:hueNow(),w:1.5});
+  tutGo();
+}
+document.addEventListener('keydown',e=>{if(tutOn()&&tutTexts(tutHold.k).btn&&(e.key==='Enter'||e.key===' ')){e.preventDefault();tutGo()}});
+function tutWrap(x,s,mw){
+  const out=[];let cur='';
+  for(const tk of s.match(/[A-Za-z0-9'’.,:;!?+%\/-]+\s*|\s+|[^\sA-Za-z0-9]/g)||[]){
+    if(cur&&x.measureText(cur+tk).width>mw&&!'，。、；：！？）」』,.;:!?)'.includes(tk.trim())){out.push(cur.trimEnd());cur=tk.trimStart()}else cur+=tk}
+  if(cur)out.push(cur.trimEnd());return out;
+}
+// the box goes where it covers the spotlight least (then where it has to be pushed least); pref = sides to try first
+function tutPlace(bw,bh,r,pref){
+  const M=10,gap=14,top=FR.y+4,bot=H-M-24,cx=(r.x0+r.x1)/2,cy=(r.y0+r.y1)/2;
+  const C={L:[r.x0-gap-bw,cy-bh/2],R:[r.x1+gap,cy-bh/2],U:[cx-bw/2,r.y0-gap-bh],D:[cx-bw/2,r.y1+gap]};
+  let best=[M,top],bo=1e18;
+  for(const k of pref){
+    const px=C[k][0],py=C[k][1],qx=clamp(px,M,Math.max(M,W-M-bw)),qy=clamp(py,top,Math.max(top,bot-bh));
+    const ov=Math.max(0,Math.min(qx+bw,r.x1)-Math.max(qx,r.x0))*Math.max(0,Math.min(qy+bh,r.y1)-Math.max(qy,r.y0));
+    const sc=ov*1000+Math.abs(qx-px)+Math.abs(qy-py);
+    if(sc<bo){bo=sc;best=[qx,qy]}
+  }
+  return best;
+}
+function tutPill(x,px,py,text,hot){
+  x.font='700 14px '+FF;const w=x.measureText(text).width+18;
+  rr(x,px-w/2,py-12,w,24,12);x.fillStyle=hot?'rgba(255,211,107,.95)':'rgba(30,36,80,.9)';x.fill();
+  x.lineWidth=1.5;x.strokeStyle=hot?'#fff3c4':'rgba(150,170,255,.5)';x.stroke();
+  x.fillStyle=hot?'#241a00':'#aab4e0';x.textAlign='center';x.textBaseline='middle';x.fillText(text,px,py+.5);
+}
+function tutFinger(x,tx,ty,u,dir){   // a fingertip comes in (its body trails on side dir: +1 below, -1 above, so it never covers the ball), presses (a ripple opens), fades; u in 0..1
+  let px=tx,py=ty,al=1,sc=1;
+  if(u<.5){const k=1-Math.pow(1-u/.5,3);px=tx+36*(1-k);py=ty+dir*54*(1-k);al=Math.min(1,u*6)}
+  else if(u<.8){sc=.86;const k=(u-.5)/.3;x.strokeStyle='rgba(255,255,255,'+(.8*(1-k))+')';x.lineWidth=3;x.beginPath();x.arc(tx,ty,10+k*30,0,6.283);x.stroke()}
+  else al=1-(u-.8)/.2;
+  x.save();x.globalAlpha=al*.92;x.translate(px,py);x.scale(sc,sc*dir);x.rotate(.38);
+  rr(x,-12,2,24,52,12);x.fillStyle='rgba(235,240,255,.9)';x.fill();
+  x.beginPath();x.arc(0,0,14,0,6.283);x.fillStyle='#fff';x.fill();x.lineWidth=2;x.strokeStyle='rgba(120,150,255,.9)';x.stroke();
+  x.restore();
+}
+function drawTutHold(x){
+  const h=tutHold,b=h.b,T=tutTexts(h.k),now=performance.now(),pul=.5+.5*Math.sin(now/240),R=HRe();
+  x.save();x.textAlign='center';x.textBaseline='alphabetic';
+  // spotlight shape: a circle (ball / meteor) or a rounded rectangle (the life bar)
+  let sp;
+  if(h.k<3)sp={c:1,x:b.x,y:b.y,r:R*1.08};
+  else if(h.k===3)sp={c:1,x:h.o.x,y:h.o.y,r:h.o.Rm*1.5+8};
+  else{const el=$('#lifeW'),q=el?el.getBoundingClientRect():null;
+    sp=q&&q.width>0?{x:q.left-4,y:q.top-4,w:q.width+8,h:q.height+8}:{x:W-190,y:6,w:176,h:30};}
+  const box=sp.c?{x0:sp.x-sp.r,y0:sp.y-sp.r,x1:sp.x+sp.r,y1:sp.y+sp.r}:{x0:sp.x,y0:sp.y,x1:sp.x+sp.w,y1:sp.y+sp.h};
+  x.fillStyle='rgba(4,5,13,.76)';x.beginPath();x.rect(0,0,W,H);
+  if(sp.c){x.moveTo(sp.x+sp.r,sp.y);x.arc(sp.x,sp.y,sp.r,0,6.2832)}
+  else{const r=10,X=sp.x,Y=sp.y,w=sp.w,hh=sp.h;x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+hh,r);x.arcTo(X+w,Y+hh,X,Y+hh,r);x.arcTo(X,Y+hh,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath()}
+  x.fill('evenodd');
+  // spotlight rim
+  x.lineWidth=2.5;x.strokeStyle='rgba(255,211,107,'+(.45+.35*pul)+')';
+  if(sp.c){x.beginPath();x.arc(sp.x,sp.y,sp.r,0,6.2832);x.stroke()}else{rr(x,sp.x,sp.y,sp.w,sp.h,10);x.stroke()}
+  // touch zones around the ball
+  if(h.k<3){
+    if(T.need){   // upper half = ball goes down, lower half = ball goes up
+      const up=T.need==='up';
+      x.beginPath();x.arc(b.x,b.y,R,Math.PI,2*Math.PI);x.closePath();x.fillStyle=up?'rgba(255,211,107,'+(.16+.1*pul)+')':'rgba(150,170,255,.06)';x.fill();
+      x.beginPath();x.arc(b.x,b.y,R,0,Math.PI);x.closePath();x.fillStyle=!up?'rgba(255,211,107,'+(.16+.1*pul)+')':'rgba(150,170,255,.06)';x.fill();
+      x.setLineDash([5,6]);x.lineWidth=1.5;x.strokeStyle='rgba(255,255,255,.5)';x.beginPath();x.moveTo(b.x-R,b.y);x.lineTo(b.x+R,b.y);x.stroke();
+      x.beginPath();x.arc(b.x,b.y,R,0,6.2832);x.stroke();x.setLineDash([]);
+      tutPill(x,b.x,clamp(b.y-R*.84,16,H-16),TX('點這裡↓'),up);tutPill(x,b.x,clamp(b.y+R*.84,16,H-16),TX('點這裡↑'),!up);   // near the top / bottom of the screen a label stays on it
+    }else{x.setLineDash([5,6]);x.lineWidth=1.5;x.strokeStyle='rgba(255,255,255,.55)';x.beginPath();x.arc(b.x,b.y,R,0,6.2832);x.stroke();x.setLineDash([])}
+    const ty=T.need==='up'?b.y-R*.45:T.need==='down'?b.y+R*.45:b.y;
+    tutFinger(x,b.x,ty,((now-h.t0)%1600)/1600,T.need==='up'?-1:1);
+  }
+  if(h.tp){const k=(now-h.tp.t)/450;if(k<1){x.strokeStyle='rgba(255,140,140,'+(.9*(1-k))+')';x.lineWidth=3;x.beginPath();x.arc(h.tp.x,h.tp.y,8+k*26,0,6.2832);x.stroke()}}
+  // explanation box
+  const bw=Math.min(h.k===3?330:390,W-20),pad=14,mw=bw-pad*2;
+  x.font='700 16px '+FF;const tl=tutWrap(x,T.t,mw);
+  x.font=(T.need?'800 15px ':'400 14px ')+FF;const sl=tutWrap(x,T.s,mw);
+  const err=h.k<3&&h.err>now;   // a wrong touch: a red "再試一次" tag shows for a moment
+  const bh=pad+tl.length*22+6+sl.length*20+(T.btn?48:0)+pad-4;
+  const pos=tutPlace(bw,bh,box,sp.c&&sp.x>W/2?['L','R','U','D']:sp.c?['R','L','D','U']:['D','L','R','U']);
+  let bx=pos[0],by=pos[1];if(err)bx+=Math.sin(now/28)*4*Math.max(0,(h.err-now)/1400);
+  rr(x,bx,by,bw,bh,14);x.fillStyle='rgba(14,18,48,.97)';x.fill();x.lineWidth=1.5;x.strokeStyle='rgba(255,211,107,.6)';x.stroke();
+  x.textAlign='left';x.textBaseline='alphabetic';let ly=by+pad+16;
+  x.font='700 16px '+FF;x.fillStyle='#e8ecff';for(const l of tl){x.fillText(l,bx+pad,ly);ly+=22}
+  ly+=4;
+  x.font=(T.need?'800 15px ':'400 14px ')+FF;x.fillStyle=T.need?'#ffd36b':'#aab4e0';
+  for(const l of sl){x.fillText(l,bx+pad,ly);ly+=20}
+  if(err){x.font='800 15px '+FF;const ew=x.measureText(TX('再試一次')).width+28,ex=bx+bw/2,ey=Math.max(16,by-20);   // a red tag on the box's top edge
+    rr(x,ex-ew/2,ey-14,ew,28,14);x.fillStyle='#ff6b6b';x.fill();x.fillStyle='#2a0505';x.textAlign='center';x.textBaseline='middle';x.fillText(TX('再試一次'),ex,ey+.5);x.textAlign='left';x.textBaseline='alphabetic'}
+  if(T.btn){const bwd=Math.min(130,mw),bxx=bx+bw-pad-bwd,byy=by+bh-pad-38+4;h.btn={x:bxx,y:byy,w:bwd,h:38};
+    rr(x,bxx,byy,bwd,38,19);x.fillStyle='#ffd36b';x.fill();x.fillStyle='#241a00';x.font='800 16px '+FF;x.textAlign='center';x.textBaseline='middle';x.fillText(TX('知道了'),bxx+bwd/2,byy+19.5)}
+  else h.btn=null;
+  x.textAlign='right';x.textBaseline='alphabetic';x.font='700 14px '+FF;x.fillStyle='rgba(232,236,255,.85)';x.fillText(h.n+' / 5',W-14,H-10);
+  x.restore();
 }
 function draw(){
   ctx.setTransform(dpr,0,0,dpr,0,0);
@@ -1456,7 +1603,7 @@ function draw(){
   ctx.save();
   if(shake>0&&!SET.lowFx)ctx.translate(rand(-shake,shake)*.5,rand(-shake,shake)*.5);
   if(st==='home')drawAttract(ctx);
-  else if(st!=='menu'){drawField(ctx);drawTut(ctx);drawBumps(ctx);drawItems(ctx);if(SP.on){const c0=combo;combo=SP.c;drawBalls(ctx);combo=c0}else drawBalls(ctx);drawFx(ctx)}
+  else if(st!=='menu'){drawField(ctx);drawBumps(ctx);drawItems(ctx);if(SP.on){const c0=combo;combo=SP.c;drawBalls(ctx);combo=c0}else drawBalls(ctx);drawFx(ctx)}
   ctx.restore();
   ctx.textAlign='center';ctx.textBaseline='alphabetic';
   if(st==='ready'&&mode==='duel'){const left=Math.max(0,(DU.startAt-duelNow())/1000);ctx.fillStyle='#e8ecff';ctx.font='800 22px '+FF;ctx.fillText(TX('{n} 人對戰　即將開始 {sec}',{n:DU.n,sec:Math.ceil(left)}),FR.x+FR.w/2,FR.y+FR.h/2+BR*6);
@@ -1472,13 +1619,14 @@ function draw(){
     ctx.fillText(b.text,W/2,y);ctx.shadowBlur=0;
     if(b.tip){ctx.fillStyle='#8a93c0';ctx.font='400 '+Math.round(fs*.55)+'px '+FF;ctx.fillText(b.tip,W/2,y+fs*.95)}
     ctx.globalAlpha=1}
-  if(paused){ctx.fillStyle='rgba(4,5,13,.6)';ctx.fillRect(0,0,W,H);
+  if(tutOn())drawTutHold(ctx);
+  else if(paused){ctx.fillStyle='rgba(4,5,13,.6)';ctx.fillRect(0,0,W,H);
     if(resumeCD>0){ctx.fillStyle='#e8ecff';ctx.font='800 '+Math.round(Math.min(FR.h*.3,90))+'px '+FF;ctx.fillText(String(Math.ceil(resumeCD/.5)),W/2,FR.y+FR.h*.62)}}
 }
 let last=performance.now(),lastIdle=0,costEMA=0,fc=0,lastGs=0,lastNow=performance.now(),simG=null;
 function frame(now){
   if(now-last<15){requestAnimationFrame(frame);return}                 // cap at ~60 fps (halves work on 120 Hz screens)
-  const idle=!SP.on&&((paused&&!resumeCD)||st==='menu'||st==='done'||(st==='over'&&exitT<=0&&!floats.length&&!rings.length&&!parts.length));
+  const idle=!SP.on&&((paused&&!resumeCD&&!tutOn())||st==='menu'||st==='done'||(st==='over'&&exitT<=0&&!floats.length&&!rings.length&&!parts.length));
   if(idle&&now-lastIdle<250){requestAnimationFrame(frame);return}        // menus / end cards: redraw rarely
   if(idle)lastIdle=now;
   const t0=performance.now();
@@ -2434,16 +2582,15 @@ function lvTitleId(){
 }
 function lvAvatar(px){return COS?COS.avHTML(COS.avSpec(COS.state.eq.avatar,2),px):''}
 function lvPlateRender(){
-  const el=$('#bNp');if(!el)return;const s=LV.st,L=lvLight(),tid=lvTitleId();
+  const el=$('#bNp');if(!el)return;const s=LV.st,L=lvLight();   // a small card in the top-left corner: avatar, name, badge, experience bar, then experience and the light left (or "offline")
   const nm=ME?'<b class="nn">'+esc(ME.name)+'</b>':'<b class="nn no">'+TX('點此設定暱稱')+'</b>';
-  const pass=lvPassTxt(s)?'<span class="pass">'+esc(lvPassTxt(s))+'</span>':'';
   let r1,r3;
   if(s){
-    r1=nm+lvBadge(s.lv)+(tid?COS.titleHTML(tid):'')+pass;
-    r3='<span>'+TX('經驗 {a} / {b}',{a:s.cur.toLocaleString(),b:s.need.toLocaleString()})+(LV.off?' · <span class="off">'+TX('離線')+'</span>':'')+'</span><span class="lgt">'+lvLgt(L)+'</span>';
+    r1=nm+lvBadge(s.lv);
+    r3='<span>'+TX('經驗 {a} / {b}',{a:s.cur.toLocaleString(),b:s.need.toLocaleString()})+'</span>'+(LV.off||!L?'<span class="off">'+TX('離線')+'</span>':'<span class="lgt">'+LI+L.total+'</span>');
   }else{r1=nm+'<span class="lvb">Lv –</span>';r3='<span class="off">'+TX('離線中，暫時無法顯示等級')+'</span>'}
   const pct=s?Math.min(100,s.cur/s.need*100):0;
-  el.innerHTML='<span class="npav">'+lvAvatar(40)+'</span><span class="npm"><span class="r1">'+r1+'</span><span class="xbar"><i class="b" style="width:'+pct.toFixed(1)+'%"></i></span><span class="r3">'+r3+'</span></span>';
+  el.innerHTML='<span class="npav">'+lvAvatar(38)+'</span><span class="npm"><span class="r1">'+r1+'</span><span class="xbar"><i class="b" style="width:'+pct.toFixed(1)+'%"></i></span><span class="r3">'+r3+'</span></span>';
 }
 navTap('#bNp',()=>{initAudio();lvpOpen()});
 
@@ -2491,12 +2638,12 @@ function lvResult(j,o){
   lvSet(s);
   const f=s.from,ups=s.ups,lv1=s.lv,last=lastRes||{},clear=o.ok;
   const notes=[];
-  if(!clear)notes.push(TX('未過關：依完成比例給經驗，不吃倍率，也不扣光能'));
-  if(clear&&s.gain===0)notes.push(TX('這一局和另一局的時間重疊（例如上一局的結果還沒送出就開始），沒有計入經驗，也沒有扣光能'));
+  if(!clear)notes.push(TX('未通關：依完成度計算經驗，不套用倍率、不消耗光能'));
+  if(clear&&s.gain===0)notes.push(TX('與另一場遊玩時間重疊，本場不計經驗、不消耗光能'));
   else{
-    if(o.R&&o.R.m>s.used)notes.push(TX('光能不足或已達今日上限，本次改為 ×{n}',{n:s.used}));
+    if(o.R&&o.R.m>s.used)notes.push(TX('光能不足或已達本日上限，本場以 ×{n} 計算',{n:s.used}));
     const sg=SONGS.find(x=>x.key===(o.R&&o.R.key)),d=o.R?o.R.d:di;
-    if(sg&&last.bp!=null){const full=Math.round(LV_XP[d]*(.5+.5*last.bp/10000)*Math.max(.6,Math.min(1.5,sg.dur/DIFFS[d].spd/120)));if(s.base>0&&s.base<=Math.round(full*.5)+1&&full>=2)notes.push(TX('今日遊玩超過 1 小時，經驗減半'))}
+    if(sg&&last.bp!=null){const full=Math.round(LV_XP[d]*(.5+.5*last.bp/10000)*Math.max(.6,Math.min(1.5,sg.dur/DIFFS[d].spd/120)));if(s.base>0&&s.base<=Math.round(full*.5)+1&&full>=2)notes.push(TX('本日遊玩已超過 1 小時，經驗減半'))}
   }
   const need2=s.need-s.cur,ap=f.cur/f.need*100,bp2=s.cur/s.need*100;
   r.hidden=false;
@@ -2569,10 +2716,10 @@ $('#luEq').onclick=async()=>{
 /* ---- the level page: profile, light, level rewards and (in the app) buying light ---- */
 const LV_LOCK='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>',LV_CHECK='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 const lvCanBuy=()=>!!(APP&&window.PPLIAP&&typeof window.PPLIAP.buy==='function');
-function lvpOpen(){initAudio();LV.tab='rw';$('#home').classList.add('hidden');$('#lvp').classList.remove('hidden');lvpRender();lvLoad(true)}
+function lvpOpen(){initAudio();LV.tab='rw';LV.exp=false;LV.pk=true;$('#home').classList.add('hidden');$('#lvp').classList.remove('hidden');lvpRender();lvLoad(true)}
 function lvpClose(){$('#lvp').classList.add('hidden');showHome()}
 navTap('#lvBk',lvpClose);
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#lvp').classList.contains('hidden')&&$('#lvup').classList.contains('hidden')&&$('#docv').classList.contains('hidden'))lvpClose()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#lvp').classList.contains('hidden')&&$('#lvup').classList.contains('hidden')&&$('#docv').classList.contains('hidden')){if(LV.exp){LV.exp=false;lvExpSet(LV.st,lvLight(),lvCanBuy())}else lvpClose()}});
 function lvRewardRows(){   // [[level, [items]]] from the catalogue (how = 'lv:N'), the parts of a theme left out
   const m=new Map(),skip=new Set();
   if(!COS)return[];
@@ -2580,33 +2727,98 @@ function lvRewardRows(){   // [[level, [items]]] from the catalogue (how = 'lv:N
   for(const it of COS.items){const x=/^lv:(\d{1,4})$/.exec(it.how||'');if(!x||skip.has(it.id))continue;const n=+x[1];if(!m.has(n))m.set(n,[]);m.get(n).push(it)}
   return[...m.entries()].sort((a,b)=>a[0]-b[0]);
 }
+// the star card: the experience ring around the avatar; its colour follows what the player wears (orb, trail, else the avatar's accent)
+const lvHexA=(h,a)=>{const n=parseInt(h.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')'};
+function lvpColor(){
+  try{const E=COS.state.eq,o=COS.byId[E.orb],t=COS.byId[E.trail],a=COS.avSpec(E.avatar,2),c=(o&&o.c1)||(t&&t.c1)||(a&&a.acc)||'#7cf0ff';return/^#[0-9a-f]{6}$/i.test(c)?c:'#7cf0ff'}catch(e){return'#7cf0ff'}
+}
+function lvCardHTML(s){
+  const c=lvpColor(),tid=lvTitleId(),r=47,cc=2*Math.PI*r,p=s?Math.min(1,s.cur/s.need):0;
+  const ring='<svg class="rg" viewBox="0 0 104 104" aria-hidden="true"><circle class="rb" cx="52" cy="52" r="'+r+'"/><circle class="rf" cx="52" cy="52" r="'+r+'" stroke-dasharray="'+(cc*p).toFixed(1)+' '+cc.toFixed(1)+'" transform="rotate(-90 52 52)"/></svg>';
+  const nm=ME?'<span class="nn">'+esc(ME.name)+'</span>':'<span class="nn no">'+TX('尚未設定暱稱')+'</span><button class="sm" id="lvNick">'+TX('設定暱稱')+'</button>';
+  const tt=tid?COS.titleHTML(tid):'';
+  const info=s?nm+tt+'<span class="xp">'+TX('經驗 {a} / {b}',{a:s.cur.toLocaleString(),b:s.need.toLocaleString()})+'</span><span class="up">'+TX('升到 {lv} 還差 {n}',{lv:lvTxt(s.lv+1),n:(s.need-s.cur).toLocaleString()})+'</span>'
+    :nm+tt+'<span class="up off">'+TX('離線中，暫時無法顯示等級')+'</span>';
+  return '<div class="lvCard" style="--pc:'+c+';--pa:'+lvHexA(c,.3)+';--pb:'+lvHexA(c,.55)+';--pg:'+lvHexA(c,.22)+'"><div class="lvAv">'+ring+'<span class="av">'+(COS?COS.avHTML(COS.avSpec(COS.state.eq.avatar,2),76):'')+'</span><span class="bd">'+(s?lvBadge(s.lv):'<span class="lvb">Lv –</span>')+'</span></div><div class="lvInfo">'+info+'</div>'+lvRecHTML()+'</div>';
+}
+// six records, all from what this device already knows (no server call)
+function lvRecHTML(){
+  let sk=null,ag=null,own=null;
+  try{sk=skyCount()}catch(e){}
+  try{const A=window.PPLA;if(A&&A.list&&A.earned)ag=A.list.filter(a=>A.earned(a.id)).length}catch(e){}
+  try{if(COS)own=[...COS.state.own].filter(id=>{const it=COS.byId[id];return it&&it.how!=='default'}).length}catch(e){}
+  const c=(v,l)=>'<div><b>'+(v==null?'–':v)+'</b><small>'+l+'</small></div>';
+  return '<div class="lvRec">'+c(sk?sk.lit+'/'+sk.n:null,TX('通關曲目'))+c(sk?sk.full+'/'+sk.cn:null,TX('完整星座'))+c(ag,TX('成就達成'))+c(sk?sk.sss:null,TX('SSS 評級'))+c(sk?sk.ss:null,TX('SS 評級'))+c(own,TX('已解鎖外觀'))+'</div>';
+}
+// the light: a small glowing vial (the liquid is nat / cap), the numbers, and a button that opens the long explanation
+function lvLightTick(lt,h){   // every second: only the numbers and the vial level change, so focus and a press in progress survive
+  const t=document.createElement('div');t.innerHTML=h;
+  const nt=t.querySelector('.tx'),ot=lt.querySelector('.tx'),nv=t.querySelector('.vial'),ov=lt.querySelector('.vial');
+  if(nt&&ot&&nv&&ov&&ov.firstChild&&nv.firstChild){if(ot.innerHTML!==nt.innerHTML)ot.innerHTML=nt.innerHTML;ov.className=nv.className;ov.firstChild.style.height=nv.firstChild.style.height}
+  else if(lt.innerHTML!==h)lt.innerHTML=h;
+}
+function lvLightHTML(s,L){
+  if(!s||!L)return '<span class="off">'+TX('離線中，暫時無法顯示等級')+'</span>';
+  const pct=Math.min(100,L.nat/L.cap*100);
+  return '<button class="vial'+(L.full?' full':'')+'" data-x="1" aria-label="'+TX('光能')+'"><i class="vf" style="height:'+pct.toFixed(0)+'%"></i></button>'
+    +'<span class="tx"><b class="lgt">'+LI+L.nat+' / '+L.cap+(L.extra>0?' <small>+'+L.extra+'</small>':'')+'</b><span>'+(L.full?TX('已滿'):TX('{t} 後 +1',{t:mmss(L.next/1000)}))+'</span><span>'+TX('今日 {x} / {y}',{x:L.spent,y:L.dayCap})+(LV.off?' · <span class="off">'+TX('離線')+'</span>':'')+'</span></span>'
+    +'<button class="sm hp" data-x="1">'+TX('說明')+' ›</button>';
+}
+function lvExpSet(s,L,buy){   // the long text: only redrawn when it changed, so a scroll inside it is not lost to the clock
+  const e=$('#lvExp');if(!e)return;e.hidden=!LV.exp||!s||!L;if(e.hidden)return;
+  const pass=lvPassTxt(s);
+  const h='<div class="eh"><b>'+LI+TX('光能')+'</b><button class="sm" data-xc="1">'+TX('關閉')+'</button></div>'
+    +'<p>'+TX('每 6 分鐘 +1，今日已用 {x} / {y}',{x:L.spent,y:L.dayCap})+'</p><p>'+TX('只放大經驗，不影響分數與排行')+'</p>'
+    +(L.extra>0?'<p>'+TX('其中朔望之光贈送 {a} 點、購買 {b} 點，不會過期',{a:L.sub,b:L.paid})+'</p>':'')
+    +(pass?'<p>'+esc(pass)+'　'+TX('期間自然上限 {n}',{n:L.cap})+'</p>':'')
+    +(lvHalf()?'<p class="w">'+TX('本日遊玩已超過 1 小時，經驗減半')+'</p>':'')
+    +(buy?'':'<p>'+TX('可在 App 版補充光能')+'</p>')+(LV.off?'<p class="w">'+TX('離線中，顯示的是上次的數字')+'</p>':'');
+  if(e.dataset.h!==h){e.dataset.h=h;e.innerHTML=h}
+}
+// what the player wears now: orb, trail, name plate, avatar; a tap opens the collection
+function lvEqHTML(){
+  const E=COS.state.eq,t=(cat,id,vis)=>'<button data-eq="1" title="'+esc((COS.byId[id]||{}).name||'')+'"><span class="pv">'+vis+'</span><small>'+esc(lvCatLbl(cat))+'</small></button>';
+  const th=id=>{const it=COS.byId[id];return it?'<img class="sw" alt="" src="'+COS.thumb(COS.previewT(it),128,80,2)+'">':''};
+  return '<small class="eh">'+TX('正在裝備')+'</small><div class="row4">'+t('orb',E.orb,th(E.orb))+t('trail',E.trail,th(E.trail))+t('plate',E.plate,COS.plateHTML(E.plate,E.avatar,ME?ME.name:'Aa','',14))+t('avatar',E.avatar,COS.avHTML(COS.avSpec(E.avatar,2),34))+'</div>';
+}
+function lvOpenColl(){const S=window.PPLSHOP;if(!S||!S.open)return;$('#lvp').classList.add('hidden');S.open('coll')}
 function lvpRender(tick){
   const s=LV.st,L=lvLight(),buy=lvCanBuy();if(!buy&&LV.tab==='buy')LV.tab='rw';
-  const tid=lvTitleId(),pass=lvPassTxt(s);
-  let h='<div class="lvMe">'+lvAvatar(52)+'<div class="tx"><span class="nn">'+(ME?esc(ME.name):TX('尚未設定暱稱'))+'</span><div class="r2">'+(s?lvBadge(s.lv):'<span class="lvb">Lv –</span>')+(tid?COS.titleHTML(tid):'')+'</div></div></div>';
-  if(!ME)h+='<button class="sm" id="lvNick">'+TX('設定暱稱')+'</button>';
-  if(s){
-    h+='<div class="lvBox"><div class="xbar"><i class="b" style="width:'+Math.min(100,s.cur/s.need*100).toFixed(1)+'%"></i></div><div class="f"><span>'+TX('經驗 {a} / {b}',{a:s.cur.toLocaleString(),b:s.need.toLocaleString()})+'</span><span>'+TX('升到 {lv} 還差 {n}',{lv:lvTxt(s.lv+1),n:(s.need-s.cur).toLocaleString()})+'</span></div></div>';
-    h+='<div class="lvBox"><span class="lgt">'+LI+TX('光能')+' '+L.nat+' / '+L.cap+(L.extra>0?' +'+L.extra:'')+'</span> <em style="font-style:normal">'+(L.full?TX('已滿'):TX('{t} 後 +1',{t:mmss(L.next/1000)}))+'</em><br>'
-      +TX('每 6 分鐘 +1，今日已用 {x} / {y}',{x:L.spent,y:L.dayCap})+'<br>'+TX('只放大經驗，不影響分數與排行')
-      +(L.extra>0?'<br>'+TX('其中朔望之光贈送 {a} 點、購買 {b} 點，不會過期',{a:L.sub,b:L.paid}):'')
-      +(pass?'<br>'+esc(pass)+'　'+TX('期間自然上限 {n}',{n:L.cap}):'')
-      +(lvHalf()?'<br><span style="color:#ffb86b">'+TX('今日遊玩超過 1 小時，經驗減半')+'</span>':'')
-      +(buy?'':'<br>'+TX('可在 App 版補充光能'))+(LV.off?'<br><span style="color:#ffb86b">'+TX('離線中，顯示的是上次的數字')+'</span>':'')+'</div>';
-  }else h+='<div class="lvBox"><span style="color:#ffb86b">'+TX('離線中，暫時無法顯示等級')+'</span></div>';
-  $('#lvSide').innerHTML=h;
-  if(tick)return;   // the countdown only touches the left side: the list keeps its scroll position and focus
-  const tabs='<button data-t="rw" class="'+(LV.tab==='rw'?'on':'')+'">'+TX('等級獎勵')+'</button>'+(buy?'<button data-t="buy" class="'+(LV.tab==='buy'?'on':'')+'">'+TX('補充光能')+'</button>':'');
+  const lt=$('#lvLight');
+  if(tick&&lt){lvLightTick(lt,lvLightHTML(s,L));lvExpSet(s,L,buy);return}   // the countdown only touches the light numbers: the road keeps its scroll position and focus
+  $('#lvSide').innerHTML=lvCardHTML(s);$('#lvp').style.setProperty('--pg2',lvHexA(lvpColor(),.16));
+  $('#lvTop').innerHTML='<div class="lvLt" id="lvLight">'+lvLightHTML(s,L)+'</div>'+(COS?'<div class="lvEq">'+lvEqHTML()+'</div>':'');
+  lvExpSet(s,L,buy);
+  const tabs='<button data-t="rw" class="'+(LV.tab==='rw'?'on':'')+'">'+TX('等級之路')+'</button>'+(buy?'<button data-t="buy" class="'+(LV.tab==='buy'?'on':'')+'">'+TX('補充光能')+'</button>':'');
   $('#lvTabs').innerHTML=tabs;$('#lvTabs').hidden=!buy;
-  const list=$('#lvList'),keep=list.scrollTop;list.innerHTML=LV.tab==='buy'?lvBuyHTML():lvRewardsHTML(s);
-  list.className='lvList'+(LV.tab==='buy'?' lvBuy':'');if(keep)list.scrollTop=keep;
+  const list=$('#lvList'),old=list.querySelector('.lvPath'),keepX=old?old.scrollLeft:0,keep=list.scrollTop,isBuy=LV.tab==='buy';
+  list.innerHTML=isBuy?lvBuyHTML():lvRewardsHTML(s);
+  list.className='lvList'+(isBuy?' lvBuy':' lvPW');
+  if(isBuy){if(keep)list.scrollTop=keep;return}
+  const p=list.querySelector('.lvPath'),n=p&&p.querySelector('.lvN.next');
+  if(!p)return;
+  if(LV.pk&&s){   // opened (or came back to this tab): scroll to the next reward to get
+    if(n)p.scrollLeft=Math.max(0,n.offsetLeft-(p.clientWidth-n.offsetWidth)/2);else if(!p.querySelector('.lvN.lock'))p.scrollLeft=p.scrollWidth;
+    LV.pk=false;
+  }else p.scrollLeft=keepX;
+}
+function lvPvHTML(it){   // one small picture of a reward: the real thumbnail, avatar, title or plate
+  const E=COS.state.eq;let v='';
+  switch(it.cat){
+    case'orb':case'trail':case'hit':case'bg':case'frame':case'theme':v='<img class="sw" alt="" src="'+COS.thumb(COS.previewT(it),128,80,2)+'">';break;
+    case'avatar':v=COS.avHTML(COS.avSpec(it.id,2),38);break;
+    case'title':v=COS.titleHTML(it.id);break;
+    case'plate':v=COS.plateHTML(it.id,E.avatar,'Aa','',14);break;
+    case'emote':{const e=(it.list&&it.list[0]||'').split(' ')[0];v=e?COS.emo(e):'';break}
+  }
+  return '<span class="pv">'+v+'</span>';
 }
 function lvRewardsHTML(s){
   const lv=s?s.lv:0;let nextDone=false;
-  const rows=lvRewardRows().map(([n,its])=>{
+  const nodes=lvRewardRows().map(([n,its])=>{
     const got=lv>=n,nx=!got&&!nextDone;if(nx)nextDone=true;
-    return'<div class="lvR'+(got?' got':nx?' next':'')+'"><b>Lv '+n+'</b><span>'+its.map(i=>esc(i.cat==='avatar'?i.name:lvCatTxt(i))).join('＋')+'</span><span class="st">'+(got?LV_CHECK+TX('已獲得'):nx?TX('還差 {n} 級',{n:n-lv}):LV_LOCK)+'</span></div>'}).join('');
-  return'<div class="lvH">'+TX('達到等級就會自動獲得')+'</div>'+rows;
+    return'<div class="lvN'+(got?' got':nx?' next':' lock')+'"><div class="lvDot"><b>Lv '+n+'</b></div><div class="pvs">'+its.map(lvPvHTML).join('')+'</div><div class="nm">'+its.map(i=>esc(i.cat==='avatar'?i.name:lvCatTxt(i))).join('＋')+'</div><div class="st">'+(got?LV_CHECK+TX('已獲得'):nx?TX('還差 {n} 級',{n:n-lv}):LV_LOCK)+'</div></div>'}).join('');
+  return'<div class="lvH">'+TX('達到等級就會自動獲得')+'</div><div class="lvPath">'+nodes+'</div>';
 }
 function lvBuyHTML(){
   const P=window.PPLIAP,nm=[TX('螢火瓶'),TX('琉璃燈'),TX('星光匣'),TX('朔望之光')];
@@ -2621,8 +2833,14 @@ function lvBuyHTML(){
     +'<p><a href="terms.html">'+TX('服務條款')+'</a> · <a href="privacy.html">'+TX('隱私權政策')+'</a></p></div>';
   return h;
 }
-$('#lvTabs').addEventListener('click',e=>{const b=e.target.closest('button[data-t]');if(!b)return;LV.tab=b.dataset.t;lvpRender();$('#lvList').scrollTop=0});
+$('#lvTabs').addEventListener('click',e=>{const b=e.target.closest('button[data-t]');if(!b)return;LV.tab=b.dataset.t;LV.pk=true;lvpRender();$('#lvList').scrollTop=0});
 $('#lvSide').addEventListener('click',e=>{if(e.target.closest('#lvNick'))nickOpen('first')});
+$('#lvTop').addEventListener('click',e=>{
+  if(e.target.closest('[data-x]')){LV.exp=!LV.exp;lvpRender(true);return}
+  if(e.target.closest('[data-eq]'))lvOpenColl();
+});
+$('#lvExp').addEventListener('click',e=>{if(e.target.closest('[data-xc]')){LV.exp=false;lvExpSet(LV.st,lvLight(),lvCanBuy())}});
+$('#lvList').addEventListener('wheel',e=>{const p=e.target.closest('.lvPath');if(!p||!e.deltaY||e.deltaX)return;if(p.scrollWidth>p.clientWidth){p.scrollLeft+=e.deltaY;e.preventDefault()}},{passive:false});
 $('#lvList').addEventListener('change',e=>{if(e.target.id==='lvAg'){LV.agree=e.target.checked;lvpRender()}});
 $('#lvList').addEventListener('click',e=>{const b=e.target.closest('button[data-pid]');if(b&&!b.disabled)lvBuy(b.dataset.pid)});
 async function lvBuy(pid){
@@ -3111,8 +3329,8 @@ function skyBuild(){
   for(let i=0;i<cnt;i++){let band=rnd()<nb/cnt,   // mixed at random, so any first part of a batch is an even sample
     x=band?cx0+(rnd()-.5)*BL:rnd()*FW-MX,wide=1+Math.abs(x-cx0)/W*.6,y=band?bandY(x)+(rnd()+rnd()+rnd()-1.5)*230*wide:rnd()*FH-MY,m=Math.pow(rnd(),3.2)*(band?Math.min(1,(1-Math.abs(x-cx0)/(BL/2))*8):1);
     if(band&&(rnd()>.6||(inC(x,y)&&rnd()<.7)))continue;if(band)m*=.8;
-    const h=rnd()<.15?'#ffd9b0':rnd()<.25?'#b9ccff':'#ffffff',a=Math.min(2,Math.floor(m*3.5)),g=Math.floor(rnd()*8),key=h+a+g;
-    if(!fb.has(key))fb.set(key,{h,a:[.22,.42,.7][a],g,p:[]});fb.get(key).p.push([x,y,.3+m*1.0])}
+    const h=rnd()<.15?'#ffd9b0':rnd()<.25?'#b9ccff':'#ffffff',a=Math.min(2,Math.floor(m*3.5)),g=Math.floor(rnd()*16),key=h+a+g;
+    if(!fb.has(key))fb.set(key,{h,a:[.22,.42,.7][a],ai:a,g,p:[]});fb.get(key).p.push([x,y,.3+m*1.0])}
   const neb=[];for(let i=0;i<Math.round(70*BL/3200);i++){const x=cx0+(rnd()-.5)*BL*.8;{const ny=bandY(x)+(rnd()-.5)*260;neb.push({x,y:ny,r:120+rnd()*260,c:rnd()<.5?'90,110,200':'150,90,170',a:(.025+rnd()*.035)*(inC(x,ny)?.4:1)})}}
   const cv=$('#skyCv');
   SKY={W,H,NT,noteOn:false,MX,MY,FW,FH,C,fb:[...fb.values()],neb,cv,cx:cv.getContext('2d'),vw:0,vh:0,dpr:1,s:1,ox:0,oy:0,minS:1,fitS:1,anim:null,raf:0,dirty:true,focus:-2,cache:new Map(),lt:0};
@@ -3192,9 +3410,12 @@ function skyPaint(t){
   const fr=.9*Math.pow(Math.min(zl,10),.2)/s;   // field stars: screen-pixel sizes, dimmer than any constellation star
   const part=Math.min(1,zl);   // pulled back: a share of them, so the screen fills with more stars (as in a dark sky) without drawing all of them
   // (field stars are spread at random, so the first part of each batch is an even sample)
-  for(const b of S.fb){g.globalAlpha=b.a*(motion?.8+.2*Math.sin(t/(1300+b.g*230)+b.g*2.1):1);   // a faint, slow breathing, each group at its own pace
+  // breathing: 16 groups, each with its own phase and a period of 2.5 to 5 s; brightness swings between 35% and 100%, and the brighter stars swell and shrink by about 8%
+  // (one sine per group per frame; the stars of a group are one path, so nothing is rebuilt per star). Still when motion is off.
+  const BR=S.br||(S.br=Array.from({length:16},(_,i)=>({w:2*Math.PI/((2.5+(i*5%16)/15*2.5)*1000),ph:i*Math.PI/8})));
+  for(const b of S.fb){const q=BR[b.g&15],sn=motion?Math.sin(t*q.w+q.ph):0,gs=b.ai>0?1+.08*sn:1;g.globalAlpha=b.a*(motion?.675+.325*sn:1);
     g.fillStyle=b.h;g.beginPath();
-    const pn=Math.ceil(b.p.length*part);for(let j=0;j<pn;j++){const p=b.p[j];if(p[0]<X0||p[0]>X1||p[1]<Y0||p[1]>Y1)continue;const r=p[2]*fr;g.moveTo(p[0]+r,p[1]);g.arc(p[0],p[1],r,0,6.28)}g.fill()}
+    const pn=Math.ceil(b.p.length*part);for(let j=0;j<pn;j++){const p=b.p[j];if(p[0]<X0||p[0]>X1||p[1]<Y0||p[1]>Y1)continue;const r=p[2]*fr*gs;g.moveTo(p[0]+r,p[1]);g.arc(p[0],p[1],r,0,6.28)}g.fill()}
   g.globalAlpha=1;
   skyNamePlace(s,zl);
   if(S.noteOn&&vis(S.NT.x,S.NT.y,S.NT.r*1.5)){const N=S.NT,gl=motion?.75+.25*Math.sin(t/1400):.9;   // the 音符座: a golden eighth note
@@ -3347,10 +3568,10 @@ $('#bTut').onclick=()=>{initAudio();goFs();startTut()};
 function onPress(el,fn){let t=-1e9;
   el.addEventListener('pointerup',e=>{e.stopPropagation();t=performance.now();fn()});
   el.addEventListener('click',e=>{e.stopPropagation();if(performance.now()-t>600)fn()});}
-onPress($('#bPause'),()=>{if(paused&&!resumeCD)resumeGame();else pauseGame()});
+onPress($('#bPause'),()=>{if(paused&&!resumeCD&&!tutOn())resumeGame();else pauseGame()});
 $('#bResume').onclick=resumeGame;
 $('#bRestart').onclick=()=>{$('#pause').classList.add('hidden');lbEnd('quit');doResume();startRun(0)};
-function skipTut(){lsSet('ppl-tut','1');$('#pause').classList.add('hidden');doResume();showSelect()}
+function skipTut(){tutHold=null;tutPend=null;lsSet('ppl-tut','1');$('#pause').classList.add('hidden');doResume();showSelect()}
 
 // in the tutorial, 離開 is the way out of it (marked done, on to the songs); the HUD has no separate skip button
 $('#bQuit').onclick=()=>{if(mode==='tut'){skipTut();return}if(mode==='try'){$('#pause').classList.add('hidden');tryEnd();return}$('#pause').classList.add('hidden');lbEnd('quit');doResume();if(mode==='normal')showSelect();else showHome()};
@@ -3537,13 +3758,6 @@ $('#bugF').addEventListener('change',async e=>{
   bugRender();if(bad)bugSay(TX('有 {n} 張圖片無法讀取，請換一張（JPG 或 PNG）',{n:bad}),1);
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#bugv').classList.contains('hidden'))bugClose()});
-// How-to opens as a card over the home screen; ✕, the dimmed backdrop or Esc closes it.
-function howOpen(){$('#howv').classList.remove('hidden');$('#home').inert=true;$('#howv .card').focus()}   // the card, not a button: buttons fade in and can't take focus yet
-function howClose(){const v=$('#howv');if(!v)return;if(v.classList.contains('hidden'))return;v.classList.add('hidden');$('#home').inert=false;$('#bHow').focus({preventScroll:true})}
-$('#bHow').onclick=howOpen;
-$('#howX').onclick=howClose;
-$('#howv').addEventListener('click',e=>{if(e.target.id==='howv')howClose()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#howv').classList.contains('hidden'))howClose()});
 navTap('#bGo',()=>{if(RSEL&&RSEL.on){mpSelGo();return}if(!unlocked(si))return;initAudio();goFs();mode='normal';startRun(0)});
 $('#bNext').onclick=()=>{initAudio();if(mode==='tut'){mode='normal';si=0;diSync();startRun(0)}else if(si+1<SONGS.length&&unlocked(si+1)){si++;diSync();startRun(0)}};
 $('#bRetry').onclick=()=>{initAudio();startRun(0)};

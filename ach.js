@@ -136,6 +136,12 @@ function row(a){
   return '<div class="acR'+(e?' got':'')+(s?' soon':'')+'"><span class="st" aria-label="'+(e?TX('已達成'):s?TX('即將開放'):TX('未達成'))+'">'+(e?'✓':s?'…':'')+'</span>'
     +'<span class="nm"><span class="tier t'+a.tier+'">'+TN[a.tier]+'</span> <b>'+esc(aName(a))+'</b> '+tag+date+'</span>'
     +'<span class="cd">'+esc(shownDesc(a,e))+'</span><span class="rw">'+(a.lim?'<span class="lim">'+TX('限定')+'</span> ':'')+esc(aRew(a))+'</span><span class="pt">'+a.pts+'</span></div>'}
+function tabsFit(c){   // the tab row scrolls sideways on a short screen: keep the chosen tab in view and show which sides have more
+  if(!c)return;const on=c.querySelector('button.on');
+  if(on){const r=on.getBoundingClientRect(),q=c.getBoundingClientRect();c.scrollLeft+=(r.left-q.left)-(q.width-r.width)/2}
+  const m=c.scrollWidth-c.clientWidth;c.classList.toggle('ml',m>2&&c.scrollLeft>2);c.classList.toggle('mr',m>2&&c.scrollLeft<m-2);
+}
+$('#acTabs').addEventListener('scroll',()=>{const c=$('#acTabs'),m=c.scrollWidth-c.clientWidth;c.classList.toggle('ml',m>2&&c.scrollLeft>2);c.classList.toggle('mr',m>2&&c.scrollLeft<m-2)},{passive:true});
 function render(){
   if(!pageOn())return;
   $('#acHead').innerHTML=head();
@@ -144,6 +150,7 @@ function render(){
   let h='';
   if(UI.tab<0)D.tabs.forEach((n,i)=>{h+='<div class="acCat">'+esc(TX(n))+'</div>'+D.list.filter(a=>a.cat===i).map(row).join('')});
   else h=D.list.filter(a=>a.cat===UI.tab).map(row).join('');
+  tabsFit($('#acTabs'));
   $('#acList').innerHTML='<div class="acHd"><span></span><span>'+TX('成就')+'</span><span>'+TX('條件')+'</span><span>'+TX('獎勵')+'</span><span>'+TX('點數')+'</span></div>'+h;
 }
 function openPage(){
