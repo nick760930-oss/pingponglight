@@ -80,8 +80,8 @@ const today = () => L.dayOf(Date.now());
   ok(L.dayOf(Date.UTC(2026, 10, 25, 19, 59, 59)) === L.dayOf(Date.UTC(2026, 10, 25, 12, 0, 0)) && L.dayOf(Date.UTC(2026, 10, 25, 20, 0, 0)) === L.dayOf(Date.UTC(2026, 10, 25, 19, 59, 59)) + 1, 'dayOf: turns over at 20:00 UTC = 04:00 Taiwan');
   ok(Math.abs(L.lenF('prelude', 0) - 140 / 120) < 1e-9 && L.lenF('twinkle', 1) === 0.6 && L.lenF('prelude', 4) >= 0.6 && songs.every(s => [0, 1, 2, 3, 4].every(d => L.lenF(s, d) >= 0.6 && L.lenF(s, d) <= 1.5)), 'lenF: dur / spd / 120 clamped to 0.6..1.5');
   ok(L.xpClear('prelude', 0, 10000, 1, 1) === 35 && L.xpClear('prelude', 0, 0, 1, 1) === Math.round(30 * 0.5 * 140 / 120) && L.xpClear('prelude', 0, 10000, 3, 0.5) === Math.round(30 * 140 / 120 * 3 * 0.5), 'xpClear: base x (0.5 + 0.5 acc) x lenF x mult x half');
-  ok(L.xpClear('twinkle', 3, 10000, 1, 1) === 12 && L.xpClear('twinkle', 4, 10000, 4, 1) === 216, 'xpClear: easy 20 and expert 90 bases with lenF 0.6');
-  ok(L.XP_BASE.join() === '30,45,70,20,90' && JSON.stringify(L.MULT_COST) === '{"1":0,"2":5,"3":10,"4":15}' && L.LIGHT_CAP === 60 && L.PASS_CAP === 120 && L.LIGHT_MS === 360000 && L.DAY_SPEND_CAP === 200, 'constants as in the spec');
+  ok(L.xpClear('twinkle', 3, 10000, 1, 1) === 12 && L.xpClear('twinkle', 4, 10000, 4, 1) === 252, 'xpClear: easy 20 and expert 105 bases with lenF 0.6');
+  ok(L.XP_BASE.join() === '30,45,70,20,105' && JSON.stringify(L.MULT_COST) === '{"1":0,"2":5,"3":10,"4":15}' && L.LIGHT_CAP === 60 && L.PASS_CAP === 120 && L.LIGHT_MS === 360000 && L.DAY_SPEND_CAP === 200, 'constants as in the spec');
   // light refill
   const now = 1e12, base = { pass: 0, sub: 0, paid: 0 };
   let a = L.lightAt({ ...base, nat: 10, nts: now - 6 * 360000 - 1000 }, now); ok(a.nat === 16 && a.nts === now - 1000 && a.cap === 60, 'lightAt: 6 points after 36 min, the remainder is kept');

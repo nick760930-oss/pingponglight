@@ -11,7 +11,7 @@
 // - a round only counts when at least 2 seats are valid (signed in, not duplicated, a log of at least 30 % of the song, or a 30 % loser that left).
 import { CHARTS } from './charts.js';
 import { rankOf } from './ach.js';
-import { scan, lifeScan, itemCap, starCount, parseStar, parseSeq, NB, TIER_M, TIER_MS, SCORE_CAP } from './lb.js';
+import { scan, lifeScan, itemCap, starCount, parseStar, parseSeq, NB, TIER_M, tierAt, SCORE_CAP } from './lb.js';
 
 export const LG_MAX = 16384;                 // a beat-log message, characters and bytes
 export const MIN_FRAC = .3;                  // a seat needs this share of the beats settled to be valid
@@ -22,7 +22,6 @@ const DAY_MS = 86400000, TZ_MS = 8 * 3600e3;
 export const dayOf = ts => Math.floor((ts + TZ_MS) / DAY_MS);    // Taiwan day number
 export const sprintAt = (N, d) => Math.max(0, Math.floor(N * SPRINT_FRAC) - NB[d]);
 
-const tierOf = a => a < TIER_MS[0] ? 0 : a < TIER_MS[1] ? 1 : a < TIER_MS[2] ? 2 : 3;
 
 // One seat's log, whole (N entries) or partial (1..N: it ended early). seq = the order beats were settled in (like the leaderboard's).
 // Returns null when the log is not acceptable; otherwise
@@ -49,7 +48,7 @@ export function duelJudge(song, d, log, star, seq) {
   for (let i = 0; i < log.length; i++) {
     const x = log[i];
     if (x === null || x === 0) { combo = 0; continue; }
-    const t = tierOf(Math.abs(x[0]));
+    const t = tierAt(d, Math.abs(x[0]));
     combo = t <= 2 ? combo + 1 : 0;
     if (i < cut) t90 += x[1] + combo * 5;
     if (i >= lo && i <= hi) continue;                                         // around the sprint border it is not clear which beats were doubled

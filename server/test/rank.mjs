@@ -30,9 +30,9 @@ r = judge(song, D, run(0, 0, 0, Math.floor(N * .8))); ok(r && r.rank === 'F', 'm
 // rows with only a stored accuracy: old rule, never above S
 ok(rankOf(10000, 0) === 'S' && rankOf(9900, 0) === 'S' && rankOf(9900, 1) === 'A', 'acc-only fallback tops out at S');
 // ft written at submit carries the new rank; features count good/ok
-const F = logFeats(run(1, 2, 3, 0), N), ft = JSON.parse(ftOf(F, 9990));
+const F = logFeats(run(1, 2, 3, 0), N, D), ft = JSON.parse(ftOf(F, 9990));
 ok(F.good === 2 && F.ok === 3 && ft.r === 'A', 'logFeats counts good/ok, ft.r = ' + ft.r);
-ok(JSON.parse(ftOf(logFeats(run(), N), 10000)).r === 'SSS', 'ft.r SSS');
+ok(JSON.parse(ftOf(logFeats(run(), N, D), 10000)).r === 'SSS', 'ft.r SSS');
 // S-or-better checks
 ok(!atLeastS('A') && atLeastS('S') && atLeastS('SS') && atLeastS('SSS') && !atLeastS('—') && !atLeastS(undefined), 'atLeastS');
 const base = { d: 4, acc: 9000, maxCombo: 0, pr: 0, fc: 0, f5: 0, l5: 0, ec: 0, fm: 0 };

@@ -22,7 +22,7 @@
 // first (/lb/name): unique (ignoring case, spaces and symbols), filtered, can be reported, and hidden
 // automatically after reports from 3 different networks. A report is kept for a year (reportSweep), or for as
 // long as the nickname stays hidden; a reporter who deletes their data is taken off the reports they made.
-import { CHARTS } from './charts.js';
+import { CHARTS, RULES } from './charts.js';
 import { cleanName, nameProblem, nameKey } from './names.js';
 import { friendWipe } from './friends.js';
 import { bugAdmin, bugWipe } from './bugs.js';
@@ -36,8 +36,8 @@ const MAX_ERR = 400, MISS = null;                      // ms; a missed beat is n
 // A legacy ticket can still be used (it only updates the best score: no run count, no totals, no achievements). Set this to false to stop accepting them.
 const LEGACY_TICKETS = true;
 const END_MIN_MS = 10e3, FAIL_MIN_MS = 3e3, STAR_MAX = 50, RUNS_KEEP_MS = TICKET_MAX_MS;   // /lb/end: a quit must be at least 10 s old, a fail 3 s (missing every beat from the start ends the fastest charts after about 3.4 s); at most 50 star-time ranges per log
-const LIFE0 = 30, DMG = [2, 3, 5, 1, 6], HEAL = [2, 1, 1, 0];   // game.js: opening life (= cap); damage per miss by difficulty index (DIFFS order, same as CHARTS); life a hit of tier 0..3 gives back
-export const TIER_MS = [45, 90, 150], TIER_W20 = [20, 16, 10, 5];   // integer tier weights (x20, a miss is 0): the sum does not depend on the order of the hits
+const LIFE0 = 30, DMG = RULES.map(r => r.dmg), HEAL = RULES.map(r => r.hl);   // game.js: opening life (= cap); by difficulty index (DIFFS order, same as CHARTS): damage per miss, life a hit of tier 0..3 gives back
+export const TIER_MS = RULES.map(r => r.tm), tierAt = (d, a) => { const L = TIER_MS[d]; return a < L[0] ? 0 : a < L[1] ? 1 : a < L[2] ? 2 : 3; }, TIER_W20 = [20, 16, 10, 5];   // integer tier weights (x20, a miss is 0): the sum does not depend on the order of the hits
 // game.js bounce(): base = round(100 * TIER_M * speed^1.1 * (1 + .3 * pressure) * (power-up ? 2 : 1)), then + combo * 5;
 // speed factor is clamped to [.3, 8] there, pressure to [0, 1]
 export const TIER_M = [3, 2, 1.2, 1], Q_MIN = Math.pow(.3, 1.1) * .99, Q_MAX = Math.pow(8, 1.1) * 1.3 * 2 * 1.01, SCORE_CAP = 999999999;
@@ -91,7 +91,7 @@ export function scan(d, log, segs, strict, sp) {
     if (!Array.isArray(x) || x.length !== 2) return null;
     const [e, base] = x;
     if (!Number.isInteger(e) || Math.abs(e) > MAX_ERR || !Number.isInteger(base)) return null;
-    const a = Math.abs(e), t = a < TIER_MS[0] ? 0 : a < TIER_MS[1] ? 1 : a < TIER_MS[2] ? 2 : 3;
+    const a = Math.abs(e), t = tierAt(d, a);
     const q = base / (100 * TIER_M[t]);
     const k = sp !== undefined && i >= sp ? 2 : 1;
     if (inStar[i] ? (q < Q_MIN * 2 || q > Q_MAX * k) : (q < Q_MIN || q > outMax * k)) return null;   // more (or less) than this hit could earn
@@ -105,14 +105,14 @@ export function scan(d, log, segs, strict, sp) {
   return { tiers, miss, w, sumAbs, sum, sum2, hits, maxCombo, score, gold, zeros, sg: segs.length, sc: clean };
 }
 
-// Life, replayed in the order the beats were settled (order = beat indices). Opening 30 (also the cap); a hit heals [2,1,1,0] by tier; a null costs the
+// Life, replayed in the order the beats were settled (order = beat indices). Opening 30 (also the cap); a hit heals HEAL[d] by tier; a null costs the
 // difficulty's damage; a 0 (shield) nothing. dead = position in the order where life first reached 0 (-1: never).
 export function lifeScan(d, log, order) {
   let life = LIFE0, lmin = LIFE0, dead = -1;
   for (let k = 0; k < order.length; k++) {
     const x = log[order[k]];
     if (x === MISS) life = Math.max(0, life - DMG[d]);
-    else if (x !== 0) { const a = Math.abs(x[0]); life = Math.min(LIFE0, life + HEAL[a < TIER_MS[0] ? 0 : a < TIER_MS[1] ? 1 : a < TIER_MS[2] ? 2 : 3]); }
+    else if (x !== 0) { const a = Math.abs(x[0]); life = Math.min(LIFE0, life + HEAL[d][tierAt(d, a)]); }
     if (life < lmin) lmin = life; if (life <= 0 && dead < 0) dead = k;
   }
   return { end: life, min: lmin, dead };
@@ -121,7 +121,7 @@ export function lifeScan(d, log, order) {
 // The order beats were settled in (seq), for phones with several balls at once: a list of beat indices. A whole run: a permutation of 0..len-1; a failed run:
 // distinct indices below len (the beats settled so far). Beat k-th settled can only be one of the beats within nb of k (nb = balls at that difficulty, game.js DIFFS).
 // Without seq the order is the beat order. Returns the order, or null when invalid.
-export const NB = [1, 2, 2, 1, 3];
+export const NB = RULES.map(r => r.nb);
 // how many star power-ups a log shows: with several balls beats can settle out of order, so one power-up may come out as ranges a beat or two apart; ranges closer than the number of balls count as one
 export const starCount = (segs, d) => segs.reduce((n, g, i) => n + (i && g[0] - segs[i - 1][1] < NB[d] ? 0 : 1), 0);
 export function parseSeq(seq, d, len, whole) {
@@ -264,7 +264,7 @@ export async function handleLb(req, env, path, who, origin, H, limited) {
     }
     const prev = await db.prepare('SELECT key FROM scores WHERE board = ?1 AND pid = ?2').bind(b, pl.id).first();
     const seen = await db.prepare('SELECT 1 FROM scores WHERE pid = ?1 AND board LIKE ?2').bind(pl.id, song + '-%').first();   // any difficulty of this song cleared before? (越級者)
-    const improved = !prev || r.key > prev.key, F = logFeats(log, CHARTS[song].n[d]);
+    const improved = !prev || r.key > prev.key, F = logFeats(log, CHARTS[song].n[d], d);
     // the run count (n: 百回, 迴聲) only grows with a new, single-use ticket; a legacy ticket only updates the best score (a new row then starts at 0)
     const bump = tk.legacy ? 0 : 1;
     if (improved) await db.prepare(`INSERT INTO scores (board, pid, key, acc, err, combo, ts, hid, log, pf, sus, score, ft, n) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14)

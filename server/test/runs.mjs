@@ -6,7 +6,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import crypto from 'node:crypto';
-import { handleLb, judge, failCheck, parseStar } from '../src/lb.js';
+import { handleLb, judge, failCheck, parseStar, tierAt, lifeScan } from '../src/lb.js';
 import { CHARTS, CONS } from '../src/charts.js';
 import { logFeats, NEW_SONGS, NA, ACHS, SERVER_IDS } from '../src/ach.js';
 import { handleShop } from '../src/shop.js';
@@ -107,10 +107,10 @@ const S = songs[0], D2 = 2;   // difficulty 2 costs 5 life per miss, 3 costs 1, 
 // ---- 0 = shield-held miss; old clients send only null ----
 {
   const log = withAt(withAt(perfect(S, 1), 3, null), 4, 0), n = N(S, 1);
-  const r = judge(S, 1, log), F = logFeats(log, n);
+  const r = judge(S, 1, log), F = logFeats(log, n, 1);
   ok(r && r.miss === 2 && r.tiers[0] === n - 2 && r.maxCombo === n - 5, 'judge: 0 counts as a miss and breaks the combo (' + (r && r.miss) + ')');
   ok(F.miss === 2 && F.hits === n - 2 && F.maxCombo === n - 5 && F.fc === 0, 'logFeats: 0 counts as a miss too');
-  ok(logFeats(withAt(perfect(S, 1), 0, 0), n).fm === 1 && logFeats(withAt(perfect(S, 1), 0, null), n).fm === 1, 'logFeats: a first beat missed under the shield is still 出師不利');
+  ok(logFeats(withAt(perfect(S, 1), 0, 0), n, 1).fm === 1 && logFeats(withAt(perfect(S, 1), 0, null), n, 1).fm === 1, 'logFeats: a first beat missed under the shield is still 出師不利');
   const rn = judge(S, 1, withAt(withAt(perfect(S, 1), 3, null), 4, null));
   ok(rn.miss === r.miss && rn.acc === r.acc && rn.rank === r.rank, 'old clients (null only) judge the same');
   ok(judge(S, 1, withAt(perfect(S, 1), 0, 1)) === null && judge(S, 1, withAt(perfect(S, 1), 0, [1])) === null, 'judge: other junk entries refused');
@@ -132,7 +132,12 @@ const S = songs[0], D2 = 2;   // difficulty 2 costs 5 life per miss, 3 costs 1, 
   ok(failCheck(S, D2, [...M5, [200, 100], M]) && !failCheck(S, D2, [...M5, H, M]), 'failCheck: a perfect hit heals 2 (5 -> 7: survives a miss at 5), an ok-tier hit heals nothing');
   ok(failCheck(S, 3, Array(30).fill(M)) && !failCheck(S, 3, Array(29).fill(M)), 'failCheck: difficulty 3 costs 1 per miss (30 misses)');
   ok(failCheck(S, 0, Array(15).fill(M)) && !failCheck(S, 0, Array(14).fill(M)), 'failCheck: difficulty 0 costs 2 per miss');
-  ok(failCheck(S, 4, Array(5).fill(M)) && !failCheck(S, 4, Array(4).fill(M)) && failCheck(S, 1, Array(10).fill(M)) && !failCheck(S, 1, Array(9).fill(M)), 'failCheck: difficulty 4 costs 6, difficulty 1 costs 3');
+  // timing tiers and healing by difficulty (DIFFS order: 簡單 普通 困難 入門 專家)
+  ok(tierAt(4, 31) === 0 && tierAt(4, 32) === 1 && tierAt(4, 64) === 1 && tierAt(4, 65) === 2 && tierAt(4, 107) === 2 && tierAt(4, 108) === 3, 'tierAt: 專家 limits 32/65/108 ms');
+  ok(tierAt(3, 61) === 0 && tierAt(3, 62) === 1 && tierAt(3, 206) === 2 && tierAt(3, 207) === 3 && tierAt(2, 37) === 0 && tierAt(2, 38) === 1 && tierAt(2, 127) === 2 && tierAt(2, 128) === 3, 'tierAt: 入門 62/124/207, 困難 38/77/128');
+  ok(tierAt(0, 52) === 0 && tierAt(0, 53) === 1 && tierAt(1, 44) === 0 && tierAt(1, 45) === 1 && tierAt(1, 149) === 2 && tierAt(1, 150) === 3, 'tierAt: 簡單 53/106/177, 普通 45/90/150');
+  { const o = [0, 1, 2]; ok(lifeScan(2, [M, [100, 120], [0, 300]], o).end === 27 && lifeScan(4, [M, [40, 200], [0, 300]], o).end === 23 && lifeScan(1, [M, [100, 120], [0, 300]], o).end === 30, 'lifeScan: 困難 良好 heals 0, 專家 極佳 heals 0 and 完美 1, 普通 良好 1 and 完美 2'); }
+  ok(failCheck(S, 4, Array(4).fill(M)) && !failCheck(S, 4, Array(3).fill(M)) && failCheck(S, 1, Array(10).fill(M)) && !failCheck(S, 1, Array(9).fill(M)), 'failCheck: difficulty 4 costs 8, difficulty 1 costs 3');
   ok(!failCheck(S, D2, []) && !failCheck(S, D2, 'x') && !failCheck(S, D2, Array(N(S, D2)).fill(M)), 'failCheck: empty, junk and full-length logs refused');
   ok(!failCheck(S, D2, [...M5, [0, 5000]]) && !failCheck(S, D2, [...M5, [999, 300]]), 'failCheck: every entry gets the same checks as judge');
   ok(failCheck(S, D2, dead6, [[0, 2]]) && !failCheck(S, D2, dead6, [[0, 9]]), 'failCheck: star ranges are checked against the partial length');
@@ -194,7 +199,7 @@ const S = songs[0], D2 = 2;   // difficulty 2 costs 5 life per miss, 3 costs 1, 
   const M = null;
   // 拾級而上: 3 difficulties of one song at A or better
   { const P = await player(); let r = await sub(P, S, 0, perfect(S, 0)); r = await sub(P, S, 1, perfect(S, 1)); ok(!got(r, '拾級而上'), '拾級而上 not with 2 difficulties');
-    r = await sub(P, S, 3, Array.from({ length: N(S, 3) }, () => [60, 200])); ok(!got(r, '拾級而上'), '拾級而上 not when the third is below A (all "good" = about 70 %)');
+    r = await sub(P, S, 3, Array.from({ length: N(S, 3) }, () => [130, 120])); ok(!got(r, '拾級而上'), '拾級而上 not when the third is below A (all "good" = 50 %; 入門 good is 124-206 ms)');
     r = await sub(P, S, 2, perfect(S, 2)); ok(got(r, '拾級而上'), '拾級而上 with 3 difficulties at A or better'); }
   { const P = await player(); await sub(P, songs[1], 0, perfect(songs[1], 0)); await sub(P, songs[2], 1, perfect(songs[2], 1)); const r = await sub(P, songs[3], 2, perfect(songs[3], 2)); ok(!got(r, '拾級而上'), '拾級而上 needs the same song'); }
   // 試聽: 10 different songs with a try
@@ -211,7 +216,7 @@ const S = songs[0], D2 = 2;   // difficulty 2 costs 5 life per miss, 3 costs 1, 
     const rw = CONS.filter(c => c[2]).flatMap(c => c[1])[0]; r = await end(P, rw, 0, 'quit'); ok(!got(r, '遍聽'), '遍聽: a reward-constellation song does not count');
     r = await end(P, all[70], 0, 'quit'); ok(got(r, '遍聽'), '遍聽 with all 71'); }
   // 百折不撓: 30 ended runs of one song, any difficulty
-  { const P = await player(); let r; for (let i = 0; i < 29; i++) r = await end(P, S, i % 5, i % 2 ? 'quit' : 'fail', i % 2 ? null : Array(i % 5 === 0 ? 15 : i % 5 === 1 ? 10 : i % 5 === 2 ? 6 : i % 5 === 3 ? 30 : 5).fill(M));
+  { const P = await player(); let r; for (let i = 0; i < 29; i++) r = await end(P, S, i % 5, i % 2 ? 'quit' : 'fail', i % 2 ? null : Array(i % 5 === 0 ? 15 : i % 5 === 1 ? 10 : i % 5 === 2 ? 6 : i % 5 === 3 ? 30 : 4).fill(M));
     ok(r.j.ok && !got(r, '百折不撓'), '百折不撓 not with 29'); r = await end(P, S, 1, 'quit'); ok(got(r, '百折不撓'), '百折不撓 with 30');
     const Q = await player(); for (let i = 0; i < 20; i++) await end(Q, songs[i % 20], 0, 'quit'); r = await end(Q, songs[0], 0, 'quit'); ok(!got(r, '百折不撓'), '百折不撓 needs one song'); }
   // 屢敗屢戰: the chart failed 5 times before, then cleared
@@ -225,7 +230,7 @@ const S = songs[0], D2 = 2;   // difficulty 2 costs 5 life per miss, 3 costs 1, 
   { const H = [0, 300], n = N(S, D2), P = await player(), base = perfect(S, D2), tail = base.slice(0, n - 7).concat([M, M, M, M, M, H, M]);   // difficulty 2 (5 per miss): 5 misses 30 -> 5, a perfect hit -> 7, a miss -> 2
     let r = await sub(P, S, D2, tail); ok(r.j.ok && got(r, '一線生機'), '一線生機: finished with 2 life');
     const Q = await player(); r = await sub(Q, S, D2, base); ok(!got(r, '一線生機') && !got(r, '不滅'), '一線生機 not with full life');
-    const R = await player(); r = await sub(R, S, D2, base.slice(0, n - 8).concat([M, M, M, M, M, H, [100, 120], M])); ok(!got(r, '一線生機'), '一線生機 not with 3 life (5 misses 30 -> 5, +2 +1, a miss -> 3: the boundary)');
+    const R = await player(); r = await sub(R, S, D2, base.slice(0, n - 8).concat([M, M, M, M, M, H, [60, 200], M])); ok(!got(r, '一線生機'), '一線生機 not with 3 life (5 misses 30 -> 5, +2, a 極佳 hit +1, a miss -> 3: the boundary)');
     const X = await player(), gone = [M, M, M, M, M, M].concat(base.slice(0, n - 13), [M, M, M, M, M, H, M]);   // the life was gone at beat 6, then healed, then 5 misses, a hit and a miss (2 life at the end)
     r = await sub(X, S, D2, gone); ok(r.j.ok && r.j.ach.includes('新星') && !got(r, '一線生機') && !got(r, '不滅'), 'life that hit 0 in a finished run: accepted, but no life achievement'); }
   { const d = 1, n = N(big, d), P = await player(), M2 = null;       // difficulty 1: 3 per miss (difficulty 0 needs 15 misses, too many for rank A). 9 misses -> 3, a good-tier hit (+1) -> 4, a miss -> 1
@@ -304,10 +309,10 @@ const S = songs[0], D2 = 2;   // difficulty 2 costs 5 life per miss, 3 costs 1, 
   r = await end(P, S, 1, 'fail', f1, null, 20e3, s1); ok(r.j.ok, '/lb/end accepts a seq');
   r = await end(P, S, 1, 'fail', f1, null, 20e3, [2, 1, 0, 3, 4, 5, 6, 7, 8, 9, 10, 12, 11]); ok(r.s === 400 && r.j.error === 'log', '/lb/end refuses a seq that moves a beat too far');
   // whole run: life follows seq, everything else the beat order
-  const s4 = songs.slice().sort((a, b) => N(b, 4) - N(a, 4))[0], l4 = perfect(s4, 4); for (const i of [0, 1, 2, 3, 4]) l4[i] = M; l4[5] = H; l4[6] = H;   // difficulty 4: 6 per miss, 5 misses in beat order = 0
-  const sq = Array.from({ length: N(s4, 4) }, (_, i) => i); [sq[4], sq[5], sq[6]] = [5, 6, 4];   // the 5th miss settles after the two hits: 6 -> 8 -> 10 -> 4
+  const s4 = songs.slice().sort((a, b) => N(b, 4) - N(a, 4))[0], l4 = perfect(s4, 4); for (const i of [2, 4, 5, 6]) l4[i] = M;   // difficulty 4: 8 per miss, a perfect hit +1 (capped at 30): beat order 30 30 22 23 15 7 0
+  const sq = Array.from({ length: N(s4, 4) }, (_, i) => i); [sq[0], sq[1], sq[2]] = [2, 0, 1];   // the first miss settles before the two hits, so neither is lost to the cap: 22 23 24 25 17 9 1
   const a = judge(s4, 4, l4, undefined, true), b = judge(s4, 4, l4, undefined, true, sq);
-  ok(a.life.dead >= 0 && b.life.dead === -1 && b.life.min === 4, 'seq: full run, two hits settled before a miss: life survives where beat order would have fallen (' + a.life.dead + ' / ' + b.life.dead + ', min ' + b.life.min + ')');
+  ok(a.life.dead >= 0 && b.life.dead === -1 && b.life.min === 1, 'seq: full run, two hits settled before a miss: life survives where beat order would have fallen (' + a.life.dead + ' / ' + b.life.dead + ', min ' + b.life.min + ')');
   ok(a.acc === b.acc && a.score === b.score && a.maxCombo === b.maxCombo && a.rank === b.rank && a.miss === b.miss, 'seq: accuracy, score, combo and rank stay in beat order');
   ok([sq.slice(1), sq.map((x, i) => i === 10 ? 12 : x), 'x'].every(z => { const j = judge(s4, 4, l4, undefined, true, z); return j && j.lifeBad && j.acc === a.acc && j.score === a.score; }), 'seq: not a full permutation within nb: the run is still judged (score unchanged), only its life is marked bad');
   const sw = Array.from({ length: N(s4, 4) }, (_, i) => i); [sw[0], sw[3]] = [3, 0];

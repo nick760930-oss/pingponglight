@@ -292,7 +292,7 @@
    "at": [
     "game.js:715",
     "index.html:916",
-    "index.html:966"
+    "index.html:967"
    ]
   },
   {
@@ -429,14 +429,14 @@
    "id": "最高連擊",
    "at": [
     "game.js:1023",
-    "index.html:1016"
+    "index.html:1017"
    ]
   },
   {
    "id": "精準度",
    "at": [
     "game.js:1023",
-    "index.html:1016"
+    "index.html:1017"
    ]
   },
   {
@@ -1361,7 +1361,7 @@
    "at": [
     "game.js:1787",
     "index.html:875",
-    "index.html:1009"
+    "index.html:1010"
    ]
   },
   {
@@ -1538,7 +1538,7 @@
    "id": "分數",
    "at": [
     "game.js:2104",
-    "index.html:1016"
+    "index.html:1017"
    ]
   },
   {
@@ -1808,7 +1808,7 @@
    "id": "歡迎來到 PingPongLight",
    "at": [
     "game.js:2286",
-    "index.html:1031"
+    "index.html:1032"
    ]
   },
   {
@@ -1816,7 +1816,7 @@
    "at": [
     "game.js:2286",
     "index.html:929",
-    "index.html:997"
+    "index.html:998"
    ]
   },
   {
@@ -1824,21 +1824,21 @@
    "at": [
     "game.js:2287",
     "game.js:3364",
-    "index.html:997"
+    "index.html:998"
    ]
   },
   {
    "id": "請設定暱稱",
    "at": [
     "game.js:2287",
-    "index.html:1032"
+    "index.html:1033"
    ]
   },
   {
    "id": "暫不設定，離線遊玩",
    "at": [
     "game.js:2288",
-    "index.html:1037"
+    "index.html:1038"
    ]
   },
   {
@@ -2783,7 +2783,7 @@
    "id": "確定",
    "at": [
     "game.js:2773",
-    "index.html:1037"
+    "index.html:1038"
    ]
   },
   {
@@ -2803,7 +2803,7 @@
    "at": [
     "game.js:2782",
     "index.html:936",
-    "index.html:1055"
+    "index.html:1056"
    ]
   },
   {
@@ -2906,7 +2906,7 @@
    "id": "送出",
    "at": [
     "game.js:2838",
-    "index.html:1047"
+    "index.html:1048"
    ]
   },
   {
@@ -3675,7 +3675,7 @@
    "id": "刪除我的線上資料",
    "at": [
     "game.js:3391",
-    "index.html:1000"
+    "index.html:1001"
    ]
   },
   {
@@ -3706,7 +3706,7 @@
    "id": "按「開始」後會出現 8 拍節拍聲，請跟著聲音點擊下方區塊。",
    "at": [
     "game.js:3405",
-    "index.html:1006"
+    "index.html:1007"
    ]
   },
   {
@@ -3900,7 +3900,7 @@
    "id": "我們會看每一則回報，但不會逐一回覆",
    "at": [
     "game.js:3500",
-    "index.html:981"
+    "index.html:982"
    ]
   },
   {
@@ -4570,7 +4570,7 @@
    "at": [
     "cosmetics.js:954",
     "index.html:850",
-    "index.html:987"
+    "index.html:988"
    ]
   },
   {
@@ -4715,8 +4715,8 @@
    "id": "回報問題",
    "at": [
     "index.html:851",
-    "index.html:970",
-    "index.html:972"
+    "index.html:971",
+    "index.html:973"
    ]
   },
   {
@@ -4765,7 +4765,7 @@
    "id": "繼續",
    "at": [
     "index.html:899",
-    "index.html:966"
+    "index.html:967"
    ]
   },
   {
@@ -4877,267 +4877,273 @@
    ]
   },
   {
-   "id": "每通過一關，即開放下一關。",
+   "id": "擊中會依判定回復生命值：完美 +2、極佳 +1、良好 +1；困難的良好不回復，專家只有完美 +1。難度越高，判定越嚴，失誤扣得越多。",
    "at": [
     "index.html:959"
    ]
   },
   {
-   "id": "遊戲暫停",
+   "id": "每通過一關，即開放下一關。",
    "at": [
-    "index.html:964"
+    "index.html:960"
    ]
   },
   {
-   "id": "已暫停",
+   "id": "遊戲暫停",
    "at": [
     "index.html:965"
    ]
   },
   {
-   "id": "重新開始",
+   "id": "已暫停",
    "at": [
     "index.html:966"
    ]
   },
   {
-   "id": "⚑ 回報問題（附上目前畫面）",
+   "id": "重新開始",
    "at": [
     "index.html:967"
    ]
   },
   {
-   "id": "問題類型",
+   "id": "⚑ 回報問題（附上目前畫面）",
    "at": [
-    "index.html:974"
+    "index.html:968"
    ]
   },
   {
-   "id": "發生了什麼事？在哪個畫面、做了什麼操作？（可不填）",
+   "id": "問題類型",
    "at": [
     "index.html:975"
    ]
   },
   {
-   "id": "一併送出的裝置資訊（點開查看）",
+   "id": "發生了什麼事？在哪個畫面、做了什麼操作？（可不填）",
    "at": [
-    "index.html:980"
+    "index.html:976"
    ]
   },
   {
-   "id": "送出回報",
+   "id": "一併送出的裝置資訊（點開查看）",
    "at": [
     "index.html:981"
    ]
   },
   {
-   "id": "主旋律音量",
+   "id": "送出回報",
    "at": [
-    "index.html:988"
+    "index.html:982"
    ]
   },
   {
-   "id": "伴奏音量",
+   "id": "主旋律音量",
    "at": [
     "index.html:989"
    ]
   },
   {
-   "id": "音效音量",
+   "id": "伴奏音量",
    "at": [
     "index.html:990"
    ]
   },
   {
-   "id": "減少特效",
+   "id": "音效音量",
    "at": [
-    "index.html:992"
+    "index.html:991"
    ]
   },
   {
-   "id": "音樂隨連擊變化",
+   "id": "減少特效",
    "at": [
     "index.html:993"
    ]
   },
   {
-   "id": "震動回饋",
+   "id": "音樂隨連擊變化",
    "at": [
     "index.html:994"
    ]
   },
   {
+   "id": "震動回饋",
+   "at": [
+    "index.html:995"
+   ]
+  },
+  {
    "id": "語言 Language",
    "at": [
-    "index.html:996"
+    "index.html:997"
    ]
   },
   {
    "id": "延遲補償",
    "at": [
-    "index.html:998"
+    "index.html:999"
    ]
   },
   {
    "id": "校準",
    "at": [
-    "index.html:998"
+    "index.html:999"
    ]
   },
   {
    "id": "延遲校準",
    "at": [
-    "index.html:1005"
+    "index.html:1006"
    ]
   },
   {
    "id": "點擊",
    "at": [
-    "index.html:1007"
+    "index.html:1008"
    ]
   },
   {
    "id": "延遲減少 10 毫秒",
    "at": [
-    "index.html:1008"
+    "index.html:1009"
    ]
   },
   {
    "id": "目前",
    "at": [
-    "index.html:1008"
+    "index.html:1009"
    ]
   },
   {
    "id": "延遲增加 10 毫秒",
    "at": [
-    "index.html:1008"
+    "index.html:1009"
    ]
   },
   {
    "id": "重新載入",
    "at": [
-    "index.html:1012"
+    "index.html:1013"
    ]
   },
   {
    "id": "排行榜 · 前 100 名",
    "at": [
-    "index.html:1015"
+    "index.html:1016"
    ]
   },
   {
    "id": "名次",
    "at": [
-    "index.html:1016"
+    "index.html:1017"
    ]
   },
   {
    "id": "依精準度排名，精準度相同時依分數排序。按「⋯」可檢舉不雅暱稱，或僅對自己隱藏該玩家。",
    "at": [
-    "index.html:1019"
+    "index.html:1020"
    ]
   },
   {
    "id": "好友邀請",
    "at": [
-    "index.html:1023"
+    "index.html:1024"
    ]
   },
   {
    "id": "加入好友",
    "at": [
-    "index.html:1024"
+    "index.html:1025"
    ]
   },
   {
    "id": "好友碼",
    "at": [
-    "index.html:1025"
+    "index.html:1026"
    ]
   },
   {
    "id": "若您已將 PingPongLight 加入主畫面，請複製好友碼後，改從主畫面開啟遊戲，至「好友」頁按「貼上」並送出。iPhone 的主畫面遊戲與 Safari 的資料彼此獨立，因此無法直接帶入。",
    "at": [
-    "index.html:1026"
+    "index.html:1027"
    ]
   },
   {
    "id": "在此網頁使用",
    "at": [
-    "index.html:1028"
+    "index.html:1029"
    ]
   },
   {
    "id": "複製好友碼",
    "at": [
-    "index.html:1028"
+    "index.html:1029"
    ]
   },
   {
    "id": "暱稱將顯示於排行榜與好友名單，不得與他人重複。",
    "at": [
-    "index.html:1033"
+    "index.html:1034"
    ]
   },
   {
    "id": "暱稱，最多 12 字",
    "at": [
-    "index.html:1034"
+    "index.html:1035"
    ]
   },
   {
    "id": "無須註冊，僅上傳暱稱與成績。請勿使用真實姓名。之後可於「設定」變更暱稱，或刪除所有線上資料。",
    "at": [
-    "index.html:1036"
+    "index.html:1037"
    ]
   },
   {
    "id": "您的好友碼",
    "at": [
-    "index.html:1044"
+    "index.html:1045"
    ]
   },
   {
    "id": "複製",
    "at": [
-    "index.html:1045"
+    "index.html:1046"
    ]
   },
   {
    "id": "分享好友碼",
    "at": [
-    "index.html:1045"
+    "index.html:1046"
    ]
   },
   {
    "id": "加好友",
    "at": [
-    "index.html:1046"
+    "index.html:1047"
    ]
   },
   {
    "id": "朋友的好友碼",
    "at": [
-    "index.html:1047"
+    "index.html:1048"
    ]
   },
   {
    "id": "貼上",
    "at": [
-    "index.html:1047"
+    "index.html:1048"
    ]
   },
   {
    "id": "稍後",
    "at": [
-    "index.html:1055"
+    "index.html:1056"
    ]
   },
   {
    "id": "請將裝置橫向使用",
    "at": [
-    "index.html:1057"
+    "index.html:1058"
    ]
   },
   {

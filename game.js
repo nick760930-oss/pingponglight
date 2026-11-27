@@ -484,7 +484,7 @@ const LEADIN=2.6,CPN=25;
 //   bm: ball size, hm: touch radius, wm: hit window (all × the base), side: a tap anywhere on the ball's half counts,
 //   ob: obstacle amount, noSmall: no "smaller touch range" item. Tuned with an analysis of every song on an iPhone in landscape.
 //   Keep it on one line: server/scripts/charts.mjs reads it from here.
-const DIFFS=[{n:'簡單',nb:1,gap:1.0,spd:1.0,dmg:2,bm:1.4,hm:1.6,wm:1.5,ob:.5,noSmall:1,mr:[10,20]},{n:'普通',nb:2,gap:.6,spd:1.0,dmg:3,bm:1.25,hm:1.25,wm:1.15,ob:1,mr:[15,30]},{n:'困難',nb:2,gap:.45,spd:1.1,dmg:5,bm:1.1,hm:1.1,wm:1.05,ob:1,mr:[20,40]},{n:'入門',nb:1,gap:1.3,spd:.9,dmg:1,bm:1.5,hm:1.3,wm:1.7,side:1,ob:0,noSmall:1},{n:'專家',nb:3,gap:.3,spd:1.25,dmg:6,ob:1,mr:[20,45]}];   // dmg: life a miss costs (server/src/lb.js DMG keeps the same numbers); mr: how far a mirror turns a ball (degrees from level, solo)
+const DIFFS=[{n:'簡單',nb:1,gap:1.0,spd:1.0,dmg:2,bm:1.4,hm:1.6,wm:1.5,tm:[53,106,177],hl:[2,1,1,0],ob:.5,noSmall:1,mr:[10,20]},{n:'普通',nb:2,gap:.55,spd:1.05,dmg:3,bm:1.25,hm:1,wm:1,tm:[45,90,150],hl:[2,1,1,0],ob:1,mr:[15,30]},{n:'困難',nb:2,gap:.36,spd:1.15,dmg:5,bm:1.1,hm:.88,wm:.85,tm:[38,77,128],hl:[2,1,0,0],ob:1,mr:[20,40]},{n:'入門',nb:1,gap:1.3,spd:.9,dmg:1,bm:1.5,hm:1.3,wm:1.7,tm:[62,124,207],hl:[2,1,1,0],side:1,ob:0,noSmall:1},{n:'專家',nb:3,gap:.22,spd:1.35,dmg:8,hm:.77,wm:.72,tm:[32,65,108],hl:[1,0,0,0],ob:1,mr:[20,45]}];   // each step up: ~x1.5 balls a second, timing tiers x0.85, touch x0.88, damage x1.6. dmg: life a miss costs; tm: tier limits in whole ms (完美/極佳/良好, beyond = 尚可); hl: life a hit of each tier gives back (server/scripts/charts.mjs copies dmg/tm/hl/nb into server/src/charts.js for the server); mr: how far a mirror turns a ball (degrees from level, solo)
 const DORD=[3,0,1,2,4],LVL=[1,2,3,0,4],BALLS=['',TX('單球'),TX('雙球'),TX('三球')],DN_ZH=DIFFS.map(d=>d.n);TXA(['簡單','普通','困難','入門','專家']).forEach((n,i)=>{DIFFS[i].n=n});   // the DIFFS line above stays plain data: server/scripts/charts.mjs and tools/stars.mjs run it on its own, without TX. DN_ZH: the names as the server and the bug reports know them (never shown)
 /* music layers: the accompaniment grows with unbroken good hits; a miss drops one layer */
 const ML_STEP=[10,15,25],ML_NAME=TXA(['微光','明亮','輝映','星耀']),ML_HUE=[225,185,265,48],ML_TIP=['',TX('和聲與鼓組加入'),TX('加入副旋律'),TX('主旋律加入高八度鐘聲')];
@@ -552,7 +552,7 @@ const TIERS=[
   {n:TX('良好'),hue:125,m:1.2,ring:1,part:6,shake:1.5,vol:.34},
   {n:TX('尚可'),hue:225,m:1,ring:1,part:0,shake:0,vol:.3}
 ];
-const tierOf=a=>a<.045?0:a<.09?1:a<.15?2:3;      // |seconds| away from the beat
+const tierOf=a=>{const m=a*1000,L=D&&D.tm||[45,90,150];return m<L[0]?0:m<L[1]?1:m<L[2]?2:3};      // |seconds| away from the beat; limits by difficulty, in whole ms like the server
 const G=()=>useAC?AC.currentTime-gAC:gT;
 const GB=()=>simG!=null?simG:G();               // physics clock: the current sub-step's time          // game clock (seconds; first beat arrives at LEADIN)
 const timeOf=t=>(t-offset)/SPD+LEADIN;                  // song time -> game clock
@@ -838,7 +838,7 @@ function bounce(b,tx,ty,p){
   b.win=null;b.sq=1;b.sqn=old;
   if(DU.wn>0)spEv(ti,b,b.ti,cents);
   playMel(b.ti,cents,T.vol);                                   // melody is heard ONLY on a correct hit
-  tierCount[ti]++;combo=ti<=2?combo+1:0;life=Math.min(lifeMax,life+[2,1,1,0][ti]);if(ti===0)vib(12);maxCombo=Math.max(maxCombo,combo);
+  tierCount[ti]++;combo=ti<=2?combo+1:0;life=Math.min(lifeMax,life+(D.hl||[2,1,1,0])[ti]);if(ti===0)vib(12);maxCombo=Math.max(maxCombo,combo);
   if(mlOn()&&ti<=2&&mlv<3&&++mgrow>=ML_STEP[mlv])mlSet(mlv+1,true);   // "尚可" neither counts nor breaks the climb
   const sf=Math.pow(Math.max(.3,b.v/V0),1.1),base=Math.round((100*T.m*sf*(1+.3*p)*(starT>0?2:1))*(mode==='duel'&&DU.sprint?2:1)),pts=base+combo*5;
   if(RUN&&b.ti<RUN.log.length){RUN.log[b.ti]=[Math.max(-400,Math.min(400,Math.trunc(e*1000))),base];RUN.star[b.ti]=starT>0?1:0;RUN.seq.push(b.ti)}   // ms toward zero keeps the same timing tier as here; seq = beat indices in the order they were settled (several balls can settle out of order); star = was the x2 power-up running when this beat was settled
@@ -2352,7 +2352,7 @@ async function lbSubmit(R){
 // The server (server/src/level.js) decides every number; the phone shows them and estimates the experience of a full-accuracy run for the
 // multiplier row. The constants are the ones level.js exports. Offline, the last answer is shown from the cache (localStorage ppl-lvc) and only x1 can be chosen.
 const LV={st:null,t:0,off:false,busy:0,m:(v=>v>=1&&v<=4?v:null)(parseInt(lsGet('ppl-lvm')||'',10)),tab:'rw',agree:false,buying:false,msg:'',msgT:0,row:null,upT:0};
-const LV_XP=[30,45,70,20,90],LV_COST=[0,0,5,10,15],LV_MS=360000;
+const LV_XP=[30,45,70,20,105],LV_COST=[0,0,5,10,15],LV_MS=360000;
 const LI='<svg class="li" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.4" fill="currentColor"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M5.5 18.5l2.1-2.1M16.4 7.6l2.1-2.1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
 const LV_PIDS=[['com.nocticat.pingponglight.light.s',90],['com.nocticat.pingponglight.light.m',300],['com.nocticat.pingponglight.light.l',1080],['com.nocticat.pingponglight.pass',900]];
 const lvDay=t=>Math.floor((t+4*3600e3)/86400e3);   // the game day turns over at 04:00 Taiwan time
@@ -2707,7 +2707,7 @@ function selDetail(){
   $('#sK').textContent=CONS[CON_OF[i][0]].name+' · '+TX('第 {n} 首',{n:CON_OF[i][1]+1})+' · '+s.year;$('#sN').textContent=s.name;
   $('#sM').innerHTML=esc(s.composer+' · '+durTxt(s))+'<i>'+starTxt(STARS[i])+'</i>';
   $('#sT').textContent=s.tip||'';$('#sT').hidden=!s.tip;
-  $('#diffs').innerHTML=DORD.map(k=>{const df=DIFFS[k];return'<button data-d="'+k+'" class="'+(k===di?'on':'')+'"'+(fx!=null&&k!==fx?' disabled title="'+TX('獎勵曲固定難度')+'"':'')+'>'+df.n+'<small>'+BALLS[df.nb]+(df.spd>1?TX('·快'):df.spd<1?TX('·慢'):'')+'</small></button>'}).join('');
+  $('#diffs').innerHTML=DORD.map(k=>{const df=DIFFS[k];return'<button data-d="'+k+'" class="'+(k===di?'on':'')+'"'+(fx!=null&&k!==fx?' disabled title="'+TX('獎勵曲固定難度')+'"':'')+'>'+df.n+'<small>'+BALLS[df.nb]+(df.spd>1.05?TX('·快'):df.spd<1?TX('·慢'):'')+'</small></button>'}).join('');
   const rk=rkOf(i,di),sc=parseInt(lsGet(KEY_SC(i,di))||'0',10)||0,ac=parseInt(lsGet(KEY_AC(i,di))||'0',10)||0;
   $('#sB').innerHTML=rk?'<span class="bk'+rsssCls(rk)+'"'+rkColorAttr(rk)+'>'+rk+'</span><span>'+(ac?TX('精準度 <b>{acc}</b>',{acc:pct(ac)})+' · ':'')+TX('最高分 <b>{score}</b>',{score:sc.toLocaleString()})+'<br><span id="sRank"></span></span>'
     :'<span class="bk" style="color:#3c4370">—</span><span>'+TX('此難度尚未通關')+'<br><span id="sRank"></span></span>';

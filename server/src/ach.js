@@ -16,6 +16,7 @@
 // table (引路人) and the room invites the Arena recorded directly (邀約). See docs/design/ach-duel-spec.md.
 import { ACHDATA } from './achdata.js';
 import { CHARTS, CONS } from './charts.js';
+import { tierAt } from './lb.js';
 import { CATALOG } from './catalog.js';
 import { grantStmts } from './cos.js';
 
@@ -53,12 +54,11 @@ const NORM_SONGS = NORM.flatMap(c => c[1]);
 const RW_DI = [3, 0, 1, 2, 4];                                          // 初聲 入門, 鄉謠 簡單, 名曲 普通, 疾風 困難, 炫技 專家 (game.js DIFFS order); 至高 = 專家 with S
 
 // ---- one run, in detail ----
-const TIER_MS = [45, 90, 150];
-export function logFeats(log, N) {                     // log: the validated beat log (null = missed, 0 = missed but the shield held, [error ms, base points])
+export function logFeats(log, N, d) {                     // log: the validated beat log (null = missed, 0 = missed but the shield held, [error ms, base points])
   let combo = 0, mx = 0, run = 0, pr = 0, miss = 0, perf = 0, good = 0, ok = 0, f5 = N >= 50 ? 1 : 0, l5 = N >= 50 ? 1 : 0;
   for (let i = 0; i < log.length; i++) {
     const x = log[i]; let t = 4;
-    if (x === null || x === 0) miss++; else { const a = Math.abs(x[0]); t = a < TIER_MS[0] ? 0 : a < TIER_MS[1] ? 1 : a < TIER_MS[2] ? 2 : 3; }
+    if (x === null || x === 0) miss++; else { const a = Math.abs(x[0]); t = tierAt(d, a); }
     if (t === 2) good++; else if (t === 3) ok++;
     combo = t <= 2 ? combo + 1 : 0; if (combo > mx) mx = combo;
     run = t === 0 ? run + 1 : 0; if (run > pr) pr = run;
@@ -270,7 +270,7 @@ async function loadRows(db, pid) {
       const x = part.find(y => y.board === l.board), [song, d] = splitBoard(l.board), c = CHARTS[song];
       let log = null; try { log = JSON.parse(l.log); } catch (e) {}
       if (Array.isArray(log) && log.length === c.n[d]) {
-        const F = logFeats(log, c.n[d]), ft = parseFt(ftOf(F, x.acc)); made.set(l.board, ft);
+        const F = logFeats(log, c.n[d], d), ft = parseFt(ftOf(F, x.acc)); made.set(l.board, ft);
         upd.push(db.prepare('UPDATE scores SET ft = ?3 WHERE board = ?1 AND pid = ?2').bind(l.board, pid, JSON.stringify(ft)));
       }
     }

@@ -11,7 +11,7 @@ import { CHARTS } from './charts.js';
 import { CATALOG } from './catalog.js';
 import { grantStmts } from './cos.js';
 
-export const XP_BASE = [30, 45, 70, 20, 90];            // by difficulty index (DIFFS order: 簡單 普通 困難 入門 專家)
+export const XP_BASE = [30, 45, 70, 20, 105];            // by difficulty index (DIFFS order: 簡單 普通 困難 入門 專家)
 export const MULT_COST = { 1: 0, 2: 5, 3: 10, 4: 15 };
 export const LIGHT_CAP = 60, PASS_CAP = 120, LIGHT_MS = 360000, DAY_SPEND_CAP = 200, HALF_AFTER_S = 3600, NEED_FLAT = 40492;
 export const DAY_SHIFT_MS = 4 * 3600e3, DAY_MS = 86400e3;

@@ -69,6 +69,7 @@
  "光球抵達亮起的框線時，於節拍上觸碰光球。": "When the orb reaches the glowing edge, touch it on the beat.",
  "觸碰位置決定反彈方向，力道越大轉向越大。節拍越準、球速越快，得分越高。": "Where you touch sets the bounce direction; the harder you press, the sharper the turn. Better timing and a faster orb score more.",
  "場中會出現隕石，光球撞到會反彈，但一定繼續往前、準時抵達框線；離節拍太近時直接穿過。光球越過框線未被觸碰會扣生命值，生命值歸零即告失敗。吃到護盾可以抵銷一次失誤，護盾可以累積。": "Meteors appear in the field. The orb bounces off them, but always keeps moving forward and reaches the edge on time; too close to a beat, it passes straight through. An orb that crosses the edge untouched costs life, and you fail when life reaches zero. A shield cancels one miss, and shields stack.",
+ "擊中會依判定回復生命值：完美 +2、極佳 +1、良好 +1；困難的良好不回復，專家只有完美 +1。難度越高，判定越嚴，失誤扣得越多。": "A hit restores life by its timing: Perfect +2, Great +1, Good +1. On Hard, Good restores nothing; on Expert, only Perfect restores 1. Higher difficulties judge timing more strictly and take more life per miss.",
  "每通過一關，即開放下一關。": "Clearing a stage unlocks the next one.",
  "遊戲暫停": "Game Paused",
  "已暫停": "Paused",

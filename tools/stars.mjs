@@ -5,21 +5,22 @@
 //   pk    25%  balls per second in the densest 8 seconds (the hardest stretch)
 //   irr   20%  how often the gap between balls changes to something that is not x1, x2 or x0.5, plus the spread of the gaps
 //   len   15%  log of the ball count (stamina)
-// Each is measured against the fixed reference below (the 96-song library of 2026-11-15), so adding a song never
-// moves the stars of the others. Stars: the four cut points give 1 … 5 (15/24/24/19/14 of those 96 songs).
-// Writes tools/stars.json and sorts every constellation in tools/constellations.json from easiest to hardest;
-// run `node tools/build-songs.mjs` afterwards so songs.js carries both.
-// Usage: node tools/stars.mjs [--check]   (--check: exit 1 if stars.json or the order is out of date, write nothing)
+// Each is measured against the fixed reference below (the 96-song library at the difficulty table of 2026-11-27), so adding a song never
+// moves the stars of the others. Stars: the four cut points give 1 … 5 (19/23/22/21/11 of those 96 songs, the same counts as before that difficulty change).
+// Writes tools/stars.json. With --sort it also sorts every constellation in tools/constellations.json from easiest to
+// hardest; without it the order stays as it is (since 2026-11-27: the free part of a constellation is its first 30%, so
+// re-sorting would turn free songs paid). Run `node tools/build-songs.mjs` afterwards so songs.js carries both.
+// Usage: node tools/stars.mjs [--sort] [--check]   (--check: exit 1 if stars.json (or, with --sort, the order) is out of date, write nothing)
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 
 const TOOLS = dirname(fileURLToPath(import.meta.url)), ROOT = join(TOOLS, '..');
-const check = process.argv.includes('--check');
-const REF = { rate: [1.8457, 0.32784], pk: [2.2117, 0.35501], irr: [0.65471, 0.25664], len: [4.56896, 0.47154] };
+const check = process.argv.includes('--check'), resort = process.argv.includes('--sort');
+const REF = { rate: [2.26738, 0.58218], pk: [2.78512, 0.6669], irr: [0.69918, 0.27431], len: [4.68076, 0.46176] };
 const W = { rate: .40, pk: .25, irr: .20, len: .15 };
-const CUTS = [-0.620, -0.190, 0.310, 0.675];
+const CUTS = [-0.661, -0.027, 0.338, 0.908];
 const USE = [2, 4];   // DIFFS indices: 困難, 專家
 
 const game = readFileSync(join(ROOT, 'game.js'), 'utf8');
@@ -59,7 +60,7 @@ const consPath = join(TOOLS, 'constellations.json'), starsPath = join(TOOLS, 'st
 const CONS = JSON.parse(readFileSync(consPath, 'utf8'));
 // songs pinned to the front of their constellation whatever their score: 小星星 is the tutorial and shop-trial song, so it must stay in the free 30%
 const PIN = ['twinkle'];
-const sorted = CONS.map(([name, keys, opt]) => {
+const sorted = !resort ? CONS : CONS.map(([name, keys, opt]) => {
   const sc = k => PIN.includes(k) ? -1e9 + PIN.indexOf(k) : STARS[k] ? STARS[k].score : 0;
   const ks = keys.map((k, i) => [k, i]).sort((a, b) => sc(a[0]) - sc(b[0]) || a[1] - b[1]).map(x => x[0]);
   return opt ? [name, ks, opt] : [name, ks];
