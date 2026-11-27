@@ -473,13 +473,13 @@ const DU={ws:null,rel:{},says:{},relIds:'',code:'',you:0,host:0,players:[],cfg:{
 let mode='normal',D=null,life=30,lifeMax=30,resumeCD=0,lastRes=null,freezeG=0;
 const LIFE0=30;   // every run opens with 30 HP, which is also the cap (levels never add life: the player's choice, 2026-11-24)
 const lifeP=()=>Math.round(life/lifeMax*100);   // percent, as the room and spectator protocol expects
-const TRYN=40,TUTN=20,TUTD={n:TX('教學'),nb:1,gap:1.25,spd:.9,dmg:0,bm:1.4,hm:1.4,wm:1.3,ob:.5,noSmall:1,mr:[10,20]};
+const TRYN=40,TUTN=30,TUTD={n:TX('教學'),nb:1,gap:1.25,spd:.9,dmg:0,bm:1.4,hm:1.4,wm:1.3,ob:.5,noSmall:1,mr:[10,20]};
 // tutorial stops (mode 'tut'): tutHold = the stop now on screen (the game clock, music, ball and effects are frozen), tutPend = a touch made during a stop that is settled
-// as a perfect hit when the beat really arrives, tutE = timing error forced on that hit, tutDn = which of the 5 stops already happened
-let tutHold=null,tutPend=null,tutE=null,tutDn=[0,0,0,0,0],tutN=0,tutMiss=false;
+// as a perfect hit when the beat really arrives, tutE = timing error forced on that hit, tutDn = which of the 10 stops already happened
+let tutHold=null,tutPend=null,tutE=null,tutDn=[0,0,0,0,0,0,0,0,0,0],tutN=0,tutMiss=false,tutHitAt=-9,tutLast=-9,tutIt=0;   // tutHitAt: game time of the 8th beat's hit; tutLast: beats settled when the last stop began; tutIt: how many of the 4 tutorial items were laid out
 const tutOn=()=>!!tutHold&&st==='play'&&!tutHold.menu;
 let st='home',si=0,offset=0,nt=0,resolved=0,nb=1,bi=0,tickQ=[],endAt=0,paused=false,exitT=0;
-let score=0,combo=0,maxCombo=0,tierCount=[0,0,0,0],time=0,ts=1,gAC=0,gT=0,cp={ti:0,score:0},lastCents=0,lastP=.5,pSrc='none';
+let score=0,combo=0,maxCombo=0,tierCount=[0,0,0,0],time=0,ts=1,gAC=0,gT=0,cp={ti:0,score:0},lastCents=0;
 let balls=[],bumps=[],items=[],rings=[],floats=[],parts=[],aims=[],missCount=0,runFrom=0;
 let shake=0,flash={a:0,hue:0},easeT=0,starT=0,shield=0,rangeT=0,rangeMul=1,edgeGlow=[0,0,0,0],edgeHue=[0,0,0,0],spawnT=4,itemT=8;
 const LEADIN=2.6,CPN=25;
@@ -614,7 +614,7 @@ function newBall(ti){
   return{x:FR.x+FR.w*(s===1?srand(.25,.4):srand(.6,.75)),y:FR.y+FR.h*(nb===3?[.2,.5,.8][ti%3]:nb===2?(ti%2?.7:.3):.5),dx:(s===1?1:-1)/l,dy:dy/l,v:0,pop:0,ti,side:s,win:null,trail:[],sq:0,sqn:0,laps:0,away:false};
 }
 function startRun(from){
-  from=from||0;if(SP.on)specOff(false);DU.wn=0;tutHold=null;tutPend=null;tutE=null;tutDn=[0,0,0,0,0];tutN=0;tutMiss=false;evq.length=0;spEye();$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');
+  from=from||0;if(SP.on)specOff(false);DU.wn=0;tutHold=null;tutPend=null;tutE=null;tutDn=[0,0,0,0,0,0,0,0,0,0];tutN=0;tutMiss=false;tutHitAt=-9;tutLast=-9;tutIt=0;evq.length=0;spEye();$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');
   if(mode==='tut'){D=TUTD;si=SONGS.findIndex(s=>s.key==='twinkle');if(si<0)si=0}
   else if(mode==='try'){D=DIFFS[3];si=SONGS.findIndex(s=>s.key==='twinkle');if(si<0)si=0}   // shop trial: the easiest level of a short song
   else D=DIFFS[di];
@@ -663,20 +663,8 @@ async function launch(){
 }
 
 /* ================= input ================= */
-// pressure: real pressure if the device reports it, else contact size; normalised against what this player produces
-const pw=[];
-function pressureOf(e){
-  let raw=null;
-  if(e.pointerType&&e.pointerType!=='mouse'){
-    if(e.pressure>0&&e.pressure!==.5&&e.pressure!==1){raw=e.pressure;pSrc='pressure'}
-    else if(e.width>1&&e.height>1){raw=Math.max(e.width,e.height);pSrc='contact size'}
-  }
-  if(raw==null){pSrc='none';return .5}
-  pw.push(raw);if(pw.length>40)pw.shift();
-  const s=pw.slice().sort((a,b)=>a-b),lo=s[Math.floor(s.length*.1)],hi=s[Math.floor(s.length*.9)];
-  if(hi-lo<=1e-6||pw.length<4)return .5;
-  return clamp((raw-lo)/(hi-lo),0,1);
-}
+// no force input: a touch always counts as P_FIX (what a mouse or a device without pressure sensing always gave, so turns and scores are the same as before for everyone)
+const P_FIX=.5;
 function tap(x,y,e){
   if(AC)unlockAudio();else initAudio();   // never rebuild audio here: pointerdown is not an audio gesture on iOS
   if(portrait)return;
@@ -690,8 +678,7 @@ function tap(x,y,e){
   rings.push({x,y,r0:6,life:.3,max:.3,hue:best?hueNow():220,w:1.5});     // visual only; a wrong tap makes no sound
   if(!best)return;
   if(RUN&&e&&e.isTrusted===false)RUN.ok=false;   // a tap made by a script, not a finger: this run stays off the leaderboard
-  const p=pressureOf(e);lastP=p;
-  bounce(best,x,y,p);
+  bounce(best,x,y);
 }
 cv.addEventListener('pointerdown',e=>{e.preventDefault();tap(e.clientX,e.clientY,e)});
 cv.addEventListener('click',()=>{if(mode==='duel'){initAudio();return}if(st==='ready'&&!paused&&!portrait&&!instLoad.busy){initAudio();launch()}});   // click = a valid audio gesture on iOS
@@ -834,11 +821,11 @@ function resolveTarget(b){
   if(resolved%CPN===0&&resolved<tg.length)cp={ti:resolved,score};
   hud();
 }
-function bounce(b,tx,ty,p){
+function bounce(b,tx,ty){
   const e=tutE!=null?tutE:G()-tT(b.ti),ae=Math.abs(e),ti=tierOf(ae),T=TIERS[ti];
   const cents=centsOf(e);lastCents=cents;
   const old=b.side,nx=old===1?-1:1;
-  const off=clamp((b.y-ty)/HRe(),-1,1),th=(.45+.75*p)*off;      // touch above the ball -> ball goes down; harder = bigger turn
+  const off=clamp((b.y-ty)/HRe(),-1,1),th=(.45+.75*P_FIX)*off;      // touch above the ball -> ball goes down
   b.dx=nx*Math.cos(th);b.dy=Math.sin(th);
   const lineX=old===1?FR.x+FR.w:FR.x;b.x=lineX+nx*BR*.3;
   aims.push({x1:b.x,y1:b.y,x2:tx,y2:ty,life:.4,max:.4,hue:T.hue});
@@ -847,12 +834,12 @@ function bounce(b,tx,ty,p){
   playMel(b.ti,cents,T.vol);                                   // melody is heard ONLY on a correct hit
   tierCount[ti]++;combo=ti<=2?combo+1:0;life=Math.min(lifeMax,life+(D.hl||[2,1,1,0])[ti]);if(ti===0)vib(12);maxCombo=Math.max(maxCombo,combo);
   if(mlOn()&&ti<=2&&mlv<3&&++mgrow>=ML_STEP[mlv])mlSet(mlv+1,true);   // "尚可" neither counts nor breaks the climb
-  const sf=Math.pow(Math.max(.3,b.v/V0),1.1),base=Math.round((100*T.m*sf*(1+.3*p)*(starT>0?2:1))*(mode==='duel'&&DU.sprint?2:1)),pts=base+combo*5;
+  const sf=Math.pow(Math.max(.3,b.v/V0),1.1),base=Math.round((100*T.m*sf*(1+.3*P_FIX)*(starT>0?2:1))*(mode==='duel'&&DU.sprint?2:1)),pts=base+combo*5;
   if(RUN&&b.ti<RUN.log.length){RUN.log[b.ti]=[Math.max(-400,Math.min(400,Math.trunc(e*1000))),base];RUN.star[b.ti]=starT>0?1:0;RUN.seq.push(b.ti)}   // ms toward zero keeps the same timing tier as here; seq = beat indices in the order they were settled (several balls can settle out of order); star = was the x2 power-up running when this beat was settled
   score+=pts;
   const hue=T.hue,fx=b.x+nx*40,fy=b.y;
   floats.push({x:fx,y:fy-6,text:T.n,hue,life:.9,max:.9,size:ti===0?1.5:ti===1?1.25:1});
-  floats.push({x:fx,y:fy+14,text:'+'+pts+' · '+pitchTxt(cents)+' · '+TX('力道 {n}%',{n:Math.round(p*100)}),hue,life:.9,max:.9,size:.7});
+  floats.push({x:fx,y:fy+14,text:'+'+pts+' · '+pitchTxt(cents),hue,life:.9,max:.9,size:.7});
   if(COS&&!COS.look().hit.def)cosHit(b,lineX,nx);   // equipped hit effect replaces the default rings and sparks
   else{for(let i=0;i<T.ring;i++)rings.push({x:b.x,y:b.y,r0:BR*(1+i*.4),life:.5+i*.12,max:.5+i*.12,hue:hue+i*20,w:4-i*.8});
   burst(b.x,b.y,hue,T.part,BR*16,.8)}
@@ -860,6 +847,7 @@ function bounce(b,tx,ty,p){
   shake=Math.max(shake,T.shake);
   const ei=old;edgeGlow[ei]=ti===0?1:ti===1?.75:ti===2?.5:.3;edgeHue[ei]=hue;
   if(ti===0){flash.a=.18;flash.hue=hue}
+  if(mode==='tut'&&b.ti===7)tutHitAt=GB();
   resolveTarget(b);
   if(b.ti>=0){planLaps(b);b.vr=0;b.v=ballWant(b);b.vr=b.v}
   if(mode==='duel')duelHit(ti);
@@ -1019,15 +1007,15 @@ function showResult(ok,msg){
     rwDirty=true;
   }
   const found=rwDirty?rwRefresh():[];if(found.length)SKY=null;   // a reward constellation just appeared: the sky is drawn again with it
-  $('#rk').textContent=mode==='tut'?TX('教學完成'):(ok?TX('通關'):TX('失敗'));
-  $('#rt').textContent=(mode==='tut'?TX('新手教學'):TX('第 {n} 關',{n:si+1}))+' · '+TX('《{song}》',{song:song.name})+' · '+D.n;
+  $('#rk').textContent=mode==='tut'?'':(ok?TX('通關'):TX('失敗'));
+  $('#rt').textContent=mode==='tut'?TX('教學完成'):TX('第 {n} 關',{n:si+1})+' · '+TX('《{song}》',{song:song.name})+' · '+D.n;
   lastRes={ok,rank,score,acc,bp,maxCombo,name:song.name,label:$('#rt').textContent};
   const rk=$('#rank');rk.textContent=ok?rank:TX('失敗');rk.className=ok&&rank==='SSS'?'rsss':'';rk.style.color=ok?(rank==='SSS'?'':RANK_COL[rank]):'#ff7a93';rk.style.fontSize=ok?(rank.length===3?'clamp(44px,12.5vh,76px)':rank.length===2?'clamp(50px,14vh,86px)':''):'clamp(40px,11vh,64px)';
   {const gp=$('#rgap');gp.textContent=ok&&mode==='normal'?rankGap(bp,missCount,tierCount[2],tierCount[3],tierCount[1]):'';gp.hidden=!gp.textContent}
-  $('#end').classList.toggle('fail',!ok);
+  $('#end').classList.toggle('fail',!ok);$('#end').classList.toggle('tutdone',mode==='tut');   // the tutorial's end card is only a title, one line and the buttons (index.html: #end.tutdone)
   const done=Math.min(resolved,tg.length)-runFrom;
   $('#rbest').innerHTML=newBest?'<span class="badge">'+TX('新紀錄')+'</span>':'';
-  $('#rnew').innerHTML=ok?'':'<span class="sub">'+esc(msg||'')+'</span><div class="sub">'+TX('進度 {p}%',{p:Math.round(Math.max(0,Math.min(1,done/N))*100)})+'</div>';
+  $('#rnew').innerHTML=mode==='tut'?'<div class="sub">'+TX('每通過一關，即開放下一關。')+'</div>':ok?'':'<span class="sub">'+esc(msg||'')+'</span><div class="sub">'+TX('進度 {p}%',{p:Math.round(Math.max(0,Math.min(1,done/N))*100)})+'</div>';
   const cell=(l,v,c)=>'<div><i style="color:'+c+'">'+l+'</i><b>'+v+'</b></div>';
   $('#rjg').innerHTML=cell(TX('完美'),tierCount[0],'#ffd36b')+cell(TX('極佳'),tierCount[1],'#7cf0ff')+cell(TX('良好'),tierCount[2],'#8fe388')+cell(TX('尚可'),tierCount[3],'#9aa3c7')+cell(TX('失誤'),missCount,'#ff7a93');
   $('#rst').innerHTML='<span>'+TX('最高連擊')+'<b>'+maxCombo+'</b></span><span>'+TX('精準度')+'<b>'+pct(bp)+'</b></span><span>'+TX('完成度')+'<b>'+done+' / '+N+'</b></span>';
@@ -1163,7 +1151,7 @@ function update(dt){
   if(starT>0){starT-=dt;if(starT<=0)hud()}
   const prog=tg.length?resolved/tg.length:0;
   const bm=D&&D.ob!=null?D.ob:1,tut=mode==='tut';
-  spawnT-=dt;if(spawnT<=0&&Gn>LEADIN&&bm>0&&(!tut||resolved>=12)){if(bumps.length<(tut?1:(1+Math.floor(prog*3))*bm))spawnBump();spawnT=Math.max(1.8,4.5-prog*2.6)/bm*srand(.8,1.2)}
+  spawnT-=dt;if(spawnT<=0&&Gn>LEADIN&&bm>0&&(!tut||(resolved>=10&&!tutDn[4]))){if(bumps.length<(tut?1:(1+Math.floor(prog*3))*bm))spawnBump();spawnT=Math.max(1.8,4.5-prog*2.6)/bm*srand(.8,1.2)}
   itemT-=dt;if(itemT<=0&&Gn>LEADIN&&!tut){if(items.length<1)spawnItem();itemT=srand(8,12)}
   for(let i=bumps.length-1;i>=0;i--){const o=bumps[i];o.age+=dt;if(o.age>o.life+.4)bumps.splice(i,1)}
   for(let i=items.length-1;i>=0;i--){const it=items[i];it.age+=dt;if(it.age>it.life)items.splice(i,1)}
@@ -1454,20 +1442,28 @@ function drawAttract(x){
   x.restore();x.fillStyle='#fff';const b=attractPos(time);x.beginPath();x.arc(b[0],b[1],BR*.7,0,6.283);x.fill();
 }
 /* ---- tutorial stops (mode 'tut') ----
-   Five stops, each once per run: 1/2/3 the ball is 0.3 s short of the line on beats 1, 4 and 8 (touch it / above it / below it); 4 the first meteor is on
-   the field; 5 the first miss (or beat 16 if there was none) explains life. A stop freezes the game clock, music (cutAll + the backing scheduler rewound,
-   like the pause button), ball, meteors, effects and the animation clock; the canvas shows a dimmed screen with a spotlight and an explanation box.
+   Ten stops, each once per run, numbered in the order they normally come (the n / 10 on screen counts the ones that really happened): 1/2/3 the ball is 0.3 s short of the line on beats
+   1, 4 and 8 (touch it / above it / below it); 4 score, 0.4 s after beat 8 was settled; 5 the first meteor is on the field; 6-9 the four items (shield, star, grow, shrink), laid out one at
+   a time by tutItem(); 10 the first miss (or, if there was none, 3 beats after the last item) explains life. A stop freezes the game clock, music (cutAll + the backing scheduler
+   rewound, like the pause button), ball, meteors, effects and the animation clock; the canvas shows a dimmed screen with a spotlight and an explanation box.
    A touch that answers stop 1/2/3 is not played at once (the ball is still 0.3 s away from the line): it is remembered (tutPend) and settled as a PERFECT
-   hit, with the touch's up/down offset and force, the moment the beat really arrives after the one-beat count-in. */
+   hit, with the touch's up/down offset, the moment the beat really arrives after the one-beat count-in. */
+const TUT_ITEMS=['shield','star','big','small'];
 function tutTexts(k){
-  return k===0?{t:TX('外圈縮到光球上的瞬間就是節拍。現在觸碰光球。'),s:TX('光球會在亮起的框線上等你')}
-    :k===1?{t:TX('點光球上方，球往下彈；點下方，球往上彈。按得越用力，轉向越大。'),s:TX('這一拍請點光球上方'),need:'up'}
-    :k===2?{t:TX('點光球上方，球往下彈；點下方，球往上彈。按得越用力，轉向越大。'),s:TX('這一拍請點光球下方'),need:'down'}
-    :k===3?{t:TX('隕石會讓光球照物理反彈，但光球一定繼續往前，準時抵達框線。'),s:TX('離節拍太近時光球會直接穿過'),btn:1}
-    :{t:TX('正式關卡失誤會扣生命值，歸零就失敗。擊中可以回復：完美 +2、極佳 +1、良好 +1。'),s:TX('教學中不扣生命值。難度越高，失誤扣得越多、回復越少；吃到護盾可抵銷一次失誤。'),btn:1};
+  const UD=TX('觸碰光球上方，光球往下彈；觸碰下方，光球往上彈。');
+  return k===0?{t:TX('光球抵達亮起的框線時，外圈會縮到光球上，那一瞬間就是節拍。'),s:TX('現在，觸碰光球')}
+    :k===1?{t:UD,s:TX('這一拍，請觸碰光球上方'),need:'up'}
+    :k===2?{t:UD,s:TX('這一拍，請觸碰光球下方'),need:'down'}
+    :k===3?{t:TX('判定越準、球速越快、連擊越長，得分越高。'),s:'',btn:1}
+    :k===4?{t:TX('光球撞到隕石會照物理反彈，但仍會準時抵達框線。'),s:TX('距離節拍太近時，光球會直接穿過隕石'),btn:1}
+    :k===5?{t:TX('護盾：光球穿過就能取得，可抵銷一次失誤，而且可以累積。'),s:TX('持有護盾時，光球外圍會有一圈光環'),btn:1}
+    :k===6?{t:TX('星星：光球穿過就能取得，之後 8 秒內得分加倍。'),s:'',btn:1}
+    :k===7?{t:TX('放大：光球穿過就能取得，之後 9 秒內點擊範圍變大，比較容易觸碰。'),s:'',btn:1}
+    :k===8?{t:TX('縮小：光球穿過就能取得，之後 9 秒內點擊範圍變小，需要更精準。'),s:TX('入門與簡單難度不會出現'),btn:1}
+    :{t:TX('失誤會扣生命值，歸零就挑戰失敗；擊中可以回復生命值。'),s:TX('入門～普通：完美 +2、極佳 +1、良好 +1；困難：良好不回復；專家：只有完美 +1。難度越高，失誤扣得越多。教學中不扣生命值。'),btn:1};
 }
 function tutStart(k,b,o){
-  tutDn[k]=1;tutN++;if(k===4)tutMiss=false;
+  tutDn[k]=1;tutN++;tutLast=resolved;if(k===9)tutMiss=false;
   cutAll();freezeG=GB();
   const t=offset+(freezeG-LEADIN)*SPD;bi=bkList.findIndex(n=>n[0]/100>=t-.01);if(bi<0)bi=bkList.length;
   paused=true;resumeCD=0;runPaused=true;
@@ -1479,22 +1475,37 @@ function tutGo(){   // the stop is answered: one beat of count-in (the game cloc
   tutHold=null;resumeCD=.5;
   unlockAudio();if(AC&&AC.resume){const p=AC.resume();if(p&&p.catch)p.catch(()=>{})}
 }
+// lays the next tutorial item on the ball's own way: right after a beat is settled the ball has a whole beat ahead, so the item goes where the
+// ball will be about half way (ballAt follows the top and bottom walls), away from the line, the walls and every meteor: it is always eaten
+function tutItem(b,tau){
+  if(tutIt>=4||!tutDn[4]||items.length||bumps.length||resolved<tutLast+3||tau<1.3||b.laps||b.away||b.ti<0)return;
+  for(const m of[[.18,.3],[.08,.25],[0,.2]])   // the ball can be running along a wall: then the margins give way rather than the item
+    for(const f of[.5,.46,.54,.42,.58,.38,.62]){
+      const p=ballAt(b,tau*f);
+      if(p.y<FR.y+FR.h*m[0]||p.y>FR.y+FR.h*(1-m[0])||p.x<FR.x+FR.w*m[1]||p.x>FR.x+FR.w*(1-m[1]))continue;
+      items.push({x:p.x,y:p.y,type:TUT_ITEMS[tutIt],age:0,life:999,tut:tutIt,tb:resolved});tutIt++;return;
+    }
+}
 function tutCheck(){   // called every sub-step while playing the tutorial; true = a stop has just begun
   const b=balls[0];if(!b)return false;
   const Gn=GB();
   if(tutPend){
     if(b.ti!==tutPend.ti)tutPend=null;
-    else if(Gn>=tT(b.ti)-.004){const q=tutPend;tutPend=null;tutE=0;try{bounce(b,b.x,b.y-q.off*HRe(),q.p)}finally{tutE=null}return false}
+    else if(Gn>=tT(b.ti)-.004){const q=tutPend;tutPend=null;tutE=0;try{bounce(b,b.x,b.y-q.off*HRe())}finally{tutE=null}return false}
   }
   if(b.ti<0)return false;
+  for(let i=items.length-1;i>=0;i--){const it=items[i];if(it.tut!=null&&resolved>it.tb){items.splice(i,1);tutIt=it.tut}}   // an item the ball went past without eating (a miss changed its way): laid out again
   const tau=tT(b.ti)-Gn,ap=!b.away&&!b.laps,near=tau<=.3&&ap||tau<=.12;
   if(!tutDn[0]&&b.ti===0&&near)return tutStart(0,b);
   if(!tutDn[1]&&b.ti===3&&near)return tutStart(1,b);
   if(!tutDn[2]&&b.ti===7&&near)return tutStart(2,b);
   if(tau>.8){
-    if(!tutDn[3]){const o=bumps.find(o=>o.age>=.6&&bumpH(o)>=o.Rm*.9);if(o)return tutStart(3,b,o)}
-    if(!tutDn[4]&&(tutMiss||resolved>=15))return tutStart(4,b);
+    if(!tutDn[3]&&tutDn[2]&&tutHitAt>0&&Gn-tutHitAt>=.4)return tutStart(3,b);
+    if(!tutDn[4]){const o=bumps.find(o=>o.age>=.6&&bumpH(o)>=o.Rm*.9);if(o)return tutStart(4,b,o)}
+    for(const it of items)if(it.tut!=null&&!tutDn[5+it.tut]&&it.age>=.3&&(it.x-b.x)*b.dx>0)return tutStart(5+it.tut,b,it);
+    if(!tutDn[9]&&(tutMiss||(tutDn[8]&&resolved>=tutLast+3)||resolved>=TUTN-4))return tutStart(9,b);   // the life step never goes missing: at the latest 4 beats before the end
   }
+  tutItem(b,tau);
   return false;
 }
 function tutTap(x,y,e){
@@ -1504,7 +1515,7 @@ function tutTap(x,y,e){
   let ok=Math.hypot(b.x-x,b.y-y)<=R;
   if(ok&&T.need==='up')ok=off>.12;else if(ok&&T.need==='down')ok=off<-.12;
   if(!ok){h.err=performance.now()+1400;h.tp={x,y,t:performance.now()};return}
-  tutPend={ti:b.ti,off,p:pressureOf(e)};lastP=tutPend.p;
+  tutPend={ti:b.ti,off};
   rings.push({x,y,r0:6,life:.3,max:.3,hue:hueNow(),w:1.5});
   tutGo();
 }
@@ -1550,9 +1561,10 @@ function drawTutHold(x){
   // spotlight shape: a circle (ball / meteor) or a rounded rectangle (the life bar)
   let sp;
   if(h.k<3)sp={c:1,x:b.x,y:b.y,r:R*1.08};
-  else if(h.k===3)sp={c:1,x:h.o.x,y:h.o.y,r:h.o.Rm*1.5+8};
-  else{const el=$('#lifeW'),q=el?el.getBoundingClientRect():null;
-    sp=q&&q.width>0?{x:q.left-4,y:q.top-4,w:q.width+8,h:q.height+8}:{x:W-190,y:6,w:176,h:30};}
+  else if(h.k===4)sp={c:1,x:h.o.x,y:h.o.y,r:h.o.Rm*1.5+8};
+  else if(h.k>=5&&h.k<=8)sp={c:1,x:h.o.x,y:h.o.y,r:40};
+  else{const el=$(h.k===3?'#score':'#lifeW'),q=el?el.getBoundingClientRect():null,pd=h.k===3?8:4;
+    sp=q&&q.width>0?{x:q.left-pd,y:q.top-pd,w:q.width+pd*2,h:q.height+pd*2}:{x:W-190,y:6,w:176,h:30};}
   const box=sp.c?{x0:sp.x-sp.r,y0:sp.y-sp.r,x1:sp.x+sp.r,y1:sp.y+sp.r}:{x0:sp.x,y0:sp.y,x1:sp.x+sp.w,y1:sp.y+sp.h};
   x.fillStyle='rgba(4,5,13,.76)';x.beginPath();x.rect(0,0,W,H);
   if(sp.c){x.moveTo(sp.x+sp.r,sp.y);x.arc(sp.x,sp.y,sp.r,0,6.2832)}
@@ -1576,17 +1588,17 @@ function drawTutHold(x){
   }
   if(h.tp){const k=(now-h.tp.t)/450;if(k<1){x.strokeStyle='rgba(255,140,140,'+(.9*(1-k))+')';x.lineWidth=3;x.beginPath();x.arc(h.tp.x,h.tp.y,8+k*26,0,6.2832);x.stroke()}}
   // explanation box
-  const bw=Math.min(h.k===3?330:390,W-20),pad=14,mw=bw-pad*2;
+  const bw=Math.min(h.k===4?330:390,W-20),pad=14,mw=bw-pad*2;
   x.font='700 16px '+FF;const tl=tutWrap(x,T.t,mw);
   x.font=(T.need?'800 15px ':'400 14px ')+FF;const sl=tutWrap(x,T.s,mw);
   const err=h.k<3&&h.err>now;   // a wrong touch: a red "再試一次" tag shows for a moment
-  const bh=pad+tl.length*22+6+sl.length*20+(T.btn?48:0)+pad-4;
+  const bh=pad+tl.length*22+(sl.length?6+sl.length*20:0)+(T.btn?48:0)+pad-4;
   const pos=tutPlace(bw,bh,box,sp.c&&sp.x>W/2?['L','R','U','D']:sp.c?['R','L','D','U']:['D','L','R','U']);
   let bx=pos[0],by=pos[1];if(err)bx+=Math.sin(now/28)*4*Math.max(0,(h.err-now)/1400);
   rr(x,bx,by,bw,bh,14);x.fillStyle='rgba(14,18,48,.97)';x.fill();x.lineWidth=1.5;x.strokeStyle='rgba(255,211,107,.6)';x.stroke();
   x.textAlign='left';x.textBaseline='alphabetic';let ly=by+pad+16;
   x.font='700 16px '+FF;x.fillStyle='#e8ecff';for(const l of tl){x.fillText(l,bx+pad,ly);ly+=22}
-  ly+=4;
+  if(sl.length)ly+=4;
   x.font=(T.need?'800 15px ':'400 14px ')+FF;x.fillStyle=T.need?'#ffd36b':'#aab4e0';
   for(const l of sl){x.fillText(l,bx+pad,ly);ly+=20}
   if(err){x.font='800 15px '+FF;const ew=x.measureText(TX('再試一次')).width+28,ex=bx+bw/2,ey=Math.max(16,by-20);   // a red tag on the box's top edge
@@ -1594,7 +1606,7 @@ function drawTutHold(x){
   if(T.btn){const bwd=Math.min(130,mw),bxx=bx+bw-pad-bwd,byy=by+bh-pad-38+4;h.btn={x:bxx,y:byy,w:bwd,h:38};
     rr(x,bxx,byy,bwd,38,19);x.fillStyle='#ffd36b';x.fill();x.fillStyle='#241a00';x.font='800 16px '+FF;x.textAlign='center';x.textBaseline='middle';x.fillText(TX('知道了'),bxx+bwd/2,byy+19.5)}
   else h.btn=null;
-  x.textAlign='right';x.textBaseline='alphabetic';x.font='700 14px '+FF;x.fillStyle='rgba(232,236,255,.85)';x.fillText(h.n+' / 5',W-14,H-10);
+  x.textAlign='right';x.textBaseline='alphabetic';x.font='700 14px '+FF;x.fillStyle='rgba(232,236,255,.85)';x.fillText(h.n+' / 10',W-14,H-10);
   x.restore();
 }
 function draw(){
@@ -3808,5 +3820,5 @@ try{PPLI18N.back()}catch(e){}   // the page stayed hidden until now (i18n.js), s
 // hooks for shop.js (shop, collection, trial run); the game itself never depends on it
 window.PPLG={lvFrom:o=>lvFrom(o),lvLoad:f=>lvLoad(f),api,pkey,APP,PF,SET,saveSet,lsGet,lsSet,toast,initAudio,esc,get ME(){return ME},showHome,onTryEnd:null,onMe:null,roomSend(o){if(DU.joined)dsend(o)},busy:()=>st==='play'||st==='ready'||st==='over'||st==='done'||mode==='duel',
   startTry(tr){if(!COS)return;initAudio();tryKeep={si,di};COS.state.trial=tr||null;COS.bump();mode='try';startRun(0)}};
-window.__pb={get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:FR,HR:HRe(),BR,nb,tiers:tierCount,cents:lastCents,p:lastP,pSrc,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},setTs(v){ts=v},setSong(i){si=i},skyRes(k,d,ok){const j=SONGS.findIndex(x=>x.key===k);if(j<0)return null;mode='normal';si=j;song=SONGS[si];di=d;D=DIFFS[d];score=1000;tierCount=[tg.length||10,0,0,0];missCount=0;st='done';showResult(ok,'');const r=$('#rsky');return r.hidden?'':r.textContent},tg:()=>tg.map(t=>t.t),pv:()=>({key:PV.s&&PV.s.key,i:PV.i,n:PV.n&&PV.n.length,g:PV.g?+PV.g.gain.value.toFixed(3):null,home:HM.on,ac:AC&&AC.state}),pause:pauseGame,resume:resumeGame,shareImg,STARS,il:()=>instLoad,gaps:()=>{const r=[];for(const it of items)for(const o of bumps)r.push(Math.hypot(it.x-o.x,it.y-o.y)-itemGap(o.Rm));return r}};
+window.__pb={get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:FR,HR:HRe(),BR,nb,tiers:tierCount,cents:lastCents,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},setTs(v){ts=v},setSong(i){si=i},skyRes(k,d,ok){const j=SONGS.findIndex(x=>x.key===k);if(j<0)return null;mode='normal';si=j;song=SONGS[si];di=d;D=DIFFS[d];score=1000;tierCount=[tg.length||10,0,0,0];missCount=0;st='done';showResult(ok,'');const r=$('#rsky');return r.hidden?'':r.textContent},tg:()=>tg.map(t=>t.t),pv:()=>({key:PV.s&&PV.s.key,i:PV.i,n:PV.n&&PV.n.length,g:PV.g?+PV.g.gain.value.toFixed(3):null,home:HM.on,ac:AC&&AC.state}),pause:pauseGame,resume:resumeGame,shareImg,STARS,il:()=>instLoad,gaps:()=>{const r=[];for(const it of items)for(const o of bumps)r.push(Math.hypot(it.x-o.x,it.y-o.y)-itemGap(o.Rm));return r}};
 })();

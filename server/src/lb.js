@@ -2,7 +2,7 @@
 //
 // Accuracy comes from the timing of every beat, so the server recomputes it from the submitted beat log.
 // The score breaks ties between equally accurate players (steering the ball into power-ups is a skill), but it
-// also depends on ball speed, touch pressure and power-ups that only the phone sees. So each hit sends its base
+// also depends on ball speed and power-ups that only the phone sees. So each hit sends its base
 // points (before the combo bonus); the server checks each against the most that hit could earn and adds the
 // combo bonus and the total itself. A phone can still claim the best possible base on every hit; that is the
 // limit of what a server can check without watching the game.
@@ -39,7 +39,8 @@ const END_MIN_MS = 10e3, FAIL_MIN_MS = 3e3, STAR_MAX = 50, RUNS_KEEP_MS = TICKET
 const LIFE0 = 30, DMG = RULES.map(r => r.dmg), HEAL = RULES.map(r => r.hl);   // game.js: opening life (= cap); by difficulty index (DIFFS order, same as CHARTS): damage per miss, life a hit of tier 0..3 gives back
 export const TIER_MS = RULES.map(r => r.tm), tierAt = (d, a) => { const L = TIER_MS[d]; return a < L[0] ? 0 : a < L[1] ? 1 : a < L[2] ? 2 : 3; }, TIER_W20 = [20, 16, 10, 5];   // integer tier weights (x20, a miss is 0): the sum does not depend on the order of the hits
 // game.js bounce(): base = round(100 * TIER_M * speed^1.1 * (1 + .3 * pressure) * (power-up ? 2 : 1)), then + combo * 5;
-// speed factor is clamped to [.3, 8] there, pressure to [0, 1]
+// speed factor is clamped to [.3, 8] there. pressure was the touch force (0..1) until ppl-v61 (2026-11-27); since then it is
+// always .5 (game.js P_FIX), but Q_MAX keeps the 1.3 so runs from older phones still pass
 export const TIER_M = [3, 2, 1.2, 1], Q_MIN = Math.pow(.3, 1.1) * .99, Q_MAX = Math.pow(8, 1.1) * 1.3 * 2 * 1.01, SCORE_CAP = 999999999;
 const enc = new TextEncoder();
 const hex = buf => Array.from(new Uint8Array(buf), b => b.toString(16).padStart(2, '0')).join('');
