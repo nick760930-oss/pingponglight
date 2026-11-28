@@ -455,7 +455,7 @@ button.tog:focus-visible{outline:none}button.tog:focus-visible::before{outline:2
 .seat .bub:after{content:'';position:absolute;left:50%;top:100%;width:8px;height:8px;margin-left:-4px;background:#14173f;border-right:1px solid var(--ln-acc);border-bottom:1px solid var(--ln-acc);transform:translateY(-4px) rotate(45deg)}
 @keyframes bubIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 /* friend chat */
-.dmw{position:fixed;inset:0;z-index:80;background:rgba(2,3,10,.6);display:flex;justify-content:center;align-items:stretch;padding:calc(env(safe-area-inset-top) + 8px) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
+.dmw{position:fixed;inset:0;z-index:80;background:rgba(2,3,10,.6);display:flex;justify-content:center;align-items:stretch;padding:calc(env(safe-area-inset-top) + 8px) max(8px,var(--sr)) max(8px,env(safe-area-inset-bottom)) max(8px,var(--sl))}
 .dmv{position:relative;outline:none;width:min(560px,100%);display:flex;flex-direction:column;padding:10px 14px 8px;border-radius:var(--r-l);min-height:0}
 .dmv .dh{display:flex;align-items:center;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--ln-weak)}
 .dmv .dh b{font-size:var(--f-lg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40%}.dmv .dh small{color:var(--dim);font-size:var(--f-sm);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -508,7 +508,7 @@ button.tog:focus-visible{outline:none}button.tog:focus-visible::before{outline:2
 .spbar button{min-height:0;border:1px solid rgba(124,240,255,.45);background:rgba(124,240,255,.12);color:#e8ecff;border-radius:14px;padding:4px 11px;font:inherit;font-size:12px;cursor:pointer}
 .spar{position:fixed;width:40px;height:40px;border-radius:50%;border:1px solid rgba(124,240,255,.4);background:rgba(10,14,40,.6);color:#cfe0ff;font-size:24px;line-height:1;cursor:pointer;z-index:7;padding:0}
 .spnote{position:fixed;text-align:center;pointer-events:none;color:#ffb86b;font-size:14px;font-weight:700;z-index:7;text-shadow:0 0 8px #04050d}
-.speye{position:fixed;left:max(10px,env(safe-area-inset-left,0px));bottom:max(8px,env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:5px;padding:3px 9px 3px 7px;border-radius:12px;background:rgba(10,14,40,.55);color:#cfe0ff;font-size:11.5px;pointer-events:none;z-index:6}
+.speye{position:fixed;left:max(10px,var(--sl));bottom:max(8px,env(safe-area-inset-bottom,0px));display:flex;align-items:center;gap:5px;padding:3px 9px 3px 7px;border-radius:12px;background:rgba(10,14,40,.55);color:#cfe0ff;font-size:11.5px;pointer-events:none;z-index:6}
 .mplad[hidden],.mpbn:empty{display:none}
 .mplad .lt{position:absolute;left:2px;top:0;font-size:10.5px;color:var(--dim);letter-spacing:.12em;white-space:nowrap}.mplad .lt b{color:#ff6f95;margin-left:4px;animation:mpBlink 1s infinite}
 @keyframes mpBlink{50%{opacity:.35}}
@@ -649,9 +649,12 @@ button.tog:focus-visible{outline:none}button.tog:focus-visible::before{outline:2
 .cx-plate.np{padding:1px 10px;font-size:inherit;vertical-align:middle}
 .who{display:inline-flex;align-items:center;gap:6px;min-width:0;max-width:100%;vertical-align:middle}
 .who .wn,.nm .wn,.pn .wn{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
-.who .cx-tt,.nm .cx-tt,.pn .cx-tt{margin-left:5px;flex:0 0 auto}
+.who .cx-tt,.nm .cx-tt,.pn .cx-tt{margin-left:5px;flex:0 1 auto;min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis}   /* v65: a long title ends in … instead of a hard cut */
+.cx-plate.np{min-width:0;max-width:100%}.cx-plate.np .wn{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lbl .lbrow .nmc{display:flex;align-items:center;min-width:0}.lbl .lbrow .nmc>.cx-tt{margin-left:5px}
 .cx-avw .on.busy{background:#ffd36b;box-shadow:0 0 6px #ffd36b}
 .fr .fav{flex:0 0 auto;line-height:0}.fr.off .fav{opacity:.55}.fr .nm{display:flex;align-items:center;min-width:0}
+.fr .nm>.wn,.fr .nm>.cx-plate{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.fr .nm>.cx-tt{flex:0 1000 auto}   /* v65 fix3: when the row is short the title gives way first (frFit hides it when it is only a sliver); the nickname keeps its width and ends in … only when it cannot fit alone */
 #frReq .cx-avw{vertical-align:middle;margin-right:2px}
 .dmv .dh .cx-avw{flex:0 0 auto}
 .pod .pc{display:flex;flex-direction:column;align-items:center;gap:2px}.pod .pc .pn{display:flex;align-items:center;justify-content:center;max-width:100%;min-width:0}.pod .pc .pn{flex-wrap:wrap;row-gap:2px}.pod .pc{overflow:visible}.pod .pc .pn .cx-tt{margin-left:0}
@@ -757,7 +760,7 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
 .xbar i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:3px}
 .xbar i.b{background:var(--accent)}.xbar i.g{background:#ffd36b;box-shadow:0 0 6px rgba(255,211,107,.6)}
 /* home: the name plate under the title */
-.lvnp{position:absolute;z-index:2;top:max(10px,env(safe-area-inset-top));left:max(12px,var(--sl));display:flex;align-items:center;gap:9px;width:250px;max-width:calc(100vw - 24px);margin:0;padding:6px 10px;text-align:left;border-radius:var(--r-l);min-height:0;background:rgba(255,255,255,.05)}
+.lvnp{position:absolute;z-index:2;top:max(10px,env(safe-area-inset-top));left:max(12px,var(--sl));display:flex;align-items:center;gap:9px;width:250px;max-width:calc(100vw - 24px - var(--sl) - var(--sr));margin:0;padding:6px 10px;text-align:left;border-radius:var(--r-l);min-height:0;background:rgba(255,255,255,.05)}
 .lvnp .npav{flex:0 0 auto;display:inline-flex}
 .lvnp .npm{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:3px}
 .lvnp .r1{display:flex;align-items:center;gap:6px;min-width:0}
@@ -833,7 +836,7 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
 /* the level page */
 #lvp{z-index:6}
 .lvBody{flex:1 1 auto;min-height:0;display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);gap:12px}
-.lvSide{display:flex;flex-direction:column;gap:8px;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;min-height:0}
+.lvSide{display:flex;flex-direction:column;gap:12px;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;min-height:0}
 .lvMe{display:flex;gap:10px;align-items:center}
 .lvMe .tx{min-width:0;display:flex;flex-direction:column;gap:3px;align-items:flex-start}
 .lvMe .nn{font-weight:800;font-size:var(--f-base);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -842,7 +845,7 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
 .lvBox .lgt{font-size:var(--f-md)}
 .lvBox .xbar{margin:5px 0 3px}.lvBox .f{display:flex;justify-content:space-between;gap:6px}
 .lvMain{display:flex;flex-direction:column;min-height:0;min-width:0}
-.lvMain .achtabs{margin-top:0}
+.lvMain{gap:12px}.lvMain .achtabs{margin:0}
 .lvList{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y}
 .lvR{display:grid;grid-template-columns:52px minmax(0,1fr) auto;gap:8px;align-items:center;padding:7px 8px;border-bottom:1px solid var(--ln-weak);font-size:var(--f-sm)}
 .lvR b{font-variant-numeric:tabular-nums}
@@ -850,7 +853,7 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
 .lvR.got{color:#cfd6ff}.lvR.got .st{color:#8fe388}
 .lvR.next{border:1px solid rgba(255,211,107,.45);border-radius:var(--r-m);background:rgba(255,211,107,.07)}.lvR.next b,.lvR.next .st{color:#ffd36b}
 .lvR svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.lvH{font-size:var(--f-xs);color:var(--dim);padding:2px 8px 6px}
+.lvH{font-size:var(--f-xs);color:var(--dim);padding:0 8px 6px}
 .lvBuy .it{display:flex;align-items:center;gap:10px;padding:8px;border-bottom:1px solid var(--ln-weak)}
 .lvBuy .it .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;font-size:var(--f-sm)}
 .lvBuy .it .tx small{font-size:var(--f-xs);color:var(--dim);line-height:1.4}
@@ -860,10 +863,10 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
 .lvBuy .ag input{width:18px;height:18px;flex:0 0 auto;margin:0;accent-color:#7cf0ff}
 .lvBuy .fn{padding:8px;font-size:var(--f-xs);line-height:1.6;color:var(--dim)}.lvBuy .fn a{color:#9fdcec}
 .lvBuy .fn p{margin:0 0 3px;font-size:var(--f-xs);text-align:left}
-@media (max-height:480px){.lvBody{gap:8px}.lvR{padding:5px 8px}.lvSide{gap:6px}}
+@media (max-height:480px){.lvR{padding:5px 8px}}
 /* level page, star-card version: card + six records (left); light vial, worn items, tabs, the level road (right) */
-.lvBody{grid-template-columns:minmax(236px,290px) minmax(0,1fr)}
-.lvSide{gap:8px}
+.lvBody{grid-template-columns:minmax(236px,290px) minmax(0,1fr);gap:12px}
+.lvSide{gap:12px}
 .lvCard{position:relative;flex:0 0 auto;display:flex;gap:10px;align-items:center;padding:10px 10px 12px;border-radius:var(--r-l);border:1px solid var(--pb,rgba(124,240,255,.5));background:radial-gradient(120% 100% at 0% 0%,var(--pa,rgba(124,240,255,.28)),transparent 62%),linear-gradient(160deg,rgba(30,36,80,.92),rgba(14,16,40,.97));box-shadow:0 0 22px var(--pg,rgba(124,240,255,.2));overflow:hidden}
 .lvCard::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(1.5px 1.5px at 62% 14%,rgba(255,255,255,.6),transparent),radial-gradient(1.5px 1.5px at 90% 30%,rgba(255,255,255,.45),transparent),radial-gradient(1px 1px at 78% 82%,rgba(255,255,255,.5),transparent),radial-gradient(1px 1px at 48% 90%,rgba(255,255,255,.4),transparent),radial-gradient(1px 1px at 12% 94%,rgba(255,255,255,.35),transparent)}
 .lvAv{position:relative;flex:0 0 auto;width:100px;height:100px;display:grid;place-items:center}
@@ -873,7 +876,7 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
 .lvAv .av{display:grid;place-items:center;line-height:0}
 .lvAv .bd{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);line-height:0}
 .lvInfo{position:relative;z-index:1;min-width:0;flex:1 1 auto;display:flex;flex-direction:column;gap:3px;align-items:flex-start}
-.lvInfo .nn{font-size:var(--f-lg);font-weight:800;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lvInfo .nn{font-size:var(--f-lg);font-weight:800;max-width:100%;white-space:nowrap}   /* v65: never cut; lvFit() shrinks the font to fit one line */
 .lvInfo .nn.no{font-size:var(--f-md);font-weight:600;color:var(--dim)}
 .lvInfo .sm{min-height:var(--bh-s)}
 .lvInfo .xp{font-size:var(--f-sm);color:#e8ecff;font-variant-numeric:tabular-nums}
@@ -883,8 +886,8 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
 .lvRec b{font-size:var(--f-lg);line-height:1.2;color:#ffd36b;font-variant-numeric:tabular-nums;white-space:nowrap}
 .lvRec small{font-size:var(--f-xs);line-height:1.15;color:var(--dim);overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow-wrap:anywhere}
 .lvMain{position:relative}
-.lvTop{flex:0 0 auto;display:flex;gap:8px;flex-wrap:wrap;align-items:stretch}
-.lvLt{flex:1 1 190px;min-width:0;display:flex;gap:10px;align-items:center;padding:6px 10px;border:1px solid var(--ln);border-radius:var(--r-l);background:linear-gradient(160deg,rgba(30,36,80,.7),rgba(14,16,40,.88))}
+.lvTop{flex:0 0 auto;display:flex;gap:12px;flex-wrap:wrap;align-items:stretch}
+.lvLt{flex:1 1 170px;min-width:0;display:flex;gap:10px;align-items:center;padding:6px 10px;border:1px solid var(--ln);border-radius:var(--r-l);background:linear-gradient(160deg,rgba(30,36,80,.7),rgba(14,16,40,.88))}
 .lvLt .off{font-size:var(--f-xs);color:#ffb86b}
 .vial{position:relative;flex:0 0 auto;width:28px;height:46px;min-height:0;padding:0;border-radius:5px 5px 14px 14px;border:2px solid rgba(180,155,255,.75);background:rgba(10,12,30,.85);overflow:hidden}
 .vial .vf{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(180deg,#d6c9ff,#8f6bff);transition:height .6s}
@@ -896,14 +899,17 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
 .lvLt .tx{min-width:0;flex:1 1 auto;display:flex;flex-direction:column;gap:0;font-size:var(--f-xs);line-height:1.4;color:var(--dim)}
 .lvLt .tx b{font-size:var(--f-lg);line-height:1.2}.lvLt .tx b small{font-size:var(--f-xs);font-weight:700}
 .lvLt .hp{flex:0 0 auto;min-height:var(--bh-s);padding:0 10px;white-space:nowrap}
-.lvEq{flex:1 1 200px;min-width:0;display:flex;flex-direction:column;gap:2px;padding:4px 8px;border:1px solid var(--ln-weak);border-radius:var(--r-l);background:rgba(255,255,255,.03)}
+.lvEq{flex:1.3 1 210px;min-width:0;display:flex;flex-direction:column;gap:3px;padding:5px 8px 6px;border:1px solid var(--ln-weak);border-radius:var(--r-l);background:rgba(255,255,255,.03)}
 .lvEq .eh{font-size:var(--f-xs);color:var(--dim);line-height:1.2}
-.lvEq .row4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
-.lvEq button{min-height:0;padding:2px;border-radius:var(--r-m);display:flex;flex-direction:column;align-items:center;gap:1px;overflow:hidden;background:rgba(255,255,255,.04)}
-.lvEq button small{font-size:var(--f-xs);color:var(--dim);line-height:1.2;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lvEq .pv{width:100%;height:32px;display:flex;align-items:center;justify-content:center;overflow:hidden;line-height:0}
-.lvEq .pv img.sw{width:100%;height:100%;object-fit:cover;border-radius:6px}
-.lvEq .pv .cx-plate{max-width:100%;overflow:hidden;font-size:var(--f-xs)}
+.lvEq .eq8{display:grid;grid-template-columns:repeat(20,minmax(0,1fr));gap:4px}.lvEq .eq8 button{grid-column:span 4}.lvEq .eq8 .w13{grid-column:span 13}.lvEq .eq8 .w7{grid-column:span 7}   /* v65 fix3: two rows: theme, orb, trail, hit effect, avatar (a fifth of the width each) / name plate (13 of 20, the whole frame with the longest nickname) and title (7 of 20, wraps to two lines) */
+.lvEq button{min-height:0;padding:2px;border-radius:var(--r-m);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:1px;overflow:hidden;background:rgba(255,255,255,.04)}
+.lvEq button small{font-size:var(--f-xs);color:var(--dim);max-width:100%;white-space:normal;text-align:center;letter-spacing:-.02em;line-height:1.1;word-break:keep-all;overflow-wrap:normal}   /* v65 fix3: never under 10px; two lines when needed, ja breaks only at <wbr> */
+.lvEq .pv{width:100%;height:30px;display:flex;align-items:center;justify-content:center;overflow:hidden;line-height:0}
+.lvEq .w13 .pv,.lvEq .w7 .pv{height:auto;min-height:24px}.lvEq .pv:has(.no){height:auto;min-height:24px}
+.lvEq .pv img.sw{width:100%;height:100%;object-fit:contain;border-radius:6px}
+.lvEq .pv .fit{display:inline-flex;align-items:center;max-width:none;font-size:var(--f-xs);white-space:nowrap}.lvEq .pv .fit .cx-plate,.lvEq .pv .fit .cx-tt,.lvEq .pv .fit .wn{font-size:inherit}.lvEq .pv .cx-plate{min-width:0;font-size:var(--f-xs)}.lvEq .pv .cx-plate .wn{white-space:nowrap}   /* the whole frame, the nickname ends in … only when it is longer than 16 wide characters */
+.lvEq .w7 .pv .fit{white-space:normal;max-width:100%}.lvEq .w7 .pv .cx-tt{white-space:normal;text-align:center;overflow-wrap:anywhere;line-height:1.2;max-width:100%}   /* the title wraps to two lines instead of shrinking */
+.lvEq .pv .cx-tt{white-space:nowrap}.lvEq .pv .no{max-width:100%;font-size:10px;line-height:1;letter-spacing:-.04em;color:var(--dim);text-align:center;overflow-wrap:anywhere}   /* "Not equipped" wraps to two lines in a one-cell box */
 .lvExp{position:absolute;z-index:3;left:0;right:0;top:0;max-height:100%;overflow-y:auto;overscroll-behavior:contain;padding:8px 12px;border:1px solid var(--ln-acc);border-radius:var(--r-l);background:linear-gradient(160deg,#22285a,#0e1028);box-shadow:0 12px 40px rgba(0,0,0,.6);font-size:var(--f-xs);line-height:1.65;color:#cfd5f5}
 .lvExp[hidden]{display:none}
 .lvExp .eh{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:var(--f-md)}.lvExp .eh b{color:var(--light)}
@@ -911,12 +917,12 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
 .lvExp p{margin:0 0 3px;text-align:left}.lvExp p.w{color:#ffb86b}
 /* the level road: one node per reward level, scrolls sideways */
 .lvList.lvPW{overflow:hidden;display:flex;flex-direction:column}
-.lvPW .lvH{flex:0 0 auto}
-.lvPath{position:relative;flex:1 1 auto;min-height:0;display:flex;align-items:flex-start;overflow-x:auto;overflow-y:hidden;overscroll-behavior:contain;touch-action:pan-x;padding:2px 10px 6px;scrollbar-width:thin}
-.lvN{flex:0 0 auto;min-width:108px;max-width:190px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 4px}
-.lvDot{position:relative;align-self:stretch;height:22px;display:flex;align-items:center;justify-content:center}
-.lvDot::before{content:"";position:absolute;left:-4px;right:-4px;top:50%;height:2px;margin-top:-1px;background:rgba(255,255,255,.14)}
-.lvDot b{position:relative;padding:1px 9px;border-radius:999px;border:1px solid var(--ln);background:#0b0e26;font-size:var(--f-xs);font-variant-numeric:tabular-nums}
+.lvPW .lvH{flex:0 0 auto;margin-bottom:14px}   /* the hint sits 20px above the road (6px padding + 14px) */
+.lvPath{position:relative;flex:1 1 auto;min-height:0;display:flex;align-items:flex-start;overflow-x:auto;overflow-y:hidden;overscroll-behavior:contain;touch-action:pan-x;padding:2px 32px 6px;scrollbar-width:thin;-webkit-mask-image:linear-gradient(90deg,transparent,#000 32px,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(90deg,transparent,#000 32px,#000 calc(100% - 32px),transparent)}   /* both ends feather out over 32px; the padding keeps the first and the last node clear of it */
+.lvN{flex:0 0 auto;min-width:128px;max-width:190px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:0}
+.lvDot{position:relative;align-self:stretch;height:22px;display:flex;align-items:center;justify-content:center;gap:8px}   /* line - label - line: the line is only ever between two nodes, 8px short of each label */
+.lvDot::before{content:"";position:absolute;left:0;right:0;top:50%;height:2px;margin-top:-1px;background:rgba(255,255,255,.14)}.lvN:first-child .lvDot::before{left:50%}.lvN:last-child .lvDot::before{right:50%}   /* v65: one continuous track through every node, the label pill sits on top of it */
+.lvDot b{position:relative;flex:0 0 auto;padding:1px 9px;border-radius:999px;border:1px solid var(--ln);background:#0b0e26;font-size:var(--f-xs);font-variant-numeric:tabular-nums}
 .lvN.got .lvDot::before{background:var(--accent);opacity:.7}.lvN.got .lvDot b{border-color:var(--accent);color:var(--accent)}
 .lvN.next .lvDot::before{background:linear-gradient(90deg,var(--accent),rgba(255,255,255,.14))}
 .lvN.next .lvDot b{border-color:#ffd36b;color:#ffd36b;background:#241c08;box-shadow:0 0 12px rgba(255,211,107,.7)}
@@ -924,7 +930,8 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
 .lvN .pv{width:72px;height:56px;display:flex;align-items:center;justify-content:center;overflow:hidden;line-height:0;border-radius:var(--r-m);border:1px solid var(--ln-weak);background:rgba(255,255,255,.04)}
 .lvN .pv img.sw{width:100%;height:100%;object-fit:cover}
 .lvN .pv img.emo{width:30px;height:30px}
-.lvN .pv .cx-tt{max-width:56px;overflow:hidden;text-overflow:ellipsis}
+.lvN .pv .cx-tt{max-width:calc(100% - 6px);line-height:1.2;font-size:10px;padding:1px 6px;white-space:normal;text-align:center;overflow-wrap:anywhere;word-break:keep-all}
+.lvN .pv.ttp{width:116px}   /* v65 fix3: the whole title, on two lines when needed (it was squashed to 4px by line-height:0 and overflow:hidden) */
 .lvN .pv .cx-plate{max-width:56px;overflow:hidden;font-size:var(--f-xs)}
 .lvN.next .pv{border-color:rgba(255,211,107,.7);box-shadow:0 0 14px rgba(255,211,107,.4);background:rgba(255,211,107,.07)}
 .lvN .nm{font-size:var(--f-xs);line-height:1.35;color:#cfd5f5;text-align:center;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -943,12 +950,29 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
 .lvInfo .cx-tt{box-shadow:0 0 0 1px rgba(255,211,107,.7),0 0 8px rgba(255,211,107,.35)}
 .lvCard .lvRec{position:relative;z-index:1;width:100%;margin-top:6px}
 .lvCard .lvRec>div{background:rgba(5,6,15,.35)}
-.lvPath{align-items:center}
-.lvDot::before{box-shadow:0 0 8px rgba(255,255,255,.12)}
-.lvN.got .lvDot::before{box-shadow:0 0 10px var(--accent)}.lvN.next .lvDot::before{box-shadow:0 0 10px #ffd36b}
+.lvPath{align-items:flex-start;padding-top:8px}
+.lvDot::before,.lvDot::after{box-shadow:0 0 8px rgba(255,255,255,.12)}
+.lvN.got .lvDot::before,.lvN.got .lvDot::after{box-shadow:0 0 10px var(--accent)}.lvN.next .lvDot::before{box-shadow:0 0 10px #ffd36b}
 .lvN{gap:6px}.lvN .pv{width:78px;height:58px}
-@media (max-height:480px){.lvCard{padding:8px 8px 10px;gap:3px}.lvAv{width:92px;height:92px;margin-bottom:4px}.lvAv .av img{width:64px;height:64px}.lvInfo .nn{font-size:var(--f-lg)}.lvCard .lvRec{margin-top:3px}.lvN .pv{width:70px;height:52px}.lvN{gap:4px}}
+@media (max-height:480px){.lvCard{padding:6px 8px 8px;gap:2px}.lvAv{width:92px;height:92px;margin-bottom:2px}.lvAv .av img{width:64px;height:64px}.lvInfo .nn{font-size:var(--f-lg)}.lvCard .lvRec{margin-top:2px}.lvN .pv{width:70px;height:52px}.lvN{gap:4px}}
 @media (max-height:390px){.lvAv{width:80px;height:80px}.lvAv .av img{width:56px;height:56px}}
+/* v65 star card: the hint above the road: under the tabs; on a screen under 400px tall: at the right end of the tab row, to leave the road its height */
+.lvHn{display:none;flex:0 1 auto;min-width:0;margin-left:auto;align-self:center;font-size:var(--f-xs);color:var(--dim);white-space:normal;text-align:right;line-height:1.2;max-width:55%}   /* v65: wraps, never cut */
+@media (max-height:400px){.lvPW .lvH{display:none}.lvHn{display:block}}
+@media (max-height:480px){
+.lvTop{flex-direction:column;flex-wrap:nowrap;gap:6px}   /* v65 fix3: light strip on top, the worn items get the whole width underneath */
+.lvLt{flex:0 0 auto;padding:3px 10px;gap:8px}.lvLt .vial{width:18px;height:28px;border-width:1.5px;border-radius:4px 4px 10px 10px}.lvLt .vial::after{left:2px;top:4px;bottom:5px;width:2px}
+.lvLt .tx{flex-direction:row;flex-wrap:wrap;align-items:baseline;column-gap:10px;row-gap:0;line-height:1.3}.lvLt .tx b{font-size:var(--f-md)}.lvLt .hp{min-height:28px}
+.lvEq{flex:0 0 auto;padding:4px 6px 5px;gap:2px}.lvEq .eq8{gap:3px}.lvEq button{padding:1px 2px}.lvEq .pv{height:24px}.lvEq .eh{display:none}.lvEq button small{font-size:10px}.lvN .nm{font-size:10.5px;line-height:1.2}.lvN .st{line-height:1.2}
+.lvEq .pv .cx-plate{line-height:1.2}
+.lvN .pv{height:44px}.lvN{gap:3px}.lvDot{height:20px}
+/* v65 fix2: 667x375-class phones: the equip panel and the road header give the level road its height back */
+@media (max-height:400px){.lvEq .eh{display:none}.lvEq{padding:3px 6px}.lvEq .pv{height:20px}.lvEq .w13 .pv,.lvEq .w7 .pv{min-height:20px}.lvEq .pv:has(.no){min-height:20px}.lvEq .eq8{gap:2px}.lvTop{gap:4px}.lvLt{padding:2px 8px}.achtabs#lvTabs{margin:2px 0}.lvHn{font-size:10px;line-height:1.1}.lvN .pv{height:36px}.lvN{gap:2px}.lvPath{padding-top:2px;padding-bottom:2px}.lvDot{height:18px}.lvN .nm{font-size:10.5px;line-height:1.2}.lvN .st{line-height:1.2}}
+@media (max-height:400px) and (max-width:720px){.lvN .pv{width:60px}}
+.lvPath{scrollbar-width:none}.lvPath::-webkit-scrollbar{display:none}
+}
+.lvEq .pv .cx-plate,.lvEq .pv .cx-tt{line-height:1.25}
+@media (max-height:400px){.lvCard{padding:4px 6px 6px;gap:2px}.lvAv{width:64px;height:64px;margin-bottom:2px}.lvAv .av img{width:44px;height:44px}.lvInfo{gap:2px}.lvCard .lvRec{margin-top:2px;gap:4px}.lvCard .lvRec>div{padding:2px 3px}.lvRec small{line-height:1.1}}   /* a title on the card adds a row: everything still fits above the share buttons */
 .bugb svg.i .ib{fill:#ffd36b}
 @media (max-height:430px){#end:not(.duel) .res{padding:8px 16px}#end:not(.duel) #rank{font-size:clamp(40px,12vh,56px)!important}#end:not(.duel) .resrow{gap:14px;margin-top:4px}#end:not(.duel) #rgap{display:none}#end:not(.duel) .res>.row{margin-top:6px}.rsh h2{font-size:var(--f-lg)}}   /* a phone on its side: the experience row still fits without scrolling */
 #docv{z-index:7}   /* terms and privacy open over the level page too */
@@ -967,7 +991,7 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
 .rchal{margin-top:10px;width:100%}.rchal[hidden]{display:none}
 .ivB{padding:6px 4px;text-align:left;max-width:560px}.ivB h3{margin:0 0 6px;font-size:16px}.ivCode{display:flex;align-items:center;gap:10px;margin:8px 0;flex-wrap:wrap}.ivCode b{font-size:24px;letter-spacing:5px;color:var(--accent)}
 .ivB p{font-size:13px;margin:6px 0}.ivB .dim{color:var(--dim)}.ivIn{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(150,160,230,.28);flex-wrap:wrap}.ivIn input{font:inherit;font-size:var(--f-lg);color:var(--fg);background:rgba(0,0,0,.28);border:1px solid var(--ln-strong);border-radius:var(--r-m);padding:8px 12px;width:150px;text-transform:uppercase;letter-spacing:3px;user-select:text;-webkit-user-select:text}.ivIn input:focus{outline:none;border-color:var(--accent)}.ivIn input::placeholder{letter-spacing:0;text-transform:none;font-size:var(--f-sm)}.ivMsg{font-size:13px;color:#ffb86b;min-height:1.2em}
-.lvShRow{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.lvShare{margin-top:0}
+.lvShRow{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:0}.lvShare{margin-top:0}   /* as wide as the card above it */
 </style>
 </head>
 <body>
@@ -1079,13 +1103,13 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
 <div class="ov hidden" id="sky"><div class="skyw">
   <div class="skytop"><button id="skyBk" class="back">‹ 返回</button><b id="skyT">星空</b><span id="skyStat"></span></div>
   <canvas id="skyCv" aria-hidden="true"></canvas><div class="srl" id="skyList" role="group" aria-label="星空曲目"></div>
-  <div class="skyleg"><span><i style="background:#7ee89a"></i>入門</span><span><i style="background:#5fa8ff"></i>簡單</span><span><i style="background:#b07cff"></i>普通</span><span><i style="background:#ff8a3d"></i>困難</span><span><i style="background:#ff4d5e"></i>專家</span><span>顏色＝最高難度　亮度與星芒＝評級　白星＝未通關</span></div>
+  <div class="skyleg"><span><i style="background:#7ee89a"></i>入門</span><span><i style="background:#5fa8ff"></i>簡單</span><span><i style="background:#b07cff"></i>普通</span><span><i style="background:#ff8a3d"></i>困難</span><span><i style="background:#ff4d5e"></i>專家</span><span>顏色＝最高難度・亮度與星芒＝評級・白星＝未通關</span></div>
   <div class="card skycard" id="skyCard" role="dialog" aria-label="曲目資訊" hidden></div>
 </div></div>
 <div class="ov hidden" id="duel"><div class="card mpc">
   <button class="xbtn" id="dX" aria-label="關閉">✕</button>
   <div class="kicker">多人對戰 · 2～8 人</div>
-  <div class="row" hidden><input id="dName" maxlength="12" placeholder="暱稱" autocomplete="nickname"></div>
+  <div class="row" hidden><input id="dName" placeholder="最多 8 個中文字或 16 個英數字" autocomplete="nickname"></div>
   <div id="dJoin" class="mpj">
     <div class="mpq">
       <h3>快速配對</h3>
@@ -1190,7 +1214,7 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
   <div class="kicker" id="nkK">歡迎來到 PingPongLight</div>
   <h2 id="nkT">請設定暱稱</h2>
   <p>暱稱將顯示於排行榜與好友名單，不得與他人重複。</p>
-  <div class="row"><input id="nkIn" maxlength="12" placeholder="暱稱，最多 12 字" autocomplete="nickname" enterkeyhint="done"></div>
+  <div class="row"><input id="nkIn" placeholder="最多 8 個中文字或 16 個英數字" autocomplete="nickname" enterkeyhint="done"></div>
   <p class="nkm" id="nkMsg"></p>
   <p class="small">無須註冊，僅上傳暱稱與成績。請勿使用真實姓名。之後可於「設定」變更暱稱，或刪除所有線上資料。</p>
   <div class="row"><button id="nkSkip" hidden>暫不設定，離線遊玩</button><button class="pri" id="nkGo">確定</button></div>

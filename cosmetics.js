@@ -812,7 +812,7 @@ function i18nItem(it){
   const o=I18.cos(it.id),h=String(it.how||''),a=it.cat==='title'&&h.indexOf('ach:')===0?I18.ach(h.slice(4)):undefined;
   const nm=o&&o.name||a&&a.name,ds=o&&o.desc||a&&a.desc;
   if(nm)it.name=nm;if(ds)it.desc=ds;
-  if(it.cat==='emote'&&o&&Array.isArray(o.list)){it.list=o.list.slice();it.desc=it.list.join(TX('　'))}}
+  if(it.cat==='emote'&&o&&Array.isArray(o.list)){it.list=o.list.slice();it.desc=it.list.join(' ')}}
 function I(id,cat,name,desc,how,price,x){
   const it=Object.assign({id,cat,name,desc:desc||'',price:price||0,how,pid:how==='buy'?PFX+id:null,vis:cat==='avatar'||cat==='plate'||cat==='title',parts:null,k:id.split('.')[1]},x||{});
   if(byId[id])throw new Error('duplicate item '+id);i18nItem(it);items.push(it);byId[id]=it;return it}
@@ -902,7 +902,7 @@ function consAv(c,i){let sd=i*977+13;const R=()=>(sd=(sd*16807)%2147483647)/2147
 CONS.forEach(([n,c],i)=>I('avatar.cons'+i,'avatar',n.replace('座','')+'座徽章','通關「'+n+'」全部曲目。','ach:'+n+'完成',0,{a:consAv(c,i),limited:true}));
 // ---- emotes (fixed phrases) ----
 [['basic','基本包','default',['👍 好球','😮 哇！','🤝 GG','🔁 再一局']],['hot','熱血包','buy',['🔥 燃起來','💪 看我的','😤 不服','⚡ 太快了'],{also:'ach:初次交手'}],['cute','可愛包','buy',['🥰 好棒','🙈 失誤了','🎉 耶～','🍵 休息一下']],['music','音樂包','buy',['🎵 節奏感','🎹 好聽','🥁 跟上了','🎼 再來一首'],{also:'ach:分享喜悅'}]]
- .forEach(([k,n,h,l,x])=>I('emote.'+k,'emote',n,l.join('　'),h,h==='buy'?P30:0,Object.assign({list:l},x||{})));
+ .forEach(([k,n,h,l,x])=>I('emote.'+k,'emote',n,l.join('・'),h,h==='buy'?P30:0,Object.assign({list:l},x||{})));
 // ---- share-card frames ----
 [['basic','基本','default','background:linear-gradient(160deg,#1e2450,#0e1028);border:1px solid #3fd8ff;color:#e8ecff','#7cf0ff'],
  ['aurora','極光','buy','background:linear-gradient(160deg,#03221a,#032a3a);border:2px solid #8fe388;color:#e8ffe8','#8fe388',{also:'ach:三光並行'}],
@@ -920,7 +920,7 @@ I('title.lamplighter','title','點燈人','任一贊助包；替這片星空點�
 // ---- level rewards: how = lv:N. They cannot be bought; the server gives them when the player reaches Lv N (see the level spec, section 4).
 // Titles are title.<Chinese name>, everything else <cat>.lv<N> (a second item of the same category at the same level would get a letter after N).
 {const LV=(n,id,cat,name,desc,x)=>I(id,cat,name,desc,'lv:'+n,0,x),D=n=>'達到 Lv '+n+' 獲得';
- const EM=(n,id,name,list)=>I(id,'emote',name,list.join('　'),'lv:'+n,0,{list});
+ const EM=(n,id,name,list)=>I(id,'emote',name,list.join('・'),'lv:'+n,0,{list});
  const AV=(n,k,name,desc,a)=>LV(n,'avatar.lv'+n,'avatar',name,desc,{a});
  EM(5,'emote.lv5','拍手包',['👏 精彩','👏 好球','👏 漂亮','👏 給你掌聲']);
  EM(55,'emote.lv55','安可包',['🎵 安可！','🎵 再來一首','👏 太好聽了','🎵 還想聽']);
@@ -970,7 +970,7 @@ function step(s,dt){const{cv,T}=s,x=cv.getContext('2d'),dpr=cv._dpr||Math.min(3,
   const bw=110,bx=w/2-bw/2,by=h*.52;const g=x.createLinearGradient(bx,0,bx+bw,0);g.addColorStop(0,'#3fd8ff');g.addColorStop(1,'#8f6bff');x.fillStyle=g;x.beginPath();x.roundRect(bx,by,bw,24,12);x.fill();
   x.fillStyle='#04060f';x.font='700 11px '+FF;x.fillText(TX('開始遊戲'),w/2,by+16);
   PVMENU.forEach((n,i)=>{const cx=w/2+(i-1.5)*62;x.strokeStyle='rgba(255,255,255,.18)';x.fillStyle='rgba(255,255,255,.06)';x.beginPath();x.roundRect(cx-27,h*.7,54,18,9);x.fill();x.stroke();x.fillStyle='#e8ecff';x.font='400 9px '+FF;x.fillText(n,cx,h*.7+12.5)});return}
- if(T.view==='menu'){x.fillStyle='rgba(3,4,12,.88)';x.fillRect(0,0,w,h);x.textAlign='left';x.fillStyle='#e8ecff';x.font='700 12px '+FF;x.fillText(TX('‹ 返回　　選擇曲目'),14,22);
+ if(T.view==='menu'){x.fillStyle='rgba(3,4,12,.88)';x.fillRect(0,0,w,h);x.textAlign='left';x.fillStyle='#e8ecff';x.font='700 12px '+FF;{const bk=TX('‹ 返回');x.fillStyle='#c9cfee';x.fillText(bk,14,22);x.fillStyle='#e8ecff';x.fillText(TX('選擇曲目'),14+x.measureText(bk).width+16,22)}   // v65 fix3: the back button and the title are two texts with a gap between them (not one run-on phrase)
   for(let i=0;i<5;i++){x.fillStyle=i===1?'rgba(124,240,255,.14)':'rgba(255,255,255,.04)';x.beginPath();x.roundRect(14,34+i*27,w*.42,22,7);x.fill();x.fillStyle=i===1?'#7cf0ff':'#c9cfee';x.font='400 10px '+FF;x.fillText(PVSONGS[i],24,49+i*27)}
   x.fillStyle='rgba(30,36,80,.6)';x.beginPath();x.roundRect(w*.47,34,w*.53-14,h-48,10);x.fill();x.fillStyle='#e8ecff';x.font='800 14px '+FF;x.fillText(TX('小夜曲'),w*.47+12,58);
   x.fillStyle='#8a93c0';x.font='400 9px '+FF;x.fillText(TX('莫札特 · 古典座'),w*.47+12,72);return}
@@ -978,13 +978,14 @@ function step(s,dt){const{cv,T}=s,x=cv.getContext('2d'),dpr=cv._dpr||Math.min(3,
  x.fillStyle='rgba(10,14,40,.55)';x.beginPath();x.roundRect(m,m,w-2*m,h-2*m,14);x.fill();
  const r=h*.08,L=m+r+2,R=w-m-r-2,per=1.3;
  let u=((t/per)+s.ph)%2,dir=u<1?1:-1;u=u<1?u:2-u;const px=L+(R-L)*u,py=h*.5+Math.sin(t*2.1)*h*.22;
+ s.px=px;s.py=py;s.dir=dir;s.m=m;   // v65: where the ball is, for close-up thumbnails
  // combo tier: cycles through every tier so each cosmetic shows how combo colour reads on it
  const TI=T.tier!=null?T.tier:Math.floor((t+s.ph*20)/1.8)%TIERS.length,Ti=TIERS[TI],hh=Ti.rb?(t*90)%360:Ti.h;
  const tc=Ti.gold?'#ffd36b':hsl2hex(hh,Ti.s,Ti.s?62:88);
  const K=T.keep?T:Object.assign({},T,{c1:tc,c2:Ti.gold?'#fff1c2':hsl2hex(hh+20,Ti.s,Ti.s?72:96)});
  if(s.sp===undefined){s.sp=2;s.ang=0}s.sp+=(2-s.sp)*Math.min(1,dt*1.4);s.ang+=s.sp*dt;
  const prev=s.u;s.u=u;
- if(prev!==undefined&&((prev<.97&&u>=.97&&dir>0)||(prev>.03&&u<=.03&&dir<0))){s.fl=1;s.sp=Math.min(30,s.sp+16);hit(T.hit,s.P,dir>0?w-m:m,py,K,dir>0?-1:1)}
+ if(prev!==undefined&&((prev<.97&&u>=.97&&dir>0)||(prev>.03&&u<=.03&&dir<0))){s.fl=1;s.hx=dir>0?w-m:m;s.hy=py;s.sp=Math.min(30,s.sp+16);hit(T.hit,s.P,dir>0?w-m:m,py,K,dir>0?-1:1)}
  s.fl=Math.max(0,s.fl-dt*3);
  frame(T.frame,x,w,h,T,t,s.fl);
  // next-beat cue on the thumb line the ball is heading to: always drawn on top of any frame style
@@ -1084,12 +1085,52 @@ function nameHTML(plateId,name,titleId){
   return '<span class="cx-plate np'+(p.cls?' '+p.cls:'')+'" style="'+(p.css||'')+'"><span class="wn">'+esc(name)+'</span></span>'+t}
 // ---- previews: one still frame as an image (cached), or a live scene on a canvas ----
 const thumbCache={};
-function thumb(T,w,h,dpr){
-  dpr=dpr||1;const key=JSON.stringify(T)+'|'+w+'x'+h+'x'+dpr+'|'+(window.PPLAIBG?PPLAIBG.ver:0);if(thumbCache[key])return thumbCache[key];
+// v65 fix3: the hit-effect close-up. The effect is played on its own, on a big off-screen canvas (the contact point well inside it, no ball, no wall),
+// the frame where it covers the most is kept, and the picture is cropped around what was really drawn - so nothing is cut by an edge and a 49x30 cell still shows its shape.
+function hitThumb(T,w,h,dpr){
+  const WW=200,WH=200,S=1.5,cv=document.createElement('canvas');cv.width=WW*S;cv.height=WH*S;const x=cv.getContext('2d',{willReadFrequently:true});
+  const TI=T.tier!=null?T.tier:2,Ti=TIERS[TI]||TIERS[2],hh=Ti.rb?0:Ti.h,tc=Ti.gold?'#ffd36b':hsl2hex(hh,Ti.s,Ti.s?62:88);
+  const K=T.keep?T:Object.assign({},T,{c1:tc,c2:Ti.gold?'#fff1c2':hsl2hex(hh+20,Ti.s,Ti.s?72:96)});
+  const P=[];hit(T.hit,P,64,100,K,1);
+  const keep=document.createElement('canvas');keep.width=cv.width;keep.height=cv.height;const kx=keep.getContext('2d');
+  let best=-1,box=null;const BG=[7,10,28];
+  for(let i=0;i<48;i++){
+    x.setTransform(1,0,0,1,0,0);x.globalCompositeOperation='source-over';x.globalAlpha=1;x.fillStyle='rgb('+BG+')';x.fillRect(0,0,cv.width,cv.height);
+    x.setTransform(S,0,0,S,0,0);
+    for(let j=P.length-1;j>=0;j--){drawP(x,P[j],1/60);if(P[j].l<=0)P.splice(j,1)}
+    x.globalCompositeOperation='source-over';x.globalAlpha=1;
+    if(i<4||i%2)continue;
+    const d=x.getImageData(0,0,cv.width,cv.height).data;let sc=0,x0=1e9,y0=1e9,x1=-1,y1=-1;
+    for(let y=0;y<cv.height;y+=2)for(let xx=0;xx<cv.width;xx+=2){const o=(y*cv.width+xx)*4,df=Math.abs(d[o]-BG[0])+Math.abs(d[o+1]-BG[1])+Math.abs(d[o+2]-BG[2]);if(df>45){sc+=Math.min(df,300);if(xx<x0)x0=xx;if(xx>x1)x1=xx;if(y<y0)y0=y;if(y>y1)y1=y}}
+    if(sc>best){best=sc;box=x1>=0?[x0,y0,x1,y1]:null;kx.clearRect(0,0,keep.width,keep.height);kx.drawImage(cv,0,0)}
+  }
+  const o=document.createElement('canvas');o.width=Math.round(w*dpr);o.height=Math.round(h*dpr);const ox=o.getContext('2d');
+  ox.fillStyle='rgb('+BG+')';ox.fillRect(0,0,o.width,o.height);
+  if(box){const a=w/h,bw=box[2]-box[0]+8,bh=box[3]-box[1]+8,cx=(box[0]+box[2])/2,cy=(box[1]+box[3])/2;
+    let cw=Math.max(bw*1.12,bh*1.12*a,60*S*a),ch=cw/a;cw=Math.min(cw,keep.width);ch=cw/a;if(ch>keep.height){ch=keep.height;cw=ch*a}
+    const sx=Math.max(0,Math.min(keep.width-cw,cx-cw/2)),sy=Math.max(0,Math.min(keep.height-ch,cy-ch/2));
+    ox.drawImage(keep,sx,sy,cw,ch,0,0,o.width,o.height)}
+  try{return o.toDataURL()}catch(e){return ''}
+}
+function thumb(T,w,h,dpr,zoom){
+  dpr=dpr||1;const key=JSON.stringify(T)+'|'+w+'x'+h+'x'+dpr+'|'+(zoom||'')+'|'+(window.PPLAIBG?PPLAIBG.ver:0);if(thumbCache[key])return thumbCache[key];
+  if(zoom==='hit'&&T.hit)return thumbCache[key]=hitThumb(T,w,h,dpr);
   const cv=document.createElement('canvas');cv._w=w;cv._h=h;cv._dpr=dpr;
   const s=scene(cv,Object.assign({tier:T.tier!=null?T.tier:2},T));s.t=1.1;s.ph=.15;s.skipBG=true;
-  for(let i=0;i<26;i++){s.skipBG=i<25;step(s,1/30)}
-  let url='';try{url=cv.toDataURL()}catch(e){}return thumbCache[key]=url}
+  // v65 close-ups (zoom = 'orb' | 'trail' | 'hit'): one part, enlarged around the ball, so a 49x30 cell still tells parts apart
+  let rest=26;
+  if(zoom==='hit'){let n=0;for(;n<200;n++){step(s,1/30);if(s.fl>=.85)break}rest=1}
+  for(let i=0;i<rest;i++)step(s,1/30);
+  s.skipBG=false;step(s,1/30);
+  let url='';
+  try{
+    if(zoom&&s.px!=null){
+      const LH=180,k=cv.height/LH,Z=zoom==='orb'?3:zoom==='trail'?2.2:4.6,cw=LH*cv._w/cv._h/Z,ch=LH/Z;
+      const cx=zoom==='hit'?s.hx:zoom==='trail'?s.px-s.dir*cw*.28:s.px,cy=zoom==='hit'?s.hy:s.py;
+      const sx=Math.max(0,Math.min(cv.width-cw*k,(cx-cw/2)*k)),sy=Math.max(0,Math.min(cv.height-ch*k,(cy-ch/2)*k));
+      const o=document.createElement('canvas');o.width=Math.round(w*dpr);o.height=Math.round(h*dpr);o.getContext('2d').drawImage(cv,sx,sy,cw*k,ch*k,0,0,o.width,o.height);url=o.toDataURL()}
+    else url=cv.toDataURL()}catch(e){}
+  return thumbCache[key]=url}
 // ---- room seats: only a border colour and a soft background (the full plate look stays in lists and the shop) ----
 const SEATS={'plate.glow':['#3fd8ff','rgba(124,240,255,.14)'],'plate.neonflow':['#ff6f95','linear-gradient(90deg,rgba(255,111,149,.3),rgba(143,107,255,.3))'],'plate.sakura':['#ff9fd0','rgba(255,159,208,.2)'],
  'plate.ice':['#bfefff','rgba(63,140,190,.32)'],'plate.pixel':['#8fe388','rgba(12,24,12,.75)','4px'],'plate.beacon':['#ffd36b','linear-gradient(90deg,rgba(255,211,107,.26),rgba(255,143,209,.18))'],

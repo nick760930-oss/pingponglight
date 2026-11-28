@@ -12,6 +12,7 @@
 // - config changes are throttled (they are the only lobby message that writes storage);
 // - idle sockets (no ping for 75 s) are closed so dead or parked connections cannot hold a room.
 import { handleLb, reportSweep } from './lb.js';
+import { cleanName, NAME_MAX } from './names.js';   // one nickname rule for the whole server (width units, grapheme-safe)
 import { handleFr, friendSweep } from './friends.js';
 import { moderate } from './moderate.js';
 import { handleBug, bugSweep } from './bugs.js';
@@ -37,7 +38,6 @@ const STUCK_MS = 20000;              // a round with one result recorded this lo
 // the nine ranks (F..SSS) plus what older apps send (S A B C D —); anything else becomes '—'. Passed through unchanged: old apps show an unknown rank as '—'.
 const RANKS = ['SSS', 'SS', 'S', 'A', 'B', 'C', 'D', 'E', 'F', '—'];
 const int = (v, lo, hi) => { v = Math.floor(Number(v)); return Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : lo; };
-const cleanName = v => String(v == null ? '' : v).replace(/[\u0000-\u001f\u007f-\u009f<>&"'`\\]/g, '').replace(/\s+/g, ' ').trim().slice(0, 12);
 function clientKey(req) {             // IPv6 users own a whole /64, so limit by prefix
   const ip = req.headers.get('CF-Connecting-IP') || 'x';
   if (!ip.includes(':')) return ip;
@@ -212,7 +212,7 @@ export class Room {
     switch (d.t) {
       case 'hello': {
         if (phase !== 'lobby') return;
-        const n = cleanName(d.name); if (!n || n === a.name) return;
+        const n = cleanName(d.name, NAME_MAX * 2); if (!n || n === a.name) return;
         a.name = n; ws.serializeAttachment(a); await this.room(); return;
       }
       case 'cfg': {

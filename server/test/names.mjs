@@ -36,5 +36,26 @@ all(msg, null, ['やばかった！', 'ヤバかったね', 'すまんこれ無�
 ok(msg('バカ') === 'blocked' && msg('ハカ') === null, 'combining dakuten');
 ok(msg('ばかり') === null && msg('ぱちんこ') === null, 'allowed kana');
 
+// v65 nickname length: width units (full-width 2, half-width 1), at most 16, cut at grapheme boundaries
+const cut = (v, want) => ok(cleanName(v) === want, 'cleanName ' + JSON.stringify(v) + ' -> ' + JSON.stringify(cleanName(v)) + ', expected ' + JSON.stringify(want));
+cut('大遲大遲大遲大遲', '大遲大遲大遲大遲'); cut('大遲大遲大遲大遲大', '大遲大遲大遲大遲');
+cut('W'.repeat(16), 'W'.repeat(16)); cut('W'.repeat(17), 'W'.repeat(16));
+cut('ひらがなカタカナ', 'ひらがなカタカナ'); cut('ひらがなカタカナか', 'ひらがなカタカナ');
+cut('大遲大遲大遲大WW', '大遲大遲大遲大WW'); cut('大遲大遲大遲大WWW', '大遲大遲大遲大WW');
+cut('1️⃣'.repeat(16), '1️⃣'.repeat(16));
+cut('\u{1f44d}\u{1f3fd}'.repeat(9), '\u{1f44d}\u{1f3fd}'.repeat(8));
+cut('\u{1f1f9}\u{1f1fc}'.repeat(9), '\u{1f1f9}\u{1f1fc}'.repeat(8));
+cut('\u{1f441}️‍\u{1f5e8}️'.repeat(5), '\u{1f441}️‍\u{1f5e8}️'.repeat(4));
+cut('a‍b', 'ab'); cut('‍大遲‍', '大遲'); cut('ＡＢＣ', 'ABC');
+// zero-width parts cannot be stacked (v65 review): the result stays short whatever is appended
+for (const z of ['\ufe0f', '\u20e3', '\u{1f3fd}', '\u200d']) { const r = cleanName('a' + z.repeat(1000)); ok(Array.from(r).length <= 13 && r.startsWith('a'), 'stacked ' + z.codePointAt(0).toString(16) + ' -> ' + r.length); }
+cut('\u{1f3fd}'.repeat(20), '');   // a skin tone that does not follow an emoji is dropped
+{ const r = cleanName(('a' + '\u{1f3fd}'.repeat(11)).repeat(16)); ok(/^a{1,16}$/.test(r), 'tones after letters are dropped (input capped at 256 code units) -> ' + JSON.stringify(r)); }
+cut('\u{1f44d}' + '️'.repeat(5), '\u{1f44d}️');
+cut('Zq' + '\ufe0f'.repeat(3000), 'Zq\ufe0f');   // a repeated variation selector becomes one
+ok(cleanName('a'.repeat(100000)).length === 16, 'very long input is capped');
+ok(cleanName('大遲'.repeat(6), 32) === '大遲'.repeat(6), 'rooms keep an old 12-character nickname');
+ok(name('f‍uck') === 'blocked', 'joiner between letters is removed before the word check');
+
 console.log(fail ? 'FAILED ' + fail + ' of ' + (pass + fail) : 'names: ' + pass + ' checks passed');
 process.exit(fail ? 1 : 0);

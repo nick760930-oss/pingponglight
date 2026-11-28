@@ -71,7 +71,7 @@ function showNotes(){
     const a=BY[NQ.shift()];if(!a)continue;
     const e=document.createElement('div');e.className='achNote';e.setAttribute('role','status');
     const rw=a.reward&&a.reward!=='成就點數'?'<span class="rw">'+esc(aRew(a))+'</span>':'';
-    e.innerHTML='<span class="tier t'+a.tier+'">'+TN[a.tier]+'</span><span class="tx">'+TX('<b>成就達成　{name}</b>',{name:esc(aName(a))})+'<span class="d">'+esc(aDesc(a))+'</span>'+rw+'</span><span class="pt">+'+a.pts+'</span>';
+    e.innerHTML='<span class="tier t'+a.tier+'">'+TN[a.tier]+'</span><span class="tx">'+TX('<b>成就達成・{name}</b>',{name:esc(aName(a))})+'<span class="d">'+esc(aDesc(a))+'</span>'+rw+'</span><span class="pt">+'+a.pts+'</span>';
     const rm=()=>{if(e.isConnected){e.remove();showNotes()}};
     e.onclick=rm;box.appendChild(e);setTimeout(rm,5200)}
 }
@@ -125,7 +125,7 @@ function head(){
     +'<div class="acMe"><div class="acNm">'+C.nameHTML(eq.plate,me?me.name:TX('（尚未設定暱稱）'),eq.title)+'</div>'
     +'<div class="acPts">'+TX('<b>{pts}</b> 成就點數<small>／ 目前可得 {all}</small>',{pts:pts.toLocaleString(),all:all.toLocaleString()})+'</div>'
     +'<div class="acBar" role="progressbar" aria-valuemin="0" aria-valuemax="'+tot.length+'" aria-valuenow="'+got+'"><i style="width:'+pc+'%"></i></div>'
-    +'<div class="acSub">'+TX('已達成 {got} / {total}（{pc}%）',{got,total:tot.length,pc})+(tot.length<D.list.length?TX('　另有 {n} 個即將開放',{n:D.list.length-tot.length}):'')+'</div></div>'
+    +'<div class="acSub">'+TX('已達成 {got} / {total}（{pc}%）',{got,total:tot.length,pc})+(tot.length<D.list.length?TX('・另有 {n} 個即將開放',{n:D.list.length-tot.length}):'')+'</div></div>'
     +'<div class="acTt"><div class="acTh">'+TX('已取得的稱號 <small>{n}</small>',{n:tt.length})+'</div>'+(tt.length?'<div class="acTl">'+tt.map(id=>C.titleHTML(id)).join('')+'</div>':'<div class="acNo">'+TX('還沒有稱號。完成成就就會取得。')+'</div>')+'</div>'}
 // hidden achievements (隱藏成就 tab): the condition stays "？？？" until earned
 const HIDDEN_CAT=D.tabs.indexOf('隱藏成就');

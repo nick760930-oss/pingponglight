@@ -2,7 +2,7 @@
 // See docs/multiplayer-protocol.md. Same hardening style as the two-player Room in index.js:
 // per-socket token bucket, 512-byte messages, idle sweep, reserved codes, everything rebuilt from clamped fields.
 import { CHARTS } from './charts.js';
-import { cleanName, nameProblem } from './names.js';
+import { cleanName, nameProblem, NAME_MAX } from './names.js';
 import { friendRequest, relations, pidOf, blockedBy } from './friends.js';
 import { cosOf, NOCOS } from './cos.js';
 import { duelJudge, parseLg, ordering, settle, duelFactsFor, duelWrite, LG_MAX } from './duel.js';
@@ -352,7 +352,7 @@ export class Arena {
     switch (d.t) {
       case 'hello': {
         if (phase !== 'lobby') return;
-        const n = cleanName(d.name); if (!n || n === a.name || nameProblem(n)) return;
+        const n = cleanName(d.name, NAME_MAX * 2); if (!n || n === a.name || nameProblem(n)) return;
         a.name = n; ws.serializeAttachment(a); await this.room();
         if (a.i === this.hostOf(this.socks())) await this.upsertSoon(now);   // only the host's name is in the lobby summary
         return;
@@ -537,7 +537,7 @@ export class Lobby {
       if (!old) this.evict();
       const pend = old ? old.pend.slice() : [];
       for (let k = Math.max(0, n - (old && !old.ph ? old.n : 0)); k > 0 && pend.length; k--) pend.shift();   // players that really connected are no longer pending
-      this.rooms[o.code] = { code: o.code, host: cleanName(o.host), song: isSong(o.song) ? o.song : '', di: int(o.di, 0, 4), n, pend, max: int(o.max, 2, 8), phase: o.phase === 'play' ? 'play' : 'lobby', qm: !!o.qm, pub: !!o.pub, ts: now };
+      this.rooms[o.code] = { code: o.code, host: cleanName(o.host, NAME_MAX * 2), song: isSong(o.song) ? o.song : '', di: int(o.di, 0, 4), n, pend, max: int(o.max, 2, 8), phase: o.phase === 'play' ? 'play' : 'lobby', qm: !!o.qm, pub: !!o.pub, ts: now };
       return Response.json({ ok: true });
     }
     return new Response('not found', { status: 404 });

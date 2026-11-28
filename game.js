@@ -474,9 +474,9 @@ let mode='normal',D=null,life=30,lifeMax=30,resumeCD=0,lastRes=null,freezeG=0;
 const LIFE0=30;   // every run opens with 30 HP, which is also the cap (levels never add life: the player's choice, 2026-11-24)
 const lifeP=()=>Math.round(life/lifeMax*100);   // percent, as the room and spectator protocol expects
 const TRYN=40,TUTN=30,TUTD={n:TX('教學'),nb:1,gap:1.25,spd:.9,dmg:0,bm:1.4,hm:1.4,wm:1.3,ob:.5,noSmall:1,mr:[10,20]};
-// tutorial stops (mode 'tut'): tutHold = the stop now on screen (the game clock, music, ball and effects are frozen), tutPend = a touch made during a stop that is settled
-// as a perfect hit when the beat really arrives, tutE = timing error forced on that hit, tutDn = which of the 10 stops already happened
-let tutHold=null,tutPend=null,tutE=null,tutDn=[0,0,0,0,0,0,0,0,0,0],tutN=0,tutMiss=false,tutHitAt=-9,tutLast=-9,tutIt=0;   // tutHitAt: game time of the 8th beat's hit; tutLast: beats settled when the last stop began; tutIt: how many of the 4 tutorial items were laid out
+// tutorial stops (mode 'tut'): tutHold = the stop now on screen (the game clock, music, ball and effects are frozen),
+// tutE = timing error forced on the perfect hit that answers stop 1/2/3, tutDn = which of the 11 stops already happened
+let tutHold=null,tutE=null,tutDn=[0,0,0,0,0,0,0,0,0,0,0],tutN=0,tutMiss=false,tutHitAt=-9,tutLast=-9,tutIt=0;   // tutHitAt: game time of the 8th beat's hit; tutLast: beats settled when the last stop began; tutIt: how many of the 4 tutorial items were laid out
 const tutOn=()=>!!tutHold&&st==='play'&&!tutHold.menu;
 let st='home',si=0,offset=0,nt=0,resolved=0,nb=1,bi=0,tickQ=[],endAt=0,paused=false,exitT=0;
 let score=0,combo=0,maxCombo=0,tierCount=[0,0,0,0],time=0,ts=1,gAC=0,gT=0,cp={ti:0,score:0},lastCents=0;
@@ -572,6 +572,7 @@ const hueNow=()=>(songHue(si)+(tg.length?(SP.on?SP.pi:resolved)/tg.length:0)*140
 const LEAD=v=>Math.max(BR0*5,(v||0)*.13)*(easeT>0?1.6:1)*(D&&D.wm||1),GRACE=v=>Math.max(BR0*5,(v||0)*.11)*(easeT>0?1.6:1)*(D&&D.wm||1);
 
 function safeIns(){const c=getComputedStyle($('#safe'));return{t:parseFloat(c.paddingTop)||0,r:parseFloat(c.paddingRight)||0,b:parseFloat(c.paddingBottom)||0,l:parseFloat(c.paddingLeft)||0}}
+let SA={t:0,r:0,b:0,l:0};   // the safe areas as of the last layout(): text drawn on the canvas centres between them
 let layoutRetry=0;
 function viewSize(){   // some browsers briefly report 0 during fullscreen / rotation changes
   const vv=window.visualViewport,c=[[vv&&vv.width,vv&&vv.height],[innerWidth,innerHeight],[DE.clientWidth,DE.clientHeight]];
@@ -596,7 +597,7 @@ function layout(){
   cv.width=W*dpr;cv.height=H*dpr;
   portrait=H>W*1.05;
   $('#rot').classList.toggle('hidden',!portrait);
-  const sa=safeIns(),hb=$('#hud').getBoundingClientRect().bottom||0,top=Math.max(hb+6,Math.max(60,Math.min(70,H*.15))+sa.t*.5),bot=Math.max(12,H*.04)+sa.b;
+  const sa=SA=safeIns(),hb=$('#hud').getBoundingClientRect().bottom||0,top=Math.max(hb+6,Math.max(60,Math.min(70,H*.15))+sa.t*.5),bot=Math.max(12,H*.04)+sa.b;
   const side=Math.max(24,W*.04)+Math.max(sa.l,sa.r),rp=mode==='duel'?Math.round(Math.min(200,Math.max(150,W*.2))):0;   // room on the right for the standings in a race
   FR.w=Math.min(W-side*2-rp,900);FR.h=Math.min(H-top-bot,FR.w*.5);FR.w=Math.min(FR.w,FR.h*2.4);
   FR.x=Math.round((W-rp-FR.w)/2);FR.y=Math.round(top+(H-top-bot-FR.h)/2);
@@ -620,7 +621,7 @@ function newBall(ti){
 function startRun(from){
   from=from||0;
   if(CHA&&!CHW&&mode==='normal'&&songIdx(CHA.k)===si&&CHA.d===di&&chBlock(si)){CHA=null;CHW=false;showHome();return}   // every way into a run (result card's retry / continue, pause restart, tutorial end): a challenge on a Full Version song never starts
-if(SP.on)specOff(false);DU.wn=0;tutHold=null;tutPend=null;tutE=null;tutDn=[0,0,0,0,0,0,0,0,0,0];tutN=0;tutMiss=false;tutHitAt=-9;tutLast=-9;tutIt=0;evq.length=0;spEye();$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');
+if(SP.on)specOff(false);DU.wn=0;tutHold=null;tutE=null;tutDn=[0,0,0,0,0,0,0,0,0,0,0];tutN=0;tutMiss=false;tutHitAt=-9;tutLast=-9;tutIt=0;evq.length=0;spEye();$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');
   if(mode==='tut'){D=TUTD;si=SONGS.findIndex(s=>s.key==='twinkle');if(si<0)si=0}
   else if(mode==='try'){D=DIFFS[3];si=SONGS.findIndex(s=>s.key==='twinkle');if(si<0)si=0}   // shop trial: the easiest level of a short song
   else D=DIFFS[di];
@@ -681,6 +682,7 @@ function tap(x,y,e){
   if(paused)return;
   if(st==='starting'||st==='ready')return;  // the run starts on "click" (see below)
   if(st!=='play')return;
+  if(mode==='tut'&&balls.some(tutSoon))return;   // the stop for this beat comes when the ball is on the line
   let best=null,bd=1e9;
   for(const b of balls){if(!b.win)continue;const d=Math.hypot(b.x-x,b.y-y);if(d<=HRe()&&d<bd){bd=d;best=b}}
   if(!best&&D&&D.side){const half=x>FR.x+FR.w/2?1:3;for(const b of balls){if(!b.win||b.side!==half)continue;const d=Math.abs(b.y-y);if(d<bd){bd=d;best=b}}}   // 入門: anywhere on the ball's half
@@ -1550,24 +1552,25 @@ function drawAttract(x){
   x.restore();x.fillStyle='#fff';const b=attractPos(time);x.beginPath();x.arc(b[0],b[1],BR*.7,0,6.283);x.fill();
 }
 /* ---- tutorial stops (mode 'tut') ----
-   Ten stops, each once per run, numbered in the order they normally come (the n / 10 on screen counts the ones that really happened): 1/2/3 the ball is 0.3 s short of the line on beats
+   Eleven stops, each once per run, numbered in the order they normally come (the n / 11 on screen counts the ones that really happened; k10, the field's four edges, is numbered last but comes first,
+   before the first ball nears the line): 1/2/3 the ball is ON the line (tau <= 0.02, v65) on beats
    1, 4 and 8 (touch it / above it / below it); 4 score, 0.4 s after beat 8 was settled; 5 the first meteor is on the field; 6-9 the four items (shield, star, grow, shrink), laid out one at
    a time by tutItem(); 10 the first miss (or, if there was none, 3 beats after the last item) explains life. A stop freezes the game clock, music (cutAll + the backing scheduler
    rewound, like the pause button), ball, meteors, effects and the animation clock; the canvas shows a dimmed screen with a spotlight and an explanation box.
-   A touch that answers stop 1/2/3 is not played at once (the ball is still 0.3 s away from the line): it is remembered (tutPend) and settled as a PERFECT
-   hit, with the touch's up/down offset, the moment the beat really arrives after the one-beat count-in. */
+   A touch that answers stop 1/2/3 is settled as a PERFECT hit at once, with the touch's up/down offset (the ball is already on the line). Before such a stop a touch is ignored (tutSoon). */
 const TUT_ITEMS=['shield','star','big','small'];
 function tutTexts(k){
   const UD=TX('觸碰光球上方，光球往下彈；觸碰下方，光球往上彈。');
-  return k===0?{t:TX('光球抵達亮起的框線時，外圈會縮到光球上，那一瞬間就是節拍。'),s:TX('現在，觸碰光球')}
+  return k===10?{t:TX('左右兩條亮線是擊球線，光球抵達時觸碰它。'),s:TX('上下兩邊是牆，光球碰到會反彈。'),btn:1}
+    :k===0?{t:TX('光球抵達亮起的框線時，外圈會縮到光球上，那一瞬間就是節拍。'),s:TX('現在，觸碰光球')}
     :k===1?{t:UD,s:TX('這一拍，請觸碰光球上方'),need:'up'}
     :k===2?{t:UD,s:TX('這一拍，請觸碰光球下方'),need:'down'}
     :k===3?{t:TX('判定越準、球速越快、連擊越長，得分越高。'),s:'',btn:1}
     :k===4?{t:TX('光球撞到隕石會照物理反彈，但仍會準時抵達框線。'),s:TX('距離節拍太近時，光球會直接穿過隕石'),btn:1}
     :k===5?{t:TX('護盾：光球穿過就能取得，可抵銷一次失誤，而且可以累積。'),s:TX('持有護盾時，光球外圍會有一圈光環'),btn:1}
     :k===6?{t:TX('星星：光球穿過就能取得，之後 8 秒內得分加倍。'),s:'',btn:1}
-    :k===7?{t:TX('放大：光球穿過就能取得，之後 9 秒內點擊範圍變大，比較容易觸碰。'),s:'',btn:1}
-    :k===8?{t:TX('縮小：光球穿過就能取得，之後 9 秒內點擊範圍變小，需要更精準。'),s:TX('入門與簡單難度不會出現'),btn:1}
+    :k===7?{t:TX('放大：光球穿過就能取得，之後 9 秒內點擊範圍變大，更容易觸碰。'),s:'',btn:1}
+    :k===8?{t:TX('縮小：光球穿過就能取得，之後 9 秒內點擊範圍變小，觸碰需更精準。'),s:TX('入門與簡單難度不會出現'),btn:1}
     :{t:TX('失誤會扣生命值，歸零就挑戰失敗；擊中可以回復生命值。'),s:TX('入門～普通：完美 +2、極佳 +1、良好 +1；困難：良好不回復；專家：只有完美 +1。難度越高，失誤扣得越多。教學中不扣生命值。'),btn:1};
 }
 function tutStart(k,b,o){
@@ -1594,19 +1597,19 @@ function tutItem(b,tau){
       items.push({x:p.x,y:p.y,type:TUT_ITEMS[tutIt],age:0,life:999,tut:tutIt,tb:resolved});tutIt++;return;
     }
 }
+const tutSoon=b=>{const k=b.ti===0?0:b.ti===3?1:b.ti===7?2:-1;return k>=0&&!tutDn[k]};   // a beat that has a stop of its own and has not stopped yet: a touch before the ball is on the line must not settle it
 function tutCheck(){   // called every sub-step while playing the tutorial; true = a stop has just begun
   const b=balls[0];if(!b)return false;
   const Gn=GB();
-  if(tutPend){
-    if(b.ti!==tutPend.ti)tutPend=null;
-    else if(Gn>=tT(b.ti)-.004){const q=tutPend;tutPend=null;tutE=0;try{bounce(b,b.x,b.y-q.off*HRe())}finally{tutE=null}return false}
-  }
   if(b.ti<0)return false;
   for(let i=items.length-1;i>=0;i--){const it=items[i];if(it.tut!=null&&resolved>it.tb){items.splice(i,1);tutIt=it.tut}}   // an item the ball went past without eating (a miss changed its way): laid out again
-  const tau=tT(b.ti)-Gn,ap=!b.away&&!b.laps,near=tau<=.3&&ap||tau<=.12;
-  if(!tutDn[0]&&b.ti===0&&near)return tutStart(0,b);
-  if(!tutDn[1]&&b.ti===3&&near)return tutStart(1,b);
-  if(!tutDn[2]&&b.ti===7&&near)return tutStart(2,b);
+  const tau=tT(b.ti)-Gn;
+  if(!tutDn[10]&&b.ti===0&&tau>.3)return tutStart(10,b);   // first of all, before the first ball nears the line: the field's four edges
+  if(tau<=.02){   // the ball is on the line (v65). The sub-steps are at most 1/120 s long, so tau cannot jump over this; the clock stops where it stands
+    if(!tutDn[0]&&b.ti===0)return tutStart(0,b);
+    if(!tutDn[1]&&b.ti===3)return tutStart(1,b);
+    if(!tutDn[2]&&b.ti===7)return tutStart(2,b);
+  }
   if(tau>.8){
     if(!tutDn[3]&&tutDn[2]&&tutHitAt>0&&Gn-tutHitAt>=.4)return tutStart(3,b);
     if(!tutDn[4]){const o=bumps.find(o=>o.age>=.6&&bumpH(o)>=o.Rm*.9);if(o)return tutStart(4,b,o)}
@@ -1623,7 +1626,7 @@ function tutTap(x,y,e){
   let ok=Math.hypot(b.x-x,b.y-y)<=R;
   if(ok&&T.need==='up')ok=off>.12;else if(ok&&T.need==='down')ok=off<-.12;
   if(!ok){h.err=performance.now()+1400;h.tp={x,y,t:performance.now()};return}
-  tutPend={ti:b.ti,off};
+  tutE=0;try{bounce(b,b.x,b.y-off*R)}finally{tutE=null}   // settled as a PERFECT hit now: the ball is already on the line
   rings.push({x,y,r0:6,life:.3,max:.3,hue:hueNow(),w:1.5});
   tutGo();
 }
@@ -1636,39 +1639,64 @@ function tutWrap(x,s,mw){
 }
 // the box goes where it covers the spotlight least (then where it has to be pushed least); pref = sides to try first
 function tutPlace(bw,bh,r,pref){
-  const M=10,gap=14,top=FR.y+4,bot=H-M-24,cx=(r.x0+r.x1)/2,cy=(r.y0+r.y1)/2;
+  const M=10,sa=SA,gap=14,top=FR.y+4,bot=H-M-24,cx=(r.x0+r.x1)/2,cy=(r.y0+r.y1)/2,lo=M+sa.l,hi=Math.max(lo,W-M-sa.r-bw);   // the box stays out of the notch / island sides
   const C={L:[r.x0-gap-bw,cy-bh/2],R:[r.x1+gap,cy-bh/2],U:[cx-bw/2,r.y0-gap-bh],D:[cx-bw/2,r.y1+gap]};
-  let best=[M,top],bo=1e18;
+  let best=[lo,top],bo=1e18;
   for(const k of pref){
-    const px=C[k][0],py=C[k][1],qx=clamp(px,M,Math.max(M,W-M-bw)),qy=clamp(py,top,Math.max(top,bot-bh));
+    const px=C[k][0],py=C[k][1],qx=clamp(px,lo,hi),qy=clamp(py,top,Math.max(top,bot-bh));
     const ov=Math.max(0,Math.min(qx+bw,r.x1)-Math.max(qx,r.x0))*Math.max(0,Math.min(qy+bh,r.y1)-Math.max(qy,r.y0));
     const sc=ov*1000+Math.abs(qx-px)+Math.abs(qy-py);
     if(sc<bo){bo=sc;best=[qx,qy]}
   }
   return best;
 }
-function tutPill(x,px,py,text,hot){
-  x.font='700 14px '+FF;const w=x.measureText(text).width+18;
-  rr(x,px-w/2,py-12,w,24,12);x.fillStyle=hot?'rgba(255,211,107,.95)':'rgba(30,36,80,.9)';x.fill();
-  x.lineWidth=1.5;x.strokeStyle=hot?'#fff3c4':'rgba(150,170,255,.5)';x.stroke();
-  x.fillStyle=hot?'#241a00':'#aab4e0';x.textAlign='center';x.textBaseline='middle';x.fillText(text,px,py+.5);
+function tutPill(x,px,py,text,hot){   // hot: true = gold, 2 = cyan (a line), else dim
+  x.font='700 14px '+FF;const w=x.measureText(text).width+18,sa=SA;px=clamp(px,sa.l+6+w/2,Math.max(sa.l+6+w/2,W-sa.r-6-w/2));
+  rr(x,px-w/2,py-12,w,24,12);x.fillStyle=hot===2?'rgba(110,231,255,.96)':hot?'rgba(255,211,107,.95)':'rgba(30,36,80,.9)';x.fill();
+  x.lineWidth=1.5;x.strokeStyle=hot===2?'#d8f8ff':hot?'#fff3c4':'rgba(150,170,255,.5)';x.stroke();
+  x.fillStyle=hot===2?'#08223a':hot?'#241a00':'#aab4e0';x.textAlign='center';x.textBaseline='middle';x.fillText(text,px,py+.5);
+  return [px-w/2,py-12,px+w/2,py+12];
 }
-function tutFinger(x,tx,ty,u,dir){   // a fingertip comes in (its body trails on side dir: +1 below, -1 above, so it never covers the ball), presses (a ripple opens), fades; u in 0..1
-  let px=tx,py=ty,al=1,sc=1;
-  if(u<.5){const k=1-Math.pow(1-u/.5,3);px=tx+36*(1-k);py=ty+dir*54*(1-k);al=Math.min(1,u*6)}
-  else if(u<.8){sc=.86;const k=(u-.5)/.3;x.strokeStyle='rgba(255,255,255,'+(.8*(1-k))+')';x.lineWidth=3;x.beginPath();x.arc(tx,ty,10+k*30,0,6.283);x.stroke()}
-  else al=1-(u-.8)/.2;
-  x.save();x.globalAlpha=al*.92;x.translate(px,py);x.scale(sc,sc*dir);x.rotate(.38);
-  rr(x,-12,2,24,52,12);x.fillStyle='rgba(235,240,255,.9)';x.fill();
-  x.beginPath();x.arc(0,0,14,0,6.283);x.fillStyle='#fff';x.fill();x.lineWidth=2;x.strokeStyle='rgba(120,150,255,.9)';x.stroke();
+function tutFinger(x,tx,ty,now,mr){mr=mr||43;   // v65: a gold halo at the touch point: a small dot and three rings growing outwards and fading, one cycle 1.2 s, for as long as the stop lasts
+  x.save();x.globalCompositeOperation='source-over';
+  for(let i=0;i<3;i++){const p=((now/1200)+i/3)%1,r=7+p*(mr-7),a=(1-p)*(1-p*.3);
+    x.lineWidth=5;x.strokeStyle='rgba(30,18,0,'+(.45*a)+')';x.beginPath();x.arc(tx,ty,r,0,6.2832);x.stroke();   // a dark edge keeps it readable on a bright ball
+    x.lineWidth=2.6;x.strokeStyle='rgba(255,211,107,'+(.95*a)+')';x.beginPath();x.arc(tx,ty,r,0,6.2832);x.stroke()}
+  x.fillStyle='rgba(255,211,107,.85)';x.strokeStyle='rgba(30,18,0,.6)';x.lineWidth=2;x.beginPath();x.arc(tx,ty,4.5,0,6.2832);x.fill();x.stroke();
   x.restore();
+}
+function tutField(x,pul){   // stop 10: the two hitting lines glow with a label, the two walls are dashed with a label
+  x.save();x.lineCap='round';
+  gline(x,FR.x,FR.y,FR.x,FR.y+FR.h,190,1,4+pul*2);gline(x,FR.x+FR.w,FR.y,FR.x+FR.w,FR.y+FR.h,190,1,4+pul*2);
+  x.setLineDash([8,6]);x.lineWidth=2;x.strokeStyle='rgba(170,180,240,.8)';seg(x,FR.x,FR.y,FR.x+FR.w,FR.y);seg(x,FR.x,FR.y+FR.h,FR.x+FR.w,FR.y+FR.h);x.setLineDash([]);
+  x.restore();
+}
+// v65 fix3: the labels of stop 10 (the two hit lines, the two walls). They sit at their usual place and move out of the way when the explanation box would cover them:
+// a wall label slides sideways, a hit-line label moves up or down past the box
+function tutK10Pills(x,box){const h=tutHold;h.wp=[];h.lp=[];
+  const hit=(a,b)=>box&&box[1]<b[3]&&box[1]+box[3]>b[1]&&box[0]<b[2]&&box[0]+box[2]>b[0];
+  x.font='700 14px '+FF;
+  {const t=TX('擊球線'),w=x.measureText(t).width+18,cy=FR.y+FR.h/2;
+    for(const px of [FR.x+12+w/2,FR.x+FR.w-12-w/2]){let py=cy;
+      if(hit(0,[px-w/2,py-12,px+w/2,py+12])){
+        const up=box[1]-6-12,dn=box[1]+box[3]+6+12;
+        if(up>=FR.y+14)py=up;else if(dn<=FR.y+FR.h-14)py=dn}
+      h.lp.push(tutPill(x,px,py,t,2))}}
+  {const t=TX('牆（會反彈）'),w=x.measureText(t).width+18;
+    for(const py of [FR.y+20,FR.y+FR.h-20]){
+      let px=FR.x+FR.w/2;
+      if(hit(0,[px-w/2-4,py-14,px+w/2+4,py+14])){
+        const l0=FR.x+12,l1=box[0]-6,r0=box[0]+box[2]+6,r1=FR.x+FR.w-12,lw=l1-l0,rw=r1-r0;
+        if(Math.max(lw,rw)>=w)px=lw>=rw?(l0+l1)/2:(r0+r1)/2}
+      h.wp.push(tutPill(x,px,py,t,0))}}
 }
 function drawTutHold(x){
   const h=tutHold,b=h.b,T=tutTexts(h.k),now=performance.now(),pul=.5+.5*Math.sin(now/240),R=HRe();
   x.save();x.textAlign='center';x.textBaseline='alphabetic';
   // spotlight shape: a circle (ball / meteor) or a rounded rectangle (the life bar)
   let sp;
-  if(h.k<3)sp={c:1,x:b.x,y:b.y,r:R*1.08};
+  if(h.k===10)sp={x:FR.x,y:FR.y,w:FR.w,h:FR.h,fld:1};   // the whole field
+  else if(h.k<3)sp={c:1,x:b.x,y:b.y,r:R*1.08};
   else if(h.k===4)sp={c:1,x:h.o.x,y:h.o.y,r:h.o.Rm*1.5+8};
   else if(h.k>=5&&h.k<=8)sp={c:1,x:h.o.x,y:h.o.y,r:40};
   else{const el=$(h.k===3?'#score':'#lifeW'),q=el?el.getBoundingClientRect():null,pd=h.k===3?8:4;
@@ -1680,7 +1708,8 @@ function drawTutHold(x){
   x.fill('evenodd');
   // spotlight rim
   x.lineWidth=2.5;x.strokeStyle='rgba(255,211,107,'+(.45+.35*pul)+')';
-  if(sp.c){x.beginPath();x.arc(sp.x,sp.y,sp.r,0,6.2832);x.stroke()}else{rr(x,sp.x,sp.y,sp.w,sp.h,10);x.stroke()}
+  if(sp.fld)tutField(x,pul);
+  else if(sp.c){x.beginPath();x.arc(sp.x,sp.y,sp.r,0,6.2832);x.stroke()}else{rr(x,sp.x,sp.y,sp.w,sp.h,10);x.stroke()}
   // touch zones around the ball
   if(h.k<3){
     if(T.need){   // upper half = ball goes down, lower half = ball goes up
@@ -1689,32 +1718,59 @@ function drawTutHold(x){
       x.beginPath();x.arc(b.x,b.y,R,0,Math.PI);x.closePath();x.fillStyle=!up?'rgba(255,211,107,'+(.16+.1*pul)+')':'rgba(150,170,255,.06)';x.fill();
       x.setLineDash([5,6]);x.lineWidth=1.5;x.strokeStyle='rgba(255,255,255,.5)';x.beginPath();x.moveTo(b.x-R,b.y);x.lineTo(b.x+R,b.y);x.stroke();
       x.beginPath();x.arc(b.x,b.y,R,0,6.2832);x.stroke();x.setLineDash([]);
-      tutPill(x,b.x,clamp(b.y-R*.84,16,H-16),TX('點這裡↓'),up);tutPill(x,b.x,clamp(b.y+R*.84,16,H-16),TX('點這裡↑'),!up);   // near the top / bottom of the screen a label stays on it
     }else{x.setLineDash([5,6]);x.lineWidth=1.5;x.strokeStyle='rgba(255,255,255,.55)';x.beginPath();x.arc(b.x,b.y,R,0,6.2832);x.stroke();x.setLineDash([])}
-    const ty=T.need==='up'?b.y-R*.45:T.need==='down'?b.y+R*.45:b.y;
-    tutFinger(x,b.x,ty,((now-h.t0)%1600)/1600,T.need==='up'?-1:1);
+    const ty=T.need==='up'?b.y-R*.45:T.need==='down'?b.y+R*.45:b.y,mr=T.need?Math.max(16,R*.39-13):43;
+    tutFinger(x,b.x,ty,now-h.t0,mr);
+    if(T.need){   // v65 fix3: a label is at least 4px clear of the outermost ring of the halo and never on the ball; near the top / bottom wall it moves to the side of the ball, towards the inside of the field
+      const up=T.need==='up',Ro=mr+2.5+4.5,hy=up?ty:b.y-R*.45,hy2=up?b.y+R*.45:ty;   // hy: the upper half's touch point, hy2: the lower half's
+      const lab=(txt,hot,dn)=>{const ay=dn?hy2:hy;x.font='700 14px '+FF;const w=x.measureText(txt).width+18;
+        let py=dn?Math.max(ay+Ro+12,b.y+BR+16.5):Math.min(ay-Ro-12,b.y-BR-16.5);
+        if(py-12<FR.y+2||py+12>FR.y+FR.h-2){const sx=b.x>FR.x+FR.w/2?-1:1;return tutPill(x,b.x+sx*(Math.max(Ro,BR)+4+w/2),clamp(ay,FR.y+14,FR.y+FR.h-14),txt,hot)}
+        return tutPill(x,b.x,py,txt,hot)};
+      h.pl=[lab(TX('點這裡↓'),up,false),lab(TX('點這裡↑'),!up,true)];h.halo=[b.x,ty,mr+2.5];for(const p of h.pl){box.x0=Math.min(box.x0,p[0]-6);box.y0=Math.min(box.y0,p[1]-6);box.x1=Math.max(box.x1,p[2]+6);box.y1=Math.max(box.y1,p[3]+6)}}   // the explanation box keeps clear of the labels too
+
   }
   if(h.tp){const k=(now-h.tp.t)/450;if(k<1){x.strokeStyle='rgba(255,140,140,'+(.9*(1-k))+')';x.lineWidth=3;x.beginPath();x.arc(h.tp.x,h.tp.y,8+k*26,0,6.2832);x.stroke()}}
   // explanation box
-  const bw=Math.min(h.k===4?330:390,W-20),pad=14,mw=bw-pad*2;
-  x.font='700 16px '+FF;const tl=tutWrap(x,T.t,mw);
-  x.font=(T.need?'800 15px ':'400 14px ')+FF;const sl=tutWrap(x,T.s,mw);
+  const sa=SA;let bw=Math.min(h.k===4?330:390,W-20-sa.l-sa.r),K10=null;
+  if(h.k===10){   // the box sits beside the ball (the side with room), else above / below it; never over the ball or its ring
+    x.font='700 14px '+FF;const pw=x.measureText(TX('擊球線')).width+18+24,L=Math.max(FR.x+pw,sa.l+10),Rr=Math.min(FR.x+FR.w-pw,W-sa.r-10),gap=Math.max(BR*3+12,HR*2.5+4);   // clear of the ball and its static outer ring   // clear of the ball and its touch zone
+    K10={L,Rr,gap,g0:gap,lw:b.x-gap-L,rw:Rr-(b.x+gap)}}
+  const pad=14;let fs=1,mw=0,tl=[],sl=[],bh=0;
+  const meas=()=>{mw=bw-pad*2;x.font='700 '+16*fs+'px '+FF;tl=tutWrap(x,T.t,mw);x.font=(T.need?'800 ':'400 ')+(T.need?15:14)*fs+'px '+FF;sl=tutWrap(x,T.s,mw);bh=pad+tl.length*22*fs+(sl.length?6+sl.length*20*fs:0)+(T.btn?48:0)+pad-4};
+  meas();
   const err=h.k<3&&h.err>now;   // a wrong touch: a red "再試一次" tag shows for a moment
-  const bh=pad+tl.length*22+(sl.length?6+sl.length*20:0)+(T.btn?48:0)+pad-4;
-  const pos=tutPlace(bw,bh,box,sp.c&&sp.x>W/2?['L','R','U','D']:sp.c?['R','L','D','U']:['D','L','R','U']);
+  let pos=null;
+  if(K10){const{L,Rr}=K10;   // L / Rr: the free width between the two hit-line labels
+    // keep clear of the ball and its static outer ring; if even the smallest text does not fit, keep clear of the ball and its touch zone only
+    for(const gap of [K10.gap,Math.max(BR*3+12,HR+6)]){K10.gap=gap;const tight=gap!==K10.g0,L=tight?Math.max(FR.x+8,sa.l+10):K10.L,Rr=tight?Math.min(FR.x+FR.w-8,W-sa.r-10):K10.Rr,lw=b.x-gap-L,rw=Rr-(b.x+gap);   // the tight round may sit close to the hit lines (their labels move out of its way)
+      for(const f of tight?[1,.92,.86,.78,.72]:[1,.92,.86]){fs=f;   // the first round keeps the small text at 12px or more (14 x .86); only the second (touch zone clear, outer ring covered) may go down to 10px
+        for(const side of (rw>=lw?[1,-1]:[-1,1])){const av=side>0?rw:lw;if(av>=150){bw=Math.min(340,av);meas();if(bh<=FR.h-(tight?60:12)){pos=[side>0?b.x+gap:b.x-gap-bw,FR.y+FR.h/2-bh/2];break}}}
+        if(pos)break;
+        bw=Math.min(340,Rr-L);meas();const up=b.y-gap-FR.y-8,dn=FR.y+FR.h-8-(b.y+gap),ax=(L+Rr)/2-bw/2;
+        if(bh<=up||bh<=dn){pos=[ax,(bh<=up&&(up>=dn||bh>dn))?b.y-gap-bh:b.y+gap];break}}
+      if(pos)break}
+    if(!pos){fs=.72;bw=Math.min(340,Rr-L);meas();pos=[(L+Rr)/2-bw/2,b.y-K10.gap-bh]}   // last resort: above the ball, but always inside the field
+    pos[1]=clamp(pos[1],FR.y+4,Math.max(FR.y+4,FR.y+FR.h-4-bh));pos[0]=clamp(pos[0],sa.l+10,Math.max(sa.l+10,W-sa.r-10-bw))}
+  if(!pos)pos=tutPlace(bw,bh,box,sp.c&&sp.x>W/2?['L','R','U','D']:sp.c?['R','L','D','U']:['D','L','R','U']);
+  h.box=[pos[0],pos[1],bw,bh];   // for the overlap check in tests
+  if(K10)tutK10Pills(x,h.box);
+  if(K10&&PBT_ON){const nx=Math.max(pos[0],Math.min(b.x,pos[0]+bw)),ny=Math.max(pos[1],Math.min(b.y,pos[1]+bh)),d=Math.hypot(b.x-nx,b.y-ny);h.k10d=d;h.k10ok=d>=K10.gap-1;h.k10ring=d>=HR*2.5-1}   // test hook: the box must stay out of the ball + outer ring (read via __pb)
   let bx=pos[0],by=pos[1];if(err)bx+=Math.sin(now/28)*4*Math.max(0,(h.err-now)/1400);
   rr(x,bx,by,bw,bh,14);x.fillStyle='rgba(14,18,48,.97)';x.fill();x.lineWidth=1.5;x.strokeStyle='rgba(255,211,107,.6)';x.stroke();
-  x.textAlign='left';x.textBaseline='alphabetic';let ly=by+pad+16;
-  x.font='700 16px '+FF;x.fillStyle='#e8ecff';for(const l of tl){x.fillText(l,bx+pad,ly);ly+=22}
+  x.textAlign='left';x.textBaseline='alphabetic';let ly=by+pad+16*fs;
+  x.font='700 '+16*fs+'px '+FF;x.fillStyle='#e8ecff';for(const l of tl){x.fillText(l,bx+pad,ly);ly+=22*fs}
   if(sl.length)ly+=4;
-  x.font=(T.need?'800 15px ':'400 14px ')+FF;x.fillStyle=T.need?'#ffd36b':'#aab4e0';
-  for(const l of sl){x.fillText(l,bx+pad,ly);ly+=20}
+  x.font=(T.need?'800 ':'400 ')+(T.need?15:14)*fs+'px '+FF;x.fillStyle=T.need?'#ffd36b':'#aab4e0';
+  for(const l of sl){x.fillText(l,bx+pad,ly);ly+=20*fs}
   if(err){x.font='800 15px '+FF;const ew=x.measureText(TX('再試一次')).width+28,ex=bx+bw/2,ey=Math.max(16,by-20);   // a red tag on the box's top edge
     rr(x,ex-ew/2,ey-14,ew,28,14);x.fillStyle='#ff6b6b';x.fill();x.fillStyle='#2a0505';x.textAlign='center';x.textBaseline='middle';x.fillText(TX('再試一次'),ex,ey+.5);x.textAlign='left';x.textBaseline='alphabetic'}
   if(T.btn){const bwd=Math.min(130,mw),bxx=bx+bw-pad-bwd,byy=by+bh-pad-38+4;h.btn={x:bxx,y:byy,w:bwd,h:38};
-    rr(x,bxx,byy,bwd,38,19);x.fillStyle='#ffd36b';x.fill();x.fillStyle='#241a00';x.font='800 16px '+FF;x.textAlign='center';x.textBaseline='middle';x.fillText(TX('知道了'),bxx+bwd/2,byy+19.5)}
+    rr(x,bxx,byy,bwd,38,19);x.fillStyle='#ffd36b';x.fill();x.fillStyle='#241a00';x.font='800 16px '+FF;x.textAlign='center';x.textBaseline='middle';x.fillText(TX('確定'),bxx+bwd/2,byy+19.5)}
   else h.btn=null;
-  x.textAlign='right';x.textBaseline='alphabetic';x.font='700 14px '+FF;x.fillStyle='rgba(232,236,255,.85)';x.fillText(h.n+' / 10',W-14,H-10);
+  x.textAlign='right';x.textBaseline='alphabetic';x.font='700 14px '+FF;x.fillStyle='rgba(232,236,255,.85)';{const cw=62,cx0=W-14-sa.r-cw,cy0=H-10-sa.b-16;   // the n / 11 counter moves to the left corner when the spotlight circle would sit on it
+    const hit=sp.c&&Math.hypot(sp.x-Math.max(cx0,Math.min(sp.x,cx0+cw)),sp.y-Math.max(cy0,Math.min(sp.y,cy0+18)))<sp.r+6;
+    if(hit){x.textAlign='left';x.fillText(h.n+' / 11',14+sa.l,H-10-sa.b)}else x.fillText(h.n+' / 11',W-14-sa.r,H-10-sa.b)}
   x.restore();
 }
 function draw(){
@@ -1727,22 +1783,23 @@ function draw(){
   else if(st!=='menu'){drawField(ctx);drawBumps(ctx);drawItems(ctx);if(SP.on){const c0=combo;combo=SP.c;drawBalls(ctx);combo=c0}else drawBalls(ctx);if(SHA)drawShade(ctx);drawFx(ctx)}
   ctx.restore();
   ctx.textAlign='center';ctx.textBaseline='alphabetic';
-  if(st==='ready'&&mode==='duel'){const left=Math.max(0,(DU.startAt-duelNow())/1000);ctx.fillStyle='#e8ecff';ctx.font='800 22px '+FF;ctx.fillText(TX('{n} 人對戰　即將開始 {sec}',{n:DU.n,sec:Math.ceil(left)}),FR.x+FR.w/2,FR.y+FR.h/2+BR*6);
-    if(instLoad.busy){ctx.fillStyle='#8a93c0';ctx.font='400 13px '+FF;ctx.fillText(TX('載入樂器音色⋯ {pct}%',{pct:(instLoad.total?Math.round(instLoad.n/instLoad.total*100):0)}),W/2,FR.y+FR.h/2+BR*6+24)}}
-  else if(st==='ready'&&instLoad.busy){ctx.fillStyle='#e8ecff';ctx.font='700 19px '+FF;ctx.fillText(TX('載入樂器音色⋯ {pct}%',{pct:(instLoad.total?Math.round(instLoad.n/instLoad.total*100):0)}),W/2,FR.y+FR.h/2+BR*6)}
-  else if(st==='ready'){ctx.fillStyle='#e8ecff';ctx.font='700 19px '+FF;ctx.fillText(TX('點擊畫面開始（含 3 拍預備）'),W/2,FR.y+FR.h/2+BR*6);ctx.fillStyle='#8a93c0';ctx.font='400 13px '+FF;ctx.fillText(TX('光球將於節拍抵達亮起的框線，請於節拍觸碰光球。'),W/2,FR.y+FR.h/2+BR*6+24)}
-  if(st==='play'&&G()<LEADIN&&!paused){const n=Math.ceil((LEADIN-G())/.5);if(n<=3&&n>=1){ctx.fillStyle='rgba(232,236,255,.55)';ctx.font='800 '+Math.round(Math.min(FR.h*.3,90))+'px '+FF;ctx.fillText(String(n),W/2,FR.y+FR.h*.62)}}
-  if(st==='play'&&AC&&AC.state!=='running'&&!paused){ctx.fillStyle='#ffb86b';ctx.font='700 15px '+FF;ctx.fillText(TX('聲音未啟用：請點擊畫面，並確認裝置未開啟靜音。'),W/2,FR.y+FR.h-12)}
+  const scx=(SA.l+W-SA.r)/2,smw=Math.max(120,W-SA.l-SA.r-24);   // centre and widest line of the free width between the safe areas (notch / island sides)
+  if(st==='ready'&&mode==='duel'){const left=Math.max(0,(DU.startAt-duelNow())/1000);ctx.fillStyle='#e8ecff';ctx.font='800 22px '+FF;ctx.fillText(TX('{n} 人對戰・即將開始 {sec}',{n:DU.n,sec:Math.ceil(left)}),FR.x+FR.w/2,FR.y+FR.h/2+BR*6);
+    if(instLoad.busy){ctx.fillStyle='#8a93c0';ctx.font='400 13px '+FF;ctx.fillText(TX('載入樂器音色⋯ {pct}%',{pct:(instLoad.total?Math.round(instLoad.n/instLoad.total*100):0)}),scx,FR.y+FR.h/2+BR*6+24,smw)}}
+  else if(st==='ready'&&instLoad.busy){ctx.fillStyle='#e8ecff';ctx.font='700 19px '+FF;ctx.fillText(TX('載入樂器音色⋯ {pct}%',{pct:(instLoad.total?Math.round(instLoad.n/instLoad.total*100):0)}),scx,FR.y+FR.h/2+BR*6,smw)}
+  else if(st==='ready'){ctx.fillStyle='#e8ecff';ctx.font='700 19px '+FF;ctx.fillText(TX('點擊畫面開始（含 3 拍預備）'),scx,FR.y+FR.h/2+BR*6,smw);ctx.fillStyle='#8a93c0';ctx.font='400 13px '+FF;ctx.fillText(TX('光球將於節拍抵達亮起的框線，請於節拍觸碰光球。'),scx,FR.y+FR.h/2+BR*6+24,smw)}
+  if(st==='play'&&G()<LEADIN&&!paused){const n=Math.ceil((LEADIN-G())/.5);if(n<=3&&n>=1){ctx.fillStyle='rgba(232,236,255,.55)';ctx.font='800 '+Math.round(Math.min(FR.h*.3,90))+'px '+FF;ctx.fillText(String(n),scx,FR.y+FR.h*.62)}}
+  if(st==='play'&&AC&&AC.state!=='running'&&!paused){ctx.fillStyle='#ffb86b';ctx.font='700 15px '+FF;ctx.fillText(TX('聲音未啟用：請點擊畫面，並確認裝置未開啟靜音。'),scx,FR.y+FR.h-12,smw)}
   if(mode==='duel'&&(st==='play'||st==='over'||st==='done'))drawDuel(ctx);
   if(mlBan&&st==='play'){const b=mlBan,k=b.t/b.max,fs=Math.round(Math.min(b.up?24:18,FR.h*(b.up?.08:.06))),y=FR.y+FR.h*.44-(1-k)*10;   // music layer change
     ctx.globalAlpha=Math.min(1,k*2.5)*(b.up?1:.7);ctx.font=(b.up?'700 ':'400 ')+fs+'px '+FF;
     ctx.fillStyle=b.up?`hsl(${b.hue},100%,80%)`:'#8a93c0';if(b.up&&!SET.lowFx){ctx.shadowColor=`hsl(${b.hue},100%,60%)`;ctx.shadowBlur=14}
-    ctx.fillText(b.text,W/2,y);ctx.shadowBlur=0;
-    if(b.tip){ctx.fillStyle='#8a93c0';ctx.font='400 '+Math.round(fs*.55)+'px '+FF;ctx.fillText(b.tip,W/2,y+fs*.95)}
+    ctx.fillText(b.text,scx,y,smw);ctx.shadowBlur=0;
+    if(b.tip){ctx.fillStyle='#8a93c0';ctx.font='400 '+Math.round(fs*.55)+'px '+FF;ctx.fillText(b.tip,scx,y+fs*.95,smw)}
     ctx.globalAlpha=1}
   if(tutOn())drawTutHold(ctx);
   else if(paused){ctx.fillStyle='rgba(4,5,13,.6)';ctx.fillRect(0,0,W,H);
-    if(resumeCD>0){ctx.fillStyle='#e8ecff';ctx.font='800 '+Math.round(Math.min(FR.h*.3,90))+'px '+FF;ctx.fillText(String(Math.ceil(resumeCD/.5)),W/2,FR.y+FR.h*.62)}}
+    if(resumeCD>0){ctx.fillStyle='#e8ecff';ctx.font='800 '+Math.round(Math.min(FR.h*.3,90))+'px '+FF;ctx.fillText(String(Math.ceil(resumeCD/.5)),scx,FR.y+FR.h*.62)}}
 }
 let last=performance.now(),lastIdle=0,costEMA=0,fc=0,lastGs=0,lastNow=performance.now(),simG=null;
 function frame(now){
@@ -1783,7 +1840,27 @@ const DUEL_URL=(()=>{if(location.protocol!=='http:'||!/^(localhost|127\.0\.0\.1)
 const esc=s=>String(s==null?'':s).replace(/[&<>"'`]/g,c=>'&#'+c.charCodeAt(0)+';');
 const emo=s=>COS&&COS.emo?COS.emo(String(s==null?'':s)):esc(s);   // phrase text with 小光 stickers
 const dInt=(v,lo,hi)=>{v=Math.floor(Number(v));return Number.isFinite(v)?Math.max(lo,Math.min(hi,v)):lo};
-const dName=v=>String(v==null?'':v).replace(/[\u0000-\u001f\u007f-\u009f<>&"'`\\]/g,'').trim().slice(0,12);const dNameG=v=>{const s=dName(v),m=/^玩家([1-8])$/.exec(s);return m?TX('玩家{n}',{n:m[1]}):s};   // a name the server gave a guest in a room, for showing only (nicknames, leaderboards and friends keep dName; a room player's name as sent is nm0)
+// v65 nickname limit: width units, max NAME_MAX (16). Full-width (Chinese, Japanese, full-width symbols, emoji) = 2, half-width = 1, so 8 CJK or 16 alphanumerics. Same rule as server/src/names.js (cleanName).
+const NAME_MAX=16,NAME_WIDE=/[\u1100-\u115f\u2e80-\u303e\u3041-\u33ff\u3400-\u4dbf\u4e00-\u9fff\ua000-\ua4cf\uac00-\ud7a3\uf900-\ufaff\ufe30-\ufe6f\uff00-\uff60\uffe0-\uffe6\u231a-\u23ff\u25a0-\u27bf\u2b00-\u2bff]|\p{Extended_Pictographic}/u;
+const nameCW0=c=>/[\u200d\ufe0f\u{1f3fb}-\u{1f3ff}\u20e3]/u.test(c)?0:NAME_WIDE.test(c)?2:1,nameCW=c=>{let w=0;for(const d of c.normalize('NFKC'))w+=nameCW0(d);return w};   // NFKC first, so a ligature such as the single-character kabushiki-gaisha sign counts as its four characters
+const nameW=s=>Array.from(String(s==null?'':s)).reduce((n,c)=>n+nameCW(c),0);
+// v65 fix3: letters are cut at grapheme boundaries (Intl.Segmenter; Array.from where it does not exist), so 1️⃣, 👁️‍🗨️, 👍🏽 and flags are never split
+const nameSeg=(()=>{try{return typeof Intl!=='undefined'&&Intl.Segmenter?new Intl.Segmenter(undefined,{granularity:'grapheme'}):null}catch(e){return null}})();
+const nameGr=s=>{s=String(s==null?'':s);return nameSeg?Array.from(nameSeg.segment(s),x=>x.segment):Array.from(s)};
+// zero-width parts cannot be stacked (same as server/src/names.js clipName): a grapheme of more than 12 code points keeps its first one; a skin tone stays only right after an emoji, a variation selector or keycap mark is not repeated, a grapheme that starts with a zero-width part is dropped
+const nameFixG=g=>{g=g.replace(/(?<!\p{Extended_Pictographic})[\u{1f3fb}-\u{1f3ff}]/gu,'').replace(/([\ufe0f\u20e3])\1+/gu,'$1');if(Array.from(g).length>12)g=Array.from(g)[0];const f=Array.from(g)[0]||'';if(!f||/[\u200d\ufe0f\u20e3\u{1f3fb}-\u{1f3ff}]/u.test(f))return['',0];return[g,nameW(g)]};
+function nameClip(s,max){max=max||NAME_MAX;let w=0,o='';for(const g0 of nameGr(String(s==null?'':s).slice(0,256))){const[g,cw]=nameFixG(g0);if(!g)continue;if(w+cw>max)break;w+=cw;o+=g}return o}
+// live limit on a nickname input: no maxlength (it would cut IME composition); clip on input, and again when composition ends
+function nameLimit(el,note){if(!el)return;let comp=false;const fix=()=>{if(comp)return;const v=el.value;if(v.length>64){el.value=nameClip(v);if(note)note(true);return}   // a long paste: cut it at once (the caret-keeping loop below is for normal typing)
+  if(nameW(v)>NAME_MAX){
+    // cut only what was just typed or pasted (the characters before the caret); what is after the caret stays
+    const ch=nameGr(v);let ci=nameGr(v.slice(0,el.selectionStart==null?v.length:el.selectionStart)).length;
+    while(ci>0&&nameW(ch.join(''))>NAME_MAX){ch.splice(ci-1,1);ci--}
+    let nv=ch.join('');if(nameW(nv)>NAME_MAX){nv=nameClip(nv);ci=Math.min(ci,nameGr(nv).length)}
+    el.value=nv;const p=nameGr(nv).slice(0,ci).join('').length;try{el.setSelectionRange(p,p)}catch(e){}if(note)note(true)}else if(note)note(false)};
+  el.addEventListener('compositionstart',()=>{comp=true});el.addEventListener('compositionend',()=>{comp=false;fix()});el.addEventListener('input',fix);el.addEventListener('change',fix)}
+// dName: clean a name (control characters, markup characters, spaces at the ends) and cap it by grapheme + width, never by code point. A name that comes from the server or from an older version may be longer than the 16 units now allowed (it is shown whole and the page ends it with …), so the cap is 32 units; what the player types and sends is cut by nameClip at NAME_MAX
+const dName=(v,max)=>nameClip(String(v==null?'':v).replace(/[\u0000-\u001f\u007f-\u009f<>&"'`\\]/g,'').trim(),max||NAME_MAX*2);const dNameG=v=>{const s=dName(v),m=/^玩家([1-8])$/.exec(s);return m?TX('玩家{n}',{n:m[1]}):s};   // a name the server gave a guest in a room, for showing only (nicknames, leaderboards and friends keep dName; a room player's name as sent is nm0)
 const dKey=v=>typeof v==='string'&&/^[a-z0-9]{2,16}$/.test(v)?v:'';
 const dCode=v=>String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,4);
 const songIdx=k=>k?SONGS.findIndex(s=>s.key===k):-1;
@@ -2105,8 +2182,8 @@ function duelAttacked(k,from){
 }
 function duelSub(){
   const S=mpStand(),r=S.findIndex(x=>x.me),me=S[r];let t;
-  t=TX('第 {n} 名 / {total}',{n:r+1,total:S.length})+(r>0?TX('　前一名差 {diff}',{diff:(S[r-1].s-me.s).toLocaleString()}):S[1]?TX('　領先 {diff}',{diff:(me.s-S[1].s).toLocaleString()}):'');
-  $('#sub').textContent=t+(DU.shrinkT>0?TX('　［範圍縮小］'):'');
+  t=TX('第 {n} 名 / {total}',{n:r+1,total:S.length})+(r>0?TX('・前一名差 {diff}',{diff:(S[r-1].s-me.s).toLocaleString()}):S[1]?TX('・領先 {diff}',{diff:(me.s-S[1].s).toLocaleString()}):'');
+  $('#sub').textContent=t+(DU.shrinkT>0?TX('・［範圍縮小］'):'');
 }
 /* ---- live standings (DOM, right of the field): energy bars with a sparkler tip, rank swaps, neighbour gaps ---- */
 const MPC=['#ff9ad1','#8fb2ff','#7cffaa','#c58bff','#ffa86b','#7cf0ff','#ff6f95','#e6ecff'],RMO=matchMedia('(prefers-reduced-motion: reduce)');
@@ -2300,7 +2377,7 @@ function specStep(dt){   // called from update() while spectating
 }
 function spStat(){
   const b=DU.board.find(x=>x.i===SP.i),f=SP.fr.length>0,s=f?SP.s:b?b.s:0,c=f?SP.c:b?b.c:0,l=f?SP.l:b?b.l:100;
-  const t=s.toLocaleString()+(f?TX('　連擊 {combo}　生命 {life}%',{combo:c,life:l}):'');if(t!==SP.txt){SP.txt=t;$('#spSt').textContent=t}
+  const t=s.toLocaleString()+(f?TX('・連擊 {combo}・生命 {life}%',{combo:c,life:l}):'');if(t!==SP.txt){SP.txt=t;$('#spSt').textContent=t}
 }
 function spUI(){
   if(!SP.on)return;const S=mpStand(),k=S.findIndex(x=>x.i===SP.i),al=specAlive();
@@ -2364,7 +2441,7 @@ function duelFinish(ok,rank,acc){
   DU.myFin={s:score,ok,acc,rank:ok?rank:'—',mc:maxCombo};duelLog(ok);dsend({t:'fin',...DU.myFin});
   mpLadOff();DU.wn=0;evq.length=0;spEye();DU.spAuto=0;
   $('#deK').textContent=TX('{n} 人對戰',{n:DU.n});$('#deS').textContent=TX('《{song}》',{song:song.name})+' · '+D.n;
-  $('#deXp').hidden=true;$('#deMe').innerHTML=TX('本局成績　完美<b>{t0}</b>　極佳<b>{t1}</b>　良好<b>{t2}</b>　尚可<b>{t3}</b>　失誤<b>{miss}</b>　最高連擊<b>{combo}</b>',{t0:tierCount[0],t1:tierCount[1],t2:tierCount[2],t3:tierCount[3],miss:missCount,combo:maxCombo});
+  $('#deXp').hidden=true;$('#deMe').innerHTML=TX('本局成績・完美<b>{t0}</b>・極佳<b>{t1}</b>・良好<b>{t2}</b>・尚可<b>{t3}</b>・失誤<b>{miss}</b>・最高連擊<b>{combo}</b>',{t0:tierCount[0],t1:tierCount[1],t2:tierCount[2],t3:tierCount[3],miss:missCount,combo:maxCombo});
   duelResult();
 }
 const mpPl=x=>{if(x.av||x.pl||x.ti)return x;const p=DU.players.find(q=>q.i===x.i);return p||x};   // the result rows carry what each one wears; others fall back to the room's seats
@@ -2562,8 +2639,9 @@ function nickOpen(m){
   $('#nick').classList.remove('hidden');setTimeout(()=>{try{$('#nkIn').focus({preventScroll:true})}catch(e){}},60);
 }
 async function nickGo(){
-  const v=dName($('#nkIn').value).replace(/\s+/g,' '),msg=$('#nkMsg');
+  const v=dName($('#nkIn').value,NAME_MAX).replace(/\s+/g,' '),msg=$('#nkMsg');
   if(!v){msg.textContent=TX('請輸入暱稱。');return}
+  if(nameW(v)>NAME_MAX){msg.textContent=TX('暱稱最多 8 個中文字或 16 個英數字。');return}
   const b=$('#nkGo');b.disabled=true;msg.textContent=TX('確認中⋯');
   const j=await api('/lb/name',{pk:pkey(),name:v});b.disabled=false;
   if(j.ok){setMe({id:dInt(j.id,1,1e12),name:dName(j.name)||v});msg.textContent='';nickClose(true);lvLoad(true);return}
@@ -2581,6 +2659,7 @@ function nickClose(done){
   else if(m==='result')$('#rlb').hidden=true;
 }
 $('#nkGo').onclick=nickGo;
+nameLimit($('#nkIn'),f=>{$('#nkMsg').textContent=f?TX('暱稱最多 8 個中文字或 16 個英數字。'):''});nameLimit($('#dName'));
 $('#nkIn').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();nickGo()}});
 $('#nkSkip').onclick=()=>nickClose(false);
 async function netBoot(){
@@ -2693,7 +2772,7 @@ function drawShade(x){   // the starshade's ball: translucent, bounces between t
 function rchSet(ok){   // the line at the top of the result: a challenge, or the race against the starshade
   const e=$('#rch');let t='',no=false;
   if(CHA&&mode==='normal'&&songIdx(CHA.k)===si&&CHA.d===di){const win=ok&&score>CHA.s;t=win?TX('挑戰成功'):TX('挑戰未成功（目標 {score} 分）',{score:CHA.s.toLocaleString()});no=!win}
-  else if(SHA&&mode==='normal'){const win=ok&&score>SHA.score;t=win?TX('勝利　超越星影 {name}（{score} 分）',{name:SHA.name,score:SHA.score.toLocaleString()}):TX('落敗　星影 {name}：{score} 分',{name:SHA.name,score:SHA.score.toLocaleString()});no=!win}
+  else if(SHA&&mode==='normal'){const win=ok&&score>SHA.score;t=win?TX('勝利・超越星影 {name}（{score} 分）',{name:SHA.name,score:SHA.score.toLocaleString()}):TX('落敗・星影 {name}（{score} 分）',{name:SHA.name,score:SHA.score.toLocaleString()});no=!win}
   e.hidden=!t;e.textContent=t;e.classList.toggle('no',no);
 }
 // the waiting card: in a quick-match room, alone for 12 seconds
@@ -2707,7 +2786,7 @@ function shAskCheck(){
 }
 function shAskShow(){
   const k=songIdx(DU.cfg.song);if(k<0)return;
-  shW.open=true;$('#shaS').textContent=TX('{song}・{d}　已等待 {n} 秒',{song:SONGS[k].name,d:DIFFS[DU.cfg.di].n,n:Math.max(12,Math.round((Date.now()-shW.t0)/1000))});
+  shW.open=true;$('#shaS').textContent=TX('{song}・{d}・已等待 {n} 秒',{song:SONGS[k].name,d:DIFFS[DU.cfg.di].n,n:Math.max(12,Math.round((Date.now()-shW.t0)/1000))});
   $('#shaGo').disabled=false;$('#shAsk').classList.remove('hidden');
 }
 async function shadeStart(){
@@ -2783,7 +2862,7 @@ function lvInvHTML(){
   if(!ME)return '<div class="ivB"><h3>'+TX('邀請好友')+'</h3><p>'+TX('設定暱稱後，才能使用邀請碼。')+'</p><button class="sm" id="ivNick">'+TX('設定暱稱')+'</button></div>';
   const I=INV.d,code=I?I.code:ivClean(lsGet('ppl-inv-code')),res=lsGet('ppl-inv-res')||'';
   const used=I?I.used:res==='ok';   // once the server has answered, its word counts
-  const note=res==='ok'?TX('已輸入好友的邀請碼。')+(I&&I.done?TX('　你們都已完成。'):TX('　完成首次通關後，雙方都會獲得「同行星芒」。')):res?'<span style="color:#ffb86b">'+esc(ivErr(res))+'</span>':'';
+  const note=res==='ok'?TX('已輸入好友的邀請碼。')+(PPLI18N.lang==='en'?' ':'')+(I&&I.done?TX('雙方皆已完成。'):TX('首次通關後，雙方皆可獲得「同行星芒」。')):res?'<span style="color:#ffb86b">'+esc(ivErr(res))+'</span>':'';
   return '<div class="ivB"><h3>'+TX('邀請好友')+'</h3>'
     +'<div class="ivCode"><span class="dim">'+TX('你的邀請碼')+'</span><b>'+(code||'······')+'</b><button class="sm" id="ivCopy"'+(code?'':' disabled')+'>'+TX('複製邀請連結')+'</button></div>'
     +'<p>'+TX('好友透過你的邀請連結或邀請碼加入，並首次通關任一曲目後，雙方皆可獲得限定外觀「同行星芒」。')+'</p>'
@@ -2825,7 +2904,7 @@ function chRender(){   // the card's texts and button: follows the shop's mode (
   const o=CHP;if(!o)return;
   const k=songIdx(o.k),bl=chBlock(k),ms=chMode(),g=$('#chGo');if(bl==='gone'){CHP=null;$('#chv').classList.add('hidden');return}
   $('#chK').textContent=TX('{name} 向你發出挑戰',{name:o.n});
-  $('#chS').textContent=TX('{song}・{d}　{score} 分',{song:SONGS[k].name,d:DIFFS[o.d].n,score:o.s.toLocaleString()});
+  $('#chS').textContent=TX('{song}・{d}・{score} 分',{song:SONGS[k].name,d:DIFFS[o.d].n,score:o.s.toLocaleString()});
   $('#chT').hidden=ms!=='known'||bl==='full'||tutDone();
   g.disabled=ms!=='known';g.textContent=ms==='wait'?TX('讀取中⋯'):ms==='fail'?TX('目前無法連線，請稍後再試。'):bl==='full'?TX('解鎖完整版'):TX('接受挑戰');
 }
@@ -2857,7 +2936,7 @@ $('#bChal').onclick=()=>{
   const r=lastRes;if(!r||!r.key||!r.score)return;
   const nm=ME?ME.name:TX('玩家'),k=songIdx(r.key);if(k<0)return;
   const code=b64u.enc(JSON.stringify({k:r.key,d:r.d,s:r.score,n:nm})),url=SITE+'?ch='+code;
-  shareText(TX('{name} 在 PingPongLight《{song}》・{d} 拿到 {score} 分，來挑戰看看！',{name:nm,song:SONGS[k].name,d:DIFFS[r.d].n,score:r.score.toLocaleString()}),url,toast);
+  shareText(TX('{name} 在 PingPongLight《{song}》・{d} 取得 {score} 分，歡迎接受挑戰。',{name:nm,song:SONGS[k].name,d:DIFFS[r.d].n,score:r.score.toLocaleString()}),url,toast);
 };
 
 // ---- star card image (1080 x 1350): everything from what this device already knows; what is not known shows "–" ----
@@ -2886,7 +2965,7 @@ function starCardImg(code){
   let ag=null;try{const A=window.PPLA;if(A&&A.list&&A.earned)ag=A.list.filter(a=>A.earned(a.id)).length}catch(e){}
   const cmc=parseInt(lsGet('ppl-ach-cmc')||'0',10),
     fourth=cmc>0?[TX('最高連擊'),String(cmc)]:sk?[TX('SSS 評級'),String(sk.sss)]:ag!=null?[TX('成就達成'),String(ag)]:[TX('最高連擊'),DASH],   // the same sources as the star card page
-    stats=[[TX('通關'),sk?String(sk.lit):DASH],[TX('S 評'),sk?String(sk.s+sk.ss+sk.sss):DASH],[TX('完整星座'),sk?sk.full+'/'+sk.cn:DASH],fourth];
+    stats=[[TX('通關'),sk?String(sk.lit):DASH],[TX('S 評級'),sk?String(sk.s+sk.ss+sk.sss):DASH],[TX('完整星座'),sk?sk.full+'/'+sk.cn:DASH],fourth];
   stats.forEach(([l,v],i)=>{const cx=70+(i%2)*470,cy=700+Math.floor(i/2)*210;
     x.fillStyle='rgba(18,24,56,.96)';x.strokeStyle='rgba(150,160,230,.4)';x.lineWidth=2;rr(cx,cy,450,190,26);x.fill();x.stroke();
     x.textAlign='left';x.fillStyle='#9aa3d6';x.font='500 34px '+F;x.fillText(l,cx+34,cy+66);x.fillStyle='#ffffff';x.font='800 84px '+F;x.fillText(v,cx+34,cy+150,380)});
@@ -3186,27 +3265,48 @@ function lvExpSet(s,L,buy){   // the long text: only redrawn when it changed, so
   const h='<div class="eh"><b>'+LI+TX('光能')+'</b><button class="sm" data-xc="1">'+TX('關閉')+'</button></div>'
     +'<p>'+TX('每 6 分鐘 +1，今日已用 {x} / {y}',{x:L.spent,y:L.dayCap})+'</p><p>'+TX('只放大經驗，不影響分數與排行')+'</p>'
     +(L.extra>0?'<p>'+TX('其中朔望之光贈送 {a} 點、購買 {b} 點，不會過期',{a:L.sub,b:L.paid})+'</p>':'')
-    +(pass?'<p>'+esc(pass)+'　'+TX('期間自然上限 {n}',{n:L.cap})+'</p>':'')
+    +(pass?'<p>'+esc(pass)+' '+TX('期間自然上限 {n}',{n:L.cap})+'</p>':'')
     +(lvHalf()?'<p class="w">'+TX('本日遊玩已超過 1 小時，經驗減半')+'</p>':'')
     +(buy?'':'<p>'+TX('可在 App 版補充光能')+'</p>')+(LV.off?'<p class="w">'+TX('離線中，顯示的是上次的數字')+'</p>':'');
   if(e.dataset.h!==h){e.dataset.h=h;e.innerHTML=h}
 }
-// what the player wears now: orb, trail, name plate, avatar; a tap opens the collection
+// what the player wears now, eight cells in two rows: theme (the background), orb, trail, hit effect / name plate (two cells wide: the whole frame and the nickname), avatar, title;
+// a cell with nothing in it says 未裝備; a tap opens the collection
+const lvLbl=s=>esc(s).replace(/(ヒット)(エフェクト)|(テーマ)(セット)/g,(m,a,b,c,d)=>(a||c)+'<wbr>'+(b||d));   // v65 fix3: ja labels break only at the word boundary (ヒット/エフェクト, テーマ/セット)
 function lvEqHTML(){
-  const E=COS.state.eq,t=(cat,id,vis)=>'<button data-eq="1" title="'+esc((COS.byId[id]||{}).name||'')+'"><span class="pv">'+vis+'</span><small>'+esc(lvCatLbl(cat))+'</small></button>';
-  const th=id=>{const it=COS.byId[id];return it?'<img class="sw" alt="" src="'+COS.thumb(COS.previewT(it),128,80,2)+'">':''};
-  return '<small class="eh">'+TX('正在裝備')+'</small><div class="row4">'+t('orb',E.orb,th(E.orb))+t('trail',E.trail,th(E.trail))+t('plate',E.plate,COS.plateHTML(E.plate,E.avatar,ME?ME.name:'Aa','',14))+t('avatar',E.avatar,COS.avHTML(COS.avSpec(E.avatar,2),34))+'</div>';
+  const E=COS.state.eq,B=id=>COS.byId[id]||null,no='<span class="no">'+TX('未裝備')+'</span>';
+  const t=(cls,key,lbl,id,vis)=>'<button data-eq="'+key+'" class="'+cls+'" title="'+esc((B(id)||{}).name||'')+'"><span class="pv">'+(vis||no)+'</span><small>'+lvLbl(lbl)+'</small></button>';
+  // v65: each cell is a close-up of just that part (orb enlarged, a trail stretch, the hit burst); the theme cell is the whole scene
+  const th=(id,z)=>{const it=B(id);return it?'<img class="sw" alt="" src="'+COS.thumb(COS.previewT(it),128,80,2,z)+'">':''};
+  const tc=COS.state.themeCol,tcI=tc?B(tc):null;
+  const tid=lvTitleId(),plate=E.plate&&E.plate!=='plate.basic'&&B(E.plate)?COS.nameHTML(E.plate,ME?ME.name:'Aa'):'';
+  return '<small class="eh">'+TX('正在裝備')+'</small><div class="eq8">'+t('','theme',TX('主題套組'),tc,th(tc)||'<span class="no">'+TX('未套用')+'</span>')+t('','orb',TX('光球'),E.orb,th(E.orb,'orb'))+t('','trail',TX('尾跡'),E.trail,th(E.trail,'trail'))+t('','hit',TX('打擊特效'),E.hit,th(E.hit,'hit'))
+    +t('','avatar',TX('頭像'),E.avatar,COS.avHTML(COS.avSpec(E.avatar,2),26))
+    +t('w13','plate',TX('名牌框'),E.plate,plate?'<span class="fit">'+plate+'</span>':'')+t('w7','title',TX('稱號'),tid,tid?'<span class="fit">'+COS.titleHTML(tid)+'</span>':'')+'</div>';
 }
-function lvOpenColl(){const S=window.PPLSHOP;if(!S||!S.open)return;$('#lvp').classList.add('hidden');S.open('coll')}
+// fit: shrink the font until the text fits on one line (nickname, plate, title); never cut with an ellipsis
+function lvFit(){document.querySelectorAll('#lvSide .nn, #lvSide .cx-tt, #lvTop .fit, #lvTop .eq8 small').forEach(el=>{
+  const box=el.parentNode,sm=el.tagName==='SMALL';el.style.fontSize='';const wn=el.querySelector('.wn'),tt=el.querySelector('.cx-tt')||(el.classList.contains('cx-tt')?el:null);
+  for(const t of [wn,tt])if(t){t.style.maxWidth='';t.style.overflow='';t.style.textOverflow=''}
+  let f=parseFloat(getComputedStyle(el).fontSize)||12;const lim=10,bw=()=>box.clientWidth-(sm?2:0),over=()=>el.scrollWidth>bw()+.5;
+  for(let n=0;n<40&&f>lim&&over();n++){f-=.5;el.style.fontSize=f+'px'}
+  const cut=t=>{if(!t)return false;const extra=el.scrollWidth-t.scrollWidth;t.style.display='inline-block';t.style.overflow='hidden';t.style.textOverflow='ellipsis';t.style.verticalAlign='bottom';t.style.whiteSpace='nowrap';t.style.maxWidth=Math.max(20,bw()-extra-4)+'px';return true};
+  if(over()&&!sm){if(!cut(wn))cut(tt)}})}   // shrink first (never under 10px), then end with … (never a hard cut)
+window.addEventListener('resize',()=>{try{lvFit()}catch(e){}});try{document.fonts&&document.fonts.ready.then(()=>{try{lvFit()}catch(e){}})}catch(e){}
+function lvOpenColl(k){const S=window.PPLSHOP;if(!S||!S.open)return;
+  const M={theme:['theme'],orb:['single','orb'],trail:['single','trail'],hit:['single','hit'],avatar:['vis','avatar'],plate:['vis','plate'],title:['vis','title']}[k];   // R4: open on the matching collection tab
+  if(M&&S.UI){S.UI.cat=M[0];if(M[1])S.UI.sub[M[0]]=M[1]}
+  if(M&&S.UI&&S.UI.sel){const E=COS.state.eq,id={theme:COS.state.themeCol,orb:E.orb,trail:E.trail,hit:E.hit,avatar:E.avatar,plate:E.plate,title:lvTitleId()}[k];if(id)S.UI.sel[M[1]||M[0]]=id}   // the preview on the right starts on the piece in use
+  $('#lvp').classList.add('hidden');S.open('coll')}
 function lvpRender(tick){
   const s=LV.st,L=lvLight(),buy=lvCanBuy();if(!buy&&LV.tab==='buy')LV.tab='rw';
   const lt=$('#lvLight');
   if(tick&&lt){lvLightTick(lt,lvLightHTML(s,L));lvExpSet(s,L,buy);return}   // the countdown only touches the light numbers: the road keeps its scroll position and focus
   $('#lvSide').innerHTML=lvCardHTML(s);$('#lvp').style.setProperty('--pg2',lvHexA(lvpColor(),.16));
-  $('#lvTop').innerHTML='<div class="lvLt" id="lvLight">'+lvLightHTML(s,L)+'</div>'+(COS?'<div class="lvEq">'+lvEqHTML()+'</div>':'');
+  $('#lvTop').innerHTML='<div class="lvLt" id="lvLight">'+lvLightHTML(s,L)+'</div>'+(COS?'<div class="lvEq">'+lvEqHTML()+'</div>':'');lvFit();
   lvExpSet(s,L,buy);
   const tabs='<button data-t="rw" class="'+(LV.tab==='rw'?'on':'')+'">'+TX('等級之路')+'</button><button data-t="inv" class="'+(LV.tab==='inv'?'on':'')+'">'+TX('邀請好友')+'</button>'+(buy?'<button data-t="buy" class="'+(LV.tab==='buy'?'on':'')+'">'+TX('補充光能')+'</button>':'');
-  $('#lvTabs').innerHTML=tabs;$('#lvTabs').hidden=false;
+  $('#lvTabs').innerHTML=tabs+(LV.tab==='rw'?'<span class="lvHn">'+TX('達到等級就會自動獲得')+'</span>':'');$('#lvTabs').hidden=false;
   const list=$('#lvList'),old=list.querySelector('.lvPath'),keepX=old?old.scrollLeft:0,keep=list.scrollTop,isBuy=LV.tab==='buy',isInv=LV.tab==='inv';
   const ivi=$('#ivIn');if(ivi)INV.draft=ivi.value;   // what was typed in the code box survives a redraw
   list.innerHTML=isBuy?lvBuyHTML():isInv?lvInvHTML():lvRewardsHTML(s);
@@ -3229,7 +3329,7 @@ function lvPvHTML(it){   // one small picture of a reward: the real thumbnail, a
     case'plate':v=COS.plateHTML(it.id,E.avatar,'Aa','',14);break;
     case'emote':{const e=(it.list&&it.list[0]||'').split(' ')[0];v=e?COS.emo(e):'';break}
   }
-  return '<span class="pv">'+v+'</span>';
+  return '<span class="pv'+(it.cat==='title'?' ttp':'')+'">'+v+'</span>';   // v65 fix3: a title thumbnail is wider, so the whole title shows
 }
 function lvRewardsHTML(s){
   const lv=s?s.lv:0;let nextDone=false;
@@ -3255,7 +3355,7 @@ $('#lvTabs').addEventListener('click',e=>{const b=e.target.closest('button[data-
 $('#lvSide').addEventListener('click',e=>{if(e.target.closest('#lvNick'))nickOpen('first')});
 $('#lvTop').addEventListener('click',e=>{
   if(e.target.closest('[data-x]')){LV.exp=!LV.exp;lvpRender(true);return}
-  if(e.target.closest('[data-eq]'))lvOpenColl();
+  {const q=e.target.closest('[data-eq]');if(q)lvOpenColl(q.dataset.eq)}
 });
 $('#lvExp').addEventListener('click',e=>{if(e.target.closest('[data-xc]')){LV.exp=false;lvExpSet(LV.st,lvLight(),lvCanBuy())}});
 $('#lvList').addEventListener('wheel',e=>{const p=e.target.closest('.lvPath');if(!p||!e.deltaY||e.deltaX)return;if(p.scrollWidth>p.clientWidth){p.scrollLeft+=e.deltaY;e.preventDefault()}},{passive:false});
@@ -3609,10 +3709,13 @@ function frRender(){
   }
   if(L.outgoing.length){h+='<div class="fsec">'+TX('等待對方接受')+'</div>';for(const f of L.outgoing)h+='<div class="fr off">'+frAv(f,'')+'<span class="tx"><span class="nm">'+whoNm(f,f.name)+'</span><span class="mt">'+TX('已送出好友邀請')+'</span></span><button data-rm="'+f.id+'">'+TX('取消')+'</button></div>'}
   if(L.blocked.length){h+='<div class="fsec">'+TX('已封鎖')+'</div>';for(const f of L.blocked)h+='<div class="fr"><span class="dot"></span><span class="tx"><span class="nm">'+esc(f.name)+'</span></span><button data-ub="'+f.id+'">'+TX('解除封鎖')+'</button></div>'}
-  $('#frList').innerHTML=h;
+  $('#frList').innerHTML=h;frFit();
   const R=$('#frReq');R.hidden=!L.incoming.length;
   R.innerHTML=L.incoming.map(f=>'<div><span>'+whoAv(f,24)+' '+TX('<b>{name}</b> 想加您為好友',{name:esc(f.name)})+'</span><button class="acc" data-acc="'+f.id+'">'+TX('接受')+'</button><button data-dec="'+f.id+'">'+TX('略過')+'</button></div>').join('');
 }
+// v65 fix3: a title that does not fit whole in a friend row is hidden (the nickname keeps the room)
+function frFit(){const L=$('#frList');if(!L||!L.clientWidth)return;L.querySelectorAll('.fr .nm>.cx-tt').forEach(t=>{t.style.display='';if(t.scrollWidth>t.clientWidth+1||t.getBoundingClientRect().width<44)t.style.display='none'})}
+window.addEventListener('resize',()=>{try{frFit()}catch(e){}});
 async function frAct(path,body){const j=await api(path,Object.assign({pk:pkey()},body));$('#frMsg').textContent=j.error?(j.error==='net'?TX('目前無法連線至伺服器。'):TX('操作失敗，請稍後再試。')):'';FD.open=-1;await frLoad()}
 $('#frList').onclick=e=>{const b=e.target.closest('button');if(!b)return;const D=b.dataset;
   if(D.dm){e.stopPropagation();const f=FD.list&&FD.list.friends.find(x=>x.id===+D.dm);if(f)dmOpen(f.id,f.name);return}
@@ -4006,7 +4109,7 @@ function onPress(el,fn){let t=-1e9;
 onPress($('#bPause'),()=>{if(paused&&!resumeCD&&!tutOn())resumeGame();else pauseGame()});
 $('#bResume').onclick=resumeGame;
 $('#bRestart').onclick=()=>{$('#pause').classList.add('hidden');lbEnd('quit');doResume();startRun(mode==='prac'?pracCfg.from:0)};
-function skipTut(){CHA=null;CHW=false;tutHold=null;tutPend=null;lsSet('ppl-tut','1');$('#pause').classList.add('hidden');doResume();showSelect()}
+function skipTut(){CHA=null;CHW=false;tutHold=null;lsSet('ppl-tut','1');$('#pause').classList.add('hidden');doResume();showSelect()}
 
 // in the tutorial, 離開 is the way out of it (marked done, on to the songs); the HUD has no separate skip button
 $('#bQuit').onclick=()=>{if(mode==='tut'){skipTut();return}if(mode==='try'){$('#pause').classList.add('hidden');tryEnd();return}
@@ -4098,8 +4201,8 @@ function shareImg(){
   const lab=PPLI18N.lang==='ja'?r.label.replace(/ · 『/g,' ·『').replace(/』 · /g,'』· '):r.label;   // 『 』 carry their own side space: ステージ5 ·『蛍の光』· ノーマル
   x.fillStyle='#e8ecff';x.font='700 40px '+F;x.fillText(lab,70,210,700);
   x.font='800 86px '+F;x.fillText(r.score.toLocaleString(),70,340);
-  x.fillStyle='#b9c1ea';x.font='500 32px '+F;x.fillText(TX('精準度 {acc}　最高連擊 {combo}',{acc:pct(r.bp),combo:r.maxCombo}),70,410);
-  x.fillStyle='#8a93c0';x.font='400 26px '+F;x.fillText((APP?new URL(SITE).host:location.host)+'　'+new Date().toLocaleDateString(PPLI18N.locale),70,560);
+  x.fillStyle='#b9c1ea';x.font='500 32px '+F;x.fillText(TX('精準度 {acc}・最高連擊 {combo}',{acc:pct(r.bp),combo:r.maxCombo}),70,410);
+  x.fillStyle='#8a93c0';x.font='400 26px '+F;x.fillText((APP?new URL(SITE).host:location.host)+' '+new Date().toLocaleDateString(PPLI18N.locale),70,560);
   x.textAlign='center';x.shadowColor=RANK_COL[r.rank];x.shadowBlur=40;
   if(r.rank==='SSS'){const pg=x.createLinearGradient(700,0,1200,0);pg.addColorStop(0,'#ffe8a8');pg.addColorStop(.35,'#ffffff');pg.addColorStop(.65,'#ffe8a8');pg.addColorStop(1,'#ffd36b');x.fillStyle='#ffe8a8';x.font='800 190px '+F;x.fillText(r.rank,950,390);x.shadowBlur=0;x.fillStyle=pg}else x.fillStyle=RANK_COL[r.rank];
   x.font='800 '+(r.rank.length===3?190:r.rank.length===2?250:300)+'px '+F;x.fillText(r.rank,950,r.rank.length===3?390:420);
@@ -4250,6 +4353,6 @@ window.PPLG={lvFrom:o=>lvFrom(o),lvLoad:f=>lvLoad(f),api,pkey,APP,PF,SET,saveSet
   startTry(tr){if(!COS)return;initAudio();tryKeep={si,di};COS.state.trial=tr||null;COS.bump();mode='try';startRun(0)}};
 const PBT_ON=!APP&&(/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)||/[?&]pbtest=1(&|$)/.test(location.search));   // the preview-test hooks (__pb.T) exist only on a local host or with ?pbtest=1, never in the store app (its pages are served as capacitor://localhost); any call marks this page load's runs as off the leaderboard
 const PBT=o=>{for(const k of Object.keys(o)){const f=o[k];o[k]=(...a)=>{TAINT=true;if(RUN)RUN.ok=false;return f(...a)}}return o};
-window.__pb={get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:{...FR},HR:HRe(),BR,nb,tiers:tierCount.slice(),cents:lastCents,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},tg:()=>tg.map(t=>t.t),pv:()=>({key:PV.s&&PV.s.key,i:PV.i,n:PV.n&&PV.n.length,g:PV.g?+PV.g.gain.value.toFixed(3):null,home:HM.on,ac:AC&&AC.state}),pause:pauseGame,resume:resumeGame,shareImg,STARS,il:()=>instLoad,gaps:()=>{const r=[];for(const it of items)for(const o of bumps)r.push(Math.hypot(it.x-o.x,it.y-o.y)-itemGap(o.Rm));return r},
+window.__pb={get tut(){return tutHold?{k:tutHold.k,btn:tutHold.btn,ok:tutHold.k10ok,ring:tutHold.k10ring,d:tutHold.k10d,box:tutHold.box,pl:tutHold.pl,halo:tutHold.halo,wp:tutHold.wp,lp:tutHold.lp,b:tutHold.b&&{x:tutHold.b.x,y:tutHold.b.y}}:null},get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:{...FR},HR:HRe(),BR,nb,tiers:tierCount.slice(),cents:lastCents,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},tg:()=>tg.map(t=>t.t),pv:()=>({key:PV.s&&PV.s.key,i:PV.i,n:PV.n&&PV.n.length,g:PV.g?+PV.g.gain.value.toFixed(3):null,home:HM.on,ac:AC&&AC.state}),pause:pauseGame,resume:resumeGame,shareImg,STARS,il:()=>instLoad,gaps:()=>{const r=[];for(const it of items)for(const o of bumps)r.push(Math.hypot(it.x-o.x,it.y-o.y)-itemGap(o.Rm));return r},
   T:PBT_ON?PBT({setTs(v){ts=v},setSong(i){si=i},skyRes(k,d,ok){const j=SONGS.findIndex(x=>x.key===k);if(j<0)return null;mode='normal';si=j;song=SONGS[si];di=d;D=DIFFS[d];score=1000;tierCount=[tg.length||10,0,0,0];missCount=0;st='done';showResult(ok,'');const r=$('#rsky');return r.hidden?'':r.textContent},rock(x,y,Rm){bumps.push({x,y,Rm,age:1,life:999})},clearRocks(){bumps.length=0},setLife(n){life=n;hud()},runAll:()=>RUN&&RUN.log.slice(),arc:()=>({c:!!arcC,arcs:balls.map(b=>b.arc?{A:b.arc.A,W:b.arc.W,u:b.arc.u,dodged:b.arc.dodged,prev:b.arc.prev}:null),score,fl:floats.map(f=>f.text),ev:evq.slice(),n:lsGet('ppl-arc-n'),last:arcLast}),setResolved(n){resolved=n},onFrame(f){pbF=f},err(v){pbE=v},arcGo(dy,ms){const c=arcC;if(!c)return false;arcC=null;arcStart(c,dy,ms||16);return true},hit(x,y){tap(x,y,{isTrusted:true,pointerId:1})},pracGo:(spd,from)=>pracGo(from,spd),res(ok,msg){st=ok?'done':'over';showResult(ok,msg||'')},pr:()=>({pracCfg,mode,SPD,runFrom,life,RUN:!!RUN,ok:RUN?RUN.ok:null,taint:TAINT,cpti:cp.ti,score,sub:$('#sub').textContent}),run:()=>RUN&&RUN.log.slice(0,12),wn(n){DU.wn=n}}):undefined};   // T: hooks for the preview tests of star arc / practice / first clear
 })();

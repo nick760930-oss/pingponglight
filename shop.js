@@ -242,7 +242,7 @@ function cell(it){
   else if(cat==='plate')vis='<div class="ctr">'+C.plateHTML(it.id,C.state.eq.avatar,TX('小光'),'',22)+'</div>';
   else if(cat==='avatar')vis='<div class="ctr">'+C.avHTML(C.avSpec(it.id,2),44)+'</div>';
   else if(cat==='title')vis='<div class="ctr">'+C.titleHTML(it.id)+'</div>';
-  else if(cat==='emote')vis='<div class="ctr" style="font-size:12px;color:#cfd5f5;text-align:center;line-height:1.5"><span>'+C.emo(it.list.slice(0,3).join(TX('　')))+'</span></div>';
+  else if(cat==='emote')vis='<div class="ctr" style="font-size:12px;color:#cfd5f5;text-align:center;line-height:1.5"><span>'+C.emo(it.list.slice(0,3).join(' '))+'</span></div>';
   else if(cat==='share')vis='<div class="ctr"><span style="'+esc(it.css)+';border-radius:8px;padding:6px 16px;font-size:12px;font-weight:700">'+esc(it.name)+'</span></div>';
   else vis='';
   const lk=!isOwn(it)&&it.how!=='buy'?' lk':'';
@@ -253,7 +253,7 @@ function grid(){
   const g=$('#shGrid'),coll=UI.view==='coll';g.className='shGrid';
   if(UI.cat==='full'){
     g.classList.add('one');const f=C.byId.full,own=isOwn(f);
-    g.innerHTML='<div class="shFull"><div class="ic">'+C.emo('🌌')+'</div><div style="flex:1">'+TX('<b>完整版　{price}</b><br>解除每個星座 30% 的上限：71 首全部可以過關解鎖（免費版 27 首）。之後新增的正式曲目也包含在內。一次買斷，不訂閱、沒有廣告。',{price:MODE==='test'?TX('測試期間免費'):priceTxt(f)})+'</div>'
+    g.innerHTML='<div class="shFull"><div class="ic">'+C.emo('🌌')+'</div><div style="flex:1">'+TX('<b>完整版・{price}</b><br>解除每個星座 30% 的上限：71 首全部可以過關解鎖（免費版 27 首）。之後新增的正式曲目也包含在內。一次買斷，不訂閱、沒有廣告。',{price:MODE==='test'?TX('測試期間免費'):priceTxt(f)})+'</div>'
       +(own?'<span class="pr own">'+TX('已擁有')+'</span>':unavail(f)?'<button disabled>'+TX('尚未開放')+'</button>':'<button class="gold" data-buy="full">'+(MODE==='test'?TX('取得'):TX('購買'))+'</button>')+'</div>'
       +'<div class="shNote">'+TX('獎勵星座和音符座一律免費，只要玩就能取得。')+'</div>';return}
   if(UI.cat==='sponsor'){
@@ -322,7 +322,7 @@ function pview(){
   }else if(it.how==='buy'&&UI.view==='shop'){
     b+=MODE==='test'?'<button class="gold" data-act="buy">'+TX('取得')+'</button>':unavail(it)?'<button disabled>'+TX('尚未開放')+'</button>':'<button class="gold" data-act="buy">'+TX('購買 {price}',{price:priceTxt(it)})+'</button>';
   }else if(!own&&it.how!=='invite'){b+='<button disabled>'+(it.how==='sponsor'?TX('贊助取得'):it.how.indexOf('lv:')===0?TX('等級取得'):TX('成就取得'))+'</button>'}
-  const priceLine=!own&&it.how==='buy'?'<div class="d" style="color:#ffd36b">'+(MODE==='test'?TX('測試期間免費'):priceTxt(it))+(it.cat==='theme'?TX('　（單買 {n} 件要 NT${price}）',{n:5,price:150}):'')+'</div>':'';
+  const priceLine=!own&&it.how==='buy'?'<div class="d" style="color:#ffd36b">'+(MODE==='test'?TX('測試期間免費'):priceTxt(it))+(it.cat==='theme'?' '+TX('（單買 {n} 件要 NT${price}）',{n:5,price:150}):'')+'</div>':'';
   p.innerHTML=top+'<div class="t">'+esc(it.name)+'</div><div class="d">'+C.emo(it.desc)+'</div>'+priceLine+(how?'<div class="d">'+how+'</div>':'')+(it.limited?'<div class="d" style="color:#c9b6ff">'+TX('限定')+'</div>':'')+keep+'<div class="btns">'+b+'</div>';
   if(vis){const cv=p.querySelector('canvas.big');pvScene(cv,pvT(it))}
 }

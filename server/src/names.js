@@ -36,10 +36,32 @@ function jaBad(flat, name) {   // flat: lower case, letters and digits only
   return JA_KATA.test(flat) || JA.some(w => h.includes(w)) || (name && JA_NAME.some(w => h.includes(w)));
 }
 
-// same character rules as the duel lobby: no control characters, no markup characters, at most 12 characters
-export const cleanName = v => Array.from(String(v == null ? '' : v).normalize('NFKC')
-  .replace(/[\u00ad\u115f\u1160\u3164\uffa0\u0000-\u001f\u007f-\u009f​-‏‪-‮⁠-⁯﻿<>&"'`\\]/g, '')
-  .replace(/\s+/g, ' ').trim()).slice(0, 12).join('').trim();
+// Nickname length (v65): counted in width units, at most NAME_MAX. Full-width characters (Chinese, Japanese, full-width symbols,
+// emoji) count 2, half-width ones 1, so 8 CJK characters or 16 letters/digits. Cut at grapheme boundaries, never inside an emoji
+// sequence (keycaps, skin tones, flags, ZWJ sequences). Same rule as game.js (nameW / nameClip).
+// Zero-width parts (variation selector, keycap mark, skin tone, joiner) cannot be stacked: a grapheme of more than G_MAX code points
+// keeps only its first one, a grapheme that starts with a zero-width part is dropped; a skin tone stays only right after an emoji, and a variation selector or keycap mark is not repeated.
+export const NAME_MAX = 16;
+const G_MAX = 12;
+const NAME_WIDE = /[\u1100-\u115f\u2e80-\u303e\u3041-\u33ff\u3400-\u4dbf\u4e00-\u9fff\ua000-\ua4cf\uac00-\ud7a3\uf900-\ufaff\ufe30-\ufe6f\uff00-\uff60\uffe0-\uffe6\u231a-\u23ff\u25a0-\u27bf\u2b00-\u2bff]|\p{Extended_Pictographic}/u;
+const ZW = /[\u200d\ufe0f\u20e3]/u, TONE = /[\u{1f3fb}-\u{1f3ff}]/u;
+const charW = c => ZW.test(c) || TONE.test(c) ? 0 : NAME_WIDE.test(c) ? 2 : 1;
+export const nameWidth = s => { let w = 0; for (const c of String(s == null ? '' : s)) w += charW(c); return w; };
+const SEG = (() => { try { return typeof Intl !== 'undefined' && Intl.Segmenter ? new Intl.Segmenter(undefined, { granularity: 'grapheme' }) : null; } catch (e) { return null; } })();
+const graphemes = s => SEG ? Array.from(SEG.segment(s), x => x.segment) : Array.from(s);
+function fixG(g) {   // a skin tone stays only right after an emoji; a variation selector or keycap mark is not repeated
+  g = g.replace(/(?<!\p{Extended_Pictographic})[\u{1f3fb}-\u{1f3ff}]/gu, '').replace(/([\ufe0f\u20e3])\1+/gu, '$1');
+  const cp = Array.from(g); if (cp.length > G_MAX) g = cp[0]; const f = Array.from(g)[0] || ''; if (!f || ZW.test(f) || TONE.test(f)) return ['', 0]; return [g, nameWidth(g)];
+}
+export function clipName(s, max = NAME_MAX) { let w = 0, o = ''; for (const g0 of graphemes(String(s))) { const [g, n] = fixG(g0); if (!g) continue; if (w + n > max) break; w += n; o += g; } return o; }
+
+// same character rules as the duel lobby: no control characters, no markup characters, no invisible characters; the zero-width
+// joiner is kept only between two emoji (inside a ZWJ sequence); at most `max` width units (NAME_MAX for a nickname that is set;
+// the rooms pass a wider cap so a nickname kept from the old 12-character rule is not cut). The input is capped first, so the work stays small.
+export const cleanName = (v, max = NAME_MAX) => clipName(String(v == null ? '' : v).slice(0, 256).replace(/[\ud800-\udbff]$/, '').normalize('NFKC')
+  .replace(/[\u00ad\u115f\u1160\u3164\uffa0\u0000-\u001f\u007f-\u009f\u200b\u200c\u200e\u200f\u202a-\u202e\u2060-\u206f\ufeff<>&"'`\\]/g, '')
+  .replace(/\u200d+/gu, (m, i, str) => /\p{Extended_Pictographic}[\ufe0f\u{1f3fb}-\u{1f3ff}]*$/u.test(str.slice(Math.max(0, i - 8), i)) && /^\p{Extended_Pictographic}/u.test(str.slice(i + m.length)) ? '\u200d' : '')
+  .replace(/\s+/g, ' ').trim(), max).trim();
 
 function badWords(text, zh, any, word) {
   const low = text.toLowerCase();
