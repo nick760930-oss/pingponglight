@@ -143,6 +143,7 @@ export async function settle(db, ph, pid, now, o) {
       for (used = m; used > 1; used--) if (MULT_COST[used] <= total && dsp0 + MULT_COST[used] <= DAY_SPEND_CAP) break;   // the highest multiplier that can be paid for (x1 is free)
       cost = MULT_COST[used]; mult = m;
       gain = xpClear(o.song, o.d, o.acc, used, half); base = xpClear(o.song, o.d, o.acc, 1, half); secs = playSecs(o.song, o.d);
+      if (from.lv === 1) { gain = Math.max(gain, needAt(1) - row.xp); if (used === 1) base = gain; }   // the first clear lifts a level-1 player to level 2 (at least): a short, low-accuracy clear still gets there
     } else if (kind === 'duel') {                              // a duel round the server judged: x2..x3.5, no light spent
       gain = base = xpClear(o.song, o.d, o.acc, o.mult, half); secs = playSecs(o.song, o.d);
     } else if (kind === 'fail') {

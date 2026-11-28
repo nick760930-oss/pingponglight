@@ -795,6 +795,28 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
 .xpr .f{display:flex;justify-content:space-between;gap:8px;font-size:var(--f-xs);color:var(--dim);font-variant-numeric:tabular-nums}
 .xpr .n{font-size:var(--f-xs);color:#9aa3d6;line-height:1.45;margin-top:2px}.xpr .n.w{color:#ffb86b}
 @media (max-height:480px){.xpr{padding:4px 10px}.xpr .xbar{margin:3px 0 2px}}
+/* practice, first clear / first fail, daily pick */
+#life.dead{width:100%!important;background:#4b5273}   /* practice, life at 0: the bar stays full length but grey (the run goes on) */
+.pracw{display:flex;flex-direction:column;gap:5px;flex-shrink:0;border:1px solid var(--ln);border-radius:var(--r-m);padding:6px 8px;background:rgba(255,255,255,.03)}
+.pracw .ph{display:flex;align-items:center;justify-content:space-between;font-size:var(--f-sm);color:#cfd5f5;font-weight:700}
+.pracw .pr{display:flex;align-items:center;gap:6px;font-size:var(--f-xs);color:#9aa3d6}
+.pracw .pr>span{flex:0 0 auto;min-width:2.4em}
+.pracw .pr .mseg{flex:1 1 auto;grid-template-columns:repeat(auto-fit,minmax(0,1fr))}
+.pracw .pr .mseg button{min-height:30px;font-size:var(--f-sm);white-space:normal;line-height:1.15;padding:2px 4px}
+.pracw .pr .mseg button.on::before{display:none}
+.pracw .px{font-size:var(--f-xs);line-height:1.4;color:#9aa3d6}
+.hrec{display:block;margin:8px auto 0;min-height:var(--bh-s);padding:0 14px;font-size:var(--f-sm);color:#cfd5f5;background:rgba(255,255,255,.05);max-width:min(340px,100%);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hrec[hidden]{display:none}
+@media (max-height:480px){.hrec{margin-top:6px;min-height:28px}}
+#fcl{z-index:6}
+.fcc{max-width:400px;text-align:center}
+.fcc .kicker{color:#ffd36b;letter-spacing:.3em;font-size:var(--f-md)}
+.fcb{font-size:var(--f-2xl);font-weight:900;margin:8px 0 4px}
+#end.tutdone .rcard{margin:10px auto 0;padding:10px 18px;border:1px solid var(--ln);border-radius:var(--r-m);background:rgba(255,255,255,.05);max-width:340px}
+#end.tutdone .rcard .rk1{font-size:var(--f-sm);color:var(--dim)}#end.tutdone .rcard .rk2{font-size:var(--f-xl);font-weight:800;margin-top:2px}#end.tutdone .rcard .rk2 small{font-size:var(--f-md);color:var(--dim);font-weight:400;margin-left:6px}
+#end.tutdone .ffl{font-size:var(--f-lg);color:#e8ecff}#end.tutdone .ffl b{color:var(--accent);font-size:var(--f-xl)}
+#end.tutdone .ffbar{height:8px;border-radius:4px;background:rgba(255,255,255,.1);overflow:hidden;width:min(360px,80%);margin:8px auto}#end.tutdone .ffbar i{display:block;height:100%;background:linear-gradient(90deg,#5fe0ff,#9b7bff)}
+#end.tutdone .ffd{font-size:var(--f-md);color:#9aa3d6;margin-top:4px}
 /* level-up card and the small notice */
 #lvup{z-index:7}
 .lvc{max-width:380px}
@@ -954,6 +976,7 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
   <div class="tag">節奏彈球遊戲</div>
   <button class="lvnp" id="bNp" aria-label="等級與光能"></button>
   <button class="pri big hpri" id="bStart">開始遊戲</button>
+  <button class="hrec" id="bRec" hidden></button>
   <div class="hm2">
     <button id="bDuel"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(-18 10 12)"><path d="M8.2 15.6h3.6l.4 5.4a1 1 0 0 1-1 1.1H8.8a1 1 0 0 1-1-1.1z" fill="currentColor" stroke="none"/><ellipse cx="10" cy="9" rx="6.6" ry="7" fill="#1b2142"/><ellipse cx="10" cy="9" rx="6.6" ry="7" fill="currentColor" fill-opacity=".22"/></g><path class="it" d="M17.5 21 19.6 17.6"/><circle class="ib" cx="20.4" cy="15.2" r="2.5"/></svg> 線上對戰</button>
     <button id="bShop"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 2.8h6M10 2.8v4L6.2 12a5.6 5.6 0 0 0 4.5 9h2.6a5.6 5.6 0 0 0 4.5-9L14 6.8v-4"/><path d="M7.4 13.2h9.2" opacity=".55"/><circle class="ib" cx="12" cy="16.6" r="2.6"/></svg> 商城</button>
@@ -984,6 +1007,7 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
       <div class="mt" id="sM"></div>
       <p class="tip" id="sT"></p>
       <div class="seg" id="diffs"></div>
+      <div class="pracw" id="pracW" hidden></div>
       <div class="rnote" id="rnote"></div>
       <div class="mulw" id="mulW"><div class="mulh"><span>光能倍率</span><span class="lgt" id="mulL"></span></div><div class="mseg" id="mulS" role="group" aria-label="光能倍率"></div><div class="mulx" id="mulX"></div></div>
       <div class="best" id="sB"></div>
@@ -1013,6 +1037,7 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
   <div class="shTop"><button id="lvBk" class="back">‹ 返回</button><h2>我的星卡</h2><span class="shsp"></span></div>
   <div class="lvBody"><aside class="lvSide" id="lvSide"></aside><section class="lvMain"><div class="lvTop" id="lvTop"></div><div class="achtabs" id="lvTabs" role="tablist" aria-label="等級與光能"></div><div class="lvList" id="lvList"></div><div class="lvExp" id="lvExp" hidden></div></section></div>
 </div></div>
+<div class="ov hidden" id="fcl"><div class="card fcc" role="dialog" aria-modal="true" aria-labelledby="fcK"><div class="kicker" id="fcK"></div><div class="fcb" id="fcB"></div><div class="row"><button class="pri" id="fcGo"></button></div></div></div>
 <div class="ov hidden" id="lvup"><div class="card lvc" role="dialog" aria-modal="true" aria-labelledby="luK"><div class="kicker" id="luK">LEVEL UP</div><div class="ud" id="luD"></div><div class="un" id="luN"></div><div id="luG"></div><div class="row"><button class="pri" id="luEq">立即裝備</button><button id="luOk">繼續</button></div></div></div>
 <div id="lvTip" hidden></div>
 
@@ -1025,7 +1050,7 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
       <div class="xpr" id="xpr" hidden></div>
       <button class="skyHint" id="rsky" hidden></button></div>
   </div>
-  <div class="row"><button class="pri" id="bNext">下一關</button><button class="pri" id="bCont">從存檔點繼續</button><button id="bRetry">再挑戰一次</button><button id="bSel">關卡選擇</button><button id="bShare">分享成績</button></div>
+  <div class="row"><button class="pri" id="bNext">下一關</button><button class="pri" id="bCont">從存檔點繼續</button><button id="bRetry">再挑戰一次</button><button id="bPrac" style="display:none"></button><button id="bSel">關卡選擇</button><button id="bShare">分享成績</button></div>
   <div class="dend" id="dEnd">
     <div class="dl"><div class="kicker" id="deK"></div><div class="dsong" id="deS"></div><div class="dres" id="deR"></div><div class="dsc" id="deSc"></div><div class="pod" id="dePod"></div></div>
     <div class="dr"><div class="dtab" id="deT"></div><div class="dme" id="deMe"></div><div class="dxp" id="deXp" hidden></div><div class="dnote" id="deN"></div>

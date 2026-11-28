@@ -64,6 +64,8 @@ const perfect = (s, d) => Array.from({ length: N(s, d) }, () => [0, 300]);
 const sub = (P, s, d, m = 1, log = perfect(s, d)) => post('/lb/submit', { run: ticket(P.id, P.ph, s, d, m), pk: P.pk, log });
 const end = (P, s, d, kind, m = 1, log, ageMs = kind === 'quit' ? 900e3 : 20e3) => post('/lb/end', { run: ticket(P.id, P.ph, s, d, m, ageMs), pk: P.pk, kind, ...(log ? { log } : {}) });
 const prog = P => q1('SELECT * FROM prog WHERE ph = ?', P.ph);
+const lv2 = P => setProg(P, { xp: L.needAt(1) });   // a player who starts above level 1: the first clear's lift to level 2 (test/firstclear.mjs, the last section here) does not touch the plain formulas below
+const X0 = L.needAt(1);
 const setProg = (P, o) => { for (const [k, v] of Object.entries(o)) sql.prepare(`UPDATE prog SET ${k} = ? WHERE ph = ?`).run(v, P.ph); };
 const light = P => { const r = prog(P); return { nat: r.nat, sub: r.sub, paid: r.paid }; };
 const today = () => L.dayOf(Date.now());
@@ -117,23 +119,23 @@ const today = () => L.dayOf(Date.now());
 
 // ---- clearing a run: experience, multiplier, light ----
 {
-  const P = await player(); await lvme({ pk: P.pk });
+  const P = await player(); await lvme({ pk: P.pk }); lv2(P);
   let r = await sub(P, S, 1, 1);
   const e1 = L.xpClear(S, 1, 10000, 1, 1);
-  ok(r.j.ok && r.j.lv && r.j.lv.gain === e1 && r.j.lv.base === e1 && r.j.lv.used === 1 && r.j.lv.cost === 0 && r.j.lv.xp === e1, 'submit x1: gain = formula: ' + JSON.stringify(r.j.lv));
-  ok(r.j.lv.from.lv === 1 && r.j.lv.from.cur === 0 && Array.isArray(r.j.lv.ups) && r.j.lv.ups.length === 0 && Array.isArray(r.j.lv.rewards) && r.j.lv.light.total === 60 && prog(P).xp === e1, 'submit: from / ups / rewards / light in the answer, xp stored');
-  ok(r.j.lv.pass === 0 && r.j.lv.half === false && r.j.lv.dsec === Math.round(L.playSecs(S, 1)) && r.j.lv.mult === 1 && r.j.lv.title === '', 'submit: dsec counts the song length');
+  ok(r.j.ok && r.j.lv && r.j.lv.gain === e1 && r.j.lv.base === e1 && r.j.lv.used === 1 && r.j.lv.cost === 0 && r.j.lv.xp === X0 + e1, 'submit x1: gain = formula: ' + JSON.stringify(r.j.lv));
+  ok(r.j.lv.from.lv === 2 && r.j.lv.from.cur === 0 && Array.isArray(r.j.lv.ups) && r.j.lv.ups.length === 0 && Array.isArray(r.j.lv.rewards) && r.j.lv.light.total === 60 && prog(P).xp === X0 + e1, 'submit: from / ups / rewards / light in the answer, xp stored');
+  ok(r.j.lv.pass === 0 && r.j.lv.half === false && r.j.lv.dsec === Math.round(L.playSecs(S, 1)) && r.j.lv.mult === 1 && r.j.lv.title === 'title.lvtest2', 'submit: dsec counts the song length');
   // x3: costs 10 from the natural pool
   r = await sub(P, S, 1, 3); const e3 = L.xpClear(S, 1, 10000, 3, 1);
   ok(r.j.lv.used === 3 && r.j.lv.cost === 10 && r.j.lv.gain === e3 && r.j.lv.base === e1 && light(P).nat === 50, 'submit x3: 10 light spent, 3x experience');
   const lg = qa('SELECT * FROM lightlog WHERE ph = ? AND kind = ?', P.ph, 'spend'); ok(lg.length === 1 && lg[0].pool === 'nat' && lg[0].amt === -10 && lg[0].ref === S + '.1', 'lightlog: one spend row, negative');
-  ok(prog(P).mult === 3 && prog(P).dspend === 10 && prog(P).xp === e1 + e3, 'prog: last multiplier, spent today, xp');
+  ok(prog(P).mult === 3 && prog(P).dspend === 10 && prog(P).xp === X0 + e1 + e3, 'prog: last multiplier, spent today, xp');
   // lower accuracy
   const log = perfect(S, 1); for (let i = 0; i < 12; i++) log[i] = null;
   r = await post('/lb/submit', { run: ticket(P.id, P.ph, S, 1, 1), pk: P.pk, log });
   ok(r.j.lv.gain === L.xpClear(S, 1, r.j.acc, 1, 1) && r.j.lv.gain < e1, 'submit: experience follows the server-computed accuracy ' + JSON.stringify([r.j.acc, r.j.lv, e1]));
   // the long song and difficulties
-  const Q = await player(); r = await sub(Q, LONG, 0, 1); ok(r.j.lv.gain === 35, 'prelude easy perfect: 35');
+  const Q = await player(); await lvme({ pk: Q.pk }); lv2(Q); r = await sub(Q, LONG, 0, 1); ok(r.j.lv.gain === 35, 'prelude easy perfect: 35');
   r = await sub(Q, LONG, 4, 4); ok(r.j.lv.gain === L.xpClear(LONG, 4, 10000, 4, 1) && r.j.lv.used === 4 && light(Q).nat === 45, 'expert x4: 15 light');
   // order of spending: nat, then sub, then paid
   const O = await player(); await lvme({ pk: O.pk }); setProg(O, { nat: 3, sub: 4, paid: 10 });
@@ -141,7 +143,7 @@ const today = () => L.dayOf(Date.now());
   ok(r.j.lv.used === 4 && r.j.lv.cost === 15 && o.nat === 0 && o.sub === 0 && o.paid === 2, 'spend order: nat 3, sub 4, paid 8 -> ' + JSON.stringify(o));
   const lgs = qa('SELECT pool, amt FROM lightlog WHERE ph = ? AND kind = ? ORDER BY id', O.ph, 'spend'); ok(lgs.map(x => x.pool + x.amt).join() === 'nat-3,sub-4,paid-8', 'lightlog: one row per pool');
   // not enough light: drops to the highest multiplier that can be paid
-  const D = await player(); await lvme({ pk: D.pk }); setProg(D, { nat: 7, sub: 0, paid: 0 });
+  const D = await player(); await lvme({ pk: D.pk }); setProg(D, { nat: 7, sub: 0, paid: 0 }); lv2(D);
   r = await sub(D, S, 1, 4); ok(r.j.lv.used === 2 && r.j.lv.cost === 5 && light(D).nat === 2 && r.j.lv.gain === L.xpClear(S, 1, 10000, 2, 1), 'not enough for x4 / x3: x2 (7 light -> 2)');
   r = await sub(D, S, 1, 4); ok(r.j.lv.used === 1 && r.j.lv.cost === 0 && light(D).nat >= 2 && light(D).nat <= 3, 'not enough for anything: x1, nothing spent, never negative (nat ' + light(D).nat + ')');
   setProg(D, { nat: 0, sub: 0, paid: 0, nts: Date.now() }); r = await sub(D, S, 1, 3); ok(r.j.lv.used === 1 && light(D).nat === 0 && light(D).sub === 0 && light(D).paid === 0, 'zero light: x1 and still 0');
@@ -159,7 +161,7 @@ const today = () => L.dayOf(Date.now());
 
 // ---- half experience after an hour of play a day ----
 {
-  const P = await player(); await lvme({ pk: P.pk }); setProg(P, { day: today(), dsec: 3599 });
+  const P = await player(); await lvme({ pk: P.pk }); lv2(P); setProg(P, { day: today(), dsec: 3599 });
   let r = await sub(P, S, 1, 1); ok(r.j.lv.gain === L.xpClear(S, 1, 10000, 1, 1) && r.j.lv.half === true, 'half: 3599 s played so far is still full; the song takes it past 3600');
   r = await sub(P, S, 1, 1); ok(r.j.lv.gain === L.xpClear(S, 1, 10000, 1, 0.5) && r.j.lv.gain < L.xpClear(S, 1, 10000, 1, 1), 'half: after 3600 s the next song gives half');
   const e = await sub(P, S, 1, 2); ok(e.j.lv.gain === L.xpClear(S, 1, 10000, 2, 0.5) && e.j.lv.base === L.xpClear(S, 1, 10000, 1, 0.5), 'half: the multiplier applies on the halved base');
@@ -228,10 +230,10 @@ const today = () => L.dayOf(Date.now());
 
 // ---- no nickname: anonymous tickets, and the backfill when a nickname is chosen ----
 {
-  const U = anon(); await lvme({ pk: U.pk });
+  const U = anon(); await lvme({ pk: U.pk }); lv2(U);
   const tk = ticket(0, U.ph, S, 1, 2), log = perfect(S, 1);
   let r = await post('/lb/submit', { run: tk, pk: U.pk, log });
-  ok(r.s === 400 && r.j.error === 'noname' && r.j.lv && r.j.lv.gain === L.xpClear(S, 1, 10000, 2, 1) && r.j.lv.used === 2 && prog(U).xp === r.j.lv.gain && light(U).nat === 55, 'anonymous submit: error noname (old games unchanged) plus lv; experience and light settled: ' + JSON.stringify(r.j));
+  ok(r.s === 400 && r.j.error === 'noname' && r.j.lv && r.j.lv.gain === L.xpClear(S, 1, 10000, 2, 1) && r.j.lv.used === 2 && prog(U).xp === X0 + r.j.lv.gain && light(U).nat === 55, 'anonymous submit: error noname (old games unchanged) plus lv; experience and light settled: ' + JSON.stringify(r.j));
   ok(!q1('SELECT 1 FROM players WHERE ph = ?', U.ph) && qa('SELECT * FROM scores').every(s => true) && !q1("SELECT 1 FROM ents WHERE src = 'lv' AND pid = 0"), 'anonymous: no player row, no ents');
   const nS = q1('SELECT COUNT(*) AS n FROM scores').n; await post('/lb/submit', { run: ticket(0, U.ph, S, 1), pk: U.pk, log }); ok(q1('SELECT COUNT(*) AS n FROM scores').n === nS, 'anonymous: nothing on the boards');
   r = await post('/lb/submit', { run: tk, pk: U.pk, log }); ok(r.s === 400 && r.j.error === 'ticket' && !r.j.lv, 'anonymous: a ticket works once');
@@ -266,7 +268,7 @@ const today = () => L.dayOf(Date.now());
 
 // ---- legacy tickets and old games ----
 {
-  const P = await player(); await lvme({ pk: P.pk });
+  const P = await player(); await lvme({ pk: P.pk }); lv2(P);
   const x0 = prog(P).xp; let r = await post('/lb/submit', { run: legacy(S, 1, 600e3), pk: P.pk, log: perfect(S, 1) });
   ok(r.j.ok && r.j.improved && !('lv' in r.j) && prog(P).xp === x0, 'legacy ticket: no experience, no lv in the answer');
   r = await post('/lb/end', { run: legacy(S, 1, 600e3), pk: P.pk, kind: 'quit' }); ok(r.s === 400 && r.j.error === 'ticket', 'legacy ticket cannot end a run (as before)');
@@ -280,10 +282,10 @@ const today = () => L.dayOf(Date.now());
 
 // ---- a settle never counts twice, and survives a rival write ----
 {
-  const P = await player(); await lvme({ pk: P.pk });
+  const P = await player(); await lvme({ pk: P.pk }); lv2(P);
   const tk = ticket(P.id, P.ph, S, 1, 2), log = perfect(S, 1), req = () => post('/lb/submit', { run: tk, pk: P.pk, log });
   const [a, b] = await Promise.all([req(), req()]); const oks = [a, b].filter(x => x.j.ok);
-  ok(oks.length === 1 && prog(P).xp === L.xpClear(S, 1, 10000, 2, 1) && light(P).nat === 55, 'the same ticket twice at once: settled once ' + JSON.stringify([a.j.ok, b.j.ok, a.j.error, b.j.error, prog(P), light(P)]));
+  ok(oks.length === 1 && prog(P).xp === X0 + L.xpClear(S, 1, 10000, 2, 1) && light(P).nat === 55, 'the same ticket twice at once: settled once ' + JSON.stringify([a.j.ok, b.j.ok, a.j.error, b.j.error, prog(P), light(P)]));
   ok(qa('SELECT 1 FROM lightlog WHERE ph = ? AND kind = ?', P.ph, 'spend').length === 1, 'and logged once');
   // a rival changes the row between the read and the write: the guarded update retries on fresh data
   const xp0 = prog(P).xp, pd0 = prog(P).paid;
@@ -589,14 +591,14 @@ const note = (type, t, o = {}) => jws(PKI, { notificationType: type, subtype: o.
 
 // ---- parallel tickets: a newer ticket takes the experience of the older ones ----
 {
-  const P = await player(); await lvme({ pk: P.pk });
+  const P = await player(); await lvme({ pk: P.pk }); lv2(P);
   const mkTk = async () => (await post('/lb/start', { song: S, d: 1, pk: P.pk, m: 2 })).j.run;
   const back = (run, ms) => { const p = run.split('.'); sql.prepare('UPDATE runs SET ts = ts - ? WHERE nonce = ?').run(ms, p[3]); p[2] = String(+p[2] - ms); p.pop(); return sign(p.join('.')); };
   const runs = []; for (let i = 0; i < 5; i++) runs.push(back(await mkTk(), 600e3 + i * 1000));
   ok(qa('SELECT xp FROM runs WHERE pid = ? AND done = 0 ORDER BY ts DESC', P.id).filter(x => x.xp === 1).length === 1, 'start: only the newest open ticket still earns experience');
   let tot = 0, oks = 0; const log = perfect(S, 1);
   for (const run of runs) { const r = await post('/lb/submit', { run, pk: P.pk, log }); if (r.j.ok) { oks++; tot += r.j.lv.gain; } }
-  ok(oks === 5 && tot === L.xpClear(S, 1, 10000, 2, 1) && prog(P).xp === tot, 'five parallel tickets: all five count for the board, only one gives experience: ' + tot);
+  ok(oks === 5 && tot === L.xpClear(S, 1, 10000, 2, 1) && prog(P).xp === X0 + tot, 'five parallel tickets: all five count for the board, only one gives experience: ' + tot);
   ok(qa('SELECT 1 FROM scores WHERE pid = ?', P.id).length === 1, 'the board still takes the run');
   // the answer of an older ticket is a no-gain state
   const r2 = await post('/lb/submit', { run: back(await mkTk(), 700e3), pk: P.pk, log }); const old = back(await mkTk(), 700e3);
@@ -668,6 +670,19 @@ const note = (type, t, o = {}) => jws(PKI, { notificationType: type, subtype: o.
   ok(!q1("SELECT 1 FROM iapnote WHERE uuid = 'n-old'") && !!q1("SELECT 1 FROM iapnote WHERE uuid = 'n-new'"), 'sweep: handled notifications are kept 90 days');
   sql.prepare('INSERT INTO wiped (ph, ts, paid) VALUES (?, ?, 5)').run('w-old', now - 366 * 86400e3); sql.prepare('INSERT INTO wiped (ph, ts, paid) VALUES (?, ?, 5)').run('w-new', now - 300 * 86400e3); await L.levelSweep(env);
   ok(!q1("SELECT 1 FROM wiped WHERE ph = 'w-old'") && !!q1("SELECT 1 FROM wiped WHERE ph = 'w-new'"), 'sweep: wiped is still kept 1 year');
+}
+
+// ---- the first clear lifts a level-1 player to level 2 (the sections above start from level 2 where they check the plain formula) ----
+{
+  const P = await player(), Q = await player(), U = anon();
+  const plain = L.xpClear(S, 1, 10000, 1, 1);
+  ok(plain < L.needAt(1), 'first clear: the plain reward of a clear is below one level (' + plain + ')');
+  const M = null; let r = await end(P, S, 2, 'fail', 1, [M, M, M, M, M, M]); ok(r.j.ok && r.j.lv && r.j.lv.lv === 1 && prog(P).xp < L.needAt(1), 'first clear: a failed run leaves level 1');
+  r = await end(P, LONG, 1, 'quit'); ok(r.j.lv && r.j.lv.lv === 1 && prog(P).xp < L.needAt(1), 'first clear: a quit leaves level 1');
+  r = await sub(P, S, 1, 1); ok(r.j.ok && r.j.lv.from.lv === 1 && r.j.lv.lv === 2 && prog(P).xp >= L.needAt(1) && r.j.lv.ups.join() === '2', '/lb/submit: a level-1 player clears -> level 2 (xp ' + prog(P).xp + ')');
+  const x1 = prog(P).xp; r = await sub(P, S, 1, 1); ok(r.j.lv.from.lv === 2 && r.j.lv.gain === plain && prog(P).xp === x1 + plain, '/lb/submit: the second clear is the plain reward');
+  await lvme({ pk: Q.pk }); setProg(Q, { xp: 500 }); r = await sub(Q, S, 1, 1); ok(r.j.lv.from.lv >= 2 && r.j.lv.gain === plain, '/lb/submit: a level 2+ player is not lifted (' + JSON.stringify([r.j.lv.from.lv, r.j.lv.gain, plain]) + ')');
+  r = await post('/lb/submit', { run: ticket(0, U.ph, S, 1), pk: U.pk, log: perfect(S, 1) }); ok(r.j.lv && r.j.lv.lv === 2, '/lb/submit: a player without a nickname is lifted too (' + (r.j.lv && r.j.lv.lv) + ')');
 }
 
 console.log(fail ? 'FAILED' : 'level tests passed', pass + ' passed, ' + fail + ' failed');

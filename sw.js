@@ -1,5 +1,5 @@
 // PingPongLight service worker: offline support for the static site.
-const CACHE = 'ppl-v61';
+const CACHE = 'ppl-v62';
 const PRECACHE = [
   './',
   'index.html',

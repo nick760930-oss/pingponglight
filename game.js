@@ -481,6 +481,10 @@ const tutOn=()=>!!tutHold&&st==='play'&&!tutHold.menu;
 let st='home',si=0,offset=0,nt=0,resolved=0,nb=1,bi=0,tickQ=[],endAt=0,paused=false,exitT=0;
 let score=0,combo=0,maxCombo=0,tierCount=[0,0,0,0],time=0,ts=1,gAC=0,gT=0,cp={ti:0,score:0},lastCents=0;
 let balls=[],bumps=[],items=[],rings=[],floats=[],parts=[],aims=[],missCount=0,runFrom=0;
+let arcC=null,arcPid=-1,arcLast='',TAINT=false,pbF=null,pbE=null,failTi=-1;   // pbF / pbE: test hooks only (__pb.T.onFrame / T.err): a function run after every frame, a forced timing error for a tap. TAINT: a test hook (__pb.T) or a script's pointer was used this page load: the runs stay off the leaderboard. failTi: the beat of the ball whose miss ended the run (with several balls it can be past resolved)
+//   // star arc (a perfect hit followed by a quick up / down slide, see arcStart): the candidate waiting for the slide, and the pointer that made the hit
+const ARC_MS=120;
+let pracCfg={spd:.75,from:0};   // practice mode (mode 'prac'): speed factor and the beat it starts from; PR is the song-select panel's choice
 let shake=0,flash={a:0,hue:0},easeT=0,starT=0,shield=0,rangeT=0,rangeMul=1,edgeGlow=[0,0,0,0],edgeHue=[0,0,0,0],spawnT=4,itemT=8;
 const LEADIN=2.6,CPN=25;
 // Difficulties. The index is what records, the leaderboard and duels store, so 0-2 keep their old meaning and new ones are added
@@ -606,7 +610,7 @@ function hud(){
   $('#score').textContent=score.toLocaleString();
   if(mode==='duel'){const top=Math.max(score,...DU.board.map(b=>b.s)),o=DU.board[0],tot=score+(o?o.s:0);$('#pf').style.width=(top?score/top*100:100)+'%';duelSub()}   // 2 players: tug of war; more: share of the leader's score
   else $('#pf').style.width=(tg.length?resolved/tg.length*100:0)+'%';
-  const lf=$('#life');lf.style.width=life/lifeMax*100+'%';lf.classList.toggle('low',life<lifeMax*.35);
+  const lf=$('#life');lf.style.width=life/lifeMax*100+'%';lf.classList.toggle('low',life<lifeMax*.35&&mode!=='prac');lf.classList.toggle('dead',mode==='prac'&&life<=0);
   $('#combo').innerHTML=(mlOn()&&st==='play'?'<span class="mlv" style="--c:hsl('+ML_HUE[mlv]+',90%,'+(mlv?68:62)+'%)">'+[0,1,2,3].map(i=>'<i'+(i<=mlv?' class="on"':'')+'></i>').join('')+'</span>'+ML_NAME[mlv]+' · ':'')+(combo>1?TX('連擊 {n}',{n:combo})+' · ':'')+resolved+' / '+tg.length+(rangeT>0?(rangeMul>1?' · '+TX('範圍放大'):' · '+TX('範圍縮小')):'')+(starT>0?' · '+TX('分數×2'):'')+(shield?' · '+TX('護盾')+(shield>1?' ×'+shield:''):'');
 }
 function newBall(ti){
@@ -620,19 +624,21 @@ function startRun(from){
   else D=DIFFS[di];
   RNG=mode==='duel'?mulberry32(DU.seed):Math.random;
   DU.pstreak=0;DU.fogT=0;DU.shrinkT=0;DU.sprint=false;DU.myFin=null;DU.lastS=0;
-  sizeFor();song=SONGS[si];LEADTYPE=song.lead||'triangle';SPD=D.spd;nb=D.nb;prepare(song);
+  sizeFor();song=SONGS[si];LEADTYPE=song.lead||'triangle';SPD=D.spd*(mode==='prac'?pracCfg.spd:1);nb=D.nb;prepare(song);arcC=null;
   from=Math.min(from,Math.max(0,tg.length-1));
   offset=from>0?tg[from].t-.02:0;
   bi=bkList.findIndex(n=>n[0]/100>=offset);if(bi<0)bi=bkList.length;
-  resolved=from;nt=from+nb;score=from?cp.score:0;if(!from)cp={ti:0,score:0};
+  resolved=from;nt=from+nb;score=from&&mode!=='prac'?cp.score:0;if(!from&&mode!=='prac')cp={ti:0,score:0};
   combo=0;maxCombo=0;tierCount=[0,0,0,0];shake=0;exitT=0;easeT=0;starT=0;shield=0;rangeT=0;rangeMul=1;paused=false;resumeCD=0;lifeMax=LIFE0;life=LIFE0;missCount=0;runFrom=from;flash.a=0;edgeGlow=[0,0,0,0];
   bumps=[];items=[];rings=[];floats=[];parts=[];aims=[];hfx=[];spawnT=5;itemT=9;tickQ=[];cutAll();mlv=0;mgrow=0;mlBan=null;
   balls=[];for(let j=0;j<nb;j++)if(from+j<tg.length)balls.push(newBall(from+j));
-  RUN=(mode==='normal'||mode==='duel')&&!from&&(ME||mode==='normal')?{log:new Array(tg.length).fill(null),star:new Uint8Array(tg.length),seq:[],ended:false,ok:true,ticket:null,key:song.key,d:di,duel:mode==='duel',sent:false,m:mode==='normal'?lvEffM():1}:null;   // a player without a nickname gets a ticket too (the server counts experience for them, nothing else)   // only full solo runs can enter the leaderboard; a duel run (duel:true) is only sent to the room (duelLog)
+  failTi=-1;
+  RUN=(mode==='normal'||mode==='duel')&&!from&&(ME||mode==='normal')?{log:new Array(tg.length).fill(null),star:new Uint8Array(tg.length),seq:[],ended:false,ok:!TAINT,ticket:null,key:song.key,d:di,duel:mode==='duel',sent:false,m:mode==='normal'?lvEffM():1}:null;   // a player without a nickname gets a ticket too (the server counts experience for them, nothing else)   // only full solo runs can enter the leaderboard; a duel run (duel:true) is only sent to the room (duelLog)
   endAt=mode==='tut'||mode==='try'?timeOf(tg[tg.length-1].t)+2:timeOf(song.dur)+1.2;
   runPaused=false;runMute0=SET.mel===0&&SET.bk===0;
   st='ready';hudShow(true);preloadSong(song);
   $('#sub').textContent=(mode==='tut'?TX('新手教學'):mode==='try'?TX('外觀試玩'):TX('第 {n} 關',{n:si+1}))+' · '+TX('《{song}》',{song:song.name})+' · '+D.n+' · '+TX('{n} 拍',{n:tg.length})+(nb>1?' · '+BALLS[nb]:'')+(from?' · '+TX('自第 {n} 拍',{n:from+1}):'');
+  if(mode==='prac')$('#sub').textContent=TX('練習中・{spd}×・自第 {n} 拍',{spd:pracCfg.spd,n:from+1});
   hud();
   for(const o of['#home','#menu','#end','#pause','#set','#cal','#shop'])$(o).classList.add('hidden');
 }
@@ -677,7 +683,9 @@ function tap(x,y,e){
   if(!best&&D&&D.side){const half=x>FR.x+FR.w/2?1:3;for(const b of balls){if(!b.win||b.side!==half)continue;const d=Math.abs(b.y-y);if(d<bd){bd=d;best=b}}}   // 入門: anywhere on the ball's half
   rings.push({x,y,r0:6,life:.3,max:.3,hue:best?hueNow():220,w:1.5});     // visual only; a wrong tap makes no sound
   if(!best)return;
-  if(RUN&&e&&e.isTrusted===false)RUN.ok=false;   // a tap made by a script, not a finger: this run stays off the leaderboard
+  const scr=!!e&&e.isTrusted===false;   // a tap made by a script, not a finger: this page load's runs stay off the leaderboard, and no star arc
+  if(scr){TAINT=true;if(RUN)RUN.ok=false}
+  arcPid=!scr&&e&&e.pointerId!=null?e.pointerId:-1;
   bounce(best,x,y);
 }
 cv.addEventListener('pointerdown',e=>{e.preventDefault();tap(e.clientX,e.clientY,e)});
@@ -705,7 +713,7 @@ function pauseGame(){
   if(AC&&AC.state==='running'&&AC.suspend){try{const q=AC.suspend();if(q&&q.catch)q.catch(()=>{})}catch(e){}}
   showPauseMenu();
 }
-function showPauseMenu(){$('#bQuit').textContent=mode==='tut'?TX('離開教學'):mode==='try'?TX('結束試玩'):TX('離開');$('#pause').classList.remove('hidden')}
+function showPauseMenu(){$('#bQuit').textContent=mode==='tut'?TX('離開教學'):mode==='try'?TX('結束試玩'):mode==='prac'?TX('結束練習'):TX('離開');$('#pause').classList.remove('hidden')}
 function resumeGame(){   // audio resumes inside the tap (iOS needs a gesture); the game clock stays frozen during the count-in
   if(!paused||resumeCD)return;
   if(!$('#bugv').classList.contains('hidden'))return;   // not while the bug report is open over the pause menu (lock-screen play button)
@@ -815,14 +823,14 @@ function playMel(ti,cents,vol,gn){   // gn: a spectator times the notes against 
   }
 }
 function resolveTarget(b){
-  resolved++;
+  resolved++;if(b.arc){const a=b.arc,w=a.dodged&&!a.touched;arcLast=(w?'early/':'target/')+a.u.toFixed(2);b.arc=null;if(b.arcTr)b.arcTr.end=time;if(w)arcWin(b,a)}   // a new target (a hit that came before the line): a star arc in flight is over; one that had got past its meteor and never touched one is settled now, once (b.arc is cleared first). A miss clears the arc before this call
   b.ti=nt<tg.length?nt++:-1;
   if(b.ti>=0)b.side=sideOf(b.ti);
-  if(resolved%CPN===0&&resolved<tg.length)cp={ti:resolved,score};
+  if(resolved%CPN===0&&resolved<tg.length&&mode!=='prac')cp={ti:resolved,score};
   hud();
 }
 function bounce(b,tx,ty){
-  const e=tutE!=null?tutE:G()-tT(b.ti),ae=Math.abs(e),ti=tierOf(ae),T=TIERS[ti];
+  const hti=b.ti,e=tutE!=null?tutE:pbE!=null?pbE:G()-tT(b.ti),ae=Math.abs(e),ti=tierOf(ae),T=TIERS[ti];
   const cents=centsOf(e);lastCents=cents;
   const old=b.side,nx=old===1?-1:1;
   const off=clamp((b.y-ty)/HRe(),-1,1),th=(.45+.75*P_FIX)*off;      // touch above the ball -> ball goes down
@@ -850,6 +858,7 @@ function bounce(b,tx,ty){
   if(mode==='tut'&&b.ti===7)tutHitAt=GB();
   resolveTarget(b);
   if(b.ti>=0){planLaps(b);b.vr=0;b.v=ballWant(b);b.vr=b.v}
+  if(ti===0&&mode!=='tut'&&mode!=='try'&&tutE==null&&b.ti>=0)arcC={b,pid:arcPid,hti,base,t0:performance.now(),x0:tx,y0:ty};   // a perfect hit may become a star arc: a quick up / down slide of the same finger within ARC_MS
   if(mode==='duel')duelHit(ti);
 }
 function miss(b){
@@ -864,7 +873,8 @@ function miss(b){
   const hue=sh?190:350;
   rings.push({x:b.x,y:b.y,r0:BR,life:.7,max:.7,hue,w:5});burst(b.x,b.y,hue,24,BR*14,.8);
   if(mode==='duel')duelHit(4);
-  if(life<=0){hud();vib(120);lbEnd('fail');over(TX('生命值歸零'));return}
+  if(b.arc){arcLast='miss/'+b.arc.u.toFixed(2);b.arc=null;if(b.arcTr)b.arcTr.end=time}   // a miss: no star arc
+  if(life<=0&&mode!=='prac'){failTi=b.ti;hud();vib(120);lbEnd('fail');over(TX('生命值歸零'));return}   // practice: life runs out but the run goes on
   if(!sh){shake=Math.max(shake,6);flash.a=.14;flash.hue=350}
   const lineX=old===1?FR.x+FR.w:FR.x,a=rand(-.5,.5);       // the ball comes back into play
   b.x=lineX+nx*BR*.3;b.dx=nx*Math.cos(a);b.dy=Math.sin(a);b.win=null;b.ct=[];
@@ -899,10 +909,11 @@ function rockHit(b,o,h,nx,ny){
   if(r.back)px=2*o.x-px;                                         // out of the far side, at the mirrored point
   if(ok){b.x=px;b.y=clamp(py,FR.y+BR,FR.y+FR.h-BR);b.dx=r.ox;b.dy=r.oy;const v=ballWant(b);
     if(v>1.4*v0+1||v>3*V0){b.x=sx;b.y=sy;b.dx=sdx;b.dy=sdy;ok=false}else b.v=v}
-  if(!ok){o.dim=time;return}                                     // passes straight through
+  if(!ok){o.dim=time;return false}                               // passes straight through
   b.win=null;
   o.st=time;o.hx=o.x+nx*h;o.hy=o.y+ny*h;o.ex=r.back?2*o.x-o.hx:o.hx;o.ey=o.hy;o.odx=b.dx;o.ody=b.dy;
   shake=Math.max(shake,3);
+  return true;
 }
 // where a ball will be t seconds from now if nothing gets in its way (straight on, off the top and bottom walls)
 function ballAt(b,t){const v=b.v||ballWant(b),lo=FR.y+BR,L=FR.h-2*BR;let u=(b.y+b.dy*v*t-lo)%(2*L);if(u<0)u+=2*L;return{x:b.x+b.dx*v*t,y:lo+(u>L?2*L-u:u)}}
@@ -987,14 +998,32 @@ function tryEnd(){   // back to the shop after a trial run (nothing is recorded:
   for(const o of['#end','#pause'])$(o).classList.add('hidden');
   if(window.PPLG&&window.PPLG.onTryEnd)window.PPLG.onTryEnd();else showHome();
 }
+// practice (mode 'prac'): the same card as the tutorial's end, with a title, one line and buttons. Nothing is recorded: no clear, best, rank, sky, experience, leaderboard or achievement
+function pracResult(){
+  hud();const done=Math.max(0,Math.min(resolved,tg.length)-runFrom),played=tierCount[0]+tierCount[1]+tierCount[2]+tierCount[3]+missCount,pr=played?Math.round(tierCount[0]*100/played):0;
+  $('#end').classList.remove('fail','duel');$('#end').classList.add('tutdone');
+  $('#rk').textContent='';$('#rt').textContent=TX('練習結束');
+  $('#rnew').innerHTML='<div class="sub">'+TX('練習了 {n} 拍・完美率 {p}%',{n:done,p:pr})+'</div>';
+  $('#bNext').style.display='none';$('#bCont').style.display='none';$('#bShare').style.display='none';$('#bPrac').style.display='none';
+  $('#bRetry').style.display='';$('#bRetry').textContent=TX('再練習一次');$('#bSel').style.display='';$('#bSel').textContent=TX('關卡選擇');
+  lastRes=null;lvRowOff();RUN=null;
+  $('#end').classList.remove('hidden');
+}
+const recSong=()=>{const i=SONGS.findIndex((_,k)=>CON_OF[k]&&!isRw(k)&&shown(k)&&unlocked(k));return i<0?0:i};   // the first open song: what the tutorial's end card recommends
+const failKey=(i,d)=>'ppl-fail-'+SONGS[i].key+'-'+d;
+const pracFrom=n=>Math.max(0,n-1-8);   // n = the failed beat counted from 1; practice starts a few beats before where the run ended, to get into the rhythm
+function pracGo(from,spd){initAudio();mode='prac';pracCfg={spd:spd||.75,from};startRun(from)}
 function showResult(ok,msg){
   if(mode==='try'){tryEnd();return}
+  if(mode==='prac'){pracResult();return}
   hud();   // st is no longer 'play': clears the music-layer meter behind the result card
   const N=Math.max(1,tg.length-runFrom),hits=tierCount[0]+tierCount[1]+tierCount[2]+tierCount[3],played=Math.max(1,hits+missCount);
   const bp=bpOf(tierCount,ok?N:played),acc=bp/10000;   // acc is only the basis points as a fraction: every rank and every shown percentage comes from bp
   const rank=rankOf(bp,missCount,tierCount[2],tierCount[3]);
   const kS=KEY_SC(si,di),kR=KEY_RK(si,di),prev=parseInt(lsGet(kS)||'0',10);
   const newBest=ok&&mode==='normal'&&score>prev;
+  const failAt=!ok&&mode==='normal'?Math.min((failTi>=0?Math.max(failTi,resolved):resolved)+1,tg.length):null,ff=failAt!=null&&!lsGet('ppl-first-fail'),fcP=ok&&mode==='normal'&&!lsGet('ppl-first-clear');   // failAt: the beat (counted from 1) the run failed on, null when it did not fail - the same number is stored, shown on the card and used for the practice start (the practice mode can start near it); ff: the first failure ever gets an encouraging card; fcP: the first clear ever
+  if(failAt!=null)lsSet(failKey(si,di),String(failAt));
   const skyB=ok&&mode==='normal'?starOf(si):null,skyC=CON_OF[si]?CONS[CON_OF[si][0]]:null,skyCB=!!skyC&&skyDone(skyC),noteB=!!skyB&&regDone();
   if(mode==='tut'){lsSet('ppl-tut','1');evA('tut')}
   else if(ok&&mode==='normal'){
@@ -1008,14 +1037,14 @@ function showResult(ok,msg){
   }
   const found=rwDirty?rwRefresh():[];if(found.length)SKY=null;   // a reward constellation just appeared: the sky is drawn again with it
   $('#rk').textContent=mode==='tut'?'':(ok?TX('通關'):TX('失敗'));
-  $('#rt').textContent=mode==='tut'?TX('教學完成'):TX('第 {n} 關',{n:si+1})+' · '+TX('《{song}》',{song:song.name})+' · '+D.n;
+  $('#rt').textContent=mode==='tut'?TX('教學完成'):ff?TX('挑戰未完成'):TX('第 {n} 關',{n:si+1})+' · '+TX('《{song}》',{song:song.name})+' · '+D.n;
   lastRes={ok,rank,score,acc,bp,maxCombo,name:song.name,label:$('#rt').textContent};
   const rk=$('#rank');rk.textContent=ok?rank:TX('失敗');rk.className=ok&&rank==='SSS'?'rsss':'';rk.style.color=ok?(rank==='SSS'?'':RANK_COL[rank]):'#ff7a93';rk.style.fontSize=ok?(rank.length===3?'clamp(44px,12.5vh,76px)':rank.length===2?'clamp(50px,14vh,86px)':''):'clamp(40px,11vh,64px)';
   {const gp=$('#rgap');gp.textContent=ok&&mode==='normal'?rankGap(bp,missCount,tierCount[2],tierCount[3],tierCount[1]):'';gp.hidden=!gp.textContent}
-  $('#end').classList.toggle('fail',!ok);$('#end').classList.toggle('tutdone',mode==='tut');   // the tutorial's end card is only a title, one line and the buttons (index.html: #end.tutdone)
+  $('#end').classList.toggle('fail',!ok);$('#end').classList.toggle('tutdone',mode==='tut'||ff);   // the tutorial's end card is only a title, one line and the buttons (index.html: #end.tutdone)
   const done=Math.min(resolved,tg.length)-runFrom;
   $('#rbest').innerHTML=newBest?'<span class="badge">'+TX('新紀錄')+'</span>':'';
-  $('#rnew').innerHTML=mode==='tut'?'<div class="sub">'+TX('每通過一關，即開放下一關。')+'</div>':ok?'':'<span class="sub">'+esc(msg||'')+'</span><div class="sub">'+TX('進度 {p}%',{p:Math.round(Math.max(0,Math.min(1,done/N))*100)})+'</div>';
+  $('#rnew').innerHTML=mode==='tut'?'<div class="sub">'+TX('每通過一關，即開放下一關。')+'</div><div class="rcard"><div class="rk1">'+TX('推薦曲目')+'</div><div class="rk2">'+esc(TX('《{song}》',{song:SONGS[recSong()].name}))+'<small>'+DIFFS[3].n+'</small></div></div>':ff?'<div class="ffl">'+TX('本次進行至第 <b>{n}</b> ／ {m} 拍',{n:failAt,m:tg.length})+'</div><div class="ffbar"><i style="width:'+Math.round(Math.min(1,failAt/Math.max(1,tg.length))*100)+'%"></i></div><div class="ffd">'+TX('可使用練習模式，自此處以較慢速度反覆練習。')+'</div>':ok?'':'<span class="sub">'+esc(msg||'')+'</span><div class="sub">'+TX('進度 {p}%',{p:Math.round(Math.max(0,Math.min(1,done/N))*100)})+'</div>';
   const cell=(l,v,c)=>'<div><i style="color:'+c+'">'+l+'</i><b>'+v+'</b></div>';
   $('#rjg').innerHTML=cell(TX('完美'),tierCount[0],'#ffd36b')+cell(TX('極佳'),tierCount[1],'#7cf0ff')+cell(TX('良好'),tierCount[2],'#8fe388')+cell(TX('尚可'),tierCount[3],'#9aa3c7')+cell(TX('失誤'),missCount,'#ff7a93');
   $('#rst').innerHTML='<span>'+TX('最高連擊')+'<b>'+maxCombo+'</b></span><span>'+TX('精準度')+'<b>'+pct(bp)+'</b></span><span>'+TX('完成度')+'<b>'+done+' / '+N+'</b></span>';
@@ -1028,14 +1057,20 @@ function showResult(ok,msg){
     if(full||note||found.length)setTimeout(()=>{if(AC&&!$('#end').classList.contains('hidden'))[62,66,69,74].forEach((p,k)=>voice(p,k*.06,1.6,.12,0,true,busFx))},1500)}
   countUp($('#rscore'),score);
   const hasNext=mode==='tut'||(mode==='normal'&&ok&&si+1<SONGS.length&&unlocked(si+1));
-  $('#bNext').style.display=hasNext?'':'none';$('#bNext').textContent=mode==='tut'?TX('開始第 1 關'):TX('下一關');
+  $('#bNext').style.display=hasNext?'':'none';$('#bNext').textContent=mode==='tut'?TX('開始'):TX('下一關');
   $('#bShare').style.display=mode==='tut'||!ok||!shareOK()?'none':'';
-  const cb=$('#bCont');if(!ok&&cp.ti>0){cb.style.display='';cb.textContent=TX('從第 {n} 拍繼續',{n:cp.ti+1})}else cb.style.display='none';
+  const cb=$('#bCont');if(!ok&&cp.ti>0&&!ff){cb.style.display='';cb.textContent=TX('從第 {n} 拍繼續',{n:cp.ti+1})}else cb.style.display='none';
   $('#end').classList.toggle('duel',mode==='duel');
   if(mode==='duel')duelFinish(ok,rank,acc);
   else for(const id of['bRetry','bSel'])$('#'+id).style.display='';
+  $('#bRetry').textContent=ff?TX('再試一次'):TX('再挑戰一次');$('#bSel').textContent=mode==='tut'?TX('返回主畫面'):TX('關卡選擇');
+  if(mode==='tut')$('#bRetry').style.display='none';
+  if(ff){for(const id of['bSel','bShare','bNext'])$('#'+id).style.display='none'}   // the first-failure card keeps only 'try again' and 'practise from beat N' (every result sets these buttons again, so the next one is back to normal)
+  {const bp2=$('#bPrac');if(failAt!=null){bp2.style.display='';bp2.textContent=TX('自第 {n} 拍練習',{n:pracFrom(failAt)+1});bp2.dataset.f=String(pracFrom(failAt))}else bp2.style.display='none'}
+  if(ff)lsSet('ppl-first-fail','1');
   $('#end').classList.remove('hidden');
   const rl=$('#rlb');rl.hidden=true;lvRowOff();
+  FCP=fcP;if(fcP&&!(!runFrom&&RUN&&RUN.ok)){const tk=lastRes;setTimeout(()=>{if(lastRes===tk)fcShow(null)},1000)}   // a clear that is not sent to the server (continued from a save point, or a script's run): the card has no level to name
   if(ok&&mode==='normal'&&!runFrom){if(RUN&&RUN.ok)LBP=lbSubmit(RUN).catch(()=>{});else if(!ME){rl.hidden=false;$('#rlbT').textContent=TX('設定暱稱後，通關成績將列入排行榜');const b=$('#rlbB');b.textContent=TX('設定暱稱');b.hidden=false}}
   else if(!ok&&mode==='normal'&&!runFrom&&RUN&&RUN.ok&&RUN.endP){LBP=RUN.endP;lvFail(RUN)}
   RUN=null;
@@ -1051,7 +1086,14 @@ function win(){
   setTimeout(()=>{if(st==='done')showResult(true)},500);
 }
 function hudShow(v){$('#hud').style.visibility=v?'visible':'hidden';$('#bPause').style.display=mode==='duel'?'none':'';$('#prog').classList.toggle('duel',v&&mode==='duel')}
-function showHome(){if(SP.on)specOff(false);if(RSEL&&RSEL.on)mpSelOff();docClose();mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');$('#frv').classList.add('hidden');$('#shop').classList.add('hidden');$('#home').classList.remove('hidden');lvPlateRender();lvLoad();skyBadge();audioStatus();frBadge();layout()}
+// home: one small line under the start button, a song for the game day (04:00 Taiwan time turns it over); no reward, nothing recorded
+function recRender(){
+  const b=$('#bRec');if(!b)return;
+  const L=SONGS.map((_,i)=>i).filter(i=>CON_OF[i]&&!isRw(i)&&shown(i)&&unlocked(i)),day=Math.floor((Date.now()+4*3600e3)/86400e3);
+  if(!L.length||!tutDone()){b.hidden=true;return}
+  const i=L[(Math.imul(day,2654435761)>>>0)%L.length];b.dataset.i=String(i);b.textContent=TX('今日推薦曲目：《{song}》',{song:SONGS[i].name});b.hidden=false;
+}
+function showHome(){if(SP.on)specOff(false);if(RSEL&&RSEL.on)mpSelOff();docClose();mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');$('#frv').classList.add('hidden');$('#shop').classList.add('hidden');$('#home').classList.remove('hidden');recRender();lvPlateRender();lvLoad();skyBadge();audioStatus();frBadge();layout()}
 function showSelect(){if(SP.on)specOff(false);mode='normal';setMedia(false);hudShow(false);st='menu';cutAll();balls=[];buildChips();$('#home').classList.add('hidden');$('#end').classList.add('hidden');$('#lbv').classList.add('hidden');$('#menu').classList.remove('hidden');lvLoad();selScroll()}
 
 /* ================= update ================= */
@@ -1063,6 +1105,61 @@ function trailStep(b){const last=b.trail[b.trail.length-1];
   ctStep(b)}
 // cosmetic trails get their own history like the catalog preview: one point per ~60 Hz frame, 22 points, never shortened by a slow ball
 function ctStep(b){if(!b.ct)b.ct=[];if(!(time-b.ctT<.012)){b.ctT=time;b.ct.push({x:b.x,y:b.y});if(b.ct.length>22)b.ct.shift()}}
+/* ---- star arc (星弧) ----
+   A perfect hit followed within ARC_MS by a quick up / down slide of the same finger (at least 1.5 ball widths, mostly vertical) bends the ball's flight:
+   it leaves the plain path by A * sin(PI * u) (u = share of the way to the line), so it is back on the plain path exactly at the line and the speed, the beat
+   and every rule stay as they were. A up = the finger went up. The offset is laid over the plain path each frame (updateBall: taken off first, put on after the walls).
+   It counts as a star arc when the plain path would have met a grown meteor on the way but the ball got past it: that hit's points rise by 10 %.
+   A real bounce off a meteor, a miss or a new target ends the arc without the bonus. Not in the tutorial; no laps / away balls. */
+function arcStart(c,dy,ms){
+  const b=c.b;if(!b||!balls.includes(b)||st!=='play'||paused||b.ti<0||b.laps>0||b.away||b.arc||mode==='tut')return;
+  const W=Math.abs(lineOf(b)-b.x);if(W<BR*6)return;   // too close to the line to bend
+  const sp=Math.abs(dy)/Math.max(.016,ms/1000),A=(dy<0?-1:1)*FR.h/3*clamp(sp/(FR.h*6),.35,1);
+  b.arc={x0:b.x,W,A,prev:0,hti:c.hti,base:c.base,dodged:false,touched:false,u:0,mx:(b.x+lineOf(b))/2,ay:b.y};b.arcTr={pts:[],end:0};
+  if(DU.wn>0&&evq.length<24)evq.push(['arc',n3((b.x-FR.x)/FR.w),n3((b.y-FR.y)/FR.h),n3(A/FR.h)]);
+}
+function arcPush(b){const T=b.arcTr||(b.arcTr={pts:[],end:0});T.end=0;T.pts.push({x:b.x,y:b.y});if(T.pts.length>140)T.pts.shift()}
+function arcLay(b){const a=b.arc,u=clamp(Math.abs(b.x-a.x0)/a.W,0,1),off=u>=1?0:a.A*Math.sin(Math.PI*u),base=b.y;
+  b.y=clamp(base+off,FR.y+BR,FR.y+FR.h-BR);a.prev=b.y-base;a.u=u;if(u<=.5)a.ay=b.y;arcPush(b)}   // ay: where the bend peaks (the notice goes under it)
+function arcCheck(b,px0){   // after the meteors: did the plain path meet one that the ball got past? at the line: the arc is done
+  const a=b.arc;
+  if(!a.dodged&&tT(b.ti)-GB()>=MIR_T){const base=b.y-a.prev,lo=Math.min(px0,b.x)-BR,hi=Math.max(px0,b.x)+BR;
+    for(const o of bumps){const h=bumpH(o);if(h<4)continue;if(o.x>=lo&&o.x<=hi&&Math.abs(base-o.y)<h+BR){a.dodged=true;break}}}
+  if(a.u>=1)arcEnd(b,a.dodged&&!a.touched);
+}
+function arcEnd(b,win,why){const a=b.arc;b.arc=null;arcLast=(win?'win':why||'line')+'/'+a.u.toFixed(2);if(b.arcTr)b.arcTr.end=time;if(win)arcWin(b,a)}
+function arcTxt(x,y){   // the skill's name and what it gave, on the concave side of the bend (x, y = the name's place)
+  const o=(y<FR.y+FR.h/2?1:-1)*BR*3.2;
+  floats.push({x,y,text:TX('星弧'),hue:272,life:1.4,max:1.4,size:2.4},{x,y:y+o,text:TX('完美・分數 ＋10%'),hue:48,life:1.4,max:1.4,size:.9});
+}
+function arcWin(b,a){
+  const nb2=Math.round(a.base*1.1),d=nb2-a.base;
+  if(RUN){const L=a.hti<RUN.log.length?RUN.log[a.hti]:null;if(!Array.isArray(L)||L[1]!==a.base)return;L[1]=nb2}   // the log and the score move together (the server accepts up to 10 % over the plain base, lb.js Q_MAX)
+  score+=d;
+  if(mode!=='prac'&&mode!=='try')lsSet('ppl-arc-n',String((parseInt(lsGet('ppl-arc-n')||'0',10)||0)+1));
+  const ax=a.mx,ay=a.ay-(a.A<0?-1:1)*BR*3.2;arcTxt(ax,ay);
+  rings.push({x:b.x,y:b.y,r0:BR,life:.7,max:.7,hue:272,w:5},{x:b.x,y:b.y,r0:BR*.6,life:.9,max:.9,hue:200,w:3});burst(b.x,b.y,272,26,BR*14,.9);
+  flash.a=Math.max(flash.a,.14);flash.hue=272;vib(20);
+  if(AC)[72,76,79,84,91].forEach((p,i)=>voice(p,i*.045,.9,.09,0,true,busFx));
+  if(DU.wn>0&&evq.length<24)evq.push(['arcw',n3((ax-FR.x)/FR.w),n3((ay-FR.y)/FR.h)]);
+  hud();
+}
+function drawArcTrail(x,b){   // a bright violet-to-white ribbon along the bent path, fading after the arc is over
+  const T=b.arcTr,P=T.pts;if(!(b.arc||b.arcV>time)&&!T.end)T.end=time;
+  const k=T.end?1-(time-T.end)/.8:1;if(k<=0){b.arcTr=null;return}
+  const n=P.length;if(n<2)return;
+  x.save();x.globalCompositeOperation='lighter';x.lineCap='round';x.lineJoin='round';
+  for(const[wm,al,L]of SET.lowFx?[[1.3,.9,90]]:[[2.8,.2,62],[1.5,.5,74],[.7,.95,92]])for(let i=1;i<n;i++){
+    const f=i/n;x.strokeStyle='hsla('+Math.round(268-70*f)+','+Math.round(100-55*f)+'%,'+L+'%,'+(al*k*Math.pow(f,.8)).toFixed(3)+')';x.lineWidth=BR*wm*(.35+.65*f);
+    x.beginPath();x.moveTo(P[i-1].x,P[i-1].y);x.lineTo(P[i].x,P[i].y);x.stroke()}
+  x.restore();
+}
+cv.addEventListener('pointermove',e=>{const c=arcC;if(!c||e.pointerId!==c.pid)return;
+  if(e.isTrusted===false){TAINT=true;if(RUN)RUN.ok=false;arcC=null;return}   // a move made by a script, not a finger: no star arc, and this page load's runs stay off the leaderboard
+  if(performance.now()-c.t0>ARC_MS){arcC=null;return}
+  const dy=e.clientY-c.y0,dx=e.clientX-c.x0;
+  if(Math.abs(dy)>=3*BR&&Math.abs(dy)>2*Math.abs(dx)){arcC=null;arcStart(c,dy,performance.now()-c.t0)}   // 1.5 ball widths (2 * BR is one width) and mostly vertical
+});
 function updateBall(b,dt){
   if(b.pop<1)b.pop=Math.min(1,b.pop+dt*3);
   if(b.sq>0)b.sq=Math.max(0,b.sq-dt*6);
@@ -1074,8 +1171,10 @@ function updateBall(b,dt){
   }
   // speed is recomputed every step from the path still to travel and the time left: it lands exactly on the beat
   if(tT(b.ti)-GB()>.05||b.v<1)b.v=ballWant(b);   // in the last 50 ms keep the (already exact) speed instead of creeping toward the line
+  const hadArc=!!b.arc;if(hadArc)b.y-=b.arc.prev;   // star arc: the walls and the speed work on the plain path; the arc's offset is laid over it below
+  const px0=b.x;
   b.x+=b.dx*b.v*dt;b.y+=b.dy*b.v*dt;
-  trailStep(b);
+  if(!hadArc)trailStep(b);
   // top / bottom walls and the far side line are plain walls (silent)
   if(b.y<FR.y+BR){b.y=FR.y+BR;b.dy=Math.abs(b.dy);wallFx(b,0)}
   else if(b.y>FR.y+FR.h-BR){b.y=FR.y+FR.h-BR;b.dy=-Math.abs(b.dy);wallFx(b,2)}
@@ -1085,15 +1184,19 @@ function updateBall(b,dt){
     if(b.side===1&&b.x>FR.x+FR.w-BR){b.x=FR.x+FR.w-BR;b.dx=-Math.abs(b.dx);b.laps--;b.away=true;wallFx(b,1)}
     else if(b.side===3&&b.x<FR.x+BR){b.x=FR.x+BR;b.dx=Math.abs(b.dx);b.laps--;b.away=true;wallFx(b,3)}
   }
+  if(b.arc)arcLay(b);
   // obstacles are meteors (see rockHit()): a ball moving onto a grown one bounces off it
   for(const o of bumps){
     const h=bumpH(o);if(h<4)continue;
     const rx=b.x-o.x,ry=b.y-o.y,d=Math.hypot(rx,ry)||1;
+    if(b.arc&&d<h+BR)b.arc.touched=true;   // the ball met this meteor (a bounce or a pass-through alike): no star arc from this crossing
     if(b.lbo===o){if(d<h+BR+2)continue;b.lbo=null}   // passing through this one: not again until it is clear of it
     if(d>=h+BR)continue;
     const nx=rx/d,ny=ry/d;if(b.dx*nx+b.dy*ny>=0)continue;   // already leaving it
-    b.lbo=o;rockHit(b,o,h,nx,ny);
+    b.lbo=o;if(rockHit(b,o,h,nx,ny)&&b.arc)arcEnd(b,false,'rock');   // a real bounce: the arc is off, the physics go on as before
   }
+  if(b.arc)arcCheck(b,px0);
+  if(hadArc)trailStep(b);
   const want=(b.side===1?1:-1)*(b.away?-1:1);
   // never close to straight up and down (it would zig-zag between the top and bottom walls): at most 70° from level. A real bounce
   // off an obstacle keeps its own angle up to that (the player's choice, 2026-11-24); launches and rebounds never come near it
@@ -1391,6 +1494,7 @@ function drawBalls(x){
     const sc=b.pop<1?(1-Math.pow(1-b.pop,3)):1,r=BR*sc;
     if(!b.fx){b.fx=BFX.state();const q=BFX.target(combo,starT,time,SET.lowFx);b.fx.h=q.h;b.fx.sat=q.sat;b.fx.g=q.g;b.fx.t=time}
     const dt=paused?0:clamp(time-b.fx.t,0,.1);b.fx.t=time;
+    if(b.arcTr)drawArcTrail(x,b);
     {const now=performance.now(),mv=b.fx.lx!==b.x||b.fx.ly!==b.y;b.fx.lx=b.x;b.fx.ly=b.y;   // a ball that stopped (song over) lets its trail shrink away instead of freezing into a line
       if(mv||paused)b.fx.st=now;else if(now-b.fx.st>40&&(b.trail.length||b.ct&&b.ct.length)){b.trail.shift();if(b.ct)b.ct.shift();b.fx.st=now}}
     const CL=COS?COS.look():null,cO=!!CL&&!CL.orb.def,cT=!!CL&&!CL.trail.def;   // equipped cosmetics; the default look runs exactly the code below
@@ -1653,6 +1757,7 @@ function frame(now){
     const n=Math.max(1,Math.ceil(dt/(1/120))),h=dt/n;      // sub-steps keep the motion smooth and collisions exact
     for(let i=0;i<n;i++){if(g0!=null)simG=g0+h*(i+1);update(h)}   // each sub-step sees its own point in time
     simG=null;
+    if(pbF)pbF();
     if(DU.wn>0)spSend(now);
     draw();
   }catch(e){showErr(e)}                                     // one bad frame must never stop the loop
@@ -2129,7 +2234,7 @@ function spFrame(d){   // one frame from the server: every field is checked, not
   const b=[];for(const q of d.b){if(!Array.isArray(q)||!spNum(q[0],-.5,1.5)||!spNum(q[1],-.5,1.5))return;b.push([q[0],q[1]])}
   const e=[];if(Array.isArray(d.e))for(const x of d.e.slice(0,16)){
     if(x==='fog'||x==='shrink')e.push(x);
-    else if(Array.isArray(x)&&(x.length===3||x.length===5)&&spNum(x[1],-.5,1.5)&&spNum(x[2],-.5,1.5)&&(x[0]==='bump'||(Number.isInteger(x[0])&&x[0]>=0&&x[0]<=4))){const o=[x[0],x[1],x[2]];   // old 3-item hits carry no note and stay silent
+    else if(Array.isArray(x)&&(x.length===3||x.length===5||(x.length===4&&x[0]==='arc'))&&spNum(x[1],-.5,1.5)&&spNum(x[2],-.5,1.5)&&(x[0]==='bump'||x[0]==='arc'||x[0]==='arcw'||(Number.isInteger(x[0])&&x[0]>=0&&x[0]<=4))){const o=[x[0],x[1],x[2]];   // 'arc' / 'arcw' (star arc start / won) are newer: an older viewer skips them   // old 3-item hits carry no note and stay silent
       if(x.length===5&&Number.isInteger(x[0])&&x[0]<=3&&Number.isInteger(x[3])&&x[3]>=0&&x[3]<1e5&&spNum(x[4],-30,30))o.push(x[3],x[4]);
       e.push(o)}}
   const f={g:d.g,b,e,s:dInt(d.s,0,1e8),c:dInt(d.c,0,1e5),l:dInt(d.l,0,100),m:Number.isInteger(d.m)&&d.m>=-1&&d.m<=3?d.m:-1,done:false},last=SP.fr[SP.fr.length-1];
@@ -2145,6 +2250,8 @@ function specEv(e){
   if(e==='shrink'){DU.shrinkT=5;return}
   const x=FR.x+FR.w*e[1],y=FR.y+FR.h*e[2];
   if(e[0]==='bump'){if(bumps.length<10)bumps.push({x,y,Rm:Math.min(FR.w,FR.h)*.1,age:0,life:4});return}
+  if(e[0]==='arc'){let q=null,qd=1e9;for(const c of balls){const dd=Math.abs(c.y-y);if(dd<qd){qd=dd;q=c}}if(q){q.arcV=time+1.6;q.arcTr={pts:[],end:0}}return}   // the ball's positions already carry the bend; this only lights its ribbon
+  if(e[0]==='arcw'){arcTxt(x,y);flash.a=Math.max(flash.a,.1);flash.hue=272;return}
   const j=e[0],nx=x>FR.x+FR.w/2?-1:1,old=nx<0?1:3,lineX=old===1?FR.x+FR.w:FR.x;
   let b=null,bd=1e9;for(const q of balls){const dd=Math.abs(q.y-y);if(dd<bd){bd=dd;b=q}}
   if(b){b.sq=1;b.sqn=old}
@@ -2178,7 +2285,7 @@ function specStep(dt){   // called from update() while spectating
     for(let i=0;i<F.length;i++){if(F[i].g<=rg){a=F[i];c=F[i+1]||F[i]}else{if(i===0)a=c=F[0];break}}
     const u=c.g>a.g?clamp((rg-a.g)/(c.g-a.g),0,1):0,n=a.b.length,bl=SP.bl;
     while(bl.length<n)bl.push({x:0,y:0,dx:0,dy:0,v:0,pop:1,ti:-1,side:1,win:null,trail:[],sq:0,sqn:0,laps:0});bl.length=n;
-    for(let j=0;j<n;j++){const p=a.b[j],q=c.b[j]||p,b=bl[j];b.x=FR.x+FR.w*(p[0]+(q[0]-p[0])*u);b.y=FR.y+FR.h*(p[1]+(q[1]-p[1])*u);trailStep(b)}
+    for(let j=0;j<n;j++){const p=a.b[j],q=c.b[j]||p,b=bl[j];b.x=FR.x+FR.w*(p[0]+(q[0]-p[0])*u);b.y=FR.y+FR.h*(p[1]+(q[1]-p[1])*u);trailStep(b);if(b.arcV>time)arcPush(b)}
     while(F.length>3&&F[1].g<rg-1)F.shift();
   }
   for(const b of balls)if(b.sq>0)b.sq=Math.max(0,b.sq-dt*6);
@@ -2491,6 +2598,17 @@ async function lbGet(key,d,fresh){
   const v=lbClean(j);LBC.set(k,{t:performance.now(),v});return v;
 }
 var LBP=null;   // the last run's /lb/submit or /lb/end: a new ticket waits for it (briefly), since a new ticket voids the experience of an unsettled one
+// the first clear ever (ppl-first-clear): a card over the result. The server lifts a level-1 player to level 2 with that clear (level.js settle); the card names the level the server answered
+let FCP=false;
+function fcShow(s){
+  if(!FCP||lsGet('ppl-first-clear'))return;FCP=false;lsSet('ppl-first-clear','1');
+  const up=!!(s&&s.from&&s.lv>s.from.lv),nx=mode==='normal'&&si+1<SONGS.length&&unlocked(si+1);
+  $('#fcK').textContent=TX('首次通關');$('#fcB').textContent=up?TX('升到 {lv}',{lv:lvTxt(s.lv)}):'';$('#fcB').hidden=!up;
+  $('#fcGo').textContent=nx?TX('前往下一關'):TX('確定');$('#fcl').classList.remove('hidden');
+}
+$('#fcGo').onclick=()=>{$('#fcl').classList.add('hidden');lvUpClose();
+  if(!$('#end').classList.contains('hidden')&&mode==='normal'&&si+1<SONGS.length&&unlocked(si+1)){initAudio();si++;diSync();startRun(0)}};
+$('#fcl').addEventListener('click',e=>{if(e.target.id==='fcl')$('#fcl').classList.add('hidden')});
 async function lbSubmit(R){
   const t=$('#rlbT'),b=$('#rlbB'),tok=lastRes;if(ME){$('#rlb').hidden=false;b.hidden=true;t.textContent=TX('成績上傳中⋯')}   // without a nickname there is nothing to upload: only the experience row is shown
   lvPending();
@@ -2498,6 +2616,7 @@ async function lbSubmit(R){
   const j=typeof run==='string'?await api('/lb/submit',{run,pk:pkey(),log:R.log,seq:R.seq,star:starRanges(R.star,R.log.length),pf:PF}):{error:run.e};
   if(lastRes!==tok)return;
   lvResult(j,{ok:true,R});
+  fcShow(j&&j.lv?lvClean(j.lv):null);
   if(j.ok&&Array.isArray(j.ach)&&window.PPLA)window.PPLA.fresh(j.ach.filter(x=>typeof x==='string').slice(0,40));   // what this run earned on the server: shown as notices
   if(j.ok&&j.me&&typeof j.me==='object'&&!j.me.hidden){
     const k='ppl-lr-'+R.key+'-'+R.d,prev=dInt(lsGet(k),0,1e9),r=dInt(j.me.r,1,1e9);lsSet(k,String(r));LBC.delete(R.key+'-'+R.d);
@@ -2608,7 +2727,7 @@ navTap('#bNp',()=>{initAudio();lvpOpen()});
 
 /* ---- song select: the multiplier row ---- */
 function lvMulRender(){
-  const w=$('#mulW');if(!w)return;const room=RSEL&&RSEL.on;w.hidden=!!room;if(room)return;
+  const w=$('#mulW');if(!w)return;const room=RSEL&&RSEL.on;w.hidden=!!room||PR.on;if(room||PR.on)return;
   const L=lvLight(),off=LV.off||!L,eff=lvEffM(),s=SONGS[si];
   $('#mulL').innerHTML=off?'<span class="off" style="color:#ffb86b">'+TX('離線')+'</span>':LI+L.total;
   const mh=[1,2,3,4].map(m=>'<button data-m="'+m+'" class="'+(m===eff?'on':'')+(m>1&&(off||!lvCan(m,L))?' off':'')+'">×'+m+'<small>'+(m===1?TX('免費'):TX('{n} 點',{n:LV_COST[m]}))+'</small></button>').join('');
@@ -2911,6 +3030,22 @@ $('#lbv').addEventListener('click',e=>{if(e.target.id==='lbv')lbClose()});
 let selF=0,selTok=0,selTm=0;
 const rkOf=(i,d)=>{const r=lsGet(KEY_RK(i,d));return RANKS.includes(r)?r:''};
 const durTxt=s=>{const t=Math.round(s.dur||0);return TX('{m} 分 {s} 秒',{m:Math.floor(t/60),s:String(t%60).padStart(2,'0')})};
+// the practice panel under the level buttons: a switch, then (on) the speed and where to start
+const PR={on:false,spd:.75,st:'fail'},PR_SP=[.5,.75,1];
+function pracUI(){
+  const w=$('#pracW');if(!w)return;const room=RSEL&&RSEL.on;w.hidden=!!room;
+  if(room){$('#bGo').textContent=TX('開始');return}
+  const fa=parseInt(lsGet(failKey(si,di))||'0',10)||0,st=fa>0&&PR.st==='fail'?'fail':'head',seg=(id,a)=>'<div class="mseg" id="'+id+'" style="grid-template-columns:repeat('+a.length+',minmax(0,1fr))">'+a.join('')+'</div>';
+  let h='<div class="ph"><span id="pracL">'+TX('練習')+'</span><button class="tog'+(PR.on?' on':'')+'" id="pracT" role="switch" aria-checked="'+PR.on+'" aria-labelledby="pracL"></button></div>';
+  if(PR.on)h+='<div class="pr"><span>'+TX('速度')+'</span>'+seg('pracS',PR_SP.map(v=>'<button data-v="'+v+'" class="'+(v===PR.spd?'on':'')+'">'+v+'×</button>'))+'</div>'
+    +'<div class="pr"><span>'+TX('起點')+'</span>'+seg('pracF',['<button data-s="head" class="'+(st==='head'?'on':'')+'">'+TX('從頭')+'</button>'].concat(fa>0?['<button data-s="fail" class="'+(st==='fail'?'on':'')+'">'+TX('上次失敗處（第 {n} 拍）',{n:fa})+'</button>']:[]))+'</div>'
+    +'<div class="px">'+TX('練習不計排行榜、不給經驗、不消耗光能。')+'</div>';
+  w.innerHTML=h;lvMulRender();
+  $('#bGo').textContent=PR.on?TX('開始練習'):TX('開始');
+}
+$('#pracW').addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;
+  if(t.id==='pracT')PR.on=!PR.on;else if(t.dataset.v)PR.spd=+t.dataset.v;else if(t.dataset.s)PR.st=t.dataset.s;else return;
+  pracUI()});
 function buildChips(){
   if(!(RSEL&&RSEL.on))diSync();
   const vis=SONGS.map((_,i)=>shown(i)),nv=vis.filter(Boolean).length,done=SONGS.map((_,i)=>vis[i]&&!!rkOf(i,di)),n2=done.filter(Boolean).length,cnt=[nv,nv-n2,n2];
@@ -2942,7 +3077,7 @@ function selDetail(){
   $('#sB').innerHTML=rk?'<span class="bk'+rsssCls(rk)+'"'+rkColorAttr(rk)+'>'+rk+'</span><span>'+(ac?TX('精準度 <b>{acc}</b>',{acc:pct(ac)})+' · ':'')+TX('最高分 <b>{score}</b>',{score:sc.toLocaleString()})+'<br><span id="sRank"></span></span>'
     :'<span class="bk" style="color:#3c4370">—</span><span>'+TX('此難度尚未通關')+'<br><span id="sRank"></span></span>';
   if(RSEL&&RSEL.on){mpDetail();return}   // a room plays any song: no lock, no personal leaderboard here
-  $('#bGo').disabled=!unlocked(i);
+  $('#bGo').disabled=!unlocked(i);pracUI();
   const t=++selTok,mini=$('#sMini');mini.innerHTML='<p>'+TX('排行榜載入中⋯')+'</p>';
   clearTimeout(selTm);selTm=setTimeout(async()=>{   // wait for the player to settle on a song
     const v=await lbGet(s.key,di);if(t!==selTok)return;const r=$('#sRank');
@@ -3576,17 +3711,20 @@ skyBadge();
 const tutDone=()=>!!lsGet('ppl-tut')||SONGS.some((_,i)=>cleared(i));
 function startTut(){mode='tut';startRun(0)}
 $('#bStart').onclick=()=>{initAudio();goFs();if(!tutDone())startTut();else showSelect()};
+$('#bRec').onclick=()=>{const i=+$('#bRec').dataset.i;if(!(i>=0&&i<SONGS.length))return;initAudio();goFs();si=i;showSelect()};   // into the song list, on that song
 $('#bTut').onclick=()=>{initAudio();goFs();startTut()};
 function onPress(el,fn){let t=-1e9;
   el.addEventListener('pointerup',e=>{e.stopPropagation();t=performance.now();fn()});
   el.addEventListener('click',e=>{e.stopPropagation();if(performance.now()-t>600)fn()});}
 onPress($('#bPause'),()=>{if(paused&&!resumeCD&&!tutOn())resumeGame();else pauseGame()});
 $('#bResume').onclick=resumeGame;
-$('#bRestart').onclick=()=>{$('#pause').classList.add('hidden');lbEnd('quit');doResume();startRun(0)};
+$('#bRestart').onclick=()=>{$('#pause').classList.add('hidden');lbEnd('quit');doResume();startRun(mode==='prac'?pracCfg.from:0)};
 function skipTut(){tutHold=null;tutPend=null;lsSet('ppl-tut','1');$('#pause').classList.add('hidden');doResume();showSelect()}
 
 // in the tutorial, 離開 is the way out of it (marked done, on to the songs); the HUD has no separate skip button
-$('#bQuit').onclick=()=>{if(mode==='tut'){skipTut();return}if(mode==='try'){$('#pause').classList.add('hidden');tryEnd();return}$('#pause').classList.add('hidden');lbEnd('quit');doResume();if(mode==='normal')showSelect();else showHome()};
+$('#bQuit').onclick=()=>{if(mode==='tut'){skipTut();return}if(mode==='try'){$('#pause').classList.add('hidden');tryEnd();return}
+  if(mode==='prac'){$('#pause').classList.add('hidden');doResume();setMedia(false);cutAll();st='done';showResult(true);return}   // practice: leaving shows its own end card
+  $('#pause').classList.add('hidden');lbEnd('quit');doResume();if(mode==='normal')showSelect();else showHome()};
 /* ---- settings ---- */
 function audioDiag(){
   const el=$('#aDiag');if(!el)return;
@@ -3770,11 +3908,14 @@ $('#bugF').addEventListener('change',async e=>{
   bugRender();if(bad)bugSay(TX('有 {n} 張圖片無法讀取，請換一張（JPG 或 PNG）',{n:bad}),1);
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#bugv').classList.contains('hidden'))bugClose()});
-navTap('#bGo',()=>{if(RSEL&&RSEL.on){mpSelGo();return}if(!unlocked(si))return;initAudio();goFs();mode='normal';startRun(0)});
-$('#bNext').onclick=()=>{initAudio();if(mode==='tut'){mode='normal';si=0;diSync();startRun(0)}else if(si+1<SONGS.length&&unlocked(si+1)){si++;diSync();startRun(0)}};
-$('#bRetry').onclick=()=>{initAudio();startRun(0)};
+navTap('#bGo',()=>{if(RSEL&&RSEL.on){mpSelGo();return}if(!unlocked(si))return;initAudio();goFs();
+  if(PR.on){const fa=parseInt(lsGet(failKey(si,di))||'0',10)||0;pracGo(PR.st==='fail'&&fa>0?pracFrom(fa):0,PR.spd);return}
+  mode='normal';startRun(0)});
+$('#bNext').onclick=()=>{initAudio();if(mode==='tut'){mode='normal';si=recSong();if(fixDi(si)==null){if(diPref==null)diPref=di;di=3}else diSync();startRun(0)}else if(si+1<SONGS.length&&unlocked(si+1)){si++;diSync();startRun(0)}};   // the card's run is on the beginner level; the player's own level (pmb6-di) is not touched, and diPref puts it back when the next song is picked
+$('#bRetry').onclick=()=>{initAudio();startRun(mode==='prac'?pracCfg.from:0)};
+$('#bPrac').onclick=()=>pracGo(+$('#bPrac').dataset.f||0,.75);
 $('#bCont').onclick=()=>{initAudio();startRun(cp.ti)};
-$('#bSel').onclick=showSelect;
+$('#bSel').onclick=()=>{if(mode==='tut')showHome();else showSelect()};
 $('#bFs').onclick=toggleFs;
 // Every button fires on touchend, not on the delayed synthetic click (a quick second tap was being eaten).
 // Bound in the bubble phase so navTap's own touchend runs first; a drag of more than 10px is a scroll, not a tap.
@@ -3805,7 +3946,7 @@ addEventListener('pageshow',()=>{vpCheck();layout()});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)setTimeout(()=>{vpCheck();layout()},150)});
 for(const t of[300,1000,2500])setTimeout(()=>{vpCheck();layout()},t);   // a turn during launch can land after the first layout
 if(!unlocked(si))si=0;
-for(const f of[layout,buildChips,hud,audioStatus]){try{f()}catch(e){showErr(e)}}   // one failing step must not stop start-up
+for(const f of[layout,buildChips,hud,audioStatus,recRender]){try{f()}catch(e){showErr(e)}}   // one failing step must not stop start-up
 if(APP){$('#bFs').style.display='none';
   setTimeout(()=>{if(!document.hidden&&st==='home'){try{initAudio()}catch(e){}}},400)}   // the app web view may play without a tap: menu music starts on its own
 else if('serviceWorker' in navigator&&location.protocol==='https:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));hudShow(false);$('#fsHint').style.display=(!(DE.requestFullscreen||DE.webkitRequestFullscreen)&&!standalone)?'block':'none';
@@ -3820,5 +3961,8 @@ try{PPLI18N.back()}catch(e){}   // the page stayed hidden until now (i18n.js), s
 // hooks for shop.js (shop, collection, trial run); the game itself never depends on it
 window.PPLG={lvFrom:o=>lvFrom(o),lvLoad:f=>lvLoad(f),api,pkey,APP,PF,SET,saveSet,lsGet,lsSet,toast,initAudio,esc,get ME(){return ME},showHome,onTryEnd:null,onMe:null,roomSend(o){if(DU.joined)dsend(o)},busy:()=>st==='play'||st==='ready'||st==='over'||st==='done'||mode==='duel',
   startTry(tr){if(!COS)return;initAudio();tryKeep={si,di};COS.state.trial=tr||null;COS.bump();mode='try';startRun(0)}};
-window.__pb={get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:FR,HR:HRe(),BR,nb,tiers:tierCount,cents:lastCents,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},setTs(v){ts=v},setSong(i){si=i},skyRes(k,d,ok){const j=SONGS.findIndex(x=>x.key===k);if(j<0)return null;mode='normal';si=j;song=SONGS[si];di=d;D=DIFFS[d];score=1000;tierCount=[tg.length||10,0,0,0];missCount=0;st='done';showResult(ok,'');const r=$('#rsky');return r.hidden?'':r.textContent},tg:()=>tg.map(t=>t.t),pv:()=>({key:PV.s&&PV.s.key,i:PV.i,n:PV.n&&PV.n.length,g:PV.g?+PV.g.gain.value.toFixed(3):null,home:HM.on,ac:AC&&AC.state}),pause:pauseGame,resume:resumeGame,shareImg,STARS,il:()=>instLoad,gaps:()=>{const r=[];for(const it of items)for(const o of bumps)r.push(Math.hypot(it.x-o.x,it.y-o.y)-itemGap(o.Rm));return r}};
+const PBT_ON=/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)||/[?&]pbtest=1(&|$)/.test(location.search);   // the preview-test hooks (__pb.T) exist only on a local host or with ?pbtest=1; any call marks this page load's runs as off the leaderboard
+const PBT=o=>{for(const k of Object.keys(o)){const f=o[k];o[k]=(...a)=>{TAINT=true;if(RUN)RUN.ok=false;return f(...a)}}return o};
+window.__pb={get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:{...FR},HR:HRe(),BR,nb,tiers:tierCount.slice(),cents:lastCents,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},tg:()=>tg.map(t=>t.t),pv:()=>({key:PV.s&&PV.s.key,i:PV.i,n:PV.n&&PV.n.length,g:PV.g?+PV.g.gain.value.toFixed(3):null,home:HM.on,ac:AC&&AC.state}),pause:pauseGame,resume:resumeGame,shareImg,STARS,il:()=>instLoad,gaps:()=>{const r=[];for(const it of items)for(const o of bumps)r.push(Math.hypot(it.x-o.x,it.y-o.y)-itemGap(o.Rm));return r},
+  T:PBT_ON?PBT({setTs(v){ts=v},setSong(i){si=i},skyRes(k,d,ok){const j=SONGS.findIndex(x=>x.key===k);if(j<0)return null;mode='normal';si=j;song=SONGS[si];di=d;D=DIFFS[d];score=1000;tierCount=[tg.length||10,0,0,0];missCount=0;st='done';showResult(ok,'');const r=$('#rsky');return r.hidden?'':r.textContent},rock(x,y,Rm){bumps.push({x,y,Rm,age:1,life:999})},clearRocks(){bumps.length=0},setLife(n){life=n;hud()},runAll:()=>RUN&&RUN.log.slice(),arc:()=>({c:!!arcC,arcs:balls.map(b=>b.arc?{A:b.arc.A,W:b.arc.W,u:b.arc.u,dodged:b.arc.dodged,prev:b.arc.prev}:null),score,fl:floats.map(f=>f.text),ev:evq.slice(),n:lsGet('ppl-arc-n'),last:arcLast}),setResolved(n){resolved=n},onFrame(f){pbF=f},err(v){pbE=v},arcGo(dy,ms){const c=arcC;if(!c)return false;arcC=null;arcStart(c,dy,ms||16);return true},hit(x,y){tap(x,y,{isTrusted:true,pointerId:1})},pracGo:(spd,from)=>pracGo(from,spd),res(ok,msg){st=ok?'done':'over';showResult(ok,msg||'')},pr:()=>({pracCfg,mode,SPD,runFrom,life,RUN:!!RUN,ok:RUN?RUN.ok:null,taint:TAINT,cpti:cp.ti,score,sub:$('#sub').textContent}),run:()=>RUN&&RUN.log.slice(0,12),wn(n){DU.wn=n}}):undefined};   // T: hooks for the preview tests of star arc / practice / first clear
 })();
