@@ -321,10 +321,15 @@ export async function achRecalc(db, pid, now, run, ensure, more) {
   return { fresh, ids: [...had] };
 }
 
-// the phone says it decided these ("local" achievements): only recorded; unknown or server-decided ids are ignored
+// the phone says it decided these ("local" achievements): recorded; unknown or server-decided ids are ignored.
+// Only the ids in LOCAL_REWARD (today 穿星者 III: the title "穿星者") also give their catalogue item on the phone's word:
+// a title is only a name, nothing a cheater gains by. Every other local achievement (e.g. 分享喜悅, whose reward is an emote) gives points only.
+const LOCAL_REWARD = ['穿星者 III'];
 export async function achLocal(db, pid, ids, now) {
   const ok = [...new Set(ids)].filter(id => typeof id === 'string' && ACHS[id] && ACHS[id].chk === 'l').slice(0, 60);
   for (let i = 0; i < ok.length; i += 90) await db.batch(ok.slice(i, i + 90).map(id => db.prepare('INSERT OR IGNORE INTO achs (pid, ach, ts, loc) VALUES (?1, ?2, ?3, 1)').bind(pid, id, now)));
+  const give = ok.filter(id => LOCAL_REWARD.includes(id)).flatMap(id => grantStmts(db, pid, rewardsOf(id), 'ach', id, now));
+  for (let i = 0; i < give.length; i += 90) await db.batch(give.slice(i, i + 90));
   return ok;
 }
 export async function achList(db, pid) {

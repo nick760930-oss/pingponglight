@@ -29,6 +29,7 @@ import { bugAdmin, bugWipe } from './bugs.js';
 import { withCos, shopWipe } from './cos.js';
 import { achRecalc, logFeats, ftOf, rankOf, statsStmt, duelAdmin } from './ach.js';
 import { settle, ensureProg, lvBackfill, levelWipe } from './level.js';
+import { shadeRoute, inviteDone, inviteWipe } from './shade.js';
 
 const DIFFS = 5, TICKET_MAX_MS = 3 * 3600e3, MAX_BODY = 16384, TOP = 100, HIDE_AT = 3, BOARD_CACHE_S = 30;
 const MAX_ERR = 400, MISS = null;                      // ms; a missed beat is null in the log (0 = a miss the shield absorbed)
@@ -195,6 +196,7 @@ export async function handleLb(req, env, path, who, origin, H, limited) {
   let body; try { const t = await req.text(); if (t.length > MAX_BODY) return json({ error: 'big' }, 413); body = JSON.parse(t); } catch (e) { return json({ error: 'bad' }, 400); }
   if (!body || typeof body !== 'object' || Array.isArray(body)) return json({ error: 'bad' }, 400);
   const db = env.LB, now = Date.now();
+  { const sr = await shadeRoute(path, body, env, db, json, now, who, limited); if (sr) return sr; }   // starshade and invitations (src/shade.js)
 
   if (path === '/lb/name') {                          // register or change the nickname: unique and filtered
     const { pk } = body; if (!isPk(pk)) return json({ error: 'bad' }, 400);
@@ -263,6 +265,7 @@ export async function handleLb(req, env, path, who, origin, H, limited) {
     if (!tk.legacy) {                                 // a new ticket is used once, and only by the player it was issued to (a pid 0 ticket of the same key also counts: the nickname came after the start)
       if (!(tk.pid === pl.id ? await useRun(db, tk.nonce) : tk.pid === 0 && await useRunPh(db, tk.nonce, ph))) return json({ error: 'ticket' }, 400);
     }
+    const firstClear = !(await db.prepare('SELECT 1 FROM scores WHERE pid = ?1 LIMIT 1').bind(pl.id).first());   // no clear on any board yet (an invitation is finished by the first one)
     const prev = await db.prepare('SELECT key FROM scores WHERE board = ?1 AND pid = ?2').bind(b, pl.id).first();
     const seen = await db.prepare('SELECT 1 FROM scores WHERE pid = ?1 AND board LIKE ?2').bind(pl.id, song + '-%').first();   // any difficulty of this song cleared before? (越級者)
     const improved = !prev || r.key > prev.key, F = logFeats(log, CHARTS[song].n[d], d);
@@ -284,8 +287,9 @@ export async function handleLb(req, env, path, who, origin, H, limited) {
         lok: life.dead < 0 && !r.lifeBad ? 1 : 0, lend: life.end, lmin: life.min, sg: r.sg, sc: r.sc, gold: r.gold, pfail: pt ? pt.fails : 0 };   // single-run achievements only exist for a new ticket
       ach = (await achRecalc(db, pl.id, now, { song, d, R, first: !seen }, false)).fresh;
     } catch (e) {}
+    let inv = false; if (firstClear) { try { inv = await inviteDone(db, pl.id, now); } catch (e) {} }   // the invitee's first clear: 同行星芒 for both sides (a failure here never costs the player their score)
     const lv = tk.legacy ? null : await lvRun(db, ph, pl.id, now, tk, { kind: 'clear', acc: r.acc });   // experience and light (src/level.js); a legacy ticket earns none
-    return json({ ok: true, improved, acc: r.acc, err: r.err, score: r.score, rank: r.rank, me, total: await total(db, b), ach, ...(lv ? { lv } : {}) });
+    return json({ ok: true, improved, acc: r.acc, err: r.err, score: r.score, rank: r.rank, me, total: await total(db, b), ach, ...(inv ? { inv: 1 } : {}), ...(lv ? { lv } : {}) });
   }
 
   if (path === '/lb/end') {                           // a run that did not finish: { run, pk, kind: 'fail' | 'quit', log (fail only), star }
@@ -398,6 +402,7 @@ async function wipe(db, id) {                         // a player and everything
     ...friendWipe(db, id), ...bugWipe(db, id), ...shopWipe(db, id), db.prepare('DELETE FROM players WHERE id = ?1').bind(id)]);
   try { await db.prepare('UPDATE duels SET log1 = NULL WHERE id IN (SELECT did FROM duelp WHERE pid = ?1 AND place = 1)').bind(id).run(); } catch (e) {}   // the beat log kept of a round this player won goes with the account
   try { await db.prepare('UPDATE duels SET host = NULL WHERE host = ?1').bind(id).run(); } catch (e) {}   // rounds this player hosted keep no trace of the account
+  try { await db.batch(inviteWipe(db, id)); } catch (e) {}   // invitation code and invitations (a database without migration 0013 must still delete the account)
   for (const t of ['runs', 'tries', 'duelp']) { try { await db.prepare('DELETE FROM ' + t + ' WHERE pid = ?1').bind(id).run(); } catch (e) {} }   // (each on its own: a database without migrations 0010 / 0011 must still delete the account)
   for (const r of bs) await dropCache(r.board);
 }

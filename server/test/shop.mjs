@@ -66,7 +66,7 @@ function staticChecks() {
   ok(ids.length > 150, 'catalog has items: ' + ids.length);
   for (const [id, it] of Object.entries(CATALOG)) {
     ok(id.split('.')[0] === it.cat || id === 'full', 'id starts with its category: ' + id);
-    ok(it.how === 'default' || it.how === 'buy' || it.how === 'sponsor' || it.how.startsWith('ach:') || /^lv:[1-9][0-9]{0,2}$/.test(it.how), 'how is valid: ' + id);
+    ok(it.how === 'default' || it.how === 'buy' || it.how === 'sponsor' || it.how === 'invite' || it.how.startsWith('ach:') || /^lv:[1-9][0-9]{0,2}$/.test(it.how), 'how is valid: ' + id);
     ok(!!it.pid === (it.how === 'buy' || it.cat === 'sponsor'), 'product id only for things that can be bought: ' + id);
     ok(it.vis === (['avatar', 'plate', 'title'].includes(it.cat) ? 1 : 0), 'vis only for avatar, plate and title: ' + id);
     for (const p of it.parts) ok(!!CATALOG[p], 'theme part exists: ' + id + ' -> ' + p);
@@ -161,6 +161,14 @@ async function suiteA(PKI) {
   const loc = r.j.ach.filter(a => a.l === 1).map(a => a.id).sort();
   ok(loc.join() === ['入門完成', '翻閱'].sort().join(), 'only local achievements are taken from the phone: ' + loc.join());
   ok(!r.j.ach.some(a => a.id === '摘星者') && !r.j.owned.includes('title.摘星者'), 'a phone cannot claim a server-decided achievement');
+  ok(!r.j.owned.includes('title.threader'), 'before 穿星者 III the title is not owned');
+  r = await post('/ach/sync', { pk: c.pk, local: ['分享喜悅'] });
+  ok(r.j.ach.some(a => a.id === '分享喜悅' && a.l === 1) && !r.j.owned.includes('emote.music'), '分享喜悅 self-reported records the achievement but gives no emote.music');
+  r = await post('/ach/sync', { pk: c.pk, local: ['穿星者', '穿星者 II', '穿星者 III'] });
+  ok(r.j.ach.filter(a => a.l === 1).map(a => a.id).includes('穿星者 III') && r.j.owned.includes('title.threader'), '穿星者 III (decided on the phone) gives the title 穿星者');
+  r = await post('/shop/equip', { pk: c.pk, slot: 'title', item: 'title.threader' }); ok(r.j.ok, 'the title 穿星者 can be worn');
+  await post('/shop/equip', { pk: c.pk, slot: 'title', item: T('新星') });   // (the room tests below expect 新星 on this player)
+  r = await post('/ach/sync', { pk: c.pk, local: ['穿星者 III'] }); ok(r.j.owned.filter(x => x === 'title.threader').length === 1, 'a second sync does not give it twice');
   ok((await post('/ach/sync', { pk: c.pk, local: 'x' })).s === 400, 'sync: bad local list refused');
   ok((await post('/ach/sync', { pk: pk() })).j.error === 'noname', 'sync: unregistered key refused');
   // duel-only achievements stay closed

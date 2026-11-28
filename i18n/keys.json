@@ -59,7 +59,7 @@
    "at": [
     "game.js:496",
     "game.js:538",
-    "index.html:1064"
+    "index.html:1082"
    ]
   },
   {
@@ -67,7 +67,7 @@
    "at": [
     "game.js:496",
     "game.js:538",
-    "index.html:1064"
+    "index.html:1082"
    ]
   },
   {
@@ -75,7 +75,7 @@
    "at": [
     "game.js:496",
     "game.js:538",
-    "index.html:1064"
+    "index.html:1082"
    ]
   },
   {
@@ -83,7 +83,7 @@
    "at": [
     "game.js:496",
     "game.js:538",
-    "index.html:1064"
+    "index.html:1082"
    ]
   },
   {
@@ -91,7 +91,7 @@
    "at": [
     "game.js:496",
     "game.js:538",
-    "index.html:1064"
+    "index.html:1082"
    ]
   },
   {
@@ -164,40 +164,40 @@
    "id": "完美",
    "at": [
     "game.js:558",
-    "game.js:1049",
-    "game.js:2168"
+    "game.js:1053",
+    "game.js:2173"
    ]
   },
   {
    "id": "極佳",
    "at": [
     "game.js:559",
-    "game.js:1049",
-    "game.js:2168"
+    "game.js:1053",
+    "game.js:2173"
    ]
   },
   {
    "id": "良好",
    "at": [
     "game.js:560",
-    "game.js:1049",
-    "game.js:2168"
+    "game.js:1053",
+    "game.js:2173"
    ]
   },
   {
    "id": "尚可",
    "at": [
     "game.js:561",
-    "game.js:1049",
-    "game.js:2168"
+    "game.js:1053",
+    "game.js:2173"
    ]
   },
   {
    "id": "連擊 {n}",
    "at": [
     "game.js:614",
-    "game.js:2151",
-    "cosmetics.js:1004"
+    "game.js:2156",
+    "cosmetics.js:1007"
    ]
   },
   {
@@ -227,4512 +227,4780 @@
   {
    "id": "新手教學",
    "at": [
-    "game.js:640",
-    "index.html:989"
+    "game.js:642",
+    "index.html:1005"
    ]
   },
   {
    "id": "外觀試玩",
    "at": [
-    "game.js:640"
+    "game.js:642"
    ]
   },
   {
    "id": "第 {n} 關",
    "at": [
-    "game.js:640",
-    "game.js:1040"
+    "game.js:642",
+    "game.js:1043"
    ]
   },
   {
    "id": "《{song}》",
    "at": [
-    "game.js:640",
-    "game.js:1040",
-    "game.js:1047",
-    "game.js:1822"
+    "game.js:642",
+    "game.js:1043",
+    "game.js:1051",
+    "game.js:1827"
    ]
   },
   {
    "id": "{n} 拍",
    "at": [
-    "game.js:640"
+    "game.js:642"
    ]
   },
   {
    "id": "自第 {n} 拍",
    "at": [
-    "game.js:640"
+    "game.js:642"
    ]
   },
   {
    "id": "練習中・{spd}×・自第 {n} 拍",
    "at": [
-    "game.js:641"
+    "game.js:643"
    ]
   },
   {
    "id": "節奏彈球遊戲",
    "at": [
-    "game.js:696",
-    "cosmetics.js:966",
-    "index.html:962",
-    "index.html:976"
+    "game.js:699",
+    "cosmetics.js:969",
+    "index.html:978",
+    "index.html:992"
    ]
   },
   {
    "id": "離開教學",
    "at": [
-    "game.js:716"
+    "game.js:719"
    ]
   },
   {
    "id": "結束試玩",
    "at": [
-    "game.js:716"
+    "game.js:719"
    ]
   },
   {
    "id": "結束練習",
    "at": [
-    "game.js:716"
+    "game.js:719"
    ]
   },
   {
    "id": "離開",
    "at": [
-    "game.js:716",
-    "index.html:1057",
-    "index.html:1096"
+    "game.js:719",
+    "index.html:1075",
+    "index.html:1124"
    ]
   },
   {
    "id": "離開遊戲",
    "at": [
-    "game.js:727"
+    "game.js:730"
    ]
   },
   {
    "id": "說明",
    "at": [
-    "game.js:757",
-    "game.js:2896"
+    "game.js:760",
+    "game.js:3180"
    ]
   },
   {
    "id": "載入中⋯",
    "at": [
-    "game.js:761",
-    "game.js:2479",
-    "game.js:3000",
-    "game.js:3201"
+    "game.js:764",
+    "game.js:2484",
+    "game.js:3286",
+    "game.js:3487"
    ]
   },
   {
    "id": "無法載入內容，請確認網路後再試一次。",
    "at": [
-    "game.js:766"
+    "game.js:769"
    ]
   },
   {
    "id": "護盾抵銷",
    "at": [
-    "game.js:872"
+    "game.js:875"
    ]
   },
   {
    "id": "失誤",
    "at": [
-    "game.js:872",
-    "game.js:1049",
-    "game.js:2168",
-    "game.js:2258"
+    "game.js:875",
+    "game.js:1053",
+    "game.js:2173",
+    "game.js:2263"
    ]
   },
   {
    "id": "生命值歸零",
    "at": [
-    "game.js:877"
+    "game.js:880"
    ]
   },
   {
    "id": "差 1 級：有 {n} 個極佳",
    "at": [
-    "game.js:971"
+    "game.js:974"
    ]
   },
   {
    "id": "差 1 級：有 {n} 個良好",
    "at": [
-    "game.js:972"
+    "game.js:975"
    ]
   },
   {
    "id": "差 1 級：極佳偏多，精準度需 98%",
    "at": [
-    "game.js:972"
+    "game.js:975"
    ]
   },
   {
    "id": "有 {n} 次失誤",
    "at": [
-    "game.js:973"
+    "game.js:976"
    ]
   },
   {
    "id": "{n} 個尚可",
    "at": [
-    "game.js:973"
+    "game.js:976"
    ]
   },
   {
    "id": "有 {n} 個尚可",
    "at": [
-    "game.js:973"
+    "game.js:976"
    ]
   },
   {
    "id": "差 1 級：{list}",
    "at": [
-    "game.js:973"
+    "game.js:976"
    ]
   },
   {
    "id": "、",
    "at": [
-    "game.js:973",
-    "game.js:1055",
-    "game.js:1953",
-    "game.js:1960"
+    "game.js:976",
+    "game.js:1059",
+    "game.js:1958",
+    "game.js:1965"
    ]
   },
   {
    "id": "練習結束",
    "at": [
-    "game.js:1005"
+    "game.js:1008"
    ]
   },
   {
    "id": "練習了 {n} 拍・完美率 {p}%",
    "at": [
-    "game.js:1006"
+    "game.js:1009"
    ]
   },
   {
    "id": "再練習一次",
    "at": [
-    "game.js:1008"
+    "game.js:1011"
    ]
   },
   {
    "id": "關卡選擇",
    "at": [
-    "game.js:1008",
-    "game.js:1066",
-    "index.html:1053"
+    "game.js:1011",
+    "game.js:1070",
+    "index.html:1071"
    ]
   },
   {
    "id": "通關",
    "at": [
-    "game.js:1039"
+    "game.js:1042",
+    "game.js:2888"
    ]
   },
   {
    "id": "失敗",
    "at": [
-    "game.js:1039",
-    "game.js:1042"
+    "game.js:1042",
+    "game.js:1046"
    ]
   },
   {
    "id": "教學完成",
    "at": [
-    "game.js:1040"
+    "game.js:1043"
    ]
   },
   {
    "id": "挑戰未完成",
    "at": [
-    "game.js:1040"
+    "game.js:1043"
    ]
   },
   {
    "id": "新紀錄",
    "at": [
-    "game.js:1046"
+    "game.js:1050"
    ]
   },
   {
    "id": "每通過一關，即開放下一關。",
    "at": [
-    "game.js:1047"
+    "game.js:1051"
+   ]
+  },
+  {
+   "id": "挑戰曲目",
+   "at": [
+    "game.js:1051"
    ]
   },
   {
    "id": "推薦曲目",
    "at": [
-    "game.js:1047"
+    "game.js:1051"
    ]
   },
   {
    "id": "本次進行至第 <b>{n}</b> ／ {m} 拍",
    "at": [
-    "game.js:1047"
+    "game.js:1051"
    ]
   },
   {
    "id": "可使用練習模式，自此處以較慢速度反覆練習。",
    "at": [
-    "game.js:1047"
+    "game.js:1051"
    ]
   },
   {
    "id": "進度 {p}%",
    "at": [
-    "game.js:1047"
+    "game.js:1051"
    ]
   },
   {
    "id": "最高連擊",
    "at": [
-    "game.js:1050",
-    "index.html:1146"
+    "game.js:1054",
+    "game.js:2887",
+    "index.html:1175"
    ]
   },
   {
    "id": "精準度",
    "at": [
-    "game.js:1050",
-    "index.html:1146"
+    "game.js:1054",
+    "index.html:1175"
    ]
   },
   {
    "id": "完成度",
    "at": [
-    "game.js:1050"
+    "game.js:1054"
    ]
   },
   {
    "id": "✦ 新的星座現身了：{list}；星空中也浮現了音符座",
    "at": [
-    "game.js:1055"
+    "game.js:1059"
    ]
   },
   {
    "id": "✦ 新的星座現身了：{list}",
    "at": [
-    "game.js:1055"
+    "game.js:1059"
    ]
   },
   {
    "id": "✦ 所有星座都點亮了，星空中浮現了音符座",
    "at": [
-    "game.js:1055"
+    "game.js:1059"
    ]
   },
   {
    "id": "✦ {name} 完成",
    "at": [
-    "game.js:1055"
+    "game.js:1059"
    ]
   },
   {
    "id": "✦ 《{song}》在星空中亮起了",
    "at": [
-    "game.js:1055"
+    "game.js:1059"
    ]
   },
   {
    "id": "✦ 《{song}》在星空中更亮了",
    "at": [
-    "game.js:1055"
+    "game.js:1059"
    ]
   },
   {
    "id": "開始",
    "at": [
-    "game.js:1060",
-    "game.js:2052",
-    "game.js:3037",
-    "game.js:3044"
+    "game.js:1064",
+    "game.js:2057",
+    "game.js:3323",
+    "game.js:3330"
    ]
   },
   {
    "id": "下一關",
    "at": [
-    "game.js:1060",
-    "index.html:1053"
+    "game.js:1064",
+    "index.html:1071"
    ]
   },
   {
    "id": "從第 {n} 拍繼續",
    "at": [
-    "game.js:1062"
+    "game.js:1066"
    ]
   },
   {
    "id": "再試一次",
    "at": [
-    "game.js:1066",
-    "game.js:1708",
-    "game.js:1709"
+    "game.js:1070",
+    "game.js:1712",
+    "game.js:1713"
    ]
   },
   {
    "id": "再挑戰一次",
    "at": [
-    "game.js:1066",
-    "index.html:1053"
+    "game.js:1070",
+    "index.html:1071"
    ]
   },
   {
    "id": "返回主畫面",
    "at": [
-    "game.js:1066"
+    "game.js:1070",
+    "index.html:1112"
    ]
   },
   {
    "id": "自第 {n} 拍練習",
    "at": [
-    "game.js:1069"
+    "game.js:1073"
    ]
   },
   {
    "id": "設定暱稱後，通關成績將列入排行榜",
    "at": [
-    "game.js:1074",
-    "game.js:2626",
-    "game.js:3014"
+    "game.js:1078",
+    "game.js:2634",
+    "game.js:3300"
    ]
   },
   {
    "id": "設定暱稱",
    "at": [
-    "game.js:1074",
-    "game.js:2626",
-    "game.js:2829",
-    "game.js:2869"
+    "game.js:1078",
+    "game.js:2634",
+    "game.js:2783",
+    "game.js:3113"
    ]
   },
   {
    "id": "今日推薦曲目：《{song}》",
    "at": [
-    "game.js:1094"
+    "game.js:1098"
    ]
   },
   {
    "id": "星弧",
    "at": [
-    "game.js:1133"
+    "game.js:1137"
    ]
   },
   {
    "id": "完美・分數 ＋10%",
    "at": [
-    "game.js:1133"
+    "game.js:1137"
    ]
   },
   {
    "id": "點擊範圍放大",
    "at": [
-    "game.js:1209"
+    "game.js:1213"
    ]
   },
   {
    "id": "點擊範圍縮小",
    "at": [
-    "game.js:1210"
+    "game.js:1214"
    ]
   },
   {
    "id": "分數 ×2",
    "at": [
-    "game.js:1211",
-    "game.js:1253"
+    "game.js:1215",
+    "game.js:1257"
    ]
   },
   {
    "id": "護盾 +1",
    "at": [
-    "game.js:1212"
+    "game.js:1216"
    ]
   },
   {
    "id": "最後衝刺",
    "at": [
-    "game.js:1253"
+    "game.js:1257"
    ]
   },
   {
    "id": "觸碰光球上方，光球往下彈；觸碰下方，光球往上彈。",
    "at": [
-    "game.js:1557"
+    "game.js:1561"
    ]
   },
   {
    "id": "光球抵達亮起的框線時，外圈會縮到光球上，那一瞬間就是節拍。",
    "at": [
-    "game.js:1558"
+    "game.js:1562"
    ]
   },
   {
    "id": "現在，觸碰光球",
    "at": [
-    "game.js:1558"
+    "game.js:1562"
    ]
   },
   {
    "id": "這一拍，請觸碰光球上方",
    "at": [
-    "game.js:1559"
+    "game.js:1563"
    ]
   },
   {
    "id": "這一拍，請觸碰光球下方",
    "at": [
-    "game.js:1560"
+    "game.js:1564"
    ]
   },
   {
    "id": "判定越準、球速越快、連擊越長，得分越高。",
    "at": [
-    "game.js:1561"
+    "game.js:1565"
    ]
   },
   {
    "id": "光球撞到隕石會照物理反彈，但仍會準時抵達框線。",
    "at": [
-    "game.js:1562"
+    "game.js:1566"
    ]
   },
   {
    "id": "距離節拍太近時，光球會直接穿過隕石",
    "at": [
-    "game.js:1562"
+    "game.js:1566"
    ]
   },
   {
    "id": "護盾：光球穿過就能取得，可抵銷一次失誤，而且可以累積。",
    "at": [
-    "game.js:1563"
+    "game.js:1567"
    ]
   },
   {
    "id": "持有護盾時，光球外圍會有一圈光環",
    "at": [
-    "game.js:1563"
+    "game.js:1567"
    ]
   },
   {
    "id": "星星：光球穿過就能取得，之後 8 秒內得分加倍。",
    "at": [
-    "game.js:1564"
+    "game.js:1568"
    ]
   },
   {
    "id": "放大：光球穿過就能取得，之後 9 秒內點擊範圍變大，比較容易觸碰。",
    "at": [
-    "game.js:1565"
+    "game.js:1569"
    ]
   },
   {
    "id": "縮小：光球穿過就能取得，之後 9 秒內點擊範圍變小，需要更精準。",
    "at": [
-    "game.js:1566"
+    "game.js:1570"
    ]
   },
   {
    "id": "入門與簡單難度不會出現",
    "at": [
-    "game.js:1566"
+    "game.js:1570"
    ]
   },
   {
    "id": "失誤會扣生命值，歸零就挑戰失敗；擊中可以回復生命值。",
    "at": [
-    "game.js:1567"
+    "game.js:1571"
    ]
   },
   {
    "id": "入門～普通：完美 +2、極佳 +1、良好 +1；困難：良好不回復；專家：只有完美 +1。難度越高，失誤扣得越多。教學中不扣生命值。",
    "at": [
-    "game.js:1567"
+    "game.js:1571"
    ]
   },
   {
    "id": "點這裡↓",
    "at": [
-    "game.js:1688"
+    "game.js:1692"
    ]
   },
   {
    "id": "點這裡↑",
    "at": [
-    "game.js:1688"
+    "game.js:1692"
    ]
   },
   {
    "id": "知道了",
    "at": [
-    "game.js:1711",
-    "shop.js:369"
+    "game.js:1715",
+    "shop.js:373"
    ]
   },
   {
    "id": "{n} 人對戰　即將開始 {sec}",
    "at": [
-    "game.js:1725"
+    "game.js:1730"
    ]
   },
   {
    "id": "載入樂器音色⋯ {pct}%",
    "at": [
-    "game.js:1726",
-    "game.js:1727"
+    "game.js:1731",
+    "game.js:1732"
    ]
   },
   {
    "id": "點擊畫面開始（含 3 拍預備）",
    "at": [
-    "game.js:1728"
+    "game.js:1733"
    ]
   },
   {
    "id": "光球將於節拍抵達亮起的框線，請於節拍觸碰光球。",
    "at": [
-    "game.js:1728"
+    "game.js:1733"
    ]
   },
   {
    "id": "聲音未啟用：請點擊畫面，並確認裝置未開啟靜音。",
    "at": [
-    "game.js:1730"
+    "game.js:1735"
    ]
   },
   {
    "id": "玩家{n}",
    "at": [
-    "game.js:1781"
+    "game.js:1786"
    ]
   },
   {
    "id": "玩家",
    "at": [
-    "game.js:1794",
-    "game.js:1819",
-    "game.js:1870",
-    "game.js:1909"
+    "game.js:1799",
+    "game.js:1824",
+    "game.js:1875",
+    "game.js:1914"
    ]
   },
   {
    "id": "操作太頻繁，請稍等 1 分鐘後再次嘗試。",
    "at": [
-    "game.js:1799",
-    "game.js:2565",
-    "game.js:3343"
+    "game.js:1804",
+    "game.js:2571",
+    "game.js:3629"
    ]
   },
   {
    "id": "無法連線到對戰伺服器，請稍後再試。",
    "at": [
-    "game.js:1799"
+    "game.js:1804"
    ]
   },
   {
    "id": "{n} 人",
    "at": [
-    "game.js:1808"
+    "game.js:1813"
    ]
   },
   {
    "id": "不限",
    "at": [
-    "game.js:1811"
+    "game.js:1816"
    ]
   },
   {
    "id": "配對中⋯",
    "at": [
-    "game.js:1813"
+    "game.js:1818"
    ]
   },
   {
    "id": "開始配對",
    "at": [
-    "game.js:1813",
-    "index.html:1076"
+    "game.js:1818",
+    "index.html:1094"
    ]
   },
   {
    "id": "快速配對房",
    "at": [
-    "game.js:1821"
+    "game.js:1826"
    ]
   },
   {
    "id": "{name} 的房間",
    "at": [
-    "game.js:1821"
+    "game.js:1826"
    ]
   },
   {
    "id": "比賽中",
    "at": [
-    "game.js:1822"
+    "game.js:1827"
    ]
   },
   {
    "id": "選曲中",
    "at": [
-    "game.js:1822",
-    "game.js:3191"
+    "game.js:1827",
+    "game.js:3477"
    ]
   },
   {
    "id": "目前沒有符合條件的公開房間。可以按「開始配對」，或自己建立房間。",
    "at": [
-    "game.js:1823"
+    "game.js:1828"
    ]
   },
   {
    "id": "查詢太頻繁，稍後會自動更新。",
    "at": [
-    "game.js:1824"
+    "game.js:1829"
    ]
   },
   {
    "id": "目前無法連線至對戰伺服器。",
    "at": [
-    "game.js:1824"
+    "game.js:1829"
    ]
   },
   {
    "id": "尋找房間中⋯",
    "at": [
-    "game.js:1827"
+    "game.js:1832"
    ]
   },
   {
    "id": "建立房間中⋯",
    "at": [
-    "game.js:1833"
+    "game.js:1838"
    ]
   },
   {
    "id": "請輸入 4 碼房號。",
    "at": [
-    "game.js:1840"
+    "game.js:1845"
    ]
   },
   {
    "id": "連線中⋯",
    "at": [
-    "game.js:1841"
+    "game.js:1846"
    ]
   },
   {
    "id": "無法連線到對戰伺服器。",
    "at": [
-    "game.js:1842"
+    "game.js:1847"
    ]
   },
   {
    "id": "與伺服器的連線中斷",
    "at": [
-    "game.js:1849"
+    "game.js:1854"
    ]
   },
   {
    "id": "無法加入：房間不存在、已滿、比賽進行中，或操作太頻繁。",
    "at": [
-    "game.js:1851"
+    "game.js:1856"
    ]
   },
   {
    "id": "與房間的連線已中斷。",
    "at": [
-    "game.js:1851"
+    "game.js:1856"
    ]
   },
   {
    "id": "您已和 {name} 成為好友",
    "at": [
-    "game.js:1888",
-    "game.js:3134"
+    "game.js:1893",
+    "game.js:3420"
    ]
   },
   {
    "id": "對方",
    "at": [
-    "game.js:1888",
-    "game.js:2496"
+    "game.js:1893",
+    "game.js:2501"
    ]
   },
   {
    "id": "已送出好友邀請",
    "at": [
-    "game.js:1888",
-    "game.js:3323"
+    "game.js:1893",
+    "game.js:3609"
    ]
   },
   {
    "id": "目前無法送出好友邀請，請稍後再試",
    "at": [
-    "game.js:1888"
+    "game.js:1893"
    ]
   },
   {
    "id": "房間選的曲目不在您目前的版本中，請更新遊戲後再加入。",
    "at": [
-    "game.js:1893"
+    "game.js:1898"
    ]
   },
   {
    "id": "{name} 已離線",
    "at": [
-    "game.js:1914"
+    "game.js:1919"
    ]
   },
   {
    "id": "‹ 離開房間",
    "at": [
-    "game.js:1933"
+    "game.js:1938"
    ]
   },
   {
    "id": "快速配對",
    "at": [
-    "game.js:1940",
-    "game.js:1941",
-    "index.html:1073"
+    "game.js:1945",
+    "game.js:1946",
+    "index.html:1091"
    ]
   },
   {
    "id": "投票選曲",
    "at": [
-    "game.js:1940",
-    "game.js:1944"
+    "game.js:1945",
+    "game.js:1949"
    ]
   },
   {
    "id": "選擇遊玩曲目",
    "at": [
-    "game.js:1940"
+    "game.js:1945"
    ]
   },
   {
    "id": "遊玩曲目",
    "at": [
-    "game.js:1940",
-    "game.js:1959"
+    "game.js:1945",
+    "game.js:1964"
    ]
   },
   {
    "id": "房號<b>{code}</b>",
    "at": [
-    "game.js:1941"
+    "game.js:1946"
    ]
   },
   {
    "id": "公開",
    "at": [
-    "game.js:1941",
-    "game.js:1944"
+    "game.js:1946",
+    "game.js:1949"
    ]
   },
   {
    "id": "私人",
    "at": [
-    "game.js:1941"
+    "game.js:1946"
    ]
   },
   {
    "id": "{n} / {max} 人",
    "at": [
-    "game.js:1941"
+    "game.js:1946"
    ]
   },
   {
    "id": "上限 {n} 人",
    "at": [
-    "game.js:1943"
+    "game.js:1948"
    ]
   },
   {
    "id": "取消準備",
    "at": [
-    "game.js:1946"
+    "game.js:1951"
    ]
   },
   {
    "id": "準備",
    "at": [
-    "game.js:1946",
-    "game.js:1969"
+    "game.js:1951",
+    "game.js:1974"
    ]
   },
   {
    "id": "尚未選曲",
    "at": [
-    "game.js:1951"
+    "game.js:1956"
    ]
   },
   {
    "id": "目前同票：{songs}（開始時抽選）",
    "at": [
-    "game.js:1953"
+    "game.js:1958"
    ]
   },
   {
    "id": "目前領先：{song}（{n} 票）",
    "at": [
-    "game.js:1953"
+    "game.js:1958"
    ]
   },
   {
    "id": "尚無人投票，未投票時以房主的曲目開始：{song}",
    "at": [
-    "game.js:1953"
+    "game.js:1958"
    ]
   },
   {
    "id": "遊玩曲目：{song}",
    "at": [
-    "game.js:1954"
+    "game.js:1959"
    ]
   },
   {
    "id": "您投的曲目",
    "at": [
-    "game.js:1955"
+    "game.js:1960"
    ]
   },
   {
    "id": "{n} 票",
    "at": [
-    "game.js:1959"
+    "game.js:1964"
    ]
   },
   {
    "id": "領先",
    "at": [
-    "game.js:1959"
+    "game.js:1964"
    ]
   },
   {
    "id": "同票",
    "at": [
-    "game.js:1959"
+    "game.js:1964"
    ]
   },
   {
    "id": "大家好 👋",
    "at": [
-    "game.js:1963"
+    "game.js:1968"
    ]
   },
   {
    "id": "哈囉哈囉",
    "at": [
-    "game.js:1963"
+    "game.js:1968"
    ]
   },
   {
    "id": "新手報到 🙋",
    "at": [
-    "game.js:1963"
+    "game.js:1968"
    ]
   },
   {
    "id": "好久不見！",
    "at": [
-    "game.js:1963"
+    "game.js:1968"
    ]
   },
   {
    "id": "換一首？",
    "at": [
-    "game.js:1964"
+    "game.js:1969"
    ]
   },
   {
    "id": "這首可以！",
    "at": [
-    "game.js:1964"
+    "game.js:1969"
    ]
   },
   {
    "id": "選難一點 🔥",
    "at": [
-    "game.js:1964"
+    "game.js:1969"
    ]
   },
   {
    "id": "選簡單的啦",
    "at": [
-    "game.js:1964"
+    "game.js:1969"
    ]
   },
   {
    "id": "我都可以 👌",
    "at": [
-    "game.js:1964"
+    "game.js:1969"
    ]
   },
   {
    "id": "投我一票 🙏",
    "at": [
-    "game.js:1964"
+    "game.js:1969"
    ]
   },
   {
    "id": "我準備好了",
    "at": [
-    "game.js:1965"
+    "game.js:1970"
    ]
   },
   {
    "id": "等我一下 ⏳",
    "at": [
-    "game.js:1965"
+    "game.js:1970"
    ]
   },
   {
    "id": "快按準備啦",
    "at": [
-    "game.js:1965"
+    "game.js:1970"
    ]
   },
   {
    "id": "衝了衝了 🚀",
    "at": [
-    "game.js:1965"
+    "game.js:1970"
    ]
   },
   {
    "id": "笑死 🤣",
    "at": [
-    "game.js:1966"
+    "game.js:1971"
    ]
   },
   {
    "id": "好扯！",
    "at": [
-    "game.js:1966"
+    "game.js:1971"
    ]
   },
   {
    "id": "太神啦 🙌",
    "at": [
-    "game.js:1966"
+    "game.js:1971"
    ]
   },
   {
    "id": "真的假的",
    "at": [
-    "game.js:1966"
+    "game.js:1971"
    ]
   },
   {
    "id": "傻眼貓咪 😹",
    "at": [
-    "game.js:1966"
+    "game.js:1971"
    ]
   },
   {
    "id": "我破防了 😭",
    "at": [
-    "game.js:1966"
+    "game.js:1971"
    ]
   },
   {
    "id": "Orz",
    "at": [
-    "game.js:1966"
+    "game.js:1971"
    ]
   },
   {
    "id": "被這首硬控了",
    "at": [
-    "game.js:1966"
+    "game.js:1971"
    ]
   },
   {
    "id": "手殘了 🫠",
    "at": [
-    "game.js:1966"
+    "game.js:1971"
    ]
   },
   {
    "id": "節奏感拉滿 🎵",
    "at": [
-    "game.js:1966"
+    "game.js:1971"
    ]
   },
   {
    "id": "要確欸",
    "at": [
-    "game.js:1966"
+    "game.js:1971"
    ]
   },
   {
    "id": "GG 👏",
    "at": [
-    "game.js:1967"
+    "game.js:1972"
    ]
   },
   {
    "id": "再一局！",
    "at": [
-    "game.js:1967"
+    "game.js:1972"
    ]
   },
   {
    "id": "你最頂 👍",
    "at": [
-    "game.js:1967"
+    "game.js:1972"
    ]
   },
   {
    "id": "下次一定贏",
    "at": [
-    "game.js:1967"
+    "game.js:1972"
    ]
   },
   {
    "id": "謝謝邀請",
    "at": [
-    "game.js:1967"
+    "game.js:1972"
    ]
   },
   {
    "id": "加個好友吧",
    "at": [
-    "game.js:1967"
+    "game.js:1972"
    ]
   },
   {
    "id": "先閃了 👋",
    "at": [
-    "game.js:1967"
+    "game.js:1972"
    ]
   },
   {
    "id": "就這？😏",
    "at": [
-    "game.js:1968"
+    "game.js:1973"
    ]
   },
   {
    "id": "看我的 😎",
    "at": [
-    "game.js:1968"
+    "game.js:1973"
    ]
   },
   {
    "id": "不服來戰",
    "at": [
-    "game.js:1968"
+    "game.js:1973"
    ]
   },
   {
    "id": "這把我帶飛",
    "at": [
-    "game.js:1968"
+    "game.js:1973"
    ]
   },
   {
    "id": "是在緊張什麼",
    "at": [
-    "game.js:1968"
+    "game.js:1973"
    ]
   },
   {
    "id": "輸的請喝飲料 🧋",
    "at": [
-    "game.js:1968"
+    "game.js:1973"
    ]
   },
   {
    "id": "手速跟上好嗎",
    "at": [
-    "game.js:1968"
+    "game.js:1973"
    ]
   },
   {
    "id": "別眨眼 👀",
    "at": [
-    "game.js:1968"
+    "game.js:1973"
    ]
   },
   {
    "id": "打招呼",
    "at": [
-    "game.js:1969"
+    "game.js:1974"
    ]
   },
   {
    "id": "選曲",
    "at": [
-    "game.js:1969",
-    "game.js:3862"
+    "game.js:1974",
+    "game.js:4148"
    ]
   },
   {
    "id": "反應",
    "at": [
-    "game.js:1969"
+    "game.js:1974"
    ]
   },
   {
    "id": "小嗆一下",
    "at": [
-    "game.js:1969"
+    "game.js:1974"
    ]
   },
   {
    "id": "結束",
    "at": [
-    "game.js:1969"
+    "game.js:1974"
    ]
   },
   {
    "id": "好友@@tag",
    "at": [
-    "game.js:1970"
+    "game.js:1975"
    ]
   },
   {
    "id": "已邀請@@friend",
    "at": [
-    "game.js:1970"
+    "game.js:1975"
    ]
   },
   {
    "id": "邀請您",
    "at": [
-    "game.js:1970"
+    "game.js:1975"
    ]
   },
   {
    "id": "空位",
    "at": [
-    "game.js:1983"
+    "game.js:1988"
    ]
   },
   {
    "id": "房主",
    "at": [
-    "game.js:1986"
+    "game.js:1991"
    ]
   },
   {
    "id": "您與對方已是好友",
    "at": [
-    "game.js:2007"
+    "game.js:2012"
    ]
   },
   {
    "id": "已送出好友邀請，請等候對方確認",
    "at": [
-    "game.js:2008"
+    "game.js:2013"
    ]
   },
   {
    "id": "接受邀請",
    "at": [
-    "game.js:2009"
+    "game.js:2014"
    ]
   },
   {
    "id": "加為好友",
    "at": [
-    "game.js:2009"
+    "game.js:2014"
    ]
   },
   {
    "id": "取消",
    "at": [
-    "game.js:2009",
-    "game.js:2555",
-    "game.js:3010",
-    "game.js:3222"
+    "game.js:2014",
+    "game.js:2561",
+    "game.js:3296",
+    "game.js:3508"
    ]
   },
   {
    "id": "對方已向您送出好友邀請",
    "at": [
-    "game.js:2009"
+    "game.js:2014"
    ]
   },
   {
    "id": "對方接受後，將加入您的好友名單",
    "at": [
-    "game.js:2009"
+    "game.js:2014"
    ]
   },
   {
    "id": "沒有收到回應，請再試一次",
    "at": [
-    "game.js:2010"
+    "game.js:2015"
    ]
   },
   {
    "id": "快速發言",
    "at": [
-    "game.js:2014",
-    "index.html:1016"
+    "game.js:2019",
+    "index.html:1032"
    ]
   },
   {
    "id": "發言過於頻繁，請稍候再試",
    "at": [
-    "game.js:2017"
+    "game.js:2022"
    ]
   },
   {
    "id": "比賽進行中，等其他玩家完成後一起開始下一局。",
    "at": [
-    "game.js:2030"
+    "game.js:2035"
    ]
   },
   {
    "id": "人數到齊，{sec} 秒後開始",
    "at": [
-    "game.js:2031"
+    "game.js:2036"
    ]
   },
   {
    "id": "已有 {n} 人，{sec} 秒後開始",
    "at": [
-    "game.js:2031"
+    "game.js:2036"
    ]
   },
   {
    "id": "等待其他玩家回到房間（{nb} / {n}）⋯",
    "at": [
-    "game.js:2031"
+    "game.js:2036"
    ]
   },
   {
    "id": "快速配對中，等待其他玩家加入⋯",
    "at": [
-    "game.js:2031"
+    "game.js:2036"
    ]
   },
   {
    "id": "等待其他玩家加入⋯ 可以按「邀請好友」邀請在線上的好友，或讓別人從公開房間加入。",
    "at": [
-    "game.js:2033"
+    "game.js:2038"
    ]
   },
   {
    "id": "還有 {n} 人未準備",
    "at": [
-    "game.js:2034"
+    "game.js:2039"
    ]
   },
   {
    "id": "已準備，點選其他曲目僅供試聽",
    "at": [
-    "game.js:2034"
+    "game.js:2039"
    ]
   },
   {
    "id": "按下準備以投票",
    "at": [
-    "game.js:2034"
+    "game.js:2039"
    ]
   },
   {
    "id": "點左側曲目即可更換",
    "at": [
-    "game.js:2034"
+    "game.js:2039"
    ]
   },
   {
    "id": "全員準備，即將開始⋯",
    "at": [
-    "game.js:2035"
+    "game.js:2040"
    ]
   },
   {
    "id": "選擇曲目",
    "at": [
-    "game.js:2052",
-    "index.html:999"
+    "game.js:2057",
+    "index.html:1015"
    ]
   },
   {
    "id": "‹ 返回",
    "at": [
-    "game.js:2052",
-    "index.html:999",
-    "index.html:1023",
-    "index.html:1029"
+    "game.js:2057",
+    "index.html:1015",
+    "index.html:1039",
+    "index.html:1045"
    ]
   },
   {
    "id": "第 {n} 名",
    "at": [
-    "game.js:2078",
-    "game.js:2302",
-    "game.js:2384"
+    "game.js:2083",
+    "game.js:2307",
+    "game.js:2389"
    ]
   },
   {
    "id": "隕石",
    "at": [
-    "game.js:2081"
+    "game.js:2086"
    ]
   },
   {
    "id": "觸碰範圍縮小",
    "at": [
-    "game.js:2081"
+    "game.js:2086"
    ]
   },
   {
    "id": "迷霧",
    "at": [
-    "game.js:2081"
+    "game.js:2086"
    ]
   },
   {
    "id": "{n} 秒",
    "at": [
-    "game.js:2081"
+    "game.js:2086"
    ]
   },
   {
    "id": "牽制 {name}",
    "at": [
-    "game.js:2088"
+    "game.js:2093"
    ]
   },
   {
    "id": "牽制",
    "at": [
-    "game.js:2088"
+    "game.js:2093"
    ]
   },
   {
    "id": "護盾擋下牽制",
    "at": [
-    "game.js:2094"
+    "game.js:2099"
    ]
   },
   {
    "id": "來自 {name}",
    "at": [
-    "game.js:2094"
+    "game.js:2099"
    ]
   },
   {
    "id": "來自 {name} 的牽制",
    "at": [
-    "game.js:2098"
+    "game.js:2103"
    ]
   },
   {
    "id": "受到牽制",
    "at": [
-    "game.js:2098"
+    "game.js:2103"
    ]
   },
   {
    "id": "第 {n} 名 / {total}",
    "at": [
-    "game.js:2103"
+    "game.js:2108"
    ]
   },
   {
    "id": "　前一名差 {diff}",
    "at": [
-    "game.js:2103"
+    "game.js:2108"
    ]
   },
   {
    "id": "　領先 {diff}",
    "at": [
-    "game.js:2103"
+    "game.js:2108"
    ]
   },
   {
    "id": "　［範圍縮小］",
    "at": [
-    "game.js:2104"
+    "game.js:2109"
    ]
   },
   {
    "id": "逼近 {diff}",
    "at": [
-    "game.js:2139",
-    "game.js:2159"
+    "game.js:2144",
+    "game.js:2164"
    ]
   },
   {
    "id": "差 {diff}",
    "at": [
-    "game.js:2139",
-    "game.js:2159"
+    "game.js:2144",
+    "game.js:2164"
    ]
   },
   {
    "id": "後 {diff}",
    "at": [
-    "game.js:2139",
-    "game.js:2159"
+    "game.js:2144",
+    "game.js:2164"
    ]
   },
   {
    "id": "離線@@gone",
    "at": [
-    "game.js:2152",
-    "game.js:2377",
-    "game.js:2391"
+    "game.js:2157",
+    "game.js:2382",
+    "game.js:2396"
    ]
   },
   {
    "id": "出局",
    "at": [
-    "game.js:2152",
-    "game.js:2375",
-    "game.js:2377",
-    "game.js:2387"
+    "game.js:2157",
+    "game.js:2380",
+    "game.js:2382",
+    "game.js:2392"
    ]
   },
   {
    "id": "· 纏鬥中",
    "at": [
-    "game.js:2161"
+    "game.js:2166"
    ]
   },
   {
    "id": "　連擊 {combo}　生命 {life}%",
    "at": [
-    "game.js:2298"
+    "game.js:2303"
    ]
   },
   {
    "id": "{n} 人對戰",
    "at": [
-    "game.js:2361"
+    "game.js:2366"
    ]
   },
   {
    "id": "本局成績　完美<b>{t0}</b>　極佳<b>{t1}</b>　良好<b>{t2}</b>　尚可<b>{t3}</b>　失誤<b>{miss}</b>　最高連擊<b>{combo}</b>",
    "at": [
-    "game.js:2362"
+    "game.js:2367"
    ]
   },
   {
    "id": "分數",
    "at": [
-    "game.js:2371",
-    "index.html:1146"
+    "game.js:2376",
+    "index.html:1175"
    ]
   },
   {
    "id": "評級",
    "at": [
-    "game.js:2371",
-    "game.js:3057"
+    "game.js:2376",
+    "game.js:3343"
    ]
   },
   {
    "id": "最高連擊@@col",
    "at": [
-    "game.js:2371"
+    "game.js:2376"
    ]
   },
   {
    "id": "差距",
    "at": [
-    "game.js:2371"
+    "game.js:2376"
    ]
   },
   {
    "id": "連線中斷",
    "at": [
-    "game.js:2374"
+    "game.js:2379"
    ]
   },
   {
    "id": "等待其他玩家",
    "at": [
-    "game.js:2374"
+    "game.js:2379"
    ]
   },
   {
    "id": "評級 {rank}",
    "at": [
-    "game.js:2375",
-    "game.js:2387"
+    "game.js:2380",
+    "game.js:2392"
    ]
   },
   {
    "id": "完成",
    "at": [
-    "game.js:2377"
+    "game.js:2382"
    ]
   },
   {
    "id": "比賽中@@row",
    "at": [
-    "game.js:2377"
+    "game.js:2382"
    ]
   },
   {
    "id": "與伺服器的連線中斷，無法取得最終名次。",
    "at": [
-    "game.js:2378"
+    "game.js:2383"
    ]
   },
   {
    "id": "其他玩家完成後顯示最終名次（{done} / {n}）",
    "at": [
-    "game.js:2378"
+    "game.js:2383"
    ]
   },
   {
    "id": "冠軍！",
    "at": [
-    "game.js:2384"
+    "game.js:2389"
    ]
   },
   {
    "id": "精準 {acc}",
    "at": [
-    "game.js:2387"
+    "game.js:2392"
    ]
   },
   {
    "id": "經驗",
    "at": [
-    "game.js:2399",
-    "game.js:2781"
+    "game.js:2404",
+    "game.js:3065"
    ]
   },
   {
    "id": "對戰獎勵 ×{m}",
    "at": [
-    "game.js:2399"
+    "game.js:2404"
    ]
   },
   {
    "id": "這一局不計入對戰成就",
    "at": [
-    "game.js:2405"
+    "game.js:2410"
    ]
   },
   {
    "id": "連線已中斷。",
    "at": [
-    "game.js:2406"
+    "game.js:2411"
    ]
   },
   {
    "id": "{names} 等 {n} 人 想再來一局",
    "at": [
-    "game.js:2408"
+    "game.js:2413"
    ]
   },
   {
    "id": "{names} 想再來一局",
    "at": [
-    "game.js:2408"
+    "game.js:2413"
    ]
   },
   {
    "id": "{sec} 秒後開始",
    "at": [
-    "game.js:2408"
+    "game.js:2413"
    ]
   },
   {
    "id": "，",
    "at": [
-    "game.js:2431"
+    "game.js:2436"
    ]
   },
   {
    "id": "最佳評級 {rank}",
    "at": [
-    "game.js:2443"
+    "game.js:2448"
    ]
   },
   {
    "id": "人數上限",
    "at": [
-    "game.js:2468",
-    "game.js:2470",
-    "index.html:1075"
+    "game.js:2473",
+    "game.js:2475",
+    "index.html:1093"
    ]
   },
   {
    "id": "邀請好友",
    "at": [
-    "game.js:2476",
-    "game.js:2478",
-    "game.js:2479",
-    "game.js:2482"
+    "game.js:2481",
+    "game.js:2483",
+    "game.js:2484",
+    "game.js:2487"
    ]
   },
   {
    "id": "設定暱稱並加入好友後，就能邀請在線上的好友。",
    "at": [
-    "game.js:2478"
+    "game.js:2483"
    ]
   },
   {
    "id": "還沒有好友。可以在房間裡點其他玩家加為好友，或到「好友」頁面輸入好友碼。",
    "at": [
-    "game.js:2483"
+    "game.js:2488"
    ]
   },
   {
    "id": "目前沒有好友在線上。",
    "at": [
-    "game.js:2484"
+    "game.js:2489"
    ]
   },
   {
    "id": "離線@@status",
    "at": [
-    "game.js:2486",
-    "game.js:3191",
-    "game.js:3315"
+    "game.js:2491",
+    "game.js:3477",
+    "game.js:3601"
    ]
   },
   {
    "id": "已在房間",
    "at": [
-    "game.js:2486"
+    "game.js:2491"
    ]
   },
   {
    "id": "對戰中",
    "at": [
-    "game.js:2486",
-    "game.js:3191"
+    "game.js:2491",
+    "game.js:3477"
    ]
   },
   {
    "id": "遊戲中",
    "at": [
-    "game.js:2486",
-    "game.js:3191",
-    "game.js:3315",
-    "game.js:3862"
+    "game.js:2491",
+    "game.js:3477",
+    "game.js:3601",
+    "game.js:4148"
    ]
   },
   {
    "id": "在線上",
    "at": [
-    "game.js:2486",
-    "game.js:3191",
-    "game.js:3315"
+    "game.js:2491",
+    "game.js:3477",
+    "game.js:3601"
    ]
   },
   {
    "id": "已邀請",
    "at": [
-    "game.js:2488"
+    "game.js:2493"
    ]
   },
   {
    "id": "邀請",
    "at": [
-    "game.js:2488"
+    "game.js:2493"
    ]
   },
   {
    "id": "傳送中⋯",
    "at": [
-    "game.js:2493"
+    "game.js:2498"
    ]
   },
   {
    "id": "已邀請 {name}",
    "at": [
-    "game.js:2495"
+    "game.js:2500"
    ]
   },
   {
    "id": "好友@@person",
    "at": [
-    "game.js:2495",
-    "game.js:3360"
+    "game.js:2500",
+    "game.js:3646"
    ]
   },
   {
    "id": "{name} 目前離線",
    "at": [
-    "game.js:2496"
+    "game.js:2501"
    ]
   },
   {
    "id": "邀請過於頻繁，請稍候再試",
    "at": [
-    "game.js:2496"
+    "game.js:2501"
    ]
   },
   {
    "id": "您與對方已非好友",
    "at": [
-    "game.js:2496"
+    "game.js:2501"
    ]
   },
   {
    "id": "邀請未送出，請稍後再試",
    "at": [
-    "game.js:2496"
+    "game.js:2501"
    ]
   },
   {
    "id": "已複製，可貼上分享。",
    "at": [
-    "game.js:2546"
+    "game.js:2552"
    ]
   },
   {
    "id": "歡迎來到 PingPongLight",
    "at": [
-    "game.js:2553",
-    "index.html:1161"
+    "game.js:2559",
+    "index.html:1190"
    ]
   },
   {
    "id": "暱稱",
    "at": [
-    "game.js:2553",
-    "index.html:1070",
-    "index.html:1127"
+    "game.js:2559",
+    "index.html:1088",
+    "index.html:1156"
    ]
   },
   {
    "id": "變更暱稱",
    "at": [
-    "game.js:2554",
-    "game.js:3735",
-    "index.html:1127"
+    "game.js:2560",
+    "game.js:4021",
+    "index.html:1156"
    ]
   },
   {
    "id": "請設定暱稱",
    "at": [
-    "game.js:2554",
-    "index.html:1162"
+    "game.js:2560",
+    "index.html:1191"
    ]
   },
   {
    "id": "暫不設定，離線遊玩",
    "at": [
-    "game.js:2555",
-    "index.html:1167"
+    "game.js:2561",
+    "index.html:1196"
    ]
   },
   {
    "id": "請輸入暱稱。",
    "at": [
-    "game.js:2560"
+    "game.js:2566"
    ]
   },
   {
    "id": "確認中⋯",
    "at": [
-    "game.js:2561"
+    "game.js:2567",
+    "game.js:2777"
    ]
   },
   {
    "id": "此暱稱已有人使用，請更換。若這是您在主畫面遊戲使用的暱稱，請改從主畫面開啟遊戲。",
    "at": [
-    "game.js:2564"
+    "game.js:2570"
    ]
   },
   {
    "id": "此暱稱已有人使用，請更換。",
    "at": [
-    "game.js:2564"
+    "game.js:2570"
    ]
   },
   {
    "id": "暱稱須包含至少一個文字或數字。",
    "at": [
-    "game.js:2564"
+    "game.js:2570"
    ]
   },
   {
    "id": "暱稱含有不當字詞，請更換。",
    "at": [
-    "game.js:2564"
+    "game.js:2570"
    ]
   },
   {
    "id": "目前無法連線至伺服器。您可以先離線遊玩單人模式，下次開啟時再設定暱稱。",
    "at": [
-    "game.js:2566"
+    "game.js:2572"
    ]
   },
   {
    "id": "目前無法連線至伺服器，請稍後再試。",
    "at": [
-    "game.js:2566",
-    "game.js:3002",
-    "game.js:3169"
+    "game.js:2572",
+    "game.js:2734",
+    "game.js:3288",
+    "game.js:3455"
    ]
   },
   {
    "id": "首次通關",
    "at": [
-    "game.js:2606"
+    "game.js:2613"
    ]
   },
   {
    "id": "升到 {lv}",
    "at": [
-    "game.js:2606"
+    "game.js:2613"
    ]
   },
   {
    "id": "前往下一關",
    "at": [
-    "game.js:2607"
+    "game.js:2614"
    ]
   },
   {
    "id": "確定",
    "at": [
-    "game.js:2607",
-    "game.js:3138",
-    "index.html:1167"
+    "game.js:2614",
+    "game.js:2793",
+    "game.js:3424",
+    "index.html:1196"
    ]
   },
   {
    "id": "成績上傳中⋯",
    "at": [
-    "game.js:2613"
+    "game.js:2620"
    ]
   },
   {
    "id": "排行榜 <b>第 {r} 名</b>／共 {n} 人",
    "at": [
-    "game.js:2623"
+    "game.js:2631"
    ]
   },
   {
    "id": "<em>↑ 上升 {n} 名</em>",
    "at": [
-    "game.js:2623"
+    "game.js:2631"
    ]
   },
   {
    "id": "<span class=\"dim\">（未超越您的最佳紀錄）</span>",
    "at": [
-    "game.js:2623"
+    "game.js:2631"
    ]
   },
   {
    "id": "查看排行榜",
    "at": [
-    "game.js:2624",
-    "index.html:1048"
+    "game.js:2632",
+    "index.html:1065"
    ]
   },
   {
    "id": "您的暱稱遭多人檢舉，暫時不會顯示於排行榜",
    "at": [
-    "game.js:2625"
+    "game.js:2633"
    ]
   },
   {
    "id": "找不到您的暱稱，請至「設定」重新設定暱稱",
    "at": [
-    "game.js:2628"
+    "game.js:2636"
    ]
   },
   {
    "id": "操作太頻繁，本次成績未上傳",
    "at": [
-    "game.js:2628"
+    "game.js:2636"
    ]
   },
   {
    "id": "目前無法連線至伺服器，本次成績未列入排行榜",
    "at": [
-    "game.js:2628"
+    "game.js:2636"
    ]
   },
   {
    "id": "本次成績無法驗證，未列入排行榜",
    "at": [
-    "game.js:2628"
+    "game.js:2636"
    ]
   },
   {
-   "id": "星輝 {k}",
+   "id": "挑戰成功",
    "at": [
-    "game.js:2639"
+    "game.js:2695"
    ]
   },
   {
-   "id": "白色",
+   "id": "挑戰未成功（目標 {score} 分）",
    "at": [
-    "game.js:2641"
+    "game.js:2695"
    ]
   },
   {
-   "id": "青色",
+   "id": "勝利　超越星影 {name}（{score} 分）",
    "at": [
-    "game.js:2641"
+    "game.js:2696"
    ]
   },
   {
-   "id": "綠色",
+   "id": "落敗　星影 {name}：{score} 分",
    "at": [
-    "game.js:2641"
+    "game.js:2696"
    ]
   },
   {
-   "id": "藍色",
+   "id": "{song}・{d}　已等待 {n} 秒",
    "at": [
-    "game.js:2641"
-   ]
-  },
-  {
-   "id": "紫色",
-   "at": [
-    "game.js:2641"
-   ]
-  },
-  {
-   "id": "粉色",
-   "at": [
-    "game.js:2641"
-   ]
-  },
-  {
-   "id": "橙色",
-   "at": [
-    "game.js:2641"
-   ]
-  },
-  {
-   "id": "金色",
-   "at": [
-    "game.js:2641"
-   ]
-  },
-  {
-   "id": "彩虹",
-   "at": [
-    "game.js:2641"
-   ]
-  },
-  {
-   "id": "星輝",
-   "at": [
-    "game.js:2641"
-   ]
-  },
-  {
-   "id": "已滿",
-   "at": [
-    "game.js:2706",
-    "game.js:2895"
-   ]
-  },
-  {
-   "id": "{t} 後 +1",
-   "at": [
-    "game.js:2706",
-    "game.js:2895"
-   ]
-  },
-  {
-   "id": "朔望之光剩 {n} 天",
-   "at": [
-    "game.js:2707"
-   ]
-  },
-  {
-   "id": "點此設定暱稱",
-   "at": [
-    "game.js:2717"
-   ]
-  },
-  {
-   "id": "經驗 {a} / {b}",
-   "at": [
-    "game.js:2721",
-    "game.js:2871"
-   ]
-  },
-  {
-   "id": "離線",
-   "at": [
-    "game.js:2721",
-    "game.js:2732",
-    "game.js:2895"
-   ]
-  },
-  {
-   "id": "離線中，暫時無法顯示等級",
-   "at": [
-    "game.js:2722",
-    "game.js:2872",
-    "game.js:2892"
-   ]
-  },
-  {
-   "id": "免費",
-   "at": [
-    "game.js:2733",
-    "shop.js:203"
-   ]
-  },
-  {
-   "id": "{n} 點",
-   "at": [
-    "game.js:2733"
-   ]
-  },
-  {
-   "id": "離線中，只能使用 ×1；本次經驗不會計入",
-   "at": [
-    "game.js:2736"
-   ]
-  },
-  {
-   "id": "全對約 <b>+{n} 經驗</b>（基本 {b} ×{m}）",
-   "at": [
-    "game.js:2739"
-   ]
-  },
-  {
-   "id": "全對約 <b>+{n} 經驗</b>",
-   "at": [
-    "game.js:2739"
-   ]
-  },
-  {
-   "id": "通關才扣光能，沒過不扣",
-   "at": [
-    "game.js:2739"
-   ]
-  },
-  {
-   "id": "今日已用 {x} / {y}，超過上限的倍率暫時不能選",
-   "at": [
-    "game.js:2740"
-   ]
-  },
-  {
-   "id": "光能不足的倍率暫時不能選（每 6 分鐘回復 1 點）",
-   "at": [
-    "game.js:2740"
-   ]
-  },
-  {
-   "id": "離線中，只能使用 ×1",
-   "at": [
-    "game.js:2748"
-   ]
-  },
-  {
-   "id": "今日光能用量已達上限（{x} / {y}）",
-   "at": [
-    "game.js:2748"
-   ]
-  },
-  {
-   "id": "光能不足：×{m} 需要 {c} 點，目前 {n} 點",
-   "at": [
-    "game.js:2748"
-   ]
-  },
-  {
-   "id": "經驗計算中⋯",
-   "at": [
-    "game.js:2756"
-   ]
-  },
-  {
-   "id": "離線，本次經驗未計入",
-   "at": [
-    "game.js:2765"
-   ]
-  },
-  {
-   "id": "未通關：依完成度計算經驗，不套用倍率、不消耗光能",
-   "at": [
-    "game.js:2772"
-   ]
-  },
-  {
-   "id": "與另一場遊玩時間重疊，本場不計經驗、不消耗光能",
-   "at": [
-    "game.js:2773"
-   ]
-  },
-  {
-   "id": "光能不足或已達本日上限，本場以 ×{n} 計算",
-   "at": [
-    "game.js:2775"
-   ]
-  },
-  {
-   "id": "本日遊玩已超過 1 小時，經驗減半",
-   "at": [
-    "game.js:2777",
-    "game.js:2905"
-   ]
-  },
-  {
-   "id": "基本 {b} × 光能 ×{m}",
-   "at": [
-    "game.js:2782"
-   ]
-  },
-  {
-   "id": "升到 {lv} 還差 {n}",
-   "at": [
-    "game.js:2785",
-    "game.js:2871"
-   ]
-  },
-  {
-   "id": "稱號「{n}」",
-   "at": [
-    "game.js:2805"
-   ]
-  },
-  {
-   "id": "光球「{n}」",
-   "at": [
-    "game.js:2805"
-   ]
-  },
-  {
-   "id": "尾跡「{n}」",
-   "at": [
-    "game.js:2805"
-   ]
-  },
-  {
-   "id": "打擊特效「{n}」",
-   "at": [
-    "game.js:2805"
-   ]
-  },
-  {
-   "id": "框線「{n}」",
-   "at": [
-    "game.js:2806"
-   ]
-  },
-  {
-   "id": "背景「{n}」",
-   "at": [
-    "game.js:2806"
-   ]
-  },
-  {
-   "id": "名牌框「{n}」",
-   "at": [
-    "game.js:2806"
-   ]
-  },
-  {
-   "id": "表情「{n}」",
-   "at": [
-    "game.js:2806"
-   ]
-  },
-  {
-   "id": "限定主題「{n}」",
-   "at": [
-    "game.js:2806"
-   ]
-  },
-  {
-   "id": "稱號",
-   "at": [
-    "game.js:2808",
-    "shop.js:197"
-   ]
-  },
-  {
-   "id": "光球",
-   "at": [
-    "game.js:2808",
-    "shop.js:197"
-   ]
-  },
-  {
-   "id": "尾跡",
-   "at": [
-    "game.js:2808",
-    "shop.js:197"
-   ]
-  },
-  {
-   "id": "打擊特效",
-   "at": [
-    "game.js:2808",
-    "shop.js:197"
-   ]
-  },
-  {
-   "id": "框線",
-   "at": [
-    "game.js:2808",
-    "shop.js:197"
-   ]
-  },
-  {
-   "id": "背景",
-   "at": [
-    "game.js:2808",
-    "shop.js:197"
-   ]
-  },
-  {
-   "id": "名牌框",
-   "at": [
-    "game.js:2808",
-    "shop.js:197"
-   ]
-  },
-  {
-   "id": "頭像",
-   "at": [
-    "game.js:2808",
-    "shop.js:197"
-   ]
-  },
-  {
-   "id": "表情",
-   "at": [
-    "game.js:2808"
-   ]
-  },
-  {
-   "id": "限定主題",
-   "at": [
-    "game.js:2808"
-   ]
-  },
-  {
-   "id": "升級了",
-   "at": [
-    "game.js:2818"
-   ]
-  },
-  {
-   "id": "徽章變成{c}",
-   "at": [
-    "game.js:2824"
-   ]
-  },
-  {
-   "id": "獲得",
-   "at": [
-    "game.js:2825"
-   ]
-  },
-  {
-   "id": "設定暱稱後，這些獎勵會自動補發給您",
-   "at": [
-    "game.js:2828"
-   ]
-  },
-  {
-   "id": "立即裝備",
-   "at": [
-    "game.js:2829",
-    "index.html:1041"
-   ]
-  },
-  {
-   "id": "繼續@@level",
-   "at": [
-    "game.js:2834"
-   ]
-  },
-  {
-   "id": "已裝備",
-   "at": [
-    "game.js:2844"
-   ]
-  },
-  {
-   "id": "已放入收藏，可到「收藏」裝備",
-   "at": [
-    "game.js:2844"
-   ]
-  },
-  {
-   "id": "尚未設定暱稱",
-   "at": [
-    "game.js:2869"
-   ]
-  },
-  {
-   "id": "通關曲目",
-   "at": [
-    "game.js:2882"
-   ]
-  },
-  {
-   "id": "完整星座",
-   "at": [
-    "game.js:2882"
-   ]
-  },
-  {
-   "id": "成就達成",
-   "at": [
-    "game.js:2882"
-   ]
-  },
-  {
-   "id": "SSS 評級",
-   "at": [
-    "game.js:2882"
-   ]
-  },
-  {
-   "id": "SS 評級",
-   "at": [
-    "game.js:2882"
-   ]
-  },
-  {
-   "id": "已解鎖外觀",
-   "at": [
-    "game.js:2882"
-   ]
-  },
-  {
-   "id": "光能",
-   "at": [
-    "game.js:2894",
-    "game.js:2901"
-   ]
-  },
-  {
-   "id": "今日 {x} / {y}",
-   "at": [
-    "game.js:2895"
-   ]
-  },
-  {
-   "id": "關閉",
-   "at": [
-    "game.js:2901",
-    "game.js:3300",
-    "game.js:3690",
-    "index.html:1026"
-   ]
-  },
-  {
-   "id": "每 6 分鐘 +1，今日已用 {x} / {y}",
-   "at": [
-    "game.js:2902"
-   ]
-  },
-  {
-   "id": "只放大經驗，不影響分數與排行",
-   "at": [
-    "game.js:2902"
-   ]
-  },
-  {
-   "id": "其中朔望之光贈送 {a} 點、購買 {b} 點，不會過期",
-   "at": [
-    "game.js:2903"
-   ]
-  },
-  {
-   "id": "期間自然上限 {n}",
-   "at": [
-    "game.js:2904"
-   ]
-  },
-  {
-   "id": "可在 App 版補充光能",
-   "at": [
-    "game.js:2906"
-   ]
-  },
-  {
-   "id": "離線中，顯示的是上次的數字",
-   "at": [
-    "game.js:2906"
-   ]
-  },
-  {
-   "id": "正在裝備",
-   "at": [
-    "game.js:2913"
-   ]
-  },
-  {
-   "id": "等級之路",
-   "at": [
-    "game.js:2923"
-   ]
-  },
-  {
-   "id": "補充光能",
-   "at": [
-    "game.js:2923"
-   ]
-  },
-  {
-   "id": "已獲得",
-   "at": [
-    "game.js:2951"
-   ]
-  },
-  {
-   "id": "還差 {n} 級",
-   "at": [
-    "game.js:2951"
-   ]
-  },
-  {
-   "id": "達到等級就會自動獲得",
-   "at": [
-    "game.js:2952"
-   ]
-  },
-  {
-   "id": "螢火瓶",
-   "at": [
-    "game.js:2955"
-   ]
-  },
-  {
-   "id": "琉璃燈",
-   "at": [
-    "game.js:2955"
-   ]
-  },
-  {
-   "id": "星光匣",
-   "at": [
-    "game.js:2955"
-   ]
-  },
-  {
-   "id": "朔望之光",
-   "at": [
-    "game.js:2955"
-   ]
-  },
-  {
-   "id": "我同意購買後立即使用，不適用七日解除權",
-   "at": [
-    "game.js:2957"
-   ]
-  },
-  {
-   "id": "月亮走完一輪的 30 天裡，每天自動入帳 {d} 點（共 {n} 點，不用登入），期間自然上限提高到 120；不會自動續訂，再買會延長天數",
-   "at": [
-    "game.js:2960"
-   ]
-  },
-  {
-   "id": "+{n} 點，不會過期",
-   "at": [
-    "game.js:2960"
-   ]
-  },
-  {
-   "id": "光能只放大單人通關的經驗，不影響分數、排行榜與成就。",
-   "at": [
-    "game.js:2962"
-   ]
-  },
-  {
-   "id": "購買的光能立即發放、不會過期；朔望之光是一次性購買，每天自動發放，到期後不會自動扣款。",
-   "at": [
-    "game.js:2962"
-   ]
-  },
-  {
-   "id": "請先設定暱稱再購買",
-   "at": [
-    "game.js:2963",
-    "game.js:2979",
-    "game.js:2986",
-    "shop.js:141"
-   ]
-  },
-  {
-   "id": "服務條款",
-   "at": [
-    "game.js:2964",
-    "index.html:994"
-   ]
-  },
-  {
-   "id": "隱私權政策",
-   "at": [
-    "game.js:2964",
-    "index.html:994"
-   ]
-  },
-  {
-   "id": "購買功能尚未就緒，請稍後再試",
-   "at": [
-    "game.js:2980",
-    "shop.js:134"
-   ]
-  },
-  {
-   "id": "購買沒有完成",
-   "at": [
-    "game.js:2985",
-    "game.js:2991",
-    "shop.js:140",
-    "shop.js:151"
-   ]
-  },
-  {
-   "id": "已付款但驗證失敗，下次開啟遊戲時會自動再試；仍未入帳請聯絡我們",
-   "at": [
-    "game.js:2987"
-   ]
-  },
-  {
-   "id": "已付款，購買紀錄稍後會自動補上，請勿重複購買",
-   "at": [
-    "game.js:2987",
-    "shop.js:142"
-   ]
-  },
-  {
-   "id": "這筆購買已在 24 小時內轉移過，暫時無法再轉移",
-   "at": [
-    "game.js:2988",
-    "shop.js:145"
-   ]
-  },
-  {
-   "id": "這筆購買已退款",
-   "at": [
-    "game.js:2988",
-    "shop.js:146"
-   ]
-  },
-  {
-   "id": "購買完成",
-   "at": [
-    "game.js:2988",
-    "shop.js:148"
-   ]
-  },
-  {
-   "id": "目前無法驗證購買，請稍後再試",
-   "at": [
-    "game.js:2989",
-    "shop.js:149",
-    "shop.js:167"
-   ]
-  },
-  {
-   "id": "購買等待核准中，核准後會自動取得",
-   "at": [
-    "game.js:2990",
-    "shop.js:150"
-   ]
-  },
-  {
-   "id": "您（{name}）",
-   "at": [
-    "game.js:3005"
-   ]
-  },
-  {
-   "id": "檢舉或隱藏 {name}",
-   "at": [
-    "game.js:3009"
-   ]
-  },
-  {
-   "id": "檢舉不雅暱稱",
-   "at": [
-    "game.js:3010"
-   ]
-  },
-  {
-   "id": "隱藏這位玩家",
-   "at": [
-    "game.js:3010"
-   ]
-  },
-  {
-   "id": "目前尚無紀錄。",
-   "at": [
-    "game.js:3011"
-   ]
-  },
-  {
-   "id": "通關此難度後，即會列入排行榜",
-   "at": [
-    "game.js:3014"
-   ]
-  },
-  {
-   "id": "您的暱稱遭多人檢舉，暫時不會顯示",
-   "at": [
-    "game.js:3014"
-   ]
-  },
-  {
-   "id": "設定暱稱後才能檢舉",
-   "at": [
-    "game.js:3022"
-   ]
-  },
-  {
-   "id": "送出中⋯",
-   "at": [
-    "game.js:3022",
-    "game.js:3342",
-    "game.js:3871",
-    "game.js:3883"
-   ]
-  },
-  {
-   "id": "已送出檢舉，感謝回報",
-   "at": [
-    "game.js:3022"
-   ]
-  },
-  {
-   "id": "送出失敗",
-   "at": [
-    "game.js:3022"
-   ]
-  },
-  {
-   "id": "{m} 分 {s} 秒",
-   "at": [
-    "game.js:3032"
-   ]
-  },
-  {
-   "id": "練習",
-   "at": [
-    "game.js:3039"
-   ]
-  },
-  {
-   "id": "速度",
-   "at": [
-    "game.js:3040"
-   ]
-  },
-  {
-   "id": "起點",
-   "at": [
-    "game.js:3041"
-   ]
-  },
-  {
-   "id": "從頭",
-   "at": [
-    "game.js:3041"
-   ]
-  },
-  {
-   "id": "上次失敗處（第 {n} 拍）",
-   "at": [
-    "game.js:3041"
-   ]
-  },
-  {
-   "id": "練習不計排行榜、不給經驗、不消耗光能。",
-   "at": [
-    "game.js:3042"
-   ]
-  },
-  {
-   "id": "開始練習",
-   "at": [
-    "game.js:3044"
-   ]
-  },
-  {
-   "id": "獎勵 · {d}",
-   "at": [
-    "game.js:3057"
-   ]
-  },
-  {
-   "id": "難度",
-   "at": [
-    "game.js:3057",
-    "index.html:1074"
-   ]
-  },
-  {
-   "id": "已通關難度",
-   "at": [
-    "game.js:3062"
-   ]
-  },
-  {
-   "id": "完整版",
-   "at": [
-    "game.js:3063",
-    "shop.js:196"
-   ]
-  },
-  {
-   "id": "此難度的曲目皆已通關，可改選其他難度挑戰。",
-   "at": [
-    "game.js:3065"
-   ]
-  },
-  {
-   "id": "此難度尚無已通關的曲目。",
-   "at": [
-    "game.js:3065"
-   ]
-  },
-  {
-   "id": "第 {n} 首",
-   "at": [
-    "game.js:3072"
-   ]
-  },
-  {
-   "id": "獎勵曲固定難度",
-   "at": [
-    "game.js:3075"
-   ]
-  },
-  {
-   "id": "·快",
-   "at": [
-    "game.js:3075"
-   ]
-  },
-  {
-   "id": "·慢",
-   "at": [
-    "game.js:3075"
-   ]
-  },
-  {
-   "id": "精準度 <b>{acc}</b>",
-   "at": [
-    "game.js:3077"
-   ]
-  },
-  {
-   "id": "最高分 <b>{score}</b>",
-   "at": [
-    "game.js:3077"
-   ]
-  },
-  {
-   "id": "此難度尚未通關",
-   "at": [
-    "game.js:3078"
-   ]
-  },
-  {
-   "id": "排行榜載入中⋯",
-   "at": [
-    "game.js:3081"
-   ]
-  },
-  {
-   "id": "離線中，暫時無法顯示排行榜",
-   "at": [
-    "game.js:3084"
-   ]
-  },
-  {
-   "id": "目前尚無紀錄",
-   "at": [
-    "game.js:3086"
-   ]
-  },
-  {
-   "id": "排行榜 <b style=\"color:#ffd36b\">第 {r} 名</b>／共 {n} 人",
-   "at": [
-    "game.js:3087"
-   ]
-  },
-  {
-   "id": "好友",
-   "at": [
-    "game.js:3126",
-    "game.js:3285",
-    "game.js:3289",
-    "cosmetics.js:954"
-   ]
-  },
-  {
-   "id": "{name} 邀請您對戰，但對方的遊戲版本較舊，請對方更新後再邀請",
-   "at": [
-    "game.js:3127"
-   ]
-  },
-  {
-   "id": "{name} 目前無法接受邀請",
-   "at": [
-    "game.js:3130"
-   ]
-  },
-  {
-   "id": "{name} 想加您為好友",
-   "at": [
-    "game.js:3131"
-   ]
-  },
-  {
-   "id": "<b>{name}</b> 邀請您對戰",
-   "at": [
-    "game.js:3145"
-   ]
-  },
-  {
-   "id": "還有 {n} 秒",
-   "at": [
-    "game.js:3146"
-   ]
-  },
-  {
-   "id": "加入",
-   "at": [
-    "game.js:3147",
-    "index.html:1077",
-    "index.html:1185"
-   ]
-  },
-  {
-   "id": "{n} 分鐘前",
-   "at": [
-    "game.js:3157"
-   ]
-  },
-  {
-   "id": "{n} 小時前",
-   "at": [
-    "game.js:3157"
-   ]
-  },
-  {
-   "id": "{n} 天前",
-   "at": [
-    "game.js:3157"
+    "game.js:2710"
    ]
   },
   {
    "id": "請先設定暱稱",
    "at": [
-    "game.js:3162"
+    "game.js:2719",
+    "game.js:3448"
    ]
   },
   {
-   "id": "離線中",
+   "id": "目前沒有可用的星影紀錄，請繼續等待。",
    "at": [
-    "game.js:3162"
+    "game.js:2721"
    ]
   },
   {
-   "id": "已帶入好友碼，請按「送出」。",
+   "id": "目前無法取得星影紀錄，請稍後再試。",
    "at": [
-    "game.js:3163"
+    "game.js:2721"
+   ]
+  },
+  {
+   "id": "「同行星芒」已加入收藏",
+   "at": [
+    "game.js:2769"
+   ]
+  },
+  {
+   "id": "這是你自己的邀請碼。",
+   "at": [
+    "game.js:2772"
+   ]
+  },
+  {
+   "id": "找不到這個邀請碼。",
+   "at": [
+    "game.js:2772"
+   ]
+  },
+  {
+   "id": "你已經輸入過邀請碼。",
+   "at": [
+    "game.js:2772"
+   ]
+  },
+  {
+   "id": "只有尚未通關的新玩家可以輸入邀請碼。",
+   "at": [
+    "game.js:2772"
+   ]
+  },
+  {
+   "id": "邀請碼是 6 個英數字。",
+   "at": [
+    "game.js:2772"
    ]
   },
   {
    "id": "請先設定暱稱。",
    "at": [
-    "game.js:3169"
+    "game.js:2772",
+    "game.js:3455"
    ]
   },
   {
-   "id": "{n} 個邀請",
+   "id": "操作太頻繁，請稍後再試。",
    "at": [
-    "game.js:3177"
+    "game.js:2772"
    ]
   },
   {
-   "id": "{n} 則新訊息",
+   "id": "目前無法輸入邀請碼，請稍後再試。",
    "at": [
-    "game.js:3177"
+    "game.js:2772"
    ]
   },
   {
-   "id": "今天",
+   "id": "已通關過的玩家無法使用邀請碼。",
    "at": [
-    "game.js:3194"
+    "game.js:2776",
+    "game.js:2792"
    ]
   },
   {
-   "id": "昨天",
+   "id": "設定暱稱後，才能使用邀請碼。",
    "at": [
-    "game.js:3194"
+    "game.js:2783"
    ]
   },
   {
-   "id": "{m} 月 {d} 日",
+   "id": "已輸入好友的邀請碼。",
    "at": [
-    "game.js:3194"
+    "game.js:2786"
    ]
   },
   {
-   "id": "與 {name} 的訊息",
+   "id": "　你們都已完成。",
    "at": [
-    "game.js:3200"
+    "game.js:2786"
    ]
   },
   {
-   "id": "返回",
+   "id": "　完成首次通關後，雙方都會獲得「同行星芒」。",
    "at": [
-    "game.js:3200"
+    "game.js:2786"
    ]
   },
   {
-   "id": "檢舉或封鎖",
+   "id": "你的邀請碼",
    "at": [
-    "game.js:3200"
+    "game.js:2788"
    ]
   },
   {
-   "id": "輸入訊息",
+   "id": "複製邀請連結",
    "at": [
-    "game.js:3203"
+    "game.js:2788"
    ]
   },
   {
-   "id": "送出",
+   "id": "好友透過你的邀請連結或邀請碼加入，並首次通關任一曲目後，雙方皆可獲得限定外觀「同行星芒」。",
    "at": [
-    "game.js:3203",
-    "index.html:1177"
+    "game.js:2789"
    ]
   },
   {
-   "id": "僅限好友傳送 · 訊息保存 7 天 · 系統將過濾不當用語 · 點選 ⚑ 可檢舉訊息",
+   "id": "已邀請 {n} 人，其中 {m} 人已完成",
    "at": [
-    "game.js:3204"
+    "game.js:2790"
    ]
   },
   {
-   "id": "聊天前請先閱讀社群規範",
+   "id": "目前無法連線，請稍後再試。",
    "at": [
-    "game.js:3220"
+    "game.js:2790",
+    "game.js:2830"
    ]
   },
   {
-   "id": "禁止辱罵、人身攻擊或騷擾",
+   "id": "讀取中⋯",
    "at": [
-    "game.js:3220"
+    "game.js:2790",
+    "game.js:2830"
    ]
   },
   {
-   "id": "禁止仇恨、歧視、性相關或暴力內容",
+   "id": "輸入好友邀請碼",
    "at": [
-    "game.js:3220"
+    "game.js:2793"
    ]
   },
   {
-   "id": "禁止詐騙、索取個人資料或引導至其他平台",
+   "id": "邀請碼",
    "at": [
-    "game.js:3220"
+    "game.js:2793"
    ]
   },
   {
-   "id": "禁止廣告與洗版",
+   "id": "已複製邀請連結",
    "at": [
-    "game.js:3220"
+    "game.js:2801"
    ]
   },
   {
-   "id": "不當用語會被自動過濾。被檢舉的訊息由 AI 審查，確認違規時會刪除該訊息，並暫停傳送訊息 1 天、7 天或 30 天（依違規次數）。對本遊戲違規內容零容忍。",
+   "id": "{name} 向你發出挑戰",
    "at": [
-    "game.js:3221"
+    "game.js:2827"
    ]
   },
   {
-   "id": "同意並開始聊天",
+   "id": "{song}・{d}　{score} 分",
    "at": [
-    "game.js:3222"
+    "game.js:2828"
    ]
   },
   {
-   "id": "您與對方已非好友，無法傳送",
+   "id": "解鎖完整版",
    "at": [
-    "game.js:3230",
-    "game.js:3281"
+    "game.js:2830"
    ]
   },
   {
-   "id": "目前無法載入訊息，請稍後再試",
+   "id": "接受挑戰",
+   "at": [
+    "game.js:2830",
+    "index.html:1112"
+   ]
+  },
+  {
+   "id": "{name} 在 PingPongLight《{song}》・{d} 拿到 {score} 分，來挑戰看看！",
+   "at": [
+    "game.js:2859"
+   ]
+  },
+  {
+   "id": "稱號：{title}",
+   "at": [
+    "game.js:2883"
+   ]
+  },
+  {
+   "id": "SSS 評級",
+   "at": [
+    "game.js:2887",
+    "game.js:3166"
+   ]
+  },
+  {
+   "id": "成就達成",
+   "at": [
+    "game.js:2887",
+    "game.js:3166"
+   ]
+  },
+  {
+   "id": "S 評",
+   "at": [
+    "game.js:2888"
+   ]
+  },
+  {
+   "id": "完整星座",
+   "at": [
+    "game.js:2888",
+    "game.js:3166"
+   ]
+  },
+  {
+   "id": "邀請碼 {code}",
+   "at": [
+    "game.js:2894"
+   ]
+  },
+  {
+   "id": "我的 PingPongLight 星卡",
+   "at": [
+    "game.js:2901"
+   ]
+  },
+  {
+   "id": "星輝 {k}",
+   "at": [
+    "game.js:2923"
+   ]
+  },
+  {
+   "id": "白色",
+   "at": [
+    "game.js:2925"
+   ]
+  },
+  {
+   "id": "青色",
+   "at": [
+    "game.js:2925"
+   ]
+  },
+  {
+   "id": "綠色",
+   "at": [
+    "game.js:2925"
+   ]
+  },
+  {
+   "id": "藍色",
+   "at": [
+    "game.js:2925"
+   ]
+  },
+  {
+   "id": "紫色",
+   "at": [
+    "game.js:2925"
+   ]
+  },
+  {
+   "id": "粉色",
+   "at": [
+    "game.js:2925"
+   ]
+  },
+  {
+   "id": "橙色",
+   "at": [
+    "game.js:2925"
+   ]
+  },
+  {
+   "id": "金色",
+   "at": [
+    "game.js:2925"
+   ]
+  },
+  {
+   "id": "彩虹",
+   "at": [
+    "game.js:2925"
+   ]
+  },
+  {
+   "id": "星輝",
+   "at": [
+    "game.js:2925"
+   ]
+  },
+  {
+   "id": "已滿",
+   "at": [
+    "game.js:2990",
+    "game.js:3179"
+   ]
+  },
+  {
+   "id": "{t} 後 +1",
+   "at": [
+    "game.js:2990",
+    "game.js:3179"
+   ]
+  },
+  {
+   "id": "朔望之光剩 {n} 天",
+   "at": [
+    "game.js:2991"
+   ]
+  },
+  {
+   "id": "點此設定暱稱",
+   "at": [
+    "game.js:3001"
+   ]
+  },
+  {
+   "id": "經驗 {a} / {b}",
+   "at": [
+    "game.js:3005",
+    "game.js:3155"
+   ]
+  },
+  {
+   "id": "離線",
+   "at": [
+    "game.js:3005",
+    "game.js:3016",
+    "game.js:3179"
+   ]
+  },
+  {
+   "id": "離線中，暫時無法顯示等級",
+   "at": [
+    "game.js:3006",
+    "game.js:3156",
+    "game.js:3176"
+   ]
+  },
+  {
+   "id": "免費",
+   "at": [
+    "game.js:3017",
+    "shop.js:206"
+   ]
+  },
+  {
+   "id": "{n} 點",
+   "at": [
+    "game.js:3017"
+   ]
+  },
+  {
+   "id": "離線中，只能使用 ×1；本次經驗不會計入",
+   "at": [
+    "game.js:3020"
+   ]
+  },
+  {
+   "id": "全對約 <b>+{n} 經驗</b>（基本 {b} ×{m}）",
+   "at": [
+    "game.js:3023"
+   ]
+  },
+  {
+   "id": "全對約 <b>+{n} 經驗</b>",
+   "at": [
+    "game.js:3023"
+   ]
+  },
+  {
+   "id": "通關才扣光能，沒過不扣",
+   "at": [
+    "game.js:3023"
+   ]
+  },
+  {
+   "id": "今日已用 {x} / {y}，超過上限的倍率暫時不能選",
+   "at": [
+    "game.js:3024"
+   ]
+  },
+  {
+   "id": "光能不足的倍率暫時不能選（每 6 分鐘回復 1 點）",
+   "at": [
+    "game.js:3024"
+   ]
+  },
+  {
+   "id": "離線中，只能使用 ×1",
+   "at": [
+    "game.js:3032"
+   ]
+  },
+  {
+   "id": "今日光能用量已達上限（{x} / {y}）",
+   "at": [
+    "game.js:3032"
+   ]
+  },
+  {
+   "id": "光能不足：×{m} 需要 {c} 點，目前 {n} 點",
+   "at": [
+    "game.js:3032"
+   ]
+  },
+  {
+   "id": "經驗計算中⋯",
+   "at": [
+    "game.js:3040"
+   ]
+  },
+  {
+   "id": "離線，本次經驗未計入",
+   "at": [
+    "game.js:3049"
+   ]
+  },
+  {
+   "id": "未通關：依完成度計算經驗，不套用倍率、不消耗光能",
+   "at": [
+    "game.js:3056"
+   ]
+  },
+  {
+   "id": "與另一場遊玩時間重疊，本場不計經驗、不消耗光能",
+   "at": [
+    "game.js:3057"
+   ]
+  },
+  {
+   "id": "光能不足或已達本日上限，本場以 ×{n} 計算",
+   "at": [
+    "game.js:3059"
+   ]
+  },
+  {
+   "id": "本日遊玩已超過 1 小時，經驗減半",
+   "at": [
+    "game.js:3061",
+    "game.js:3189"
+   ]
+  },
+  {
+   "id": "基本 {b} × 光能 ×{m}",
+   "at": [
+    "game.js:3066"
+   ]
+  },
+  {
+   "id": "升到 {lv} 還差 {n}",
+   "at": [
+    "game.js:3069",
+    "game.js:3155"
+   ]
+  },
+  {
+   "id": "稱號「{n}」",
+   "at": [
+    "game.js:3089"
+   ]
+  },
+  {
+   "id": "光球「{n}」",
+   "at": [
+    "game.js:3089"
+   ]
+  },
+  {
+   "id": "尾跡「{n}」",
+   "at": [
+    "game.js:3089"
+   ]
+  },
+  {
+   "id": "打擊特效「{n}」",
+   "at": [
+    "game.js:3089"
+   ]
+  },
+  {
+   "id": "框線「{n}」",
+   "at": [
+    "game.js:3090"
+   ]
+  },
+  {
+   "id": "背景「{n}」",
+   "at": [
+    "game.js:3090"
+   ]
+  },
+  {
+   "id": "名牌框「{n}」",
+   "at": [
+    "game.js:3090"
+   ]
+  },
+  {
+   "id": "表情「{n}」",
+   "at": [
+    "game.js:3090"
+   ]
+  },
+  {
+   "id": "限定主題「{n}」",
+   "at": [
+    "game.js:3090"
+   ]
+  },
+  {
+   "id": "稱號",
+   "at": [
+    "game.js:3092",
+    "shop.js:200"
+   ]
+  },
+  {
+   "id": "光球",
+   "at": [
+    "game.js:3092",
+    "shop.js:200"
+   ]
+  },
+  {
+   "id": "尾跡",
+   "at": [
+    "game.js:3092",
+    "shop.js:200"
+   ]
+  },
+  {
+   "id": "打擊特效",
+   "at": [
+    "game.js:3092",
+    "shop.js:200"
+   ]
+  },
+  {
+   "id": "框線",
+   "at": [
+    "game.js:3092",
+    "shop.js:200"
+   ]
+  },
+  {
+   "id": "背景",
+   "at": [
+    "game.js:3092",
+    "shop.js:200"
+   ]
+  },
+  {
+   "id": "名牌框",
+   "at": [
+    "game.js:3092",
+    "shop.js:200"
+   ]
+  },
+  {
+   "id": "頭像",
+   "at": [
+    "game.js:3092",
+    "shop.js:200"
+   ]
+  },
+  {
+   "id": "表情",
+   "at": [
+    "game.js:3092"
+   ]
+  },
+  {
+   "id": "限定主題",
+   "at": [
+    "game.js:3092"
+   ]
+  },
+  {
+   "id": "升級了",
+   "at": [
+    "game.js:3102"
+   ]
+  },
+  {
+   "id": "徽章變成{c}",
+   "at": [
+    "game.js:3108"
+   ]
+  },
+  {
+   "id": "獲得",
+   "at": [
+    "game.js:3109"
+   ]
+  },
+  {
+   "id": "設定暱稱後，這些獎勵會自動補發給您",
+   "at": [
+    "game.js:3112"
+   ]
+  },
+  {
+   "id": "立即裝備",
+   "at": [
+    "game.js:3113",
+    "index.html:1057"
+   ]
+  },
+  {
+   "id": "繼續@@level",
+   "at": [
+    "game.js:3118"
+   ]
+  },
+  {
+   "id": "已裝備",
+   "at": [
+    "game.js:3128"
+   ]
+  },
+  {
+   "id": "已放入收藏，可到「收藏」裝備",
+   "at": [
+    "game.js:3128"
+   ]
+  },
+  {
+   "id": "尚未設定暱稱",
+   "at": [
+    "game.js:3153"
+   ]
+  },
+  {
+   "id": "分享星卡",
+   "at": [
+    "game.js:3157"
+   ]
+  },
+  {
+   "id": "儲存圖片",
+   "at": [
+    "game.js:3157"
+   ]
+  },
+  {
+   "id": "通關曲目",
+   "at": [
+    "game.js:3166"
+   ]
+  },
+  {
+   "id": "SS 評級",
+   "at": [
+    "game.js:3166"
+   ]
+  },
+  {
+   "id": "已解鎖外觀",
+   "at": [
+    "game.js:3166"
+   ]
+  },
+  {
+   "id": "光能",
+   "at": [
+    "game.js:3178",
+    "game.js:3185"
+   ]
+  },
+  {
+   "id": "今日 {x} / {y}",
+   "at": [
+    "game.js:3179"
+   ]
+  },
+  {
+   "id": "關閉",
+   "at": [
+    "game.js:3185",
+    "game.js:3586",
+    "game.js:3976",
+    "index.html:1042"
+   ]
+  },
+  {
+   "id": "每 6 分鐘 +1，今日已用 {x} / {y}",
+   "at": [
+    "game.js:3186"
+   ]
+  },
+  {
+   "id": "只放大經驗，不影響分數與排行",
+   "at": [
+    "game.js:3186"
+   ]
+  },
+  {
+   "id": "其中朔望之光贈送 {a} 點、購買 {b} 點，不會過期",
+   "at": [
+    "game.js:3187"
+   ]
+  },
+  {
+   "id": "期間自然上限 {n}",
+   "at": [
+    "game.js:3188"
+   ]
+  },
+  {
+   "id": "可在 App 版補充光能",
+   "at": [
+    "game.js:3190"
+   ]
+  },
+  {
+   "id": "離線中，顯示的是上次的數字",
+   "at": [
+    "game.js:3190"
+   ]
+  },
+  {
+   "id": "正在裝備",
+   "at": [
+    "game.js:3197"
+   ]
+  },
+  {
+   "id": "等級之路",
+   "at": [
+    "game.js:3207"
+   ]
+  },
+  {
+   "id": "補充光能",
+   "at": [
+    "game.js:3207"
+   ]
+  },
+  {
+   "id": "已獲得",
+   "at": [
+    "game.js:3237"
+   ]
+  },
+  {
+   "id": "還差 {n} 級",
+   "at": [
+    "game.js:3237"
+   ]
+  },
+  {
+   "id": "達到等級就會自動獲得",
    "at": [
     "game.js:3238"
    ]
   },
   {
-   "id": "還沒有訊息，打聲招呼吧",
+   "id": "螢火瓶",
    "at": [
-    "game.js:3239"
+    "game.js:3241"
    ]
   },
   {
-   "id": "檢舉這則訊息",
+   "id": "琉璃燈",
+   "at": [
+    "game.js:3241"
+   ]
+  },
+  {
+   "id": "星光匣",
+   "at": [
+    "game.js:3241"
+   ]
+  },
+  {
+   "id": "朔望之光",
+   "at": [
+    "game.js:3241"
+   ]
+  },
+  {
+   "id": "我同意購買後立即使用，不適用七日解除權",
    "at": [
     "game.js:3243"
    ]
   },
   {
-   "id": "⚑ 檢舉 {name}",
+   "id": "月亮走完一輪的 30 天裡，每天自動入帳 {d} 點（共 {n} 點，不用登入），期間自然上限提高到 120；不會自動續訂，再買會延長天數",
    "at": [
-    "game.js:3250"
+    "game.js:3246"
    ]
   },
   {
-   "id": "⛔ 封鎖 {name}",
+   "id": "+{n} 點，不會過期",
    "at": [
-    "game.js:3250"
+    "game.js:3246"
    ]
   },
   {
-   "id": "封鎖後，對方將無法傳送訊息或對戰邀請給您",
+   "id": "光能只放大單人通關的經驗，不影響分數、排行榜與成就。",
    "at": [
-    "game.js:3250"
+    "game.js:3248"
    ]
   },
   {
-   "id": "確定封鎖 {name}？",
+   "id": "購買的光能立即發放、不會過期；朔望之光是一次性購買，每天自動發放，到期後不會自動扣款。",
    "at": [
-    "game.js:3254"
+    "game.js:3248"
    ]
   },
   {
-   "id": "封鎖",
+   "id": "請先設定暱稱再購買",
    "at": [
-    "game.js:3254",
-    "game.js:3321"
+    "game.js:3249",
+    "game.js:3265",
+    "game.js:3272",
+    "shop.js:144"
    ]
   },
   {
-   "id": "好友關係將移除，聊天紀錄將無法再查看；可在好友頁面解除封鎖",
+   "id": "服務條款",
    "at": [
-    "game.js:3254"
+    "game.js:3250",
+    "index.html:1010"
    ]
   },
   {
-   "id": "已封鎖",
+   "id": "隱私權政策",
    "at": [
-    "game.js:3256",
-    "game.js:3324"
+    "game.js:3250",
+    "index.html:1010"
    ]
   },
   {
-   "id": "目前無法封鎖，請稍後再試",
+   "id": "購買功能尚未就緒，請稍後再試",
    "at": [
-    "game.js:3256"
+    "game.js:3266",
+    "shop.js:137"
    ]
   },
   {
-   "id": "檢舉這則訊息？",
+   "id": "購買沒有完成",
    "at": [
-    "game.js:3261"
+    "game.js:3271",
+    "game.js:3277",
+    "shop.js:143",
+    "shop.js:154"
    ]
   },
   {
-   "id": "檢舉",
-   "at": [
-    "game.js:3261"
-   ]
-  },
-  {
-   "id": "訊息內容將提供給管理人員審查",
-   "at": [
-    "game.js:3261"
-   ]
-  },
-  {
-   "id": "已收到您的檢舉，我們將盡快處理",
-   "at": [
-    "game.js:3268"
-   ]
-  },
-  {
-   "id": "沒有可檢舉的內容",
-   "at": [
-    "game.js:3268"
-   ]
-  },
-  {
-   "id": "目前無法送出檢舉，請稍後再試",
-   "at": [
-    "game.js:3268"
-   ]
-  },
-  {
-   "id": "請先同意社群規範",
-   "at": [
-    "game.js:3272"
-   ]
-  },
-  {
-   "id": "訊息最多 {n} 個字",
+   "id": "已付款但驗證失敗，下次開啟遊戲時會自動再試；仍未入帳請聯絡我們",
    "at": [
     "game.js:3273"
    ]
   },
   {
-   "id": "對方目前離線，將於上線後傳送",
+   "id": "已付款，購買紀錄稍後會自動補上，請勿重複購買",
+   "at": [
+    "game.js:3273",
+    "shop.js:145"
+   ]
+  },
+  {
+   "id": "這筆購買已在 24 小時內轉移過，暫時無法再轉移",
+   "at": [
+    "game.js:3274",
+    "shop.js:148"
+   ]
+  },
+  {
+   "id": "這筆購買已退款",
+   "at": [
+    "game.js:3274",
+    "shop.js:149"
+   ]
+  },
+  {
+   "id": "購買完成",
+   "at": [
+    "game.js:3274",
+    "shop.js:151"
+   ]
+  },
+  {
+   "id": "目前無法驗證購買，請稍後再試",
+   "at": [
+    "game.js:3275",
+    "shop.js:152",
+    "shop.js:170"
+   ]
+  },
+  {
+   "id": "購買等待核准中，核准後會自動取得",
    "at": [
     "game.js:3276",
-    "game.js:3277"
+    "shop.js:153"
    ]
   },
   {
-   "id": "訊息已送達 {name}",
+   "id": "您（{name}）",
    "at": [
-    "game.js:3277"
+    "game.js:3291"
    ]
   },
   {
-   "id": "您因違反社群規範，暫時無法傳送訊息（至 {date}）。如有疑問，請來信隱私權政策所列信箱",
+   "id": "檢舉或隱藏 {name}",
    "at": [
-    "game.js:3279"
+    "game.js:3295"
    ]
   },
   {
-   "id": "訊息不可包含連結或聯絡方式",
+   "id": "檢舉不雅暱稱",
    "at": [
-    "game.js:3280"
+    "game.js:3296"
    ]
   },
   {
-   "id": "訊息含有不當用語",
+   "id": "隱藏這位玩家",
    "at": [
-    "game.js:3280"
+    "game.js:3296"
    ]
   },
   {
-   "id": "傳送過於頻繁，請稍候再試",
+   "id": "目前尚無紀錄。",
    "at": [
-    "game.js:3282"
+    "game.js:3297"
    ]
   },
   {
-   "id": "目前無法傳送，請稍後再試",
-   "at": [
-    "game.js:3282"
-   ]
-  },
-  {
-   "id": "：",
-   "at": [
-    "game.js:3296",
-    "game.js:3298",
-    "game.js:3316"
-   ]
-  },
-  {
-   "id": "回覆",
+   "id": "通關此難度後，即會列入排行榜",
    "at": [
     "game.js:3300"
    ]
   },
   {
-   "id": "{n} 位在線上",
+   "id": "您的暱稱遭多人檢舉，暫時不會顯示",
    "at": [
-    "game.js:3310"
+    "game.js:3300"
    ]
   },
   {
-   "id": "尚無好友。請將左側的好友碼提供給朋友，或輸入朋友的好友碼。",
+   "id": "設定暱稱後才能檢舉",
    "at": [
-    "game.js:3312"
+    "game.js:3308"
    ]
   },
   {
-   "id": "對戰中 · 結束後即可邀請",
+   "id": "送出中⋯",
    "at": [
-    "game.js:3315"
+    "game.js:3308",
+    "game.js:3628",
+    "game.js:4157",
+    "game.js:4169"
    ]
   },
   {
-   "id": "結束後即可邀請",
+   "id": "已送出檢舉，感謝回報",
    "at": [
-    "game.js:3315"
+    "game.js:3308"
    ]
   },
   {
-   "id": "在線上 · 選曲中",
+   "id": "送出失敗",
    "at": [
-    "game.js:3315"
+    "game.js:3308"
    ]
   },
   {
-   "id": "您",
+   "id": "{m} 分 {s} 秒",
    "at": [
-    "game.js:3316"
+    "game.js:3318"
    ]
   },
   {
-   "id": "邀請對戰",
+   "id": "練習",
    "at": [
-    "game.js:3318",
-    "game.js:3362"
+    "game.js:3325"
    ]
   },
   {
-   "id": "有新訊息，傳訊息給 {name}",
+   "id": "速度",
    "at": [
-    "game.js:3319"
+    "game.js:3326"
    ]
   },
   {
-   "id": "傳訊息給 {name}",
-   "at": [
-    "game.js:3319"
-   ]
-  },
-  {
-   "id": "{name} 的更多選項",
-   "at": [
-    "game.js:3320"
-   ]
-  },
-  {
-   "id": "刪除好友",
-   "at": [
-    "game.js:3321"
-   ]
-  },
-  {
-   "id": "等待對方接受",
-   "at": [
-    "game.js:3323"
-   ]
-  },
-  {
-   "id": "解除封鎖",
-   "at": [
-    "game.js:3324"
-   ]
-  },
-  {
-   "id": "<b>{name}</b> 想加您為好友",
+   "id": "起點",
    "at": [
     "game.js:3327"
    ]
   },
   {
-   "id": "接受",
+   "id": "從頭",
    "at": [
     "game.js:3327"
    ]
   },
   {
-   "id": "略過",
+   "id": "上次失敗處（第 {n} 拍）",
    "at": [
     "game.js:3327"
    ]
   },
   {
-   "id": "目前無法連線至伺服器。",
+   "id": "練習不計排行榜、不給經驗、不消耗光能。",
    "at": [
-    "game.js:3329",
-    "game.js:3343"
+    "game.js:3328"
    ]
   },
   {
-   "id": "操作失敗，請稍後再試。",
+   "id": "開始練習",
    "at": [
-    "game.js:3329"
+    "game.js:3330"
    ]
   },
   {
-   "id": "好友碼是 8 個英文字母和數字。",
-   "at": [
-    "game.js:3341"
-   ]
-  },
-  {
-   "id": "已成為好友。",
+   "id": "獎勵 · {d}",
    "at": [
     "game.js:3343"
    ]
   },
   {
-   "id": "已送出邀請，等待對方接受。",
+   "id": "難度",
    "at": [
-    "game.js:3343"
+    "game.js:3343",
+    "index.html:1092"
    ]
   },
   {
-   "id": "找不到這個好友碼。",
+   "id": "已通關難度",
    "at": [
-    "game.js:3343"
+    "game.js:3348"
    ]
   },
   {
-   "id": "這是您自己的好友碼。",
+   "id": "完整版",
    "at": [
-    "game.js:3343"
+    "game.js:3349",
+    "shop.js:199"
    ]
   },
   {
-   "id": "雙方已是好友。",
+   "id": "此難度的曲目皆已通關，可改選其他難度挑戰。",
    "at": [
-    "game.js:3343"
+    "game.js:3351"
    ]
   },
   {
-   "id": "好友或待確認的邀請已達上限。",
+   "id": "此難度尚無已通關的曲目。",
    "at": [
-    "game.js:3343"
+    "game.js:3351"
    ]
   },
   {
-   "id": "送出失敗，請稍後再試。",
+   "id": "第 {n} 首",
    "at": [
-    "game.js:3343"
+    "game.js:3358"
    ]
   },
   {
-   "id": "複製中⋯",
+   "id": "獎勵曲固定難度",
    "at": [
-    "game.js:3349"
+    "game.js:3361"
    ]
   },
   {
-   "id": "已複製 ✓",
+   "id": "·快",
    "at": [
-    "game.js:3349"
+    "game.js:3361"
    ]
   },
   {
-   "id": "已複製好友碼。",
+   "id": "·慢",
    "at": [
-    "game.js:3349"
+    "game.js:3361"
    ]
   },
   {
-   "id": "無法複製",
+   "id": "精準度 <b>{acc}</b>",
    "at": [
-    "game.js:3349"
+    "game.js:3363"
    ]
   },
   {
-   "id": "無法複製，請直接提供給朋友：{code}",
+   "id": "最高分 <b>{score}</b>",
    "at": [
-    "game.js:3349"
+    "game.js:3363"
    ]
   },
   {
-   "id": "開啟分享⋯",
-   "at": [
-    "game.js:3350"
-   ]
-  },
-  {
-   "id": "邀請您在 PingPongLight 加我為好友，好友碼：{code}",
-   "at": [
-    "game.js:3350"
-   ]
-  },
-  {
-   "id": "無法讀取剪貼簿，請手動輸入好友碼。",
-   "at": [
-    "game.js:3352"
-   ]
-  },
-  {
-   "id": "剪貼簿中沒有好友碼。",
-   "at": [
-    "game.js:3353"
-   ]
-  },
-  {
-   "id": "已貼上好友碼，請按「送出」。",
-   "at": [
-    "game.js:3354"
-   ]
-  },
-  {
-   "id": "已複製。請從主畫面開啟遊戲，至「好友」頁按「貼上」。",
-   "at": [
-    "game.js:3355"
-   ]
-  },
-  {
-   "id": "無法複製，請記下好友碼：{code}",
-   "at": [
-    "game.js:3355"
-   ]
-  },
-  {
-   "id": "建立房間⋯",
-   "at": [
-    "game.js:3360"
-   ]
-  },
-  {
-   "id": "無法建立房間，請稍後再試。",
-   "at": [
-    "game.js:3362"
-   ]
-  },
-  {
-   "id": "邀請送出中⋯",
+   "id": "此難度尚未通關",
    "at": [
     "game.js:3364"
    ]
   },
   {
-   "id": "已邀請 {name}，等待對方加入⋯",
+   "id": "排行榜載入中⋯",
    "at": [
-    "game.js:3366"
+    "game.js:3367"
    ]
   },
   {
-   "id": "{name} 目前離線，請將房號提供給對方。",
+   "id": "離線中，暫時無法顯示排行榜",
    "at": [
-    "game.js:3366"
+    "game.js:3370"
    ]
   },
   {
-   "id": "雙方已不是好友。",
+   "id": "目前尚無紀錄",
    "at": [
-    "game.js:3366"
+    "game.js:3372"
    ]
   },
   {
-   "id": "邀請未送出，請將房號提供給對方。",
+   "id": "排行榜 <b style=\"color:#ffd36b\">第 {r} 名</b>／共 {n} 人",
    "at": [
-    "game.js:3366"
+    "game.js:3373"
    ]
   },
   {
-   "id": "驪歌",
+   "id": "好友",
    "at": [
-    "game.js:3374"
+    "game.js:3412",
+    "game.js:3571",
+    "game.js:3575",
+    "cosmetics.js:957"
    ]
   },
   {
-   "id": "夜曲",
+   "id": "{name} 邀請您對戰，但對方的遊戲版本較舊，請對方更新後再邀請",
    "at": [
-    "game.js:3374"
+    "game.js:3413"
    ]
   },
   {
-   "id": "專家 SSS",
-   "at": [
-    "game.js:3390"
-   ]
-  },
-  {
-   "id": "天琴座",
-   "at": [
-    "game.js:3411"
-   ]
-  },
-  {
-   "id": "獵戶座",
-   "at": [
-    "game.js:3411"
-   ]
-  },
-  {
-   "id": "大熊座",
-   "at": [
-    "game.js:3411"
-   ]
-  },
-  {
-   "id": "天蠍座",
-   "at": [
-    "game.js:3411"
-   ]
-  },
-  {
-   "id": "獅子座",
-   "at": [
-    "game.js:3411"
-   ]
-  },
-  {
-   "id": "雙子座",
-   "at": [
-    "game.js:3411"
-   ]
-  },
-  {
-   "id": "天鵝座",
-   "at": [
-    "game.js:3411"
-   ]
-  },
-  {
-   "id": "人馬座",
-   "at": [
-    "game.js:3411"
-   ]
-  },
-  {
-   "id": "大犬座",
-   "at": [
-    "game.js:3411"
-   ]
-  },
-  {
-   "id": "仙后座",
-   "at": [
-    "game.js:3411"
-   ]
-  },
-  {
-   "id": "金牛座",
-   "at": [
-    "game.js:3411"
-   ]
-  },
-  {
-   "id": "南十字座",
-   "at": [
-    "game.js:3411"
-   ]
-  },
-  {
-   "id": "牧夫座",
-   "at": [
-    "game.js:3411"
-   ]
-  },
-  {
-   "id": "飛馬座",
-   "at": [
-    "game.js:3411"
-   ]
-  },
-  {
-   "id": "天鷹座",
-   "at": [
-    "game.js:3411"
-   ]
-  },
-  {
-   "id": "海豚座",
-   "at": [
-    "game.js:3411"
-   ]
-  },
-  {
-   "id": "{theme} {sky}@@constellation",
+   "id": "{name} 目前無法接受邀請",
    "at": [
     "game.js:3416"
    ]
   },
   {
-   "id": "尚未發現的星座",
+   "id": "{name} 想加您為好友",
+   "at": [
+    "game.js:3417"
+   ]
+  },
+  {
+   "id": "<b>{name}</b> 邀請您對戰",
+   "at": [
+    "game.js:3431"
+   ]
+  },
+  {
+   "id": "還有 {n} 秒",
+   "at": [
+    "game.js:3432"
+   ]
+  },
+  {
+   "id": "加入",
+   "at": [
+    "game.js:3433",
+    "index.html:1095",
+    "index.html:1214"
+   ]
+  },
+  {
+   "id": "{n} 分鐘前",
+   "at": [
+    "game.js:3443"
+   ]
+  },
+  {
+   "id": "{n} 小時前",
+   "at": [
+    "game.js:3443"
+   ]
+  },
+  {
+   "id": "{n} 天前",
+   "at": [
+    "game.js:3443"
+   ]
+  },
+  {
+   "id": "離線中",
+   "at": [
+    "game.js:3448"
+   ]
+  },
+  {
+   "id": "已帶入好友碼，請按「送出」。",
+   "at": [
+    "game.js:3449"
+   ]
+  },
+  {
+   "id": "{n} 個邀請",
+   "at": [
+    "game.js:3463"
+   ]
+  },
+  {
+   "id": "{n} 則新訊息",
+   "at": [
+    "game.js:3463"
+   ]
+  },
+  {
+   "id": "今天",
+   "at": [
+    "game.js:3480"
+   ]
+  },
+  {
+   "id": "昨天",
+   "at": [
+    "game.js:3480"
+   ]
+  },
+  {
+   "id": "{m} 月 {d} 日",
+   "at": [
+    "game.js:3480"
+   ]
+  },
+  {
+   "id": "與 {name} 的訊息",
+   "at": [
+    "game.js:3486"
+   ]
+  },
+  {
+   "id": "返回",
+   "at": [
+    "game.js:3486"
+   ]
+  },
+  {
+   "id": "檢舉或封鎖",
+   "at": [
+    "game.js:3486"
+   ]
+  },
+  {
+   "id": "輸入訊息",
+   "at": [
+    "game.js:3489"
+   ]
+  },
+  {
+   "id": "送出",
+   "at": [
+    "game.js:3489",
+    "index.html:1206"
+   ]
+  },
+  {
+   "id": "僅限好友傳送 · 訊息保存 7 天 · 系統將過濾不當用語 · 點選 ⚑ 可檢舉訊息",
+   "at": [
+    "game.js:3490"
+   ]
+  },
+  {
+   "id": "聊天前請先閱讀社群規範",
+   "at": [
+    "game.js:3506"
+   ]
+  },
+  {
+   "id": "禁止辱罵、人身攻擊或騷擾",
+   "at": [
+    "game.js:3506"
+   ]
+  },
+  {
+   "id": "禁止仇恨、歧視、性相關或暴力內容",
+   "at": [
+    "game.js:3506"
+   ]
+  },
+  {
+   "id": "禁止詐騙、索取個人資料或引導至其他平台",
+   "at": [
+    "game.js:3506"
+   ]
+  },
+  {
+   "id": "禁止廣告與洗版",
+   "at": [
+    "game.js:3506"
+   ]
+  },
+  {
+   "id": "不當用語會被自動過濾。被檢舉的訊息由 AI 審查，確認違規時會刪除該訊息，並暫停傳送訊息 1 天、7 天或 30 天（依違規次數）。對本遊戲違規內容零容忍。",
+   "at": [
+    "game.js:3507"
+   ]
+  },
+  {
+   "id": "同意並開始聊天",
+   "at": [
+    "game.js:3508"
+   ]
+  },
+  {
+   "id": "您與對方已非好友，無法傳送",
+   "at": [
+    "game.js:3516",
+    "game.js:3567"
+   ]
+  },
+  {
+   "id": "目前無法載入訊息，請稍後再試",
    "at": [
     "game.js:3524"
    ]
   },
   {
-   "id": "星空",
-   "at": [
-    "game.js:3525",
-    "cosmetics.js:954",
-    "index.html:985",
-    "index.html:1062"
-   ]
-  },
-  {
-   "id": "點亮 <em>{lit}</em> / {n}",
-   "at": [
-    "game.js:3525",
-    "game.js:3526"
-   ]
-  },
-  {
-   "id": "完整星座 <em>{full}</em> / {n}",
+   "id": "還沒有訊息，打聲招呼吧",
    "at": [
     "game.js:3525"
    ]
   },
   {
-   "id": "<em>星座完成</em>",
+   "id": "檢舉這則訊息",
    "at": [
-    "game.js:3526"
+    "game.js:3529"
    ]
   },
   {
-   "id": "音符座",
+   "id": "⚑ 檢舉 {name}",
    "at": [
-    "game.js:3571"
+    "game.js:3536"
    ]
   },
   {
-   "id": "{con}：{song}",
+   "id": "⛔ 封鎖 {name}",
+   "at": [
+    "game.js:3536"
+   ]
+  },
+  {
+   "id": "封鎖後，對方將無法傳送訊息或對戰邀請給您",
+   "at": [
+    "game.js:3536"
+   ]
+  },
+  {
+   "id": "確定封鎖 {name}？",
+   "at": [
+    "game.js:3540"
+   ]
+  },
+  {
+   "id": "封鎖",
+   "at": [
+    "game.js:3540",
+    "game.js:3607"
+   ]
+  },
+  {
+   "id": "好友關係將移除，聊天紀錄將無法再查看；可在好友頁面解除封鎖",
+   "at": [
+    "game.js:3540"
+   ]
+  },
+  {
+   "id": "已封鎖",
+   "at": [
+    "game.js:3542",
+    "game.js:3610"
+   ]
+  },
+  {
+   "id": "目前無法封鎖，請稍後再試",
+   "at": [
+    "game.js:3542"
+   ]
+  },
+  {
+   "id": "檢舉這則訊息？",
+   "at": [
+    "game.js:3547"
+   ]
+  },
+  {
+   "id": "檢舉",
+   "at": [
+    "game.js:3547"
+   ]
+  },
+  {
+   "id": "訊息內容將提供給管理人員審查",
+   "at": [
+    "game.js:3547"
+   ]
+  },
+  {
+   "id": "已收到您的檢舉，我們將盡快處理",
+   "at": [
+    "game.js:3554"
+   ]
+  },
+  {
+   "id": "沒有可檢舉的內容",
+   "at": [
+    "game.js:3554"
+   ]
+  },
+  {
+   "id": "目前無法送出檢舉，請稍後再試",
+   "at": [
+    "game.js:3554"
+   ]
+  },
+  {
+   "id": "請先同意社群規範",
+   "at": [
+    "game.js:3558"
+   ]
+  },
+  {
+   "id": "訊息最多 {n} 個字",
+   "at": [
+    "game.js:3559"
+   ]
+  },
+  {
+   "id": "對方目前離線，將於上線後傳送",
+   "at": [
+    "game.js:3562",
+    "game.js:3563"
+   ]
+  },
+  {
+   "id": "訊息已送達 {name}",
+   "at": [
+    "game.js:3563"
+   ]
+  },
+  {
+   "id": "您因違反社群規範，暫時無法傳送訊息（至 {date}）。如有疑問，請來信隱私權政策所列信箱",
+   "at": [
+    "game.js:3565"
+   ]
+  },
+  {
+   "id": "訊息不可包含連結或聯絡方式",
+   "at": [
+    "game.js:3566"
+   ]
+  },
+  {
+   "id": "訊息含有不當用語",
+   "at": [
+    "game.js:3566"
+   ]
+  },
+  {
+   "id": "傳送過於頻繁，請稍候再試",
+   "at": [
+    "game.js:3568"
+   ]
+  },
+  {
+   "id": "目前無法傳送，請稍後再試",
+   "at": [
+    "game.js:3568"
+   ]
+  },
+  {
+   "id": "：",
+   "at": [
+    "game.js:3582",
+    "game.js:3584",
+    "game.js:3602"
+   ]
+  },
+  {
+   "id": "回覆",
+   "at": [
+    "game.js:3586"
+   ]
+  },
+  {
+   "id": "{n} 位在線上",
+   "at": [
+    "game.js:3596"
+   ]
+  },
+  {
+   "id": "尚無好友。請將左側的好友碼提供給朋友，或輸入朋友的好友碼。",
+   "at": [
+    "game.js:3598"
+   ]
+  },
+  {
+   "id": "對戰中 · 結束後即可邀請",
+   "at": [
+    "game.js:3601"
+   ]
+  },
+  {
+   "id": "結束後即可邀請",
+   "at": [
+    "game.js:3601"
+   ]
+  },
+  {
+   "id": "在線上 · 選曲中",
+   "at": [
+    "game.js:3601"
+   ]
+  },
+  {
+   "id": "您",
+   "at": [
+    "game.js:3602"
+   ]
+  },
+  {
+   "id": "邀請對戰",
+   "at": [
+    "game.js:3604",
+    "game.js:3648"
+   ]
+  },
+  {
+   "id": "有新訊息，傳訊息給 {name}",
+   "at": [
+    "game.js:3605"
+   ]
+  },
+  {
+   "id": "傳訊息給 {name}",
+   "at": [
+    "game.js:3605"
+   ]
+  },
+  {
+   "id": "{name} 的更多選項",
+   "at": [
+    "game.js:3606"
+   ]
+  },
+  {
+   "id": "刪除好友",
+   "at": [
+    "game.js:3607"
+   ]
+  },
+  {
+   "id": "等待對方接受",
+   "at": [
+    "game.js:3609"
+   ]
+  },
+  {
+   "id": "解除封鎖",
+   "at": [
+    "game.js:3610"
+   ]
+  },
+  {
+   "id": "<b>{name}</b> 想加您為好友",
+   "at": [
+    "game.js:3613"
+   ]
+  },
+  {
+   "id": "接受",
+   "at": [
+    "game.js:3613"
+   ]
+  },
+  {
+   "id": "略過",
+   "at": [
+    "game.js:3613"
+   ]
+  },
+  {
+   "id": "目前無法連線至伺服器。",
+   "at": [
+    "game.js:3615",
+    "game.js:3629"
+   ]
+  },
+  {
+   "id": "操作失敗，請稍後再試。",
+   "at": [
+    "game.js:3615"
+   ]
+  },
+  {
+   "id": "好友碼是 8 個英文字母和數字。",
+   "at": [
+    "game.js:3627"
+   ]
+  },
+  {
+   "id": "已成為好友。",
+   "at": [
+    "game.js:3629"
+   ]
+  },
+  {
+   "id": "已送出邀請，等待對方接受。",
+   "at": [
+    "game.js:3629"
+   ]
+  },
+  {
+   "id": "找不到這個好友碼。",
+   "at": [
+    "game.js:3629"
+   ]
+  },
+  {
+   "id": "這是您自己的好友碼。",
+   "at": [
+    "game.js:3629"
+   ]
+  },
+  {
+   "id": "雙方已是好友。",
+   "at": [
+    "game.js:3629"
+   ]
+  },
+  {
+   "id": "好友或待確認的邀請已達上限。",
+   "at": [
+    "game.js:3629"
+   ]
+  },
+  {
+   "id": "送出失敗，請稍後再試。",
+   "at": [
+    "game.js:3629"
+   ]
+  },
+  {
+   "id": "複製中⋯",
+   "at": [
+    "game.js:3635"
+   ]
+  },
+  {
+   "id": "已複製 ✓",
+   "at": [
+    "game.js:3635"
+   ]
+  },
+  {
+   "id": "已複製好友碼。",
+   "at": [
+    "game.js:3635"
+   ]
+  },
+  {
+   "id": "無法複製",
+   "at": [
+    "game.js:3635"
+   ]
+  },
+  {
+   "id": "無法複製，請直接提供給朋友：{code}",
+   "at": [
+    "game.js:3635"
+   ]
+  },
+  {
+   "id": "開啟分享⋯",
+   "at": [
+    "game.js:3636"
+   ]
+  },
+  {
+   "id": "邀請您在 PingPongLight 加我為好友，好友碼：{code}",
+   "at": [
+    "game.js:3636"
+   ]
+  },
+  {
+   "id": "無法讀取剪貼簿，請手動輸入好友碼。",
    "at": [
     "game.js:3638"
    ]
   },
   {
+   "id": "剪貼簿中沒有好友碼。",
+   "at": [
+    "game.js:3639"
+   ]
+  },
+  {
+   "id": "已貼上好友碼，請按「送出」。",
+   "at": [
+    "game.js:3640"
+   ]
+  },
+  {
+   "id": "已複製。請從主畫面開啟遊戲，至「好友」頁按「貼上」。",
+   "at": [
+    "game.js:3641"
+   ]
+  },
+  {
+   "id": "無法複製，請記下好友碼：{code}",
+   "at": [
+    "game.js:3641"
+   ]
+  },
+  {
+   "id": "建立房間⋯",
+   "at": [
+    "game.js:3646"
+   ]
+  },
+  {
+   "id": "無法建立房間，請稍後再試。",
+   "at": [
+    "game.js:3648"
+   ]
+  },
+  {
+   "id": "邀請送出中⋯",
+   "at": [
+    "game.js:3650"
+   ]
+  },
+  {
+   "id": "已邀請 {name}，等待對方加入⋯",
+   "at": [
+    "game.js:3652"
+   ]
+  },
+  {
+   "id": "{name} 目前離線，請將房號提供給對方。",
+   "at": [
+    "game.js:3652"
+   ]
+  },
+  {
+   "id": "雙方已不是好友。",
+   "at": [
+    "game.js:3652"
+   ]
+  },
+  {
+   "id": "邀請未送出，請將房號提供給對方。",
+   "at": [
+    "game.js:3652"
+   ]
+  },
+  {
+   "id": "驪歌",
+   "at": [
+    "game.js:3660"
+   ]
+  },
+  {
+   "id": "夜曲",
+   "at": [
+    "game.js:3660"
+   ]
+  },
+  {
+   "id": "專家 SSS",
+   "at": [
+    "game.js:3676"
+   ]
+  },
+  {
+   "id": "天琴座",
+   "at": [
+    "game.js:3697"
+   ]
+  },
+  {
+   "id": "獵戶座",
+   "at": [
+    "game.js:3697"
+   ]
+  },
+  {
+   "id": "大熊座",
+   "at": [
+    "game.js:3697"
+   ]
+  },
+  {
+   "id": "天蠍座",
+   "at": [
+    "game.js:3697"
+   ]
+  },
+  {
+   "id": "獅子座",
+   "at": [
+    "game.js:3697"
+   ]
+  },
+  {
+   "id": "雙子座",
+   "at": [
+    "game.js:3697"
+   ]
+  },
+  {
+   "id": "天鵝座",
+   "at": [
+    "game.js:3697"
+   ]
+  },
+  {
+   "id": "人馬座",
+   "at": [
+    "game.js:3697"
+   ]
+  },
+  {
+   "id": "大犬座",
+   "at": [
+    "game.js:3697"
+   ]
+  },
+  {
+   "id": "仙后座",
+   "at": [
+    "game.js:3697"
+   ]
+  },
+  {
+   "id": "金牛座",
+   "at": [
+    "game.js:3697"
+   ]
+  },
+  {
+   "id": "南十字座",
+   "at": [
+    "game.js:3697"
+   ]
+  },
+  {
+   "id": "牧夫座",
+   "at": [
+    "game.js:3697"
+   ]
+  },
+  {
+   "id": "飛馬座",
+   "at": [
+    "game.js:3697"
+   ]
+  },
+  {
+   "id": "天鷹座",
+   "at": [
+    "game.js:3697"
+   ]
+  },
+  {
+   "id": "海豚座",
+   "at": [
+    "game.js:3697"
+   ]
+  },
+  {
+   "id": "{theme} {sky}@@constellation",
+   "at": [
+    "game.js:3702"
+   ]
+  },
+  {
+   "id": "尚未發現的星座",
+   "at": [
+    "game.js:3810"
+   ]
+  },
+  {
+   "id": "星空",
+   "at": [
+    "game.js:3811",
+    "cosmetics.js:957",
+    "index.html:1001",
+    "index.html:1080"
+   ]
+  },
+  {
+   "id": "點亮 <em>{lit}</em> / {n}",
+   "at": [
+    "game.js:3811",
+    "game.js:3812"
+   ]
+  },
+  {
+   "id": "完整星座 <em>{full}</em> / {n}",
+   "at": [
+    "game.js:3811"
+   ]
+  },
+  {
+   "id": "<em>星座完成</em>",
+   "at": [
+    "game.js:3812"
+   ]
+  },
+  {
+   "id": "音符座",
+   "at": [
+    "game.js:3857"
+   ]
+  },
+  {
+   "id": "{con}：{song}",
+   "at": [
+    "game.js:3924"
+   ]
+  },
+  {
    "id": "音符座：所有星座都點亮了，謝謝你一路彈到這裡",
    "at": [
-    "game.js:3659"
+    "game.js:3945"
    ]
   },
   {
    "id": "這裡還有一個尚未發現的星座。{hint}後現身",
    "at": [
-    "game.js:3660"
+    "game.js:3946"
    ]
   },
   {
    "id": "這裡還有一個尚未發現的星座",
    "at": [
-    "game.js:3660"
+    "game.js:3946"
    ]
   },
   {
    "id": "已通關",
    "at": [
-    "game.js:3679",
-    "index.html:1001"
+    "game.js:3965",
+    "index.html:1017"
    ]
   },
   {
    "id": "未通關",
    "at": [
-    "game.js:3679",
-    "index.html:1001"
+    "game.js:3965",
+    "index.html:1017"
    ]
   },
   {
    "id": "這首是完整版曲目。",
    "at": [
-    "game.js:3681"
+    "game.js:3967"
    ]
   },
   {
    "id": "取得完整版",
    "at": [
-    "game.js:3682"
+    "game.js:3968"
    ]
   },
   {
    "id": "在「{con}」再通過 {n} 首曲目後開放。",
    "at": [
-    "game.js:3685"
+    "game.js:3971"
    ]
   },
   {
    "id": "挑戰這首",
    "at": [
-    "game.js:3687"
+    "game.js:3973"
    ]
   },
   {
    "id": "無",
    "at": [
-    "game.js:3731"
+    "game.js:4017"
    ]
   },
   {
    "id": "音訊狀態：{state} · {khz} kHz · 工作階段 {session}",
    "at": [
-    "game.js:3732"
+    "game.js:4018"
    ]
   },
   {
    "id": "音訊尚未啟動",
    "at": [
-    "game.js:3732"
+    "game.js:4018"
    ]
   },
   {
    "id": "（尚未設定暱稱）",
    "at": [
-    "game.js:3735",
-    "ach.js:124"
+    "game.js:4021",
+    "ach.js:125"
    ]
   },
   {
    "id": "（自動）",
    "at": [
-    "game.js:3738"
+    "game.js:4024"
    ]
   },
   {
    "id": "刪除我的線上資料",
    "at": [
-    "game.js:3762",
-    "index.html:1130"
+    "game.js:4048",
+    "index.html:1159"
    ]
   },
   {
    "id": "再按一次以永久刪除暱稱、排行榜成績與好友資料",
    "at": [
-    "game.js:3763"
+    "game.js:4049"
    ]
   },
   {
    "id": "刪除中⋯",
    "at": [
-    "game.js:3764"
+    "game.js:4050"
    ]
   },
   {
    "id": "刪除失敗，請連線後再次嘗試",
    "at": [
-    "game.js:3766"
+    "game.js:4052"
    ]
   },
   {
    "id": "已刪除。單人模式的進度仍保留於此裝置",
    "at": [
-    "game.js:3768"
+    "game.js:4054"
    ]
   },
   {
    "id": "按「開始」後會出現 8 拍節拍聲，請跟著聲音點擊下方區塊。",
    "at": [
-    "game.js:3776",
-    "index.html:1136"
+    "game.js:4062",
+    "index.html:1165"
    ]
   },
   {
    "id": "跟著節拍點擊下方區塊⋯",
    "at": [
-    "game.js:3780"
+    "game.js:4066"
    ]
   },
   {
    "id": "有效點擊不足，請再試一次。",
    "at": [
-    "game.js:3792"
+    "game.js:4078"
    ]
   },
   {
    "id": "校準完成：{ms} ms（{n} 次有效點擊）。",
    "at": [
-    "game.js:3795"
+    "game.js:4081"
    ]
   },
   {
    "id": "精準度 {acc}　最高連擊 {combo}",
    "at": [
-    "game.js:3814"
+    "game.js:4100"
    ]
   },
   {
    "id": "我在 PingPongLight {label} 拿到 {rank}（{score} 分）",
    "at": [
-    "game.js:3823"
+    "game.js:4109"
    ]
   },
   {
    "id": "遊戲錯誤",
    "at": [
-    "game.js:3837"
+    "game.js:4123"
    ]
   },
   {
    "id": "畫面異常",
    "at": [
-    "game.js:3837"
+    "game.js:4123"
    ]
   },
   {
    "id": "聲音／節奏不準",
    "at": [
-    "game.js:3837"
+    "game.js:4123"
    ]
   },
   {
    "id": "連線／對戰",
    "at": [
-    "game.js:3837"
+    "game.js:4123"
    ]
   },
   {
    "id": "好友／訊息",
    "at": [
-    "game.js:3837"
+    "game.js:4123"
    ]
   },
   {
    "id": "建議",
    "at": [
-    "game.js:3837"
+    "game.js:4123"
    ]
   },
   {
    "id": "其他",
    "at": [
-    "game.js:3837",
-    "game.js:3861"
+    "game.js:4123",
+    "game.js:4147"
    ]
   },
   {
    "id": "移除第 {n} 張圖片",
    "at": [
-    "game.js:3859"
+    "game.js:4145"
    ]
   },
   {
    "id": "處理圖片中⋯",
    "at": [
-    "game.js:3860"
+    "game.js:4146"
    ]
   },
   {
    "id": "＋ 加入圖片",
    "at": [
-    "game.js:3860"
+    "game.js:4146"
    ]
   },
   {
    "id": "暱稱 {name}",
    "at": [
-    "game.js:3861"
+    "game.js:4147"
    ]
   },
   {
    "id": "未設定暱稱",
    "at": [
-    "game.js:3861"
+    "game.js:4147"
    ]
   },
   {
    "id": "版本 {v}",
    "at": [
-    "game.js:3861"
+    "game.js:4147"
    ]
   },
   {
    "id": "（App）",
    "at": [
-    "game.js:3861"
+    "game.js:4147"
    ]
   },
   {
    "id": "（網頁）",
    "at": [
-    "game.js:3861"
+    "game.js:4147"
    ]
   },
   {
    "id": "裝置 {dev}（含瀏覽器與系統版本）",
    "at": [
-    "game.js:3861"
+    "game.js:4147"
    ]
   },
   {
    "id": "畫面 {scr}、像素比 {dpr}、安全邊距 {sa}",
    "at": [
-    "game.js:3861"
+    "game.js:4147"
    ]
   },
   {
    "id": "框{w}",
    "at": [
-    "game.js:3861"
+    "game.js:4147"
    ]
   },
   {
    "id": "語言 {lang}",
    "at": [
-    "game.js:3862"
+    "game.js:4148"
    ]
   },
   {
    "id": "目前畫面 {st}",
    "at": [
-    "game.js:3862"
+    "game.js:4148"
    ]
   },
   {
    "id": "主畫面",
    "at": [
-    "game.js:3862"
+    "game.js:4148"
    ]
   },
   {
    "id": "準備開始",
    "at": [
-    "game.js:3862"
+    "game.js:4148"
    ]
   },
   {
    "id": "結算",
    "at": [
-    "game.js:3862"
+    "game.js:4148"
    ]
   },
   {
    "id": "延遲補償 {lat}",
    "at": [
-    "game.js:3862"
+    "game.js:4148"
    ]
   },
   {
    "id": "最近遊玩：{song}／{d}",
    "at": [
-    "game.js:3863"
+    "game.js:4149"
    ]
   },
   {
    "id": "最近錯誤訊息：{err}",
    "at": [
-    "game.js:3863"
+    "game.js:4149"
    ]
   },
   {
    "id": "我們會看每一則回報，但不會逐一回覆",
    "at": [
-    "game.js:3871",
-    "index.html:1111"
+    "game.js:4157",
+    "index.html:1139"
    ]
   },
   {
    "id": "請寫一點說明，或加入至少一張圖片",
    "at": [
-    "game.js:3882",
-    "game.js:3889"
+    "game.js:4168",
+    "game.js:4175"
    ]
   },
   {
    "id": "已送出回報，感謝協助！",
    "at": [
-    "game.js:3886",
-    "game.js:3887"
+    "game.js:4172",
+    "game.js:4173"
    ]
   },
   {
    "id": "今天已送出 5 則回報，請明天再試",
    "at": [
-    "game.js:3888"
+    "game.js:4174"
    ]
   },
   {
    "id": "操作太頻繁，請稍後再試",
    "at": [
-    "game.js:3888"
+    "game.js:4174"
    ]
   },
   {
    "id": "有圖片無法使用，請換一張再試",
    "at": [
-    "game.js:3888"
+    "game.js:4174"
    ]
   },
   {
    "id": "圖片太大，請減少張數再試",
    "at": [
-    "game.js:3888"
+    "game.js:4174"
    ]
   },
   {
    "id": "回報的圖片空間暫時滿了，請移除圖片、只送文字",
    "at": [
-    "game.js:3889"
+    "game.js:4175"
    ]
   },
   {
    "id": "今天的回報太多了，請明天再試",
    "at": [
-    "game.js:3889"
+    "game.js:4175"
    ]
   },
   {
    "id": "回報內容有誤，請重新開啟遊戲再試",
    "at": [
-    "game.js:3890"
+    "game.js:4176"
    ]
   },
   {
    "id": "儲存失敗，內容已保留，請稍後再試",
    "at": [
-    "game.js:3890"
+    "game.js:4176"
    ]
   },
   {
    "id": "目前無法連線，內容已保留，請稍後再試",
    "at": [
-    "game.js:3891"
+    "game.js:4177"
    ]
   },
   {
    "id": "有 {n} 張圖片無法讀取，請換一張（JPG 或 PNG）",
    "at": [
-    "game.js:3908"
+    "game.js:4194"
    ]
   },
   {
    "id": "目前無法取得，請稍後再試",
    "at": [
-    "shop.js:127"
+    "shop.js:130"
    ]
   },
   {
    "id": "這個品項尚未開放",
    "at": [
-    "shop.js:135"
+    "shop.js:138"
    ]
   },
   {
    "id": "已付款但驗證失敗，請稍後按「恢復購買」或聯絡我們",
    "at": [
-    "shop.js:142"
+    "shop.js:145"
    ]
   },
   {
    "id": "✦ 已解鎖完整版",
    "at": [
-    "shop.js:156"
+    "shop.js:159"
    ]
   },
   {
    "id": "謝謝支持！每個星座後面的曲目已經開放挑戰。",
    "at": [
-    "shop.js:156"
+    "shop.js:159"
    ]
   },
   {
    "id": "好",
    "at": [
-    "shop.js:156"
+    "shop.js:159"
    ]
   },
   {
    "id": "恢復購買尚未就緒",
    "at": [
-    "shop.js:162"
+    "shop.js:165"
    ]
   },
   {
    "id": "請先設定暱稱再恢復購買",
    "at": [
-    "shop.js:166"
+    "shop.js:169"
    ]
   },
   {
    "id": "恢復購買沒有完成",
    "at": [
-    "shop.js:168",
-    "shop.js:175"
+    "shop.js:171",
+    "shop.js:178"
    ]
   },
   {
    "id": "已恢復購買（購買已轉移到這個玩家）",
    "at": [
-    "shop.js:171"
+    "shop.js:174"
    ]
   },
   {
    "id": "已恢復購買",
    "at": [
-    "shop.js:171"
+    "shop.js:174"
    ]
   },
   {
    "id": "{n} 筆購買已在 24 小時內轉移過，暫時無法恢復",
    "at": [
-    "shop.js:172"
+    "shop.js:175"
    ]
   },
   {
    "id": "{n} 筆驗證失敗，請稍後再試或聯絡我們",
    "at": [
-    "shop.js:173"
+    "shop.js:176"
    ]
   },
   {
    "id": "沒有可恢復的購買",
    "at": [
-    "shop.js:174"
+    "shop.js:177"
    ]
   },
   {
    "id": "沒有找到可恢復的購買",
    "at": [
-    "shop.js:174"
+    "shop.js:177"
    ]
   },
   {
    "id": "；",
    "at": [
-    "shop.js:175"
+    "shop.js:178"
    ]
   },
   {
    "id": "測試期間所有外觀免費取得，不需要恢復購買。",
    "at": [
-    "shop.js:177"
+    "shop.js:180"
    ]
   },
   {
    "id": "主題套組",
    "at": [
-    "shop.js:196"
+    "shop.js:199"
    ]
   },
   {
    "id": "單件外觀",
    "at": [
-    "shop.js:196"
+    "shop.js:199"
    ]
   },
   {
    "id": "名牌與頭像",
    "at": [
-    "shop.js:196"
+    "shop.js:199"
    ]
   },
   {
    "id": "對戰表情",
    "at": [
-    "shop.js:196"
+    "shop.js:199"
    ]
   },
   {
    "id": "分享圖外框",
    "at": [
-    "shop.js:196"
+    "shop.js:199"
    ]
   },
   {
    "id": "使用中",
    "at": [
-    "shop.js:211",
-    "shop.js:264",
-    "shop.js:294",
-    "shop.js:315"
+    "shop.js:214",
+    "shop.js:268",
+    "shop.js:298",
+    "shop.js:319"
    ]
   },
   {
    "id": "已擁有",
    "at": [
-    "shop.js:212",
-    "shop.js:253",
-    "shop.js:264"
+    "shop.js:215",
+    "shop.js:257",
+    "shop.js:268"
    ]
   },
   {
    "id": "贊助取得",
    "at": [
-    "shop.js:214",
-    "shop.js:320"
+    "shop.js:217",
+    "shop.js:324"
    ]
   },
   {
    "id": "成就",
    "at": [
-    "shop.js:215",
-    "ach.js:154",
-    "index.html:984",
-    "index.html:1029"
+    "shop.js:219",
+    "ach.js:155",
+    "index.html:1000",
+    "index.html:1045"
    ]
   },
   {
    "id": "預設",
    "at": [
-    "shop.js:217",
-    "cosmetics.js:1045"
+    "shop.js:221",
+    "cosmetics.js:1048"
    ]
   },
   {
    "id": "收藏",
    "at": [
-    "shop.js:226",
-    "index.html:983",
-    "index.html:1023"
+    "shop.js:230",
+    "index.html:999",
+    "index.html:1039"
    ]
   },
   {
    "id": "商城",
    "at": [
-    "shop.js:226",
-    "index.html:982",
-    "index.html:1023"
+    "shop.js:230",
+    "index.html:998",
+    "index.html:1039"
    ]
   },
   {
    "id": "小光",
    "at": [
-    "shop.js:238",
-    "shop.js:301",
-    "shop.js:303"
+    "shop.js:242",
+    "shop.js:305",
+    "shop.js:307"
    ]
   },
   {
    "id": "　",
    "at": [
-    "shop.js:241",
-    "cosmetics.js:813"
+    "shop.js:245",
+    "cosmetics.js:815"
    ]
   },
   {
    "id": "<b>完整版　{price}</b><br>解除每個星座 30% 的上限：71 首全部可以過關解鎖（免費版 27 首）。之後新增的正式曲目也包含在內。一次買斷，不訂閱、沒有廣告。",
    "at": [
-    "shop.js:252"
+    "shop.js:256"
    ]
   },
   {
    "id": "測試期間免費",
    "at": [
-    "shop.js:252",
-    "shop.js:321"
+    "shop.js:256",
+    "shop.js:325"
    ]
   },
   {
    "id": "尚未開放",
    "at": [
-    "shop.js:253",
-    "shop.js:259",
-    "shop.js:319"
+    "shop.js:257",
+    "shop.js:263",
+    "shop.js:323"
    ]
   },
   {
    "id": "取得",
    "at": [
-    "shop.js:253",
-    "shop.js:319"
+    "shop.js:257",
+    "shop.js:323"
    ]
   },
   {
    "id": "購買",
    "at": [
-    "shop.js:253"
+    "shop.js:257"
    ]
   },
   {
    "id": "獎勵星座和音符座一律免費，只要玩就能取得。",
    "at": [
-    "shop.js:254"
+    "shop.js:258"
    ]
   },
   {
    "id": "贊助者稱號「點燈人」",
    "at": [
-    "shop.js:257"
+    "shop.js:261"
    ]
   },
   {
    "id": "稱號＋金冠頭像",
    "at": [
-    "shop.js:257"
+    "shop.js:261"
    ]
   },
   {
    "id": "稱號＋金冠＋金色名牌框「燈塔」",
    "at": [
-    "shop.js:257"
+    "shop.js:261"
    ]
   },
   {
    "id": "App 版開放",
    "at": [
-    "shop.js:259"
+    "shop.js:263"
    ]
   },
   {
    "id": "贊助不會讓遊戲變簡單，也不影響排行榜，只會讓別人看到你支持了這款遊戲。可以重複贊助，稱號與外觀只會給一次。",
    "at": [
-    "shop.js:260"
+    "shop.js:264"
    ]
   },
   {
    "id": "<br><b>測試期間不開放贊助</b>（贊助是真實付費，App 上架後才能買）。",
    "at": [
-    "shop.js:260"
+    "shop.js:264"
    ]
   },
   {
    "id": "還沒有這類外觀，到商城看看。",
    "at": [
-    "shop.js:263"
+    "shop.js:267"
    ]
   },
   {
    "id": "沒有品項",
    "at": [
-    "shop.js:263"
+    "shop.js:267"
    ]
   },
   {
    "id": "全部用預設",
    "at": [
-    "shop.js:264"
+    "shop.js:268"
    ]
   },
   {
    "id": "預設外觀",
    "at": [
-    "shop.js:264",
-    "shop.js:294"
+    "shop.js:268",
+    "shop.js:298"
    ]
   },
   {
    "id": "謝謝你",
    "at": [
-    "shop.js:292"
+    "shop.js:296"
    ]
   },
   {
    "id": "贊助不會讓遊戲變簡單，也不影響排行榜。稱號與外觀只會給一次，之後的贊助是純粹的支持。",
    "at": [
-    "shop.js:292"
+    "shop.js:296"
    ]
   },
   {
    "id": "買了之後",
    "at": [
-    "shop.js:293"
+    "shop.js:297"
    ]
   },
   {
    "id": "每個星座 30% 以後的曲目，標籤從「完整版」變成「通過上一首後開放」，照樣一首一首解鎖。",
    "at": [
-    "shop.js:293"
+    "shop.js:297"
    ]
   },
   {
    "id": "你已擁有完整版。",
    "at": [
-    "shop.js:293"
+    "shop.js:297"
    ]
   },
   {
    "id": "光球、尾跡、打擊特效、框線、背景全部回到最初的樣子。",
    "at": [
-    "shop.js:294"
+    "shop.js:298"
    ]
   },
   {
    "id": "使用",
    "at": [
-    "shop.js:294",
-    "shop.js:317"
+    "shop.js:298",
+    "shop.js:321"
    ]
   },
   {
    "id": "沒有可預覽的品項。",
    "at": [
-    "shop.js:297"
+    "shop.js:301"
    ]
   },
   {
    "id": "我的成績 S",
    "at": [
-    "shop.js:305"
+    "shop.js:309"
    ]
   },
   {
    "id": "也可由成就「{name}」取得",
    "at": [
-    "shop.js:308"
+    "shop.js:312"
    ]
   },
   {
    "id": "贊助 NT$90 以上取得",
    "at": [
-    "shop.js:308"
+    "shop.js:312"
+   ]
+  },
+  {
+   "id": "邀請好友獲得",
+   "at": [
+    "shop.js:312",
+    "cosmetics.js:1048"
    ]
   },
   {
    "id": "達到 Lv {n} 獲得",
    "at": [
-    "shop.js:308",
-    "cosmetics.js:1045"
+    "shop.js:312",
+    "cosmetics.js:1048"
    ]
   },
   {
    "id": "取得方式：{how}",
    "at": [
-    "shop.js:308"
+    "shop.js:312"
    ]
   },
   {
    "id": "連擊變色",
    "at": [
-    "shop.js:310"
+    "shop.js:314"
    ]
   },
   {
    "id": "試玩一首",
    "at": [
-    "shop.js:312"
+    "shop.js:316"
    ]
   },
   {
    "id": "卸下（回到預設）",
    "at": [
-    "shop.js:314"
+    "shop.js:318"
    ]
   },
   {
    "id": "卸下",
    "at": [
-    "shop.js:315",
-    "shop.js:316"
+    "shop.js:319",
+    "shop.js:320"
    ]
   },
   {
    "id": "購買 {price}",
    "at": [
-    "shop.js:319"
+    "shop.js:323"
    ]
   },
   {
    "id": "等級取得",
    "at": [
-    "shop.js:320"
+    "shop.js:324"
    ]
   },
   {
    "id": "成就取得",
    "at": [
-    "shop.js:320"
+    "shop.js:324"
    ]
   },
   {
    "id": "　（單買 {n} 件要 NT${price}）",
    "at": [
-    "shop.js:321"
+    "shop.js:325"
    ]
   },
   {
    "id": "限定",
    "at": [
-    "shop.js:322",
-    "ach.js:138"
+    "shop.js:326",
+    "ach.js:139"
    ]
   },
   {
    "id": "商城只在 App 版提供",
    "at": [
-    "shop.js:369"
+    "shop.js:373"
    ]
   },
   {
    "id": "完整版與外觀請在 iOS App 內購買。App 與網頁的購買暫時不互通，之後會提供帳號轉移。網頁版可以免費玩前 30% 的曲目。",
    "at": [
-    "shop.js:369"
+    "shop.js:373"
    ]
   },
   {
@@ -4768,636 +5036,696 @@
   {
    "id": "<b>{pts}</b> 成就點數<small>／ 目前可得 {all}</small>",
    "at": [
-    "ach.js:125"
+    "ach.js:126"
    ]
   },
   {
    "id": "已達成 {got} / {total}（{pc}%）",
    "at": [
-    "ach.js:127"
+    "ach.js:128"
    ]
   },
   {
    "id": "　另有 {n} 個即將開放",
    "at": [
-    "ach.js:127"
+    "ach.js:128"
    ]
   },
   {
    "id": "已取得的稱號 <small>{n}</small>",
    "at": [
-    "ach.js:128"
+    "ach.js:129"
    ]
   },
   {
    "id": "還沒有稱號。完成成就就會取得。",
    "at": [
-    "ach.js:128"
+    "ach.js:129"
    ]
   },
   {
    "id": "？？？",
    "at": [
-    "ach.js:131"
+    "ach.js:132"
    ]
   },
   {
    "id": "即將開放",
    "at": [
-    "ach.js:134",
-    "ach.js:136"
+    "ach.js:135",
+    "ach.js:137"
    ]
   },
   {
    "id": "本機判定",
    "at": [
-    "ach.js:134"
+    "ach.js:135"
    ]
   },
   {
    "id": "已達成",
    "at": [
-    "ach.js:136"
+    "ach.js:137"
    ]
   },
   {
    "id": "未達成",
    "at": [
-    "ach.js:136"
+    "ach.js:137"
    ]
   },
   {
    "id": "全部",
    "at": [
-    "ach.js:149",
-    "index.html:1001"
+    "ach.js:150",
+    "index.html:1017"
    ]
   },
   {
    "id": "條件",
    "at": [
-    "ach.js:154"
+    "ach.js:155"
    ]
   },
   {
    "id": "獎勵",
    "at": [
-    "ach.js:154"
+    "ach.js:155"
    ]
   },
   {
    "id": "點數",
    "at": [
-    "ach.js:154"
+    "ach.js:155"
    ]
   },
   {
    "id": "內含 {n} 件，單買 {m} 件要 NT${price}",
    "at": [
-    "cosmetics.js:869"
+    "cosmetics.js:872"
    ]
   },
   {
    "id": "線上對戰",
    "at": [
-    "cosmetics.js:954",
-    "index.html:981"
+    "cosmetics.js:957",
+    "index.html:997"
    ]
   },
   {
    "id": "設定",
    "at": [
-    "cosmetics.js:954",
-    "index.html:990",
-    "index.html:1117"
+    "cosmetics.js:957",
+    "index.html:1006",
+    "index.html:1145"
    ]
   },
   {
    "id": "土耳其進行曲",
    "at": [
-    "cosmetics.js:954"
+    "cosmetics.js:957"
    ]
   },
   {
    "id": "小夜曲",
    "at": [
-    "cosmetics.js:954",
-    "cosmetics.js:972"
+    "cosmetics.js:957",
+    "cosmetics.js:975"
    ]
   },
   {
    "id": "月光",
    "at": [
-    "cosmetics.js:954"
+    "cosmetics.js:957"
    ]
   },
   {
    "id": "命運",
    "at": [
-    "cosmetics.js:954"
+    "cosmetics.js:957"
    ]
   },
   {
    "id": "開始遊戲",
    "at": [
-    "cosmetics.js:968",
-    "index.html:978"
+    "cosmetics.js:971",
+    "index.html:994"
    ]
   },
   {
    "id": "‹ 返回　　選擇曲目",
    "at": [
-    "cosmetics.js:970"
+    "cosmetics.js:973"
    ]
   },
   {
    "id": "莫札特 · 古典座",
    "at": [
-    "cosmetics.js:973"
+    "cosmetics.js:976"
    ]
   },
   {
    "id": "★ 星星時間",
    "at": [
-    "cosmetics.js:1004"
+    "cosmetics.js:1007"
    ]
   },
   {
    "id": "已停止取得（原本持有者保留）",
    "at": [
-    "cosmetics.js:1045"
+    "cosmetics.js:1048"
    ]
   },
   {
    "id": "贊助",
    "at": [
-    "cosmetics.js:1045"
+    "cosmetics.js:1048"
    ]
   },
   {
    "id": "成就：{name}",
    "at": [
-    "cosmetics.js:1045"
+    "cosmetics.js:1048"
+   ]
+  },
+  {
+   "id": "你",
+   "at": [
+    "index.html:979"
+   ]
+  },
+  {
+   "id": "星影",
+   "at": [
+    "index.html:979"
    ]
   },
   {
    "id": "暫停",
    "at": [
-    "index.html:964"
+    "index.html:980"
    ]
   },
   {
    "id": "全螢幕",
    "at": [
-    "index.html:964"
+    "index.html:980"
    ]
   },
   {
    "id": "即時名次",
    "at": [
-    "index.html:967"
+    "index.html:983"
    ]
   },
   {
    "id": "觀戰中：",
    "at": [
-    "index.html:969"
+    "index.html:985"
    ]
   },
   {
    "id": "結算表",
    "at": [
-    "index.html:969"
+    "index.html:985"
    ]
   },
   {
    "id": "上一位",
    "at": [
-    "index.html:970"
+    "index.html:986"
    ]
   },
   {
    "id": "下一位",
    "at": [
-    "index.html:970"
+    "index.html:986"
    ]
   },
   {
    "id": "對方版本較舊，無法轉播（只顯示分數）",
    "at": [
-    "index.html:971"
+    "index.html:987"
    ]
   },
   {
    "id": "人觀戰中",
    "at": [
-    "index.html:972"
+    "index.html:988"
    ]
   },
   {
    "id": "等級與光能",
    "at": [
-    "index.html:977",
-    "index.html:1038"
+    "index.html:993",
+    "index.html:1054"
    ]
   },
   {
    "id": "回報問題",
    "at": [
-    "index.html:991",
-    "index.html:1100",
-    "index.html:1102"
+    "index.html:1007",
+    "index.html:1128",
+    "index.html:1130"
    ]
   },
   {
    "id": "曲目來源與授權",
    "at": [
-    "index.html:994"
+    "index.html:1010"
    ]
   },
   {
    "id": "iPhone 全螢幕：點選「分享」→「加入主畫面」，並由主畫面圖示開啟。",
    "at": [
-    "index.html:995"
+    "index.html:1011"
    ]
   },
   {
    "id": "光能倍率",
    "at": [
-    "index.html:1012"
+    "index.html:1028"
    ]
   },
   {
    "id": "排行榜",
    "at": [
-    "index.html:1016"
+    "index.html:1032"
    ]
   },
   {
    "id": "恢復購買",
    "at": [
-    "index.html:1023"
+    "index.html:1039"
    ]
   },
   {
    "id": "商品分類",
    "at": [
-    "index.html:1024"
+    "index.html:1040"
    ]
   },
   {
    "id": "成就分頁",
    "at": [
-    "index.html:1031"
+    "index.html:1047"
    ]
   },
   {
    "id": "我的星卡",
    "at": [
-    "index.html:1037"
+    "index.html:1053"
    ]
   },
   {
    "id": "繼續",
    "at": [
-    "index.html:1041",
-    "index.html:1096"
+    "index.html:1057",
+    "index.html:1124"
    ]
   },
   {
-   "id": "從存檔點繼續",
-   "at": [
-    "index.html:1053"
-   ]
-  },
-  {
-   "id": "分享成績",
-   "at": [
-    "index.html:1053"
-   ]
-  },
-  {
-   "id": "觀戰",
-   "at": [
-    "index.html:1057"
-   ]
-  },
-  {
-   "id": "再來一局",
-   "at": [
-    "index.html:1057"
-   ]
-  },
-  {
-   "id": "回到房間",
-   "at": [
-    "index.html:1057"
-   ]
-  },
-  {
-   "id": "星空曲目",
-   "at": [
-    "index.html:1063"
-   ]
-  },
-  {
-   "id": "顏色＝最高難度　亮度與星芒＝評級　白星＝未通關",
-   "at": [
-    "index.html:1064"
-   ]
-  },
-  {
-   "id": "曲目資訊",
-   "at": [
-    "index.html:1065"
-   ]
-  },
-  {
-   "id": "多人對戰 · 2～8 人",
+   "id": "邀請好友挑戰",
    "at": [
     "index.html:1069"
    ]
   },
   {
+   "id": "從存檔點繼續",
+   "at": [
+    "index.html:1071"
+   ]
+  },
+  {
+   "id": "分享成績",
+   "at": [
+    "index.html:1071"
+   ]
+  },
+  {
+   "id": "觀戰",
+   "at": [
+    "index.html:1075"
+   ]
+  },
+  {
+   "id": "再來一局",
+   "at": [
+    "index.html:1075"
+   ]
+  },
+  {
+   "id": "回到房間",
+   "at": [
+    "index.html:1075"
+   ]
+  },
+  {
+   "id": "星空曲目",
+   "at": [
+    "index.html:1081"
+   ]
+  },
+  {
+   "id": "顏色＝最高難度　亮度與星芒＝評級　白星＝未通關",
+   "at": [
+    "index.html:1082"
+   ]
+  },
+  {
+   "id": "曲目資訊",
+   "at": [
+    "index.html:1083"
+   ]
+  },
+  {
+   "id": "多人對戰 · 2～8 人",
+   "at": [
+    "index.html:1087"
+   ]
+  },
+  {
    "id": "建立房間",
-   "at": [
-    "index.html:1076"
-   ]
-  },
-  {
-   "id": "房號",
-   "at": [
-    "index.html:1077"
-   ]
-  },
-  {
-   "id": "公開房間",
-   "at": [
-    "index.html:1080"
-   ]
-  },
-  {
-   "id": "重新整理",
-   "at": [
-    "index.html:1080"
-   ]
-  },
-  {
-   "id": "遊戲暫停",
    "at": [
     "index.html:1094"
    ]
   },
   {
-   "id": "已暫停",
+   "id": "房號",
    "at": [
     "index.html:1095"
    ]
   },
   {
-   "id": "重新開始",
+   "id": "公開房間",
    "at": [
-    "index.html:1096"
+    "index.html:1098"
    ]
   },
   {
-   "id": "⚑ 回報問題（附上目前畫面）",
+   "id": "重新整理",
    "at": [
-    "index.html:1097"
+    "index.html:1098"
    ]
   },
   {
-   "id": "問題類型",
+   "id": "正在尋找對手⋯",
    "at": [
-    "index.html:1104"
+    "index.html:1106"
    ]
   },
   {
-   "id": "發生了什麼事？在哪個畫面、做了什麼操作？（可不填）",
+   "id": "目前沒有可配對的玩家，可改與其他玩家的最佳紀錄對戰。",
    "at": [
-    "index.html:1105"
+    "index.html:1107"
    ]
   },
   {
-   "id": "一併送出的裝置資訊（點開查看）",
+   "id": "與星影對戰",
    "at": [
-    "index.html:1110"
+    "index.html:1108"
    ]
   },
   {
-   "id": "送出回報",
+   "id": "繼續等待",
+   "at": [
+    "index.html:1108"
+   ]
+  },
+  {
+   "id": "分數超過即挑戰成功。",
    "at": [
     "index.html:1111"
    ]
   },
   {
-   "id": "主旋律音量",
+   "id": "首次遊玩將先進行約 1 分鐘的新手教學。",
    "at": [
-    "index.html:1118"
+    "index.html:1111"
    ]
   },
   {
-   "id": "伴奏音量",
-   "at": [
-    "index.html:1119"
-   ]
-  },
-  {
-   "id": "音效音量",
-   "at": [
-    "index.html:1120"
-   ]
-  },
-  {
-   "id": "減少特效",
+   "id": "遊戲暫停",
    "at": [
     "index.html:1122"
    ]
   },
   {
-   "id": "音樂隨連擊變化",
+   "id": "已暫停",
    "at": [
     "index.html:1123"
    ]
   },
   {
-   "id": "震動回饋",
+   "id": "重新開始",
    "at": [
     "index.html:1124"
    ]
   },
   {
-   "id": "語言 Language",
+   "id": "⚑ 回報問題（附上目前畫面）",
    "at": [
-    "index.html:1126"
+    "index.html:1125"
    ]
   },
   {
-   "id": "延遲補償",
+   "id": "問題類型",
    "at": [
-    "index.html:1128"
+    "index.html:1132"
    ]
   },
   {
-   "id": "校準",
+   "id": "發生了什麼事？在哪個畫面、做了什麼操作？（可不填）",
    "at": [
-    "index.html:1128"
+    "index.html:1133"
    ]
   },
   {
-   "id": "延遲校準",
-   "at": [
-    "index.html:1135"
-   ]
-  },
-  {
-   "id": "點擊",
-   "at": [
-    "index.html:1137"
-   ]
-  },
-  {
-   "id": "延遲減少 10 毫秒",
+   "id": "一併送出的裝置資訊（點開查看）",
    "at": [
     "index.html:1138"
    ]
   },
   {
-   "id": "目前",
+   "id": "送出回報",
    "at": [
-    "index.html:1138"
+    "index.html:1139"
    ]
   },
   {
-   "id": "延遲增加 10 毫秒",
-   "at": [
-    "index.html:1138"
-   ]
-  },
-  {
-   "id": "重新載入",
-   "at": [
-    "index.html:1142"
-   ]
-  },
-  {
-   "id": "排行榜 · 前 100 名",
-   "at": [
-    "index.html:1145"
-   ]
-  },
-  {
-   "id": "名次",
+   "id": "主旋律音量",
    "at": [
     "index.html:1146"
    ]
   },
   {
-   "id": "依精準度排名，精準度相同時依分數排序。按「⋯」可檢舉不雅暱稱，或僅對自己隱藏該玩家。",
+   "id": "伴奏音量",
    "at": [
-    "index.html:1149"
+    "index.html:1147"
    ]
   },
   {
-   "id": "好友邀請",
+   "id": "音效音量",
+   "at": [
+    "index.html:1148"
+   ]
+  },
+  {
+   "id": "減少特效",
+   "at": [
+    "index.html:1150"
+   ]
+  },
+  {
+   "id": "音樂隨連擊變化",
+   "at": [
+    "index.html:1151"
+   ]
+  },
+  {
+   "id": "震動回饋",
+   "at": [
+    "index.html:1152"
+   ]
+  },
+  {
+   "id": "我的紀錄可當星影",
    "at": [
     "index.html:1153"
    ]
   },
   {
-   "id": "加入好友",
-   "at": [
-    "index.html:1154"
-   ]
-  },
-  {
-   "id": "好友碼",
+   "id": "語言 Language",
    "at": [
     "index.html:1155"
    ]
   },
   {
-   "id": "若您已將 PingPongLight 加入主畫面，請複製好友碼後，改從主畫面開啟遊戲，至「好友」頁按「貼上」並送出。iPhone 的主畫面遊戲與 Safari 的資料彼此獨立，因此無法直接帶入。",
+   "id": "延遲補償",
    "at": [
-    "index.html:1156"
+    "index.html:1157"
    ]
   },
   {
-   "id": "在此網頁使用",
+   "id": "校準",
    "at": [
-    "index.html:1158"
+    "index.html:1157"
    ]
   },
   {
-   "id": "複製好友碼",
-   "at": [
-    "index.html:1158"
-   ]
-  },
-  {
-   "id": "暱稱將顯示於排行榜與好友名單，不得與他人重複。",
-   "at": [
-    "index.html:1163"
-   ]
-  },
-  {
-   "id": "暱稱，最多 12 字",
+   "id": "延遲校準",
    "at": [
     "index.html:1164"
    ]
   },
   {
-   "id": "無須註冊，僅上傳暱稱與成績。請勿使用真實姓名。之後可於「設定」變更暱稱，或刪除所有線上資料。",
+   "id": "點擊",
    "at": [
     "index.html:1166"
    ]
   },
   {
-   "id": "您的好友碼",
+   "id": "延遲減少 10 毫秒",
+   "at": [
+    "index.html:1167"
+   ]
+  },
+  {
+   "id": "目前",
+   "at": [
+    "index.html:1167"
+   ]
+  },
+  {
+   "id": "延遲增加 10 毫秒",
+   "at": [
+    "index.html:1167"
+   ]
+  },
+  {
+   "id": "重新載入",
+   "at": [
+    "index.html:1171"
+   ]
+  },
+  {
+   "id": "排行榜 · 前 100 名",
    "at": [
     "index.html:1174"
    ]
   },
   {
-   "id": "複製",
+   "id": "名次",
    "at": [
     "index.html:1175"
    ]
   },
   {
-   "id": "分享好友碼",
+   "id": "依精準度排名，精準度相同時依分數排序。按「⋯」可檢舉不雅暱稱，或僅對自己隱藏該玩家。",
    "at": [
-    "index.html:1175"
+    "index.html:1178"
    ]
   },
   {
-   "id": "加好友",
+   "id": "好友邀請",
    "at": [
-    "index.html:1176"
+    "index.html:1182"
    ]
   },
   {
-   "id": "朋友的好友碼",
+   "id": "加入好友",
    "at": [
-    "index.html:1177"
+    "index.html:1183"
    ]
   },
   {
-   "id": "貼上",
+   "id": "好友碼",
    "at": [
-    "index.html:1177"
+    "index.html:1184"
    ]
   },
   {
-   "id": "稍後",
+   "id": "若您已將 PingPongLight 加入主畫面，請複製好友碼後，改從主畫面開啟遊戲，至「好友」頁按「貼上」並送出。iPhone 的主畫面遊戲與 Safari 的資料彼此獨立，因此無法直接帶入。",
    "at": [
     "index.html:1185"
    ]
   },
   {
-   "id": "請將裝置橫向使用",
+   "id": "在此網頁使用",
    "at": [
     "index.html:1187"
+   ]
+  },
+  {
+   "id": "複製好友碼",
+   "at": [
+    "index.html:1187"
+   ]
+  },
+  {
+   "id": "暱稱將顯示於排行榜與好友名單，不得與他人重複。",
+   "at": [
+    "index.html:1192"
+   ]
+  },
+  {
+   "id": "暱稱，最多 12 字",
+   "at": [
+    "index.html:1193"
+   ]
+  },
+  {
+   "id": "無須註冊，僅上傳暱稱與成績。請勿使用真實姓名。之後可於「設定」變更暱稱，或刪除所有線上資料。",
+   "at": [
+    "index.html:1195"
+   ]
+  },
+  {
+   "id": "您的好友碼",
+   "at": [
+    "index.html:1203"
+   ]
+  },
+  {
+   "id": "複製",
+   "at": [
+    "index.html:1204"
+   ]
+  },
+  {
+   "id": "分享好友碼",
+   "at": [
+    "index.html:1204"
+   ]
+  },
+  {
+   "id": "加好友",
+   "at": [
+    "index.html:1205"
+   ]
+  },
+  {
+   "id": "朋友的好友碼",
+   "at": [
+    "index.html:1206"
+   ]
+  },
+  {
+   "id": "貼上",
+   "at": [
+    "index.html:1206"
+   ]
+  },
+  {
+   "id": "稍後",
+   "at": [
+    "index.html:1214"
+   ]
+  },
+  {
+   "id": "請將裝置橫向使用",
+   "at": [
+    "index.html:1216"
    ]
   },
   {
@@ -6796,6 +7124,19 @@
    "name": "巡遍星空",
    "desc": "71 首都至少開始玩過 1 次"
   },
+  "穿星者": {
+   "name": "穿星者",
+   "desc": "累計星弧成功 1 次"
+  },
+  "穿星者 II": {
+   "name": "穿星者 II",
+   "desc": "累計星弧成功 20 次"
+  },
+  "穿星者 III": {
+   "name": "穿星者 III",
+   "desc": "累計星弧成功 100 次",
+   "reward": "稱號「穿星者」"
+  },
   "喘口氣": {
    "name": "幕間",
    "desc": "提示：「休息一下」→ 遊戲中暫停後繼續，最後通關"
@@ -7136,6 +7477,10 @@
    "name": "超新星",
    "desc": "星芒加煙火再加兩圈衝擊波。"
   },
+  "hit.companion": {
+   "name": "同行星芒",
+   "desc": "兩道青色與金色的星芒交錯閃過、反向旋轉。只有邀請好友一起玩才拿得到。"
+  },
   "theme.stars": {
    "name": "星光",
    "desc": "目前遊戲的樣子：星空、冷光框線、光帶尾跡、光環特效。"
@@ -7451,6 +7796,10 @@
   "title.bond": {
    "name": "結緣人",
    "desc": "好友達到 10 位"
+  },
+  "title.threader": {
+   "name": "穿星者",
+   "desc": "累計星弧成功 100 次"
   },
   "title.lamplighter": {
    "name": "點燈人",

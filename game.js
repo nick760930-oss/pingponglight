@@ -607,7 +607,7 @@ function layout(){
 
 /* ================= run control ================= */
 function hud(){
-  $('#score').textContent=score.toLocaleString();
+  $('#score').textContent=score.toLocaleString();if(SHA)$('#shMe').textContent=score.toLocaleString();
   if(mode==='duel'){const top=Math.max(score,...DU.board.map(b=>b.s)),o=DU.board[0],tot=score+(o?o.s:0);$('#pf').style.width=(top?score/top*100:100)+'%';duelSub()}   // 2 players: tug of war; more: share of the leader's score
   else $('#pf').style.width=(tg.length?resolved/tg.length*100:0)+'%';
   const lf=$('#life');lf.style.width=life/lifeMax*100+'%';lf.classList.toggle('low',life<lifeMax*.35&&mode!=='prac');lf.classList.toggle('dead',mode==='prac'&&life<=0);
@@ -618,7 +618,9 @@ function newBall(ti){
   return{x:FR.x+FR.w*(s===1?srand(.25,.4):srand(.6,.75)),y:FR.y+FR.h*(nb===3?[.2,.5,.8][ti%3]:nb===2?(ti%2?.7:.3):.5),dx:(s===1?1:-1)/l,dy:dy/l,v:0,pop:0,ti,side:s,win:null,trail:[],sq:0,sqn:0,laps:0,away:false};
 }
 function startRun(from){
-  from=from||0;if(SP.on)specOff(false);DU.wn=0;tutHold=null;tutPend=null;tutE=null;tutDn=[0,0,0,0,0,0,0,0,0,0];tutN=0;tutMiss=false;tutHitAt=-9;tutLast=-9;tutIt=0;evq.length=0;spEye();$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');
+  from=from||0;
+  if(CHA&&!CHW&&mode==='normal'&&songIdx(CHA.k)===si&&CHA.d===di&&chBlock(si)){CHA=null;CHW=false;showHome();return}   // every way into a run (result card's retry / continue, pause restart, tutorial end): a challenge on a Full Version song never starts
+if(SP.on)specOff(false);DU.wn=0;tutHold=null;tutPend=null;tutE=null;tutDn=[0,0,0,0,0,0,0,0,0,0];tutN=0;tutMiss=false;tutHitAt=-9;tutLast=-9;tutIt=0;evq.length=0;spEye();$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');
   if(mode==='tut'){D=TUTD;si=SONGS.findIndex(s=>s.key==='twinkle');if(si<0)si=0}
   else if(mode==='try'){D=DIFFS[3];si=SONGS.findIndex(s=>s.key==='twinkle');if(si<0)si=0}   // shop trial: the easiest level of a short song
   else D=DIFFS[di];
@@ -639,6 +641,7 @@ function startRun(from){
   st='ready';hudShow(true);preloadSong(song);
   $('#sub').textContent=(mode==='tut'?TX('新手教學'):mode==='try'?TX('外觀試玩'):TX('第 {n} 關',{n:si+1}))+' · '+TX('《{song}》',{song:song.name})+' · '+D.n+' · '+TX('{n} 拍',{n:tg.length})+(nb>1?' · '+BALLS[nb]:'')+(from?' · '+TX('自第 {n} 拍',{n:from+1}):'');
   if(mode==='prac')$('#sub').textContent=TX('練習中・{spd}×・自第 {n} 拍',{spd:pracCfg.spd,n:from+1});
+  bt2Start(from);
   hud();
   for(const o of['#home','#menu','#end','#pause','#set','#cal','#shop'])$(o).classList.add('hidden');
 }
@@ -1006,7 +1009,7 @@ function pracResult(){
   $('#rnew').innerHTML='<div class="sub">'+TX('練習了 {n} 拍・完美率 {p}%',{n:done,p:pr})+'</div>';
   $('#bNext').style.display='none';$('#bCont').style.display='none';$('#bShare').style.display='none';$('#bPrac').style.display='none';
   $('#bRetry').style.display='';$('#bRetry').textContent=TX('再練習一次');$('#bSel').style.display='';$('#bSel').textContent=TX('關卡選擇');
-  lastRes=null;lvRowOff();RUN=null;
+  lastRes=null;lvRowOff();RUN=null;$('#rch').hidden=true;$('#bChal').hidden=true;
   $('#end').classList.remove('hidden');
 }
 const recSong=()=>{const i=SONGS.findIndex((_,k)=>CON_OF[k]&&!isRw(k)&&shown(k)&&unlocked(k));return i<0?0:i};   // the first open song: what the tutorial's end card recommends
@@ -1021,12 +1024,12 @@ function showResult(ok,msg){
   const bp=bpOf(tierCount,ok?N:played),acc=bp/10000;   // acc is only the basis points as a fraction: every rank and every shown percentage comes from bp
   const rank=rankOf(bp,missCount,tierCount[2],tierCount[3]);
   const kS=KEY_SC(si,di),kR=KEY_RK(si,di),prev=parseInt(lsGet(kS)||'0',10);
-  const newBest=ok&&mode==='normal'&&score>prev;
-  const failAt=!ok&&mode==='normal'?Math.min((failTi>=0?Math.max(failTi,resolved):resolved)+1,tg.length):null,ff=failAt!=null&&!lsGet('ppl-first-fail'),fcP=ok&&mode==='normal'&&!lsGet('ppl-first-clear');   // failAt: the beat (counted from 1) the run failed on, null when it did not fail - the same number is stored, shown on the card and used for the practice start (the practice mode can start near it); ff: the first failure ever gets an encouraging card; fcP: the first clear ever
+  const newBest=ok&&mode==='normal'&&!CHT&&score>prev;   // CHT: a challenge on a song that is still locked is played for the server only: no local clear, best, rank, sky or unlock progress, no failKey, no first-fail or first-clear card, no practice button
+  const failAt=!ok&&mode==='normal'&&!CHT?Math.min((failTi>=0?Math.max(failTi,resolved):resolved)+1,tg.length):null,ff=failAt!=null&&!lsGet('ppl-first-fail'),fcP=ok&&mode==='normal'&&!CHT&&!lsGet('ppl-first-clear');   // CHT writes and shows nothing of the first-fail / first-clear / practice kind. failAt: the beat (counted from 1) the run failed on, null when it did not fail - the same number is stored, shown on the card and used for the practice start (the practice mode can start near it); ff: the first failure ever gets an encouraging card; fcP: the first clear ever
   if(failAt!=null)lsSet(failKey(si,di),String(failAt));
-  const skyB=ok&&mode==='normal'?starOf(si):null,skyC=CON_OF[si]?CONS[CON_OF[si][0]]:null,skyCB=!!skyC&&skyDone(skyC),noteB=!!skyB&&regDone();
+  const skyB=ok&&mode==='normal'&&!CHT?starOf(si):null,skyC=CON_OF[si]?CONS[CON_OF[si][0]]:null,skyCB=!!skyC&&skyDone(skyC),noteB=!!skyB&&regDone();
   if(mode==='tut'){lsSet('ppl-tut','1');evA('tut')}
-  else if(ok&&mode==='normal'){
+  else if(ok&&mode==='normal'&&!CHT){
     lsSet(KEY_CL(si),'1');
     {const lp='ppl-lp-'+SONGS[si].key,last=parseInt(lsGet(lp)||'0',10)||0;lsSet(lp,String(Date.now()));
       evA('clear',{key:SONGS[si].key,last,paused:runPaused,musicOff:runMute0&&SET.mel===0&&SET.bk===0})}
@@ -1038,17 +1041,18 @@ function showResult(ok,msg){
   const found=rwDirty?rwRefresh():[];if(found.length)SKY=null;   // a reward constellation just appeared: the sky is drawn again with it
   $('#rk').textContent=mode==='tut'?'':(ok?TX('通關'):TX('失敗'));
   $('#rt').textContent=mode==='tut'?TX('教學完成'):ff?TX('挑戰未完成'):TX('第 {n} 關',{n:si+1})+' · '+TX('《{song}》',{song:song.name})+' · '+D.n;
-  lastRes={ok,rank,score,acc,bp,maxCombo,name:song.name,label:$('#rt').textContent};
+  lastRes={ok,rank,score,acc,bp,maxCombo,name:song.name,label:$('#rt').textContent,key:song.key,d:di};
+  rchSet(ok);$('#bChal').hidden=!(mode==='normal'&&ok&&score>0&&!runFrom);
   const rk=$('#rank');rk.textContent=ok?rank:TX('失敗');rk.className=ok&&rank==='SSS'?'rsss':'';rk.style.color=ok?(rank==='SSS'?'':RANK_COL[rank]):'#ff7a93';rk.style.fontSize=ok?(rank.length===3?'clamp(44px,12.5vh,76px)':rank.length===2?'clamp(50px,14vh,86px)':''):'clamp(40px,11vh,64px)';
   {const gp=$('#rgap');gp.textContent=ok&&mode==='normal'?rankGap(bp,missCount,tierCount[2],tierCount[3],tierCount[1]):'';gp.hidden=!gp.textContent}
   $('#end').classList.toggle('fail',!ok);$('#end').classList.toggle('tutdone',mode==='tut'||ff);   // the tutorial's end card is only a title, one line and the buttons (index.html: #end.tutdone)
-  const done=Math.min(resolved,tg.length)-runFrom;
+  const done=Math.min(resolved,tg.length)-runFrom,tutCh=mode==='tut'&&CHA&&CHW&&!chBlock(songIdx(CHA.k))?CHA:null;   // tutCh: the tutorial was started by a challenge link: its end card names that song and level instead of the recommendation
   $('#rbest').innerHTML=newBest?'<span class="badge">'+TX('新紀錄')+'</span>':'';
-  $('#rnew').innerHTML=mode==='tut'?'<div class="sub">'+TX('每通過一關，即開放下一關。')+'</div><div class="rcard"><div class="rk1">'+TX('推薦曲目')+'</div><div class="rk2">'+esc(TX('《{song}》',{song:SONGS[recSong()].name}))+'<small>'+DIFFS[3].n+'</small></div></div>':ff?'<div class="ffl">'+TX('本次進行至第 <b>{n}</b> ／ {m} 拍',{n:failAt,m:tg.length})+'</div><div class="ffbar"><i style="width:'+Math.round(Math.min(1,failAt/Math.max(1,tg.length))*100)+'%"></i></div><div class="ffd">'+TX('可使用練習模式，自此處以較慢速度反覆練習。')+'</div>':ok?'':'<span class="sub">'+esc(msg||'')+'</span><div class="sub">'+TX('進度 {p}%',{p:Math.round(Math.max(0,Math.min(1,done/N))*100)})+'</div>';
+  $('#rnew').innerHTML=mode==='tut'?'<div class="sub">'+TX('每通過一關，即開放下一關。')+'</div><div class="rcard"><div class="rk1">'+(tutCh?TX('挑戰曲目'):TX('推薦曲目'))+'</div><div class="rk2">'+esc(TX('《{song}》',{song:SONGS[tutCh?songIdx(tutCh.k):recSong()].name}))+'<small>'+DIFFS[tutCh?tutCh.d:3].n+'</small></div></div>':ff?'<div class="ffl">'+TX('本次進行至第 <b>{n}</b> ／ {m} 拍',{n:failAt,m:tg.length})+'</div><div class="ffbar"><i style="width:'+Math.round(Math.min(1,failAt/Math.max(1,tg.length))*100)+'%"></i></div><div class="ffd">'+TX('可使用練習模式，自此處以較慢速度反覆練習。')+'</div>':ok?'':'<span class="sub">'+esc(msg||'')+'</span><div class="sub">'+TX('進度 {p}%',{p:Math.round(Math.max(0,Math.min(1,done/N))*100)})+'</div>';
   const cell=(l,v,c)=>'<div><i style="color:'+c+'">'+l+'</i><b>'+v+'</b></div>';
   $('#rjg').innerHTML=cell(TX('完美'),tierCount[0],'#ffd36b')+cell(TX('極佳'),tierCount[1],'#7cf0ff')+cell(TX('良好'),tierCount[2],'#8fe388')+cell(TX('尚可'),tierCount[3],'#9aa3c7')+cell(TX('失誤'),missCount,'#ff7a93');
   $('#rst').innerHTML='<span>'+TX('最高連擊')+'<b>'+maxCombo+'</b></span><span>'+TX('精準度')+'<b>'+pct(bp)+'</b></span><span>'+TX('完成度')+'<b>'+done+' / '+N+'</b></span>';
-  if(ok&&mode==='normal'&&!runFrom){const kA=KEY_AC(si,di);if(bp>(parseInt(lsGet(kA)||'0',10)||0))lsSet(kA,String(bp))}
+  if(ok&&mode==='normal'&&!runFrom&&!CHT){const kA=KEY_AC(si,di);if(bp>(parseInt(lsGet(kA)||'0',10)||0))lsSet(kA,String(bp))}
   const rs=$('#rsky');rs.hidden=true;rs.textContent='';
   if(skyB){const a=starOf(si),full=!!skyC&&!skyCB&&skyDone(skyC);
     const note=!noteB&&regDone();
@@ -1093,8 +1097,8 @@ function recRender(){
   if(!L.length||!tutDone()){b.hidden=true;return}
   const i=L[(Math.imul(day,2654435761)>>>0)%L.length];b.dataset.i=String(i);b.textContent=TX('今日推薦曲目：《{song}》',{song:SONGS[i].name});b.hidden=false;
 }
-function showHome(){if(SP.on)specOff(false);if(RSEL&&RSEL.on)mpSelOff();docClose();mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');$('#frv').classList.add('hidden');$('#shop').classList.add('hidden');$('#home').classList.remove('hidden');recRender();lvPlateRender();lvLoad();skyBadge();audioStatus();frBadge();layout()}
-function showSelect(){if(SP.on)specOff(false);mode='normal';setMedia(false);hudShow(false);st='menu';cutAll();balls=[];buildChips();$('#home').classList.add('hidden');$('#end').classList.add('hidden');$('#lbv').classList.add('hidden');$('#menu').classList.remove('hidden');lvLoad();selScroll()}
+function showHome(){SHA=null;CHA=null;CHW=false;CHT=false;if(SP.on)specOff(false);if(RSEL&&RSEL.on)mpSelOff();docClose();mode='normal';setMedia(false);hudShow(false);st='home';cutAll();balls=[];tg=[];resolved=0;hud();$('#menu').classList.add('hidden');$('#end').classList.add('hidden');$('#sky').classList.add('hidden');$('#lbv').classList.add('hidden');$('#frv').classList.add('hidden');$('#shop').classList.add('hidden');$('#home').classList.remove('hidden');recRender();lvPlateRender();lvLoad();skyBadge();audioStatus();frBadge();layout();if(CHP)setTimeout(chOpen,0)}
+function showSelect(){SHA=null;CHA=null;CHW=false;CHT=false;if(SP.on)specOff(false);mode='normal';setMedia(false);hudShow(false);st='menu';cutAll();balls=[];buildChips();$('#home').classList.add('hidden');$('#end').classList.add('hidden');$('#lbv').classList.add('hidden');$('#menu').classList.remove('hidden');lvLoad();selScroll()}
 
 /* ================= update ================= */
 function wallFx(b,e){rings.push({x:b.x,y:b.y,r0:BR*.5,life:.3,max:.3,hue:hueNow()+80,w:1.5});edgeGlow[e]=Math.max(edgeGlow[e],.18);edgeHue[e]=hueNow()}
@@ -1136,7 +1140,7 @@ function arcWin(b,a){
   const nb2=Math.round(a.base*1.1),d=nb2-a.base;
   if(RUN){const L=a.hti<RUN.log.length?RUN.log[a.hti]:null;if(!Array.isArray(L)||L[1]!==a.base)return;L[1]=nb2}   // the log and the score move together (the server accepts up to 10 % over the plain base, lb.js Q_MAX)
   score+=d;
-  if(mode!=='prac'&&mode!=='try')lsSet('ppl-arc-n',String((parseInt(lsGet('ppl-arc-n')||'0',10)||0)+1));
+  if(mode!=='prac'&&mode!=='try'){const n=(parseInt(lsGet('ppl-arc-n')||'0',10)||0)+1;lsSet('ppl-arc-n',String(n));evA('arc',{n})}   // 穿星者: 1 / 20 / 100 star arcs in all (ach.js)
   const ax=a.mx,ay=a.ay-(a.A<0?-1:1)*BR*3.2;arcTxt(ax,ay);
   rings.push({x:b.x,y:b.y,r0:BR,life:.7,max:.7,hue:272,w:5},{x:b.x,y:b.y,r0:BR*.6,life:.9,max:.9,hue:200,w:3});burst(b.x,b.y,272,26,BR*14,.9);
   flash.a=Math.max(flash.a,.14);flash.hue=272;vib(20);
@@ -1714,12 +1718,13 @@ function drawTutHold(x){
   x.restore();
 }
 function draw(){
+  if(SHA&&st==='play')shTick();
   ctx.setTransform(dpr,0,0,dpr,0,0);
   drawBG(ctx);
   ctx.save();
   if(shake>0&&!SET.lowFx)ctx.translate(rand(-shake,shake)*.5,rand(-shake,shake)*.5);
   if(st==='home')drawAttract(ctx);
-  else if(st!=='menu'){drawField(ctx);drawBumps(ctx);drawItems(ctx);if(SP.on){const c0=combo;combo=SP.c;drawBalls(ctx);combo=c0}else drawBalls(ctx);drawFx(ctx)}
+  else if(st!=='menu'){drawField(ctx);drawBumps(ctx);drawItems(ctx);if(SP.on){const c0=combo;combo=SP.c;drawBalls(ctx);combo=c0}else drawBalls(ctx);if(SHA)drawShade(ctx);drawFx(ctx)}
   ctx.restore();
   ctx.textAlign='center';ctx.textBaseline='alphabetic';
   if(st==='ready'&&mode==='duel'){const left=Math.max(0,(DU.startAt-duelNow())/1000);ctx.fillStyle='#e8ecff';ctx.font='800 22px '+FF;ctx.fillText(TX('{n} 人對戰　即將開始 {sec}',{n:DU.n,sec:Math.ceil(left)}),FR.x+FR.w/2,FR.y+FR.h/2+BR*6);
@@ -1944,7 +1949,7 @@ function mpRoomUI(){
     $('#dPub').textContent=TX('公開');$('#dPub').classList.toggle('on',C.pub);$('#dVote').textContent=TX('投票選曲');$('#dVote').classList.toggle('on',C.vote)}
   mpSeats();
   const b=$('#bGo');b.hidden=C.qm;b.disabled=false;b.textContent=DU.ready?TX('取消準備'):TX('準備');b.classList.toggle('pri',!DU.ready);
-  buildChips();mpRoomMsg();
+  buildChips();mpRoomMsg();shAskCheck();
   const k=songIdx(C.song);if(k>=0)preloadSong(SONGS[k]);
 }
 function mpDetail(){   // extra line on the song details: what the room is going to play
@@ -2049,7 +2054,7 @@ function mpCfg(o,again){
   clearTimeout(DU.cfgT);if(!again)DU.cfgT=setTimeout(()=>{const P=DU.cfgP;if(DU.ws&&P&&Object.keys(P).some(k=>DU.srv&&DU.srv[k]!==P[k]))mpCfg({},true)},1500)}
 $('#dPub').onclick=()=>mpCfg({pub:!DU.cfg.pub});
 $('#dVote').onclick=()=>mpCfg({vote:!DU.cfg.vote});
-function mpSelOff(){popClose();RSEL.on=false;$('#menu').classList.remove('room');$('#bGo').hidden=false;$('#bGo').classList.add('pri');$('#bGo').textContent=TX('開始');$('#selT').textContent=TX('選擇曲目');$('#bBack').textContent=TX('‹ 返回');$('#rnote').textContent='';pvEnd()}
+function mpSelOff(){shAskOff();shW.no=false;popClose();RSEL.on=false;$('#menu').classList.remove('room');$('#bGo').hidden=false;$('#bGo').classList.add('pri');$('#bGo').textContent=TX('開始');$('#selT').textContent=TX('選擇曲目');$('#bBack').textContent=TX('‹ 返回');$('#rnote').textContent='';pvEnd()}
 function mpRestore(){if(DU.prevDi!=null){di=DU.prevDi;DU.prevDi=null}if(DU.prevSi!=null){si=DU.prevSi;DU.prevSi=null}}
 function mpSelBack(msg){   // room closed under us: back to the lobby
   mpSelOff();$('#menu').classList.add('hidden');mpRestore();
@@ -2515,6 +2520,7 @@ function pkey(){let k=lsGet('ppl-pk');if(!/^[0-9a-f]{32}$/.test(k||'')){const a=
 let ME=(()=>{try{const m=JSON.parse(lsGet('ppl-me')||'null');return m&&Number.isInteger(m.id)&&typeof m.name==='string'&&m.name?{id:m.id,name:dName(m.name)}:null}catch(e){return null}})();
 function setMe(m){const first=!ME&&!!m;ME=m;if(m)lsSet('ppl-me',JSON.stringify(m));else{try{localStorage.removeItem('ppl-me');localStorage.removeItem('ppl-fc')}catch(e){}}
   if(first&&window.PPLG&&typeof window.PPLG.onMe==='function')setTimeout(window.PPLG.onMe,0)}   // a nickname now exists: shop.js sends up what was taken without one
+var SHA=null,CHA=null,CHT=false,CHW=false,shadeOn=lsGet('ppl-shade')!=='0';   // SHA: the starshade of this run; CHA: the challenge being played; CHT: that challenge is on a song that is still locked (nothing local is written); CHW: the tutorial is running first; shadeOn: my records may be a starshade (server setting, cached)
 let RUN=null;   // this run's beat log: [timing error ms, base points] per beat, null = missed (cost life), 0 = missed but the shield held; star[i] = beat i was settled during star time
 // the star-time beats as index ranges [[from,to),...] over the first len beats (what the server checks the base points against)
 function starRanges(a,len){const o=[];let s=-1;for(let i=0;i<=len;i++){const on=i<len&&a[i]===1;if(on&&s<0)s=i;else if(!on&&s>=0){o.push([s,i]);s=-1}}return o.slice(0,50)}
@@ -2567,8 +2573,9 @@ async function nickGo(){
 }
 function nickClose(done){
   $('#nick').classList.add('hidden');const m=nickMode;nickMode='';syncSet();
+  if(CHP)setTimeout(chOpen,0);   // (a challenge link waits for the nickname page)
   if(!done)return;
-  LBC.clear();frConnect();
+  LBC.clear();frConnect();invAuto();
   if(m==='duel'){duelOpen();if(DU.pend){$('#dCode').value=DU.pend;DU.pend=''}}
   else if(m==='friends')frOpen();
   else if(m==='result')$('#rlb').hidden=true;
@@ -2582,7 +2589,7 @@ async function netBoot(){
   const j=await api('/lb/me',{pk:pkey()});
   if(j.me===null){setMe(null);nickOpen('first');return}   // the server no longer knows this key (records deleted)
   if(j.me&&typeof j.me==='object'&&typeof j.me.name==='string')setMe({id:dInt(j.me.id,1,1e12),name:dName(j.me.name)||ME.name});
-  frConnect();frBadge(true);
+  frConnect();frBadge(true);invAuto();
   if(FD.pend)frOpen();
 }
 
@@ -2616,6 +2623,7 @@ async function lbSubmit(R){
   const j=typeof run==='string'?await api('/lb/submit',{run,pk:pkey(),log:R.log,seq:R.seq,star:starRanges(R.star,R.log.length),pf:PF}):{error:run.e};
   if(lastRes!==tok)return;
   lvResult(j,{ok:true,R});
+  if(j.ok&&j.inv===1)invGot();
   fcShow(j&&j.lv?lvClean(j.lv):null);
   if(j.ok&&Array.isArray(j.ach)&&window.PPLA)window.PPLA.fresh(j.ach.filter(x=>typeof x==='string').slice(0,40));   // what this run earned on the server: shown as notices
   if(j.ok&&j.me&&typeof j.me==='object'&&!j.me.hidden){
@@ -2627,6 +2635,283 @@ async function lbSubmit(R){
   else{if(j.error==='noname')setMe(null);
     t.textContent=j.error==='noname'?TX('找不到您的暱稱，請至「設定」重新設定暱稱'):j.error==='slow'?TX('操作太頻繁，本次成績未上傳'):j.error==='net'||j._s===0||j._s>=500?TX('目前無法連線至伺服器，本次成績未列入排行榜'):TX('本次成績無法驗證，未列入排行榜')}
 }
+/* ================= batch 2: starshade (星影), invitations, challenge links, star card image ================= */
+// ---- starshade: another player's stored best run on the same song and difficulty, replayed beside my own run ----
+// The server (/lb/shade) sends { name, lv, score, log }; log is the beat log of that run ([timing error ms, base points] per beat, null / 0 = a miss).
+// The run itself is an ordinary single run (leaderboard, experience, light): the starshade only adds a score race and a translucent ball on the field.
+// Nothing about a starshade race is sent to a room: no duel record and no duel or social achievements.
+const shW={t:0,t0:0,no:false,open:false};   // the waiting card: timer, when the wait began, "keep waiting" chosen, card open
+function shClean(j){
+  if(!j||j.none||!Array.isArray(j.log)||!j.log.length||j.log.length>4000)return null;
+  const log=j.log.map(x=>x===null?null:x===0?0:Array.isArray(x)&&x.length===2?[dInt(x[0],-400,400),dInt(x[1],0,1e6)]:null);
+  return{name:dName(j.name)||TX('玩家'),lv:dInt(j.lv,1,1e6),score:dInt(j.score,0,1e9),log};
+}
+let shShown=false;
+function bt2Start(from){   // every startRun (a challenge on a Full Version song was already refused at the top of startRun): the starshade's timeline, and whether a challenge applies to this run (CHT: it does, on a song that is still locked)
+  if(SHA&&!(mode==='normal'&&SHA.si===si&&SHA.di===di))SHA=null;
+  if(CHA&&!CHW&&!(mode==='normal'&&songIdx(CHA.k)===si&&CHA.d===di))CHA=null;
+  CHT=!!CHA&&!CHW&&mode==='normal'&&!unlocked(si);
+  const S=SHA;
+  if(S){
+    const n=tg.length,L=S.log;
+    if(L.length!==n)SHA=null;
+    else{   // when each beat of the starshade settled (prefix maximum: several balls can settle out of order) and its score after it (the combo follows the beat order, like the server)
+      const tm=new Array(n),cum=new Array(n);let c=0,sc=0,mx=-1e9;
+      for(let i=0;i<n;i++){
+        const x=L[i];let t=tT(i);
+        if(Array.isArray(x)){const e=x[0]/1000;t+=e;c=tierOf(Math.abs(e))<=2?c+1:0;sc+=x[1]+c*5}
+        else{t+=.25;c=0}
+        mx=Math.max(mx,t);tm[i]=mx;cum[i]=sc}
+      S.tm=tm;S.cum=cum;S.k=0;S.sc=0;
+    }
+  }
+  const on=!!SHA;$('#shHud').hidden=!on;
+  if(on){$('#shNm').textContent=SHA.name+' '+lvTxt(SHA.lv);$('#shSc').textContent='0';$('#shMe').textContent='0'}
+  if(on!==shShown){shShown=on;layout()}
+}
+function shTick(){
+  const S=SHA;if(!S||!S.tm)return;
+  const g=GB();let k=S.k;const n=S.tm.length;
+  while(k<n&&S.tm[k]<=g)k++;
+  if(k!==S.k){S.k=k;S.sc=k?S.cum[k-1]:0;$('#shSc').textContent=S.sc.toLocaleString()}
+}
+function drawShade(x){   // the starshade's ball: translucent, bounces between the two lines on the beats it hit
+  const S=SHA;if(!S||!S.tm||st!=='play'||SP.on)return;
+  const n=S.tm.length,k=S.k,g=GB(),xl=i=>sideOf(i)===1?FR.x+FR.w:FR.x,mid=FR.x+FR.w/2;
+  let px,py,al=.4;
+  if(k>=n){px=xl(n-1);py=FR.y+FR.h/2;al=Math.max(0,.4-(g-S.tm[n-1])*.4)}
+  else{
+    const tp=k>0?S.tm[k-1]:S.tm[0]-1.2,u=Math.max(0,Math.min(1,(g-tp)/Math.max(.05,S.tm[k]-tp))),to=xl(k),fr=k>0?xl(k-1):mid;
+    if(k>0&&fr===to)px=to+(mid-to)*Math.sin(u*Math.PI);else px=fr+(to-fr)*u;
+    py=FR.y+FR.h*(.5+.28*Math.sin(k*2.3+u*2.2));
+  }
+  if(al<=0)return;
+  x.save();x.globalAlpha=al;
+  const gr=x.createRadialGradient(px-BR*.3,py-BR*.3,0,px,py,BR*1.2);gr.addColorStop(0,'#ffffff');gr.addColorStop(.5,'#d9ccff');gr.addColorStop(1,'#8f6bff');
+  x.shadowColor='#b7a2ff';x.shadowBlur=SET.lowFx?0:14;x.fillStyle=gr;x.beginPath();x.arc(px,py,BR,0,Math.PI*2);x.fill();x.restore();
+}
+function rchSet(ok){   // the line at the top of the result: a challenge, or the race against the starshade
+  const e=$('#rch');let t='',no=false;
+  if(CHA&&mode==='normal'&&songIdx(CHA.k)===si&&CHA.d===di){const win=ok&&score>CHA.s;t=win?TX('挑戰成功'):TX('挑戰未成功（目標 {score} 分）',{score:CHA.s.toLocaleString()});no=!win}
+  else if(SHA&&mode==='normal'){const win=ok&&score>SHA.score;t=win?TX('勝利　超越星影 {name}（{score} 分）',{name:SHA.name,score:SHA.score.toLocaleString()}):TX('落敗　星影 {name}：{score} 分',{name:SHA.name,score:SHA.score.toLocaleString()});no=!win}
+  e.hidden=!t;e.textContent=t;e.classList.toggle('no',no);
+}
+// the waiting card: in a quick-match room, alone for 12 seconds
+function shAskOff(){clearTimeout(shW.t);shW.t=0;shW.open=false;$('#shAsk').classList.add('hidden')}
+function shAskCheck(){
+  const alone=RSEL.on&&DU.cfg.qm&&DU.phase==='lobby'&&DU.players.length<2;
+  if(!alone){shAskOff();return}
+  if(shW.t||shW.no||shW.open)return;
+  shW.t0=Date.now();
+  shW.t=setTimeout(()=>{shW.t=0;if(RSEL.on&&DU.cfg.qm&&DU.players.length<2)shAskShow()},12000);
+}
+function shAskShow(){
+  const k=songIdx(DU.cfg.song);if(k<0)return;
+  shW.open=true;$('#shaS').textContent=TX('{song}・{d}　已等待 {n} 秒',{song:SONGS[k].name,d:DIFFS[DU.cfg.di].n,n:Math.max(12,Math.round((Date.now()-shW.t0)/1000))});
+  $('#shaGo').disabled=false;$('#shAsk').classList.remove('hidden');
+}
+async function shadeStart(){
+  const k=songIdx(DU.cfg.song),d=DU.cfg.di;if(k<0||!RSEL.on||!DU.cfg.qm)return;
+  const b=$('#shaGo');b.disabled=true;
+  const j=await api('/lb/shade',{pk:pkey(),k:SONGS[k].key,d});b.disabled=false;
+  if(!RSEL.on||!DU.cfg.qm||!shW.open)return;   // left the room, or an opponent came while asking
+  if(DU.players.length>=2){shAskOff();return}
+  if(j.error==='noname'){toast(TX('請先設定暱稱'));return}
+  const S=shClean(j);
+  if(!S){toast(j.none?TX('目前沒有可用的星影紀錄，請繼續等待。'):TX('目前無法取得星影紀錄，請稍後再試。'));if(j.none){shW.no=true;shAskOff()}return}
+  shAskOff();mpSelOff();duelClose(true);clearInterval(DU.roomsIv);mpRestore();   // out of the queue and the room, then an ordinary run
+  if(diPref==null)diPref=di;si=k;di=d;mode='normal';SHA=Object.assign(S,{si:k,di:d});initAudio();goFs();startRun(0);
+}
+$('#shaGo').onclick=shadeStart;
+$('#shaWait').onclick=()=>{shW.no=true;shAskOff()};
+async function shadeLoad(){   // the settings: what the server has for "my records may be a starshade"
+  if(!ME)return;const j=await api('/lb/shadeset',{pk:pkey()});
+  if(j.ok){shadeOn=j.shade!==0;lsSet('ppl-shade',shadeOn?'1':'0');syncSet()}
+}
+$('#tShade').onclick=async()=>{
+  if(!ME)return;const v=!shadeOn;shadeOn=v;syncSet();
+  const j=await api('/lb/shadeset',{pk:pkey(),v:v?1:0});
+  if(j.ok)shadeOn=j.shade!==0;else{shadeOn=!v;toast(TX('目前無法連線至伺服器，請稍後再試。'))}
+  lsSet('ppl-shade',shadeOn?'1':'0');syncSet();
+};
+
+// ---- invitations (邀請碼, 同行星芒) ----
+const INV={d:null,busy:false,auto:false,draft:'',err:false};   // err: the last /lb/inv failed (shown instead of "loading"; reopening the page tries again)
+const ivCleared=()=>SONGS.some((_,i)=>cleared(i));   // this device already has a clear: the server would refuse the code (it looks at the scores), so nothing is sent
+const IVCODE=/^[ABCDEFGHJKMNPQRSTUVWXYZ2-9]{6}$/;
+const ivClean=v=>{const c=String(v==null?'':v).toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);return IVCODE.test(c)?c:''};
+const ivLink=c=>SITE+'?inv='+c;
+try{const u=new URL(location.href),c=ivClean(u.searchParams.get('inv'));   // ?inv=CODE: kept until a nickname exists, then entered by itself
+  if(c)lsSet('ppl-inv-pend',c);
+  if(u.searchParams.has('inv')){u.searchParams.delete('inv');history.replaceState(null,'',u.pathname+u.search+u.hash)}}catch(e){}
+const lvpOn=()=>!$('#lvp').classList.contains('hidden');
+async function invLoad(){
+  if(!ME||INV.busy)return;INV.busy=true;
+  const j=await api('/lb/inv',{pk:pkey()});INV.busy=false;
+  if(j.ok&&IVCODE.test(String(j.code))){
+    INV.err=false;INV.d={code:j.code,n:dInt(j.n,0,1e6),m:dInt(j.m,0,1e6),used:j.used===true,done:j.done===true};lsSet('ppl-inv-code',j.code);
+    const r=lsGet('ppl-inv-res')||'';if(INV.d.used){if(r!=='ok')lsSet('ppl-inv-res','ok')}else if(r==='ok')lsSet('ppl-inv-res','')   // what this device remembers follows the server: an entered code is kept only while the server has it
+  }
+  else if(j.error==='noname')setMe(null);
+  else INV.err=true;
+  if(lvpOn()&&LV.tab==='inv')lvpRender();
+}
+async function invAuto(){   // a code that came with the link: tried once the player has a nickname; a failure is silent (the invite page shows the result)
+  const c=ivClean(lsGet('ppl-inv-pend'));if(!c||!ME||INV.auto)return;
+  if(ivCleared()){lsSet('ppl-inv-pend','');return}   // a player who has cleared a song cannot use a code
+  INV.auto=true;
+  const j=await api('/lb/redeem',{pk:pkey(),code:c});INV.auto=false;
+  if(j.error==='slow'||j.error==='net'||j.error==='noname'||j._s===0||j._s>=500)return;   // try again at the next start
+  lsSet('ppl-inv-pend','');lsSet('ppl-inv-res',j.ok?'ok':String(j.error||'bad'));INV.d=null;
+  if(lvpOn()&&LV.tab==='inv'){invLoad();lvpRender()}
+}
+function invGot(){   // my first clear finished an invitation: the effect is in the collection now
+  INV.d=null;toast(TX('「同行星芒」已加入收藏'));
+  try{if(window.PPLSHOP&&window.PPLSHOP.sync)window.PPLSHOP.sync()}catch(e){}
+}
+const ivErr=e=>TXO({self:'這是你自己的邀請碼。',nocode:'找不到這個邀請碼。',already:'你已經輸入過邀請碼。',cleared:'只有尚未通關的新玩家可以輸入邀請碼。',code:'邀請碼是 6 個英數字。',noname:'請先設定暱稱。',slow:'操作太頻繁，請稍後再試。'})[e]||TX('目前無法輸入邀請碼，請稍後再試。');
+async function invRedeem(){
+  const inp=$('#ivIn'),m=$('#ivMsg');if(!inp||!m)return;
+  const c=ivClean(inp.value);if(!c){m.textContent=ivErr('code');return}
+  if(ivCleared()){m.textContent=TX('已通關過的玩家無法使用邀請碼。');return}
+  m.textContent=TX('確認中⋯');$('#ivOk').disabled=true;
+  const j=await api('/lb/redeem',{pk:pkey(),code:c});
+  if(j.ok){lsSet('ppl-inv-res','ok');INV.draft='';INV.d=null;await invLoad();lvpRender();return}
+  const m2=$('#ivMsg');if(m2){m2.textContent=ivErr(j.error);const b=$('#ivOk');if(b)b.disabled=false}
+}
+function lvInvHTML(){
+  if(!ME)return '<div class="ivB"><h3>'+TX('邀請好友')+'</h3><p>'+TX('設定暱稱後，才能使用邀請碼。')+'</p><button class="sm" id="ivNick">'+TX('設定暱稱')+'</button></div>';
+  const I=INV.d,code=I?I.code:ivClean(lsGet('ppl-inv-code')),res=lsGet('ppl-inv-res')||'';
+  const used=I?I.used:res==='ok';   // once the server has answered, its word counts
+  const note=res==='ok'?TX('已輸入好友的邀請碼。')+(I&&I.done?TX('　你們都已完成。'):TX('　完成首次通關後，雙方都會獲得「同行星芒」。')):res?'<span style="color:#ffb86b">'+esc(ivErr(res))+'</span>':'';
+  return '<div class="ivB"><h3>'+TX('邀請好友')+'</h3>'
+    +'<div class="ivCode"><span class="dim">'+TX('你的邀請碼')+'</span><b>'+(code||'······')+'</b><button class="sm" id="ivCopy"'+(code?'':' disabled')+'>'+TX('複製邀請連結')+'</button></div>'
+    +'<p>'+TX('好友透過你的邀請連結或邀請碼加入，並首次通關任一曲目後，雙方皆可獲得限定外觀「同行星芒」。')+'</p>'
+    +'<p class="dim">'+(I?TX('已邀請 {n} 人，其中 {m} 人已完成',{n:I.n,m:I.m}):INV.err?TX('目前無法連線，請稍後再試。'):TX('讀取中⋯'))+'</p>'
+    +(used?'<div class="ivIn"><span class="dim">'+note+'</span></div>'
+      :ivCleared()?'<div class="ivIn"><span class="dim">'+TX('已通關過的玩家無法使用邀請碼。')+'</span></div>'
+      :'<div class="ivIn"><span class="dim">'+TX('輸入好友邀請碼')+'</span><input id="ivIn" maxlength="6" placeholder="'+TX('邀請碼')+'" autocomplete="off" autocapitalize="characters" spellcheck="false" value="'+esc(INV.draft)+'"><button class="sm" id="ivOk">'+TX('確定')+'</button></div><div class="ivMsg" id="ivMsg">'+note+'</div>')
+    +'</div>';
+}
+$('#lvList').addEventListener('click',e=>{
+  if(e.target.closest('#ivNick')){nickOpen('first');return}
+  if(e.target.closest('#ivOk')){invRedeem();return}
+  if(e.target.closest('#ivCopy')&&INV.d){
+    const url=ivLink(INV.d.code);
+    try{navigator.clipboard.writeText(url).then(()=>toast(TX('已複製邀請連結')),()=>toast(url))}catch(err){toast(url)}}
+});
+$('#lvList').addEventListener('input',e=>{if(e.target.id==='ivIn'){const v=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6);if(v!==e.target.value)e.target.value=v;INV.draft=v}});
+$('#lvList').addEventListener('keydown',e=>{if(e.target.id==='ivIn'&&e.key==='Enter'){e.preventDefault();invRedeem()}});
+
+// ---- challenge links: ?ch=<base64url JSON {k: song key, d: difficulty, s: score, n: name}>; only shown, never a reward ----
+var CHP=null;   // a challenge link waiting to be answered
+const b64u={enc:s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''),dec:s=>decodeURIComponent(escape(atob(s.replace(/-/g,'+').replace(/_/g,'/'))))};
+function chDecode(c){
+  try{
+    if(typeof c!=='string'||c.length>600||!/^[A-Za-z0-9_-]+$/.test(c))return null;
+    const o=JSON.parse(b64u.dec(c));
+    if(!o||typeof o!=='object'||!dKey(o.k)||songIdx(o.k)<0||!Number.isInteger(o.d)||o.d<0||o.d>=DIFFS.length||!Number.isInteger(o.s)||o.s<1||o.s>999999999)return null;
+    const f=fixDi(songIdx(o.k));if(f!=null&&f!==o.d)return null;   // a reward song is played at its own level only: a link with another level is ignored
+    return{k:o.k,d:o.d,s:o.s,n:dName(o.n)||TX('玩家')};
+  }catch(e){return null}
+}
+try{const u=new URL(location.href),c=u.searchParams.get('ch');
+  if(c!==null){u.searchParams.delete('ch');history.replaceState(null,'',u.pathname+u.search+u.hash);const o=chDecode(c);if(o){CHP=o;setTimeout(chOpen,50)}}}catch(e){}
+// What a challenge link may open: a Full Version song only shows the card (its button leads to the shop, no run); a reward song that has not risen yet is ignored;
+// any other song that is merely not unlocked yet can be played for this one run (CHT).
+const chBlock=k=>k<0||!shown(k)?'gone':fullLocked(k)?'full':'';
+const chMode=()=>{const S=window.PPLSHOP;return S&&S.modeState?S.modeState():'known'};   // 'known' | 'wait' (the shop has not answered yet) | 'fail' (no usable answer): the 30% lock cannot be decided unless 'known'
+function chRender(){   // the card's texts and button: follows the shop's mode (ppl-mode) and the Full Version state
+  const o=CHP;if(!o)return;
+  const k=songIdx(o.k),bl=chBlock(k),ms=chMode(),g=$('#chGo');if(bl==='gone'){CHP=null;$('#chv').classList.add('hidden');return}
+  $('#chK').textContent=TX('{name} 向你發出挑戰',{name:o.n});
+  $('#chS').textContent=TX('{song}・{d}　{score} 分',{song:SONGS[k].name,d:DIFFS[o.d].n,score:o.s.toLocaleString()});
+  $('#chT').hidden=ms!=='known'||bl==='full'||tutDone();
+  g.disabled=ms!=='known';g.textContent=ms==='wait'?TX('讀取中⋯'):ms==='fail'?TX('目前無法連線，請稍後再試。'):bl==='full'?TX('解鎖完整版'):TX('接受挑戰');
+}
+window.addEventListener('ppl-mode',()=>{if(!CHP)return;if(!$('#chv').classList.contains('hidden'))chRender();else if(chMode()==='known')chOpen()});   // a card closed while offline comes back once the answer is in
+function chOpen(){   // called whenever something that was in the way closes (the nickname page, the settings, the home screen coming back); no polling
+  if(!CHP)return;
+  if(!$('#nick').classList.contains('hidden')||st!=='home'||$('#home').classList.contains('hidden')||!$('#set').classList.contains('hidden')||!$('#chv').classList.contains('hidden'))return;
+  if(chBlock(songIdx(CHP.k))==='gone'){CHP=null;return}
+  chRender();$('#chv').classList.remove('hidden');
+  if(chMode()!=='known'){try{window.PPLSHOP.sync()}catch(e){}}   // ask the shop again (the answer comes as ppl-mode)
+}
+function chStart(o){   // the run itself: the song is open for this one run (a locked song writes nothing local, see CHT)
+  const k=songIdx(o.k);if(chBlock(k)){CHA=null;CHW=false;showHome();return}   // checked again right before the run (startRun checks it too)
+  CHP=null;CHA=o;CHW=false;if(diPref==null)diPref=di;si=k;di=o.d;mode='normal';startRun(0);   // the link is used up only now that the run really starts
+}
+$('#chGo').onclick=()=>{
+  const o=CHP;if(!o||chMode()!=='known')return;
+  $('#chv').classList.add('hidden');
+  const bl=chBlock(songIdx(o.k));
+  if(bl==='full'){CHP=null;openFullShop();return}   // the Full Version song: to the shop, no run
+  if(bl){CHP=null;return}
+  initAudio();goFs();
+  if(!tutDone()){CHA=o;CHW=true;startTut();return}   // never played: the tutorial first, and its end card leads straight into the challenge (CHP stays until the run starts, so leaving the tutorial brings the card back)
+  chStart(o);
+};
+$('#chNo').onclick=()=>{if(chMode()==='known')CHP=null;$('#chv').classList.add('hidden')};   // while the mode cannot be decided (offline) the link is kept: the card comes back with the home screen or when the connection returns
+window.addEventListener('online',()=>{if(CHP&&chMode()!=='known'){try{window.PPLSHOP.sync()}catch(e){}}});
+$('#bChal').onclick=()=>{
+  const r=lastRes;if(!r||!r.key||!r.score)return;
+  const nm=ME?ME.name:TX('玩家'),k=songIdx(r.key);if(k<0)return;
+  const code=b64u.enc(JSON.stringify({k:r.key,d:r.d,s:r.score,n:nm})),url=SITE+'?ch='+code;
+  shareText(TX('{name} 在 PingPongLight《{song}》・{d} 拿到 {score} 分，來挑戰看看！',{name:nm,song:SONGS[k].name,d:DIFFS[r.d].n,score:r.score.toLocaleString()}),url,toast);
+};
+
+// ---- star card image (1080 x 1350): everything from what this device already knows; what is not known shows "–" ----
+function starCardImg(code){
+  const c=document.createElement('canvas');c.width=1080;c.height=1350;const x=c.getContext('2d');
+  const F=PPLI18N.lang==='zh'?'"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif':FF,DASH='–';
+  const rr=(a,b,w,h,r)=>{x.beginPath();if(x.roundRect)x.roundRect(a,b,w,h,r);else x.rect(a,b,w,h)};
+  const bg=x.createRadialGradient(540,260,40,540,520,1100);bg.addColorStop(0,'#2a2f7a');bg.addColorStop(.55,'#12173f');bg.addColorStop(1,'#04050d');x.fillStyle=bg;x.fillRect(0,0,1080,1350);
+  for(let i=0;i<90;i++){const a=(Math.sin(i*91.7)*.5+.5),b=(Math.sin(i*37.3+1)*.5+.5);x.fillStyle='rgba(200,215,255,'+(.15+.35*((i*7)%5)/5)+')';x.beginPath();x.arc(a*1080,b*1350,1+((i*3)%3)*.6,0,Math.PI*2);x.fill()}
+  x.strokeStyle='rgba(150,160,230,.45)';x.lineWidth=3;rr(30,30,1020,1290,36);x.stroke();
+  const col=(()=>{try{return lvpColor()}catch(e){return'#7cf0ff'}})();
+  let av=false;   // the picture in the middle: the avatar this player wears (the one on the star card page); a glowing orb only when it cannot be drawn
+  try{if(COS&&COS.avDraw&&COS.avSpec){
+    x.save();x.shadowColor=col;x.shadowBlur=60;x.fillStyle='#12173f';x.beginPath();x.arc(540,290,134,0,Math.PI*2);x.fill();x.shadowBlur=0;
+    x.translate(540-130,290-130);COS.avDraw(x,COS.avSpec(COS.state.eq.avatar,2),260);x.restore();av=true;
+    x.strokeStyle=col;x.lineWidth=6;x.beginPath();x.arc(540,290,136,0,Math.PI*2);x.stroke()}}catch(e){try{x.restore()}catch(e2){}}
+  if(!av){const og=x.createRadialGradient(505,255,10,540,290,150);og.addColorStop(0,'#ffffff');og.addColorStop(.35,col);og.addColorStop(1,'#162058');
+    x.shadowColor=col;x.shadowBlur=60;x.fillStyle=og;x.beginPath();x.arc(540,290,130,0,Math.PI*2);x.fill();x.shadowBlur=0}
+  x.textAlign='center';x.fillStyle='#e8ecff';
+  const nm=ME?ME.name:DASH;let lvT=DASH;try{if(LV.st)lvT=lvTxt(LV.st.lv)}catch(e){}
+  x.font='800 72px '+F;const nw=Math.min(560,x.measureText(nm).width),sh=lvT===DASH?0:70;x.fillText(nm,540-sh,520,560);
+  if(lvT!==DASH){x.font='800 38px '+F;const bw=x.measureText(lvT).width+36,bx=540-sh+nw/2+22;x.fillStyle='#ffffff';rr(bx,470,bw,56,14);x.fill();x.fillStyle='#0b0f2a';x.textAlign='left';x.fillText(lvT,bx+18,511);x.textAlign='center'}
+  let tt='';try{const id=lvTitleId();if(id&&COS.byId[id])tt=COS.byId[id].name}catch(e){}
+  if(tt){x.fillStyle='#9aa3d6';x.font='500 38px '+F;x.fillText(TX('稱號：{title}',{title:tt}),540,600,900)}   // no title: the line is left out
+  let sk=null;try{sk=skyCount()}catch(e){}
+  let ag=null;try{const A=window.PPLA;if(A&&A.list&&A.earned)ag=A.list.filter(a=>A.earned(a.id)).length}catch(e){}
+  const cmc=parseInt(lsGet('ppl-ach-cmc')||'0',10),
+    fourth=cmc>0?[TX('最高連擊'),String(cmc)]:sk?[TX('SSS 評級'),String(sk.sss)]:ag!=null?[TX('成就達成'),String(ag)]:[TX('最高連擊'),DASH],   // the same sources as the star card page
+    stats=[[TX('通關'),sk?String(sk.lit):DASH],[TX('S 評'),sk?String(sk.s+sk.ss+sk.sss):DASH],[TX('完整星座'),sk?sk.full+'/'+sk.cn:DASH],fourth];
+  stats.forEach(([l,v],i)=>{const cx=70+(i%2)*470,cy=700+Math.floor(i/2)*210;
+    x.fillStyle='rgba(18,24,56,.96)';x.strokeStyle='rgba(150,160,230,.4)';x.lineWidth=2;rr(cx,cy,450,190,26);x.fill();x.stroke();
+    x.textAlign='left';x.fillStyle='#9aa3d6';x.font='500 34px '+F;x.fillText(l,cx+34,cy+66);x.fillStyle='#ffffff';x.font='800 84px '+F;x.fillText(v,cx+34,cy+150,380)});
+  x.textAlign='center';x.fillStyle='#8a93c0';x.font='400 30px '+F;
+  const host=(APP?new URL(SITE).host:location.host)||'pingponglight.vercel.app';
+  x.fillText(host+(code?' '+TX('邀請碼 {code}',{code}):''),540,1262,980);
+  return c;
+}
+async function starCardShare(save){   // save: the "save image" button (a plain download on the web; in the app the share sheet is the only way to keep a picture)
+  const bs=[$('#lvShare'),$('#lvSave')].filter(Boolean);bs.forEach(b=>b.disabled=true);
+  let code=INV.d?INV.d.code:ivClean(lsGet('ppl-inv-code'));
+  if(!code&&ME){try{await invLoad();code=INV.d?INV.d.code:''}catch(e){}}
+  const c=starCardImg(ME?code:''),text=TX('我的 PingPongLight 星卡');
+  bs.forEach(b=>b.disabled=false);
+  if(APP){const data=c.toDataURL('image/png').split(',')[1];capCall('Filesystem','writeFile',{path:'pingponglight-card.png',data,directory:'CACHE'}).then(r=>capCall('Share','share',{title:'PingPongLight',text,files:[r.uri]})).catch(()=>{});return}
+  c.toBlob(bl=>{
+    if(!bl)return;
+    try{const f=new File([bl],'pingponglight-card.png',{type:'image/png'});
+      if(!save&&navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f],title:'PingPongLight',text}).catch(()=>{});return}}catch(e){}
+    const a=document.createElement('a');a.href=URL.createObjectURL(bl);a.download='pingponglight-card.png';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),5000);
+  },'image/png');
+}
+$('#lvSide').addEventListener('click',e=>{if(e.target.closest('#lvShare'))starCardShare(false);else if(e.target.closest('#lvSave'))starCardShare(true)});
+if(!APP&&/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname))window.__ppl2={starCardImg,res:(ok,msg)=>showResult(ok,msg),chDecode,chBlock,chTest:c=>{const o=chDecode(c);if(o){CHP=o;chOpen()}return !!o},st:()=>({st,mode,CHP:!!CHP,CHA:!!CHA,CHW,CHT,si,di})};   // (local preview checks read the picture from here)
+
 /* ================= level and light ================= */
 // The server (server/src/level.js) decides every number; the phone shows them and estimates the experience of a full-accuracy run for the
 // multiplier row. The constants are the ones level.js exports. Offline, the last answer is shown from the cache (localStorage ppl-lvc) and only x1 can be chosen.
@@ -2870,7 +3155,7 @@ function lvCardHTML(s){
   const tt=tid?COS.titleHTML(tid):'';
   const info=s?nm+tt+'<span class="xp">'+TX('經驗 {a} / {b}',{a:s.cur.toLocaleString(),b:s.need.toLocaleString()})+'</span><span class="up">'+TX('升到 {lv} 還差 {n}',{lv:lvTxt(s.lv+1),n:(s.need-s.cur).toLocaleString()})+'</span>'
     :nm+tt+'<span class="up off">'+TX('離線中，暫時無法顯示等級')+'</span>';
-  return '<div class="lvCard" style="--pc:'+c+';--pa:'+lvHexA(c,.3)+';--pb:'+lvHexA(c,.55)+';--pg:'+lvHexA(c,.22)+'"><div class="lvAv">'+ring+'<span class="av">'+(COS?COS.avHTML(COS.avSpec(COS.state.eq.avatar,2),76):'')+'</span><span class="bd">'+(s?lvBadge(s.lv):'<span class="lvb">Lv –</span>')+'</span></div><div class="lvInfo">'+info+'</div>'+lvRecHTML()+'</div>';
+  return '<div class="lvCard" style="--pc:'+c+';--pa:'+lvHexA(c,.3)+';--pb:'+lvHexA(c,.55)+';--pg:'+lvHexA(c,.22)+'"><div class="lvAv">'+ring+'<span class="av">'+(COS?COS.avHTML(COS.avSpec(COS.state.eq.avatar,2),76):'')+'</span><span class="bd">'+(s?lvBadge(s.lv):'<span class="lvb">Lv –</span>')+'</span></div><div class="lvInfo">'+info+'</div>'+lvRecHTML()+'</div><div class="lvShRow"><button class="sm lvShare" id="lvShare">'+TX('分享星卡')+'</button><button class="sm lvShare" id="lvSave">'+TX('儲存圖片')+'</button></div>';
 }
 // six records, all from what this device already knows (no server call)
 function lvRecHTML(){
@@ -2920,12 +3205,14 @@ function lvpRender(tick){
   $('#lvSide').innerHTML=lvCardHTML(s);$('#lvp').style.setProperty('--pg2',lvHexA(lvpColor(),.16));
   $('#lvTop').innerHTML='<div class="lvLt" id="lvLight">'+lvLightHTML(s,L)+'</div>'+(COS?'<div class="lvEq">'+lvEqHTML()+'</div>':'');
   lvExpSet(s,L,buy);
-  const tabs='<button data-t="rw" class="'+(LV.tab==='rw'?'on':'')+'">'+TX('等級之路')+'</button>'+(buy?'<button data-t="buy" class="'+(LV.tab==='buy'?'on':'')+'">'+TX('補充光能')+'</button>':'');
-  $('#lvTabs').innerHTML=tabs;$('#lvTabs').hidden=!buy;
-  const list=$('#lvList'),old=list.querySelector('.lvPath'),keepX=old?old.scrollLeft:0,keep=list.scrollTop,isBuy=LV.tab==='buy';
-  list.innerHTML=isBuy?lvBuyHTML():lvRewardsHTML(s);
-  list.className='lvList'+(isBuy?' lvBuy':' lvPW');
-  if(isBuy){if(keep)list.scrollTop=keep;return}
+  const tabs='<button data-t="rw" class="'+(LV.tab==='rw'?'on':'')+'">'+TX('等級之路')+'</button><button data-t="inv" class="'+(LV.tab==='inv'?'on':'')+'">'+TX('邀請好友')+'</button>'+(buy?'<button data-t="buy" class="'+(LV.tab==='buy'?'on':'')+'">'+TX('補充光能')+'</button>':'');
+  $('#lvTabs').innerHTML=tabs;$('#lvTabs').hidden=false;
+  const list=$('#lvList'),old=list.querySelector('.lvPath'),keepX=old?old.scrollLeft:0,keep=list.scrollTop,isBuy=LV.tab==='buy',isInv=LV.tab==='inv';
+  const ivi=$('#ivIn');if(ivi)INV.draft=ivi.value;   // what was typed in the code box survives a redraw
+  list.innerHTML=isBuy?lvBuyHTML():isInv?lvInvHTML():lvRewardsHTML(s);
+  list.className='lvList'+(isBuy?' lvBuy':isInv?' lvInv':' lvPW');
+  if(isInv&&!INV.d&&ME&&!INV.busy&&!INV.err)invLoad();
+  if(isBuy||isInv){if(keep)list.scrollTop=keep;return}
   const p=list.querySelector('.lvPath'),n=p&&p.querySelector('.lvN.next');
   if(!p)return;
   if(LV.pk&&s){   // opened (or came back to this tab): scroll to the next reward to get
@@ -2964,7 +3251,7 @@ function lvBuyHTML(){
     +'<p><a href="terms.html">'+TX('服務條款')+'</a> · <a href="privacy.html">'+TX('隱私權政策')+'</a></p></div>';
   return h;
 }
-$('#lvTabs').addEventListener('click',e=>{const b=e.target.closest('button[data-t]');if(!b)return;LV.tab=b.dataset.t;LV.pk=true;lvpRender();$('#lvList').scrollTop=0});
+$('#lvTabs').addEventListener('click',e=>{const b=e.target.closest('button[data-t]');if(!b)return;LV.tab=b.dataset.t;LV.pk=true;lvpRender();$('#lvList').scrollTop=0;if(LV.tab==='inv'&&ME){INV.err=false;invLoad()}});   // the invitation page always asks the server again: its state is the truth
 $('#lvSide').addEventListener('click',e=>{if(e.target.closest('#lvNick'))nickOpen('first')});
 $('#lvTop').addEventListener('click',e=>{
   if(e.target.closest('[data-x]')){LV.exp=!LV.exp;lvpRender(true);return}
@@ -3719,7 +4006,7 @@ function onPress(el,fn){let t=-1e9;
 onPress($('#bPause'),()=>{if(paused&&!resumeCD&&!tutOn())resumeGame();else pauseGame()});
 $('#bResume').onclick=resumeGame;
 $('#bRestart').onclick=()=>{$('#pause').classList.add('hidden');lbEnd('quit');doResume();startRun(mode==='prac'?pracCfg.from:0)};
-function skipTut(){tutHold=null;tutPend=null;lsSet('ppl-tut','1');$('#pause').classList.add('hidden');doResume();showSelect()}
+function skipTut(){CHA=null;CHW=false;tutHold=null;tutPend=null;lsSet('ppl-tut','1');$('#pause').classList.add('hidden');doResume();showSelect()}
 
 // in the tutorial, 離開 is the way out of it (marked done, on to the songs); the HUD has no separate skip button
 $('#bQuit').onclick=()=>{if(mode==='tut'){skipTut();return}if(mode==='try'){$('#pause').classList.add('hidden');tryEnd();return}
@@ -3734,7 +4021,7 @@ function audioDiag(){
 function syncSet(){
   audioDiag();$('#sNick').textContent=ME?ME.name:TX('（尚未設定暱稱）');$('#bNick').textContent=ME?TX('變更暱稱'):TX('設定暱稱');
   for(const[k,id]of[['mel','vMel'],['bk','vBk'],['fx','vFx']]){$('#'+id).value=SET[k];$('#'+id+'V').textContent=SET[k]}
-  const tg2=(id,on)=>{const b=$('#'+id);b.setAttribute('aria-checked',String(!!on));b.classList.toggle('on',on)};tg2('tFx',SET.lowFx);tg2('tVib',SET.vib);tg2('tMl',SET.ml!==false);
+  const tg2=(id,on)=>{const b=$('#'+id);b.setAttribute('aria-checked',String(!!on));b.classList.toggle('on',on)};tg2('tFx',SET.lowFx);tg2('tVib',SET.vib);tg2('tMl',SET.ml!==false);tg2('tShade',shadeOn);$('#swShade').style.display=ME?'':'none';
   const ms=Math.round(latS()*1000),lt=(SET.lat==null&&!AC?'':(ms>=0?'+':'')+ms+' ms')+(SET.lat==null?TX('（自動）'):'');   // before the audio has started the device's own delay is not known: no number
   $('#calV').textContent=lt;$('#calCur').textContent=lt;
 }
@@ -3764,10 +4051,10 @@ $('#bWipe').onclick=async()=>{   // two taps: the first one only arms it
   wipeT=-1e9;b.disabled=true;b.textContent=TX('刪除中⋯');
   const j=await api('/lb/delete',{pk:pkey()});b.disabled=false;
   if(!j.ok){b.textContent=TX('刪除失敗，請連線後再次嘗試');setTimeout(()=>{b.textContent=idle},3000);return}
-  frDisconnect();try{for(const k of Object.keys(localStorage))if(/^ppl-(pk|me|hide|lr-|lv)/.test(k))localStorage.removeItem(k)}catch(e){}
+  frDisconnect();try{for(const k of Object.keys(localStorage))if(/^ppl-(pk|me|hide|lr-|lv|inv|shade)/.test(k))localStorage.removeItem(k)}catch(e){}
   lvReset();HIDE.clear();setMe(null);LBC.clear();FD.list=null;FD.code='';lsSet('ppl-fc','');dmClose();FD.dm={};try{localStorage.removeItem('ppl-dmr')}catch(e){}$('#frN').textContent='';b.textContent=TX('已刪除。單人模式的進度仍保留於此裝置');setTimeout(()=>{b.textContent=idle},4000);syncSet();
 };
-$('#bSet').onclick=()=>{initAudio();syncSet();$('#home').classList.add('hidden');$('#set').classList.remove('hidden')};
+$('#bSet').onclick=()=>{initAudio();syncSet();shadeLoad();$('#home').classList.add('hidden');$('#set').classList.remove('hidden')};
 function closeSet(){$('#set').classList.add('hidden');showHome()}
 $('#bSetC').onclick=closeSet;
 $('#set').addEventListener('click',e=>{if(e.target.id==='set')closeSet()});   // tap outside the panel closes it
@@ -3911,11 +4198,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('#bugv').classLi
 navTap('#bGo',()=>{if(RSEL&&RSEL.on){mpSelGo();return}if(!unlocked(si))return;initAudio();goFs();
   if(PR.on){const fa=parseInt(lsGet(failKey(si,di))||'0',10)||0;pracGo(PR.st==='fail'&&fa>0?pracFrom(fa):0,PR.spd);return}
   mode='normal';startRun(0)});
-$('#bNext').onclick=()=>{initAudio();if(mode==='tut'){mode='normal';si=recSong();if(fixDi(si)==null){if(diPref==null)diPref=di;di=3}else diSync();startRun(0)}else if(si+1<SONGS.length&&unlocked(si+1)){si++;diSync();startRun(0)}};   // the card's run is on the beginner level; the player's own level (pmb6-di) is not touched, and diPref puts it back when the next song is picked
+$('#bNext').onclick=()=>{initAudio();if(mode==='tut'&&CHA&&CHW){CHW=false;chStart(CHA);return}if(mode==='tut'){mode='normal';si=recSong();if(fixDi(si)==null){if(diPref==null)diPref=di;di=3}else diSync();startRun(0)}else if(si+1<SONGS.length&&unlocked(si+1)){si++;diSync();startRun(0)}};   // the card's run is on the beginner level; the player's own level (pmb6-di) is not touched, and diPref puts it back when the next song is picked
 $('#bRetry').onclick=()=>{initAudio();startRun(mode==='prac'?pracCfg.from:0)};
 $('#bPrac').onclick=()=>pracGo(+$('#bPrac').dataset.f||0,.75);
 $('#bCont').onclick=()=>{initAudio();startRun(cp.ti)};
-$('#bSel').onclick=()=>{if(mode==='tut')showHome();else showSelect()};
+$('#bSel').onclick=()=>{if(mode==='tut')showHome();else showSelect()};   // (both clear a waiting challenge)
 $('#bFs').onclick=toggleFs;
 // Every button fires on touchend, not on the delayed synthetic click (a quick second tap was being eaten).
 // Bound in the bubble phase so navTap's own touchend runs first; a drag of more than 10px is a scroll, not a tap.
@@ -3961,7 +4248,7 @@ try{PPLI18N.back()}catch(e){}   // the page stayed hidden until now (i18n.js), s
 // hooks for shop.js (shop, collection, trial run); the game itself never depends on it
 window.PPLG={lvFrom:o=>lvFrom(o),lvLoad:f=>lvLoad(f),api,pkey,APP,PF,SET,saveSet,lsGet,lsSet,toast,initAudio,esc,get ME(){return ME},showHome,onTryEnd:null,onMe:null,roomSend(o){if(DU.joined)dsend(o)},busy:()=>st==='play'||st==='ready'||st==='over'||st==='done'||mode==='duel',
   startTry(tr){if(!COS)return;initAudio();tryKeep={si,di};COS.state.trial=tr||null;COS.bump();mode='try';startRun(0)}};
-const PBT_ON=/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)||/[?&]pbtest=1(&|$)/.test(location.search);   // the preview-test hooks (__pb.T) exist only on a local host or with ?pbtest=1; any call marks this page load's runs as off the leaderboard
+const PBT_ON=!APP&&(/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)||/[?&]pbtest=1(&|$)/.test(location.search));   // the preview-test hooks (__pb.T) exist only on a local host or with ?pbtest=1, never in the store app (its pages are served as capacitor://localhost); any call marks this page load's runs as off the leaderboard
 const PBT=o=>{for(const k of Object.keys(o)){const f=o[k];o[k]=(...a)=>{TAINT=true;if(RUN)RUN.ok=false;return f(...a)}}return o};
 window.__pb={get S(){const Gn=st==='play'?G():0;return{st,resolved,n:tg.length,score,combo,balls:balls.map(b=>({x:b.x,y:b.y,v:b.v,ti:b.ti,win:b.win?b.win.edge:-1,depth:b.win?b.win.depth:-1e9,dtT:b.ti>=0?tT(b.ti)-Gn:9,lead:LEAD(b.v)})),F:{...FR},HR:HRe(),BR,nb,tiers:tierCount.slice(),cents:lastCents,cp:cp.ti,G:Gn,useAC,life,mode,paused,resumeCD,lat:latS(),D:D&&D.n}},tg:()=>tg.map(t=>t.t),pv:()=>({key:PV.s&&PV.s.key,i:PV.i,n:PV.n&&PV.n.length,g:PV.g?+PV.g.gain.value.toFixed(3):null,home:HM.on,ac:AC&&AC.state}),pause:pauseGame,resume:resumeGame,shareImg,STARS,il:()=>instLoad,gaps:()=>{const r=[];for(const it of items)for(const o of bumps)r.push(Math.hypot(it.x-o.x,it.y-o.y)-itemGap(o.Rm));return r},
   T:PBT_ON?PBT({setTs(v){ts=v},setSong(i){si=i},skyRes(k,d,ok){const j=SONGS.findIndex(x=>x.key===k);if(j<0)return null;mode='normal';si=j;song=SONGS[si];di=d;D=DIFFS[d];score=1000;tierCount=[tg.length||10,0,0,0];missCount=0;st='done';showResult(ok,'');const r=$('#rsky');return r.hidden?'':r.textContent},rock(x,y,Rm){bumps.push({x,y,Rm,age:1,life:999})},clearRocks(){bumps.length=0},setLife(n){life=n;hud()},runAll:()=>RUN&&RUN.log.slice(),arc:()=>({c:!!arcC,arcs:balls.map(b=>b.arc?{A:b.arc.A,W:b.arc.W,u:b.arc.u,dodged:b.arc.dodged,prev:b.arc.prev}:null),score,fl:floats.map(f=>f.text),ev:evq.slice(),n:lsGet('ppl-arc-n'),last:arcLast}),setResolved(n){resolved=n},onFrame(f){pbF=f},err(v){pbE=v},arcGo(dy,ms){const c=arcC;if(!c)return false;arcC=null;arcStart(c,dy,ms||16);return true},hit(x,y){tap(x,y,{isTrusted:true,pointerId:1})},pracGo:(spd,from)=>pracGo(from,spd),res(ok,msg){st=ok?'done':'over';showResult(ok,msg||'')},pr:()=>({pracCfg,mode,SPD,runFrom,life,RUN:!!RUN,ok:RUN?RUN.ok:null,taint:TAINT,cpti:cp.ti,score,sub:$('#sub').textContent}),run:()=>RUN&&RUN.log.slice(0,12),wn(n){DU.wn=n}}):undefined};   // T: hooks for the preview tests of star arc / practice / first clear

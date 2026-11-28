@@ -100,6 +100,7 @@ function ev(n,d){
       if(d.slot!=='title'&&viaAch(C.byId[d.id]))grant('初得')}   // 初得: the first time an achievement reward (not a title) is worn
     else if(n==='preview'){const s=new Set(jarr('try'));if(d.id)s.add(d.id);jset('try',[...s]);if(s.size>=5)grant('試穿')}
     else if(n==='clear')clearEv(d);
+    else if(n==='arc'){const c=+d.n||0;if(c>=1)grant('穿星者');if(c>=20)grant('穿星者 II');if(c>=100)grant('穿星者 III')}   // 穿星者: star arcs counted so far (game.js, localStorage ppl-arc-n)
   }catch(e){}
 }
 function clearEv(d){   // a normal single-player song was cleared: d = {key, last (ms of the previous clear of this song, 0 if never), paused, musicOff}
@@ -169,6 +170,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&pageOn())closePage(
 addEventListener('resize',()=>{if(pageOn())render()});
 
 // boot: one /ach/sync per start: sends up what this device decided earlier and lets the server give any reward that is new or moved (silent when it cannot be reached)
+try{ev('arc',{n:parseInt(G.lsGet('ppl-arc-n')||'0',10)||0})}catch(e){}   // the count kept before 穿星者 existed counts at the first start
 if(G.ME)setTimeout(upload,4000);                          // once per start (also with nothing local, e.g. after a reinstall)
 window.PPLA={ev,fresh,setServer,grant,sync:()=>{if(G.ME)flush()},flush:showNotes,open:openPage,render,earned,points,list:D.list,get loc(){return LOC},get srv(){return SRV}};
 })();

@@ -777,5 +777,13 @@
  "title.星光樂聖": {
   "name": "Starlight Maestro",
   "desc": "Reach Lv 100 to unlock."
+ },
+ "hit.companion": {
+  "name": "Companion Flare",
+  "desc": "Two flares, one cyan and one gold, cross and spin in opposite directions. Only available by inviting a friend."
+ },
+ "title.threader": {
+  "name": "Star Threader",
+  "desc": "Land 100 Star Arcs in total."
  }
 }

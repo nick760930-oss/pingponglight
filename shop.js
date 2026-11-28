@@ -96,13 +96,16 @@ function applyServer(r){
 }
 // the 30% lock in game.js depends on the mode and on owning the full version: tell it when either changes
 let lockKey='';
+let MODE_TRIED=false;   // a /shop/state request has been answered or has failed at least once
+const modeState=()=>MODE_KNOWN?'known':MODE_TRIED?'fail':'wait';   // 'wait': still asking; 'fail': asked and no usable answer (offline), the 30% lock cannot be decided
 const lockOn=()=>MODE!=='test'&&MODE_KNOWN;   // the 30% lock: never on while the mode is unknown (first visit, offline)
 function lockCheck(){const k=lockOn()+'|'+C.state.own.has('full');if(k!==lockKey){const first=lockKey==='';lockKey=k;if(!first)window.dispatchEvent(new Event('ppl-full'))}}
-async function sync(){try{return await sync0()}finally{lockCheck()}}
+async function sync(){try{return await sync0()}finally{lockCheck();window.dispatchEvent(new Event('ppl-mode'))}}   // ppl-mode: the answer (or the failure) is in: a challenge card waiting for the mode updates its button
 async function sync0(){
-  if(busyT>Date.now())return null;
+  if(busyT>Date.now()){MODE_TRIED=true;return null}   // slowed down (429): counts as no usable answer, not as still asking
   let r;try{r=await G.api('/shop/state',{pk:G.pkey()},6000)}catch(e){r=null}
   if(r&&(r._s===429||r.error==='slow')){busyT=Date.now()+65000}
+  MODE_TRIED=true;
   if(r&&r._s>0&&typeof r.mode==='string'&&!G.APP&&(r.mode==='test'||r.mode==='web')){MODE=r.mode;MODE_KNOWN=true;G.lsSet(LS+'mode',MODE)}
   if(!G.ME){NONAME=true;SRV=false;return r}                   // no nickname: only the mode is taken from the server; what is owned stays local (the server needs a nickname to know the player)
   if(r&&(r.noname===true||r.error==='noname')){NONAME=true;SRV=false;return r}
@@ -212,6 +215,7 @@ function statusOf(it){   // [css class, text]
   if(isOwn(it))return['own',TX('已擁有')];
   if(it.how==='buy')return['pay',priceTxt(it)];
   if(it.how==='sponsor')return['ach',TX('贊助取得')];
+  if(it.how==='invite')return['ach',TX('邀請好友')];
   if(it.how.indexOf('ach:')===0)return['ach',TX('成就')];
   if(it.how.indexOf('lv:')===0)return['ach','Lv '+it.how.slice(3)];
   return['own',TX('預設')]}
@@ -305,7 +309,7 @@ function pview(){
   else if(cat==='share')top='<div class="bx"><span style="'+esc(it.css)+';border-radius:10px;padding:10px 26px;font-size:13px;font-weight:700">'+TX('我的成績 S')+'</span></div>';
   const own=isOwn(it),eq=isEq(it),[sc,st]=statusOf(it);
   let how='';
-  if(!own){how=it.how==='buy'?(it.also?TX('也可由成就「{name}」取得',{name:esc(C.achName(it.also.slice(4)))}):''):it.how==='sponsor'?TX('贊助 NT$90 以上取得'):it.how.indexOf('lv:')===0?TX('達到 Lv {n} 獲得',{n:it.how.slice(3)}):TX('取得方式：{how}',{how:esc(C.howText(it))})}
+  if(!own){how=it.how==='buy'?(it.also?TX('也可由成就「{name}」取得',{name:esc(C.achName(it.also.slice(4)))}):''):it.how==='sponsor'?TX('贊助 NT$90 以上取得'):it.how==='invite'?TX('邀請好友獲得'):it.how.indexOf('lv:')===0?TX('達到 Lv {n} 獲得',{n:it.how.slice(3)}):TX('取得方式：{how}',{how:esc(C.howText(it))})}
   let keep='';
   if(UI.view==='coll'&&own&&it.id!==C.defaults[cat]&&it.id!=='theme.stars'&&(cat==='theme'||['orb','trail','hit'].includes(cat)))keep='<div class="kp"><span>'+TX('連擊變色')+'</span><button class="tog'+(keepOn(it)?' on':'')+'" data-act="keep" role="switch" aria-checked="'+keepOn(it)+'" aria-label="'+TX('連擊變色')+'"></button></div>';
   let b='';
@@ -317,7 +321,7 @@ function pview(){
     else b+='<button class="pri" data-act="use">'+TX('使用')+'</button>';
   }else if(it.how==='buy'&&UI.view==='shop'){
     b+=MODE==='test'?'<button class="gold" data-act="buy">'+TX('取得')+'</button>':unavail(it)?'<button disabled>'+TX('尚未開放')+'</button>':'<button class="gold" data-act="buy">'+TX('購買 {price}',{price:priceTxt(it)})+'</button>';
-  }else if(!own){b+='<button disabled>'+(it.how==='sponsor'?TX('贊助取得'):it.how.indexOf('lv:')===0?TX('等級取得'):TX('成就取得'))+'</button>'}
+  }else if(!own&&it.how!=='invite'){b+='<button disabled>'+(it.how==='sponsor'?TX('贊助取得'):it.how.indexOf('lv:')===0?TX('等級取得'):TX('成就取得'))+'</button>'}
   const priceLine=!own&&it.how==='buy'?'<div class="d" style="color:#ffd36b">'+(MODE==='test'?TX('測試期間免費'):priceTxt(it))+(it.cat==='theme'?TX('　（單買 {n} 件要 NT${price}）',{n:5,price:150}):'')+'</div>':'';
   p.innerHTML=top+'<div class="t">'+esc(it.name)+'</div><div class="d">'+C.emo(it.desc)+'</div>'+priceLine+(how?'<div class="d">'+how+'</div>':'')+(it.limited?'<div class="d" style="color:#c9b6ff">'+TX('限定')+'</div>':'')+keep+'<div class="btns">'+b+'</div>';
   if(vis){const cv=p.querySelector('canvas.big');pvScene(cv,pvT(it))}
@@ -390,5 +394,8 @@ sanitize();
 function apply(r){if(goodOwned(r)){applyServer(r);lockCheck();if(shopOpen())render()}}
 function openCat(cat){UI.cat=cat;open('shop')}   // the shop on one section (game.js: a locked song opens the full version)
 lockCheck();
-window.PPLSHOP={mode:()=>MODE,lockOn,ownsFull:()=>C.state.own.has('full'),openCat,apply,open,close,render,sync,claim,buy,equip,equipTheme,unequipTheme,setCombo,UI,get MODE(){return MODE},set MODE(v){MODE=v},get SRV(){return SRV}};
+window.PPLSHOP={mode:()=>MODE,modeState,get KNOWN(){return MODE_KNOWN},lockOn,ownsFull:()=>C.state.own.has('full'),openCat,apply,open,close,render,sync,claim,buy,equip,equipTheme,unequipTheme,setCombo,UI,get MODE(){return MODE},get SRV(){return SRV}};
+if(!G.APP&&/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname))Object.defineProperties(window.PPLSHOP,{   // test setters: local preview only (the 30% lock must not be switched off from the console of the live site)
+  KNOWN:{get(){return MODE_KNOWN},set(v){MODE_KNOWN=!!v;MODE_TRIED=!v?false:MODE_TRIED}},
+  MODE:{get(){return MODE},set(v){MODE=v}}});
 })();

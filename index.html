@@ -952,6 +952,22 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
 .bugb svg.i .ib{fill:#ffd36b}
 @media (max-height:430px){#end:not(.duel) .res{padding:8px 16px}#end:not(.duel) #rank{font-size:clamp(40px,12vh,56px)!important}#end:not(.duel) .resrow{gap:14px;margin-top:4px}#end:not(.duel) #rgap{display:none}#end:not(.duel) .res>.row{margin-top:6px}.rsh h2{font-size:var(--f-lg)}}   /* a phone on its side: the experience row still fits without scrolling */
 #docv{z-index:7}   /* terms and privacy open over the level page too */
+
+/* starshade HUD, waiting card, challenge card and result line (batch 2) */
+.pgw{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:4px;align-self:center}.pgw #prog{flex:0 0 8px;align-self:stretch}   /* (the progress bar has to stretch: in a column its own align-self:center would make it 0 wide) */
+#shHud{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:14px;font-weight:600;color:#e8ecff;white-space:nowrap}#shHud[hidden]{display:none}
+#shHud .pl{display:inline-flex;align-items:center;gap:7px;min-width:0;padding:2px 12px;border-radius:999px;background:rgba(18,24,60,.82);border:1px solid rgba(150,160,230,.4)}
+#shHud .pl.sh{background:rgba(40,28,84,.82);border-color:rgba(190,170,255,.6)}
+#shHud b{color:#fff;font-size:17px;font-variant-numeric:tabular-nums}#shHud #shNm{overflow:hidden;text-overflow:ellipsis;max-width:11em}
+@media (max-height:430px){#shHud{font-size:12.5px}#shHud b{font-size:15px}#shHud .pl{padding:1px 10px}}
+.shtag{display:inline-block;font-style:normal;font-size:11.5px;font-weight:800;padding:1px 8px;border-radius:7px;background:rgba(190,170,255,.18);color:#d9ccff;border:1px solid rgba(190,170,255,.5)}
+.shc,.chc{max-width:420px;text-align:center}.shaT,.chK{font-size:18px;font-weight:800}.shaS{color:var(--dim);font-size:13px;margin:6px 0 12px}.shaP{font-size:13px;margin:0 0 4px}
+#chGo:disabled{opacity:.6;cursor:default}.chK{font-size:14px;font-weight:600;color:var(--dim)}.chS{font-size:22px;font-weight:800;margin:6px 0}.chG,.chT{font-size:13px;color:var(--dim);margin:2px 0}.chT{color:#ffd36b}
+.rch{text-align:left;font-size:14px;font-weight:800;margin:4px 0 0;padding:3px 12px;border-radius:999px;display:inline-block;background:rgba(255,211,107,.16);color:#ffd36b}.rch.no{background:rgba(255,120,140,.14);color:#ff9aa8}.rch[hidden]{display:none}
+.rchal{margin-top:10px;width:100%}.rchal[hidden]{display:none}
+.ivB{padding:6px 4px;text-align:left;max-width:560px}.ivB h3{margin:0 0 6px;font-size:16px}.ivCode{display:flex;align-items:center;gap:10px;margin:8px 0;flex-wrap:wrap}.ivCode b{font-size:24px;letter-spacing:5px;color:var(--accent)}
+.ivB p{font-size:13px;margin:6px 0}.ivB .dim{color:var(--dim)}.ivIn{display:flex;align-items:center;gap:8px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(150,160,230,.28);flex-wrap:wrap}.ivIn input{font:inherit;font-size:var(--f-lg);color:var(--fg);background:rgba(0,0,0,.28);border:1px solid var(--ln-strong);border-radius:var(--r-m);padding:8px 12px;width:150px;text-transform:uppercase;letter-spacing:3px;user-select:text;-webkit-user-select:text}.ivIn input:focus{outline:none;border-color:var(--accent)}.ivIn input::placeholder{letter-spacing:0;text-transform:none;font-size:var(--f-sm)}.ivMsg{font-size:13px;color:#ffb86b;min-height:1.2em}
+.lvShRow{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}.lvShare{margin-top:0}
 </style>
 </head>
 <body>
@@ -960,7 +976,7 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
 
 <div class="hud" id="hud">
   <div class="hl"><h1>PingPongLight</h1><div class="sub" id="sub">節奏彈球遊戲</div></div>
-  <div id="prog"><div id="pf"></div></div>
+  <div class="pgw"><div id="shHud" hidden><span class="pl you">你 <b id="shMe">0</b></span><span class="pl sh"><em class="shtag">星影</em><span id="shNm"></span><b id="shSc">0</b></span></div><div id="prog"><div id="pf"></div></div></div>
   <div class="hr"><div style="display:flex;gap:10px;align-items:center;justify-content:flex-end"><div id="score">0</div><button id="bPause" aria-label="暫停">❚❚</button><button id="bFs" aria-label="全螢幕">⛶</button></div><div id="lifeW"><div id="life"></div></div><div class="sub" id="combo">&nbsp;</div></div>
 </div>
 
@@ -1043,12 +1059,14 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
 
 <div class="ov hidden" id="end"><div class="card res">
   <div class="rsh"><span class="kicker" id="rk"></span><h2 id="rt"></h2><span id="rbest"></span></div>
+  <div class="rch" id="rch" hidden></div>
   <div class="resrow">
     <div class="rleft"><div id="rank"></div><div id="rgap" hidden></div><div id="rscore">0</div><div id="rnew"></div>
       <div class="rlb" id="rlb" hidden><span id="rlbT"></span><button id="rlbB" hidden>查看排行榜</button></div></div>
     <div class="rright"><div class="jg" id="rjg"></div><div class="rst" id="rst"></div>
       <div class="xpr" id="xpr" hidden></div>
-      <button class="skyHint" id="rsky" hidden></button></div>
+      <button class="skyHint" id="rsky" hidden></button>
+      <button class="rchal" id="bChal" hidden>邀請好友挑戰</button></div>
   </div>
   <div class="row"><button class="pri" id="bNext">下一關</button><button class="pri" id="bCont">從存檔點繼續</button><button id="bRetry">再挑戰一次</button><button id="bPrac" style="display:none"></button><button id="bSel">關卡選擇</button><button id="bShare">分享成績</button></div>
   <div class="dend" id="dEnd">
@@ -1082,6 +1100,16 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
     </div>
   </div>
   <p id="dMsg" style="color:#ffb86b;font-size:13px;min-height:1.2em"></p>
+</div></div>
+
+<div class="ov hidden" id="shAsk"><div class="card shc" role="dialog" aria-modal="true" aria-labelledby="shaT">
+  <div class="shaT" id="shaT">正在尋找對手⋯</div><div class="shaS" id="shaS"></div>
+  <p class="shaP">目前沒有可配對的玩家，可改與其他玩家的最佳紀錄對戰。</p>
+  <div class="row"><button class="pri" id="shaGo">與星影對戰</button><button id="shaWait">繼續等待</button></div>
+</div></div>
+<div class="ov hidden" id="chv"><div class="card chc" role="dialog" aria-modal="true" aria-labelledby="chK">
+  <div class="chK" id="chK"></div><div class="chS" id="chS"></div><div class="chG" id="chG">分數超過即挑戰成功。</div><div class="chT" id="chT" hidden>首次遊玩將先進行約 1 分鐘的新手教學。</div>
+  <div class="row"><button class="pri" id="chGo">接受挑戰</button><button id="chNo">返回主畫面</button></div>
 </div></div>
 
 <div class="ov hidden" id="docv"><div class="card" role="dialog" aria-modal="true" aria-labelledby="docT" tabindex="-1">
@@ -1122,6 +1150,7 @@ svg.li{width:1.1em;height:1.1em;vertical-align:-.2em;flex:0 0 auto;color:var(--l
     <span class="sw"><label id="lFx" for="tFx">減少特效</label><button class="tog" id="tFx" role="switch" aria-labelledby="lFx"></button></span>
     <span class="sw"><label id="lMl" for="tMl">音樂隨連擊變化</label><button class="tog" id="tMl" role="switch" aria-labelledby="lMl"></button></span>
     <span class="sw"><label id="lVib" for="tVib">震動回饋</label><button class="tog" id="tVib" role="switch" aria-labelledby="lVib"></button></span>
+    <span class="sw" id="swShade"><label id="lShade" for="tShade">我的紀錄可當星影</label><button class="tog" id="tShade" role="switch" aria-labelledby="lShade"></button></span>
   </div>
   <div class="srow" id="langRow"><label id="lLang">語言 Language</label><div class="seg" id="langSeg" role="radiogroup" aria-labelledby="lLang"></div></div>
   <div class="srow"><label>暱稱</label><span class="v" id="sNick" style="flex:1 1 auto;text-align:left;margin-left:6px"></span><button id="bNick">變更暱稱</button></div>

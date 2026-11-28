@@ -630,5 +630,18 @@
   "name": "Against the Odds",
   "desc": "Hint: “It isn’t over yet” → drop to just 1 life point at some moment, and still finish with an A or better.",
   "reward": "Title “Against the Odds”"
+ },
+ "穿星者": {
+  "name": "Star Threader",
+  "desc": "Land your first Star Arc."
+ },
+ "穿星者 II": {
+  "name": "Star Threader II",
+  "desc": "Land 20 Star Arcs in total."
+ },
+ "穿星者 III": {
+  "name": "Star Threader III",
+  "desc": "Land 100 Star Arcs in total.",
+  "reward": "Title “Star Threader”"
  }
 }
